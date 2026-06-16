@@ -1,0 +1,397 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QCM numériques — UE 1.1 Biostatistiques</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6a6a66;--line:#e3e1d8;
+--vrai:#1a7f37;--vraibg:#e9f6ec;--faux:#c0392b;--fauxbg:#fbecea;--neu:#9a6a00;--acc:#7c3aed;--warn:#c0392b;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,245,241,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--acc);margin:30px 2px 12px;padding-bottom:6px;border-bottom:2px solid #e7ddfb}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}
+.stem{font-weight:500;margin-bottom:10px}
+.extra{margin:0 0 12px}
+.data{background:#f0efe9;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.6}
+.data.exo{border-style:dashed}
+.extag{display:inline-block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--neu);background:#fbf2dd;border:1px solid #f0e0b6;border-radius:4px;padding:1px 6px;margin-right:8px;vertical-align:1px}
+.dt{border-collapse:collapse;width:100%;font-size:13.5px;margin:4px 0;background:#fff}
+.dt th,.dt td{border:1px solid var(--line);padding:6px 9px;text-align:center}
+.dt th{background:#f0efe9;font-weight:600}
+.dt td:first-child,.dt th:first-child{text-align:left}
+.numrow{display:flex;align-items:center;gap:10px;margin:4px 0 2px}
+.numin{width:160px;font:inherit;font-size:17px;font-weight:600;padding:9px 12px;border:1.5px solid #b9b7ad;border-radius:9px;background:#fff;text-align:right}
+.numin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #efe6fd}
+.q.done .numin{cursor:default}
+.numin.good{border-color:var(--vrai);background:var(--vraibg)}
+.numin.bad{border-color:var(--faux);background:var(--fauxbg)}
+.unit{color:var(--mut);font-size:14px;font-weight:600}
+.actions{display:flex;gap:8px;margin-top:12px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.06)}
+button.show:hover{background:#f0efe9}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:6px}
+.sol{font-size:14.5px;line-height:1.65}
+.warn{color:var(--warn);font-weight:600;display:block;margin-top:6px}
+.note-i{color:#1f3d5c;display:block;margin-top:6px;font-style:italic}
+footer{max-width:820px;margin:24px auto;padding:0 16px;color:var(--mut);font-size:12.5px}
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}.numin{width:120px}}
+</style></head><body>
+<header>
+<h1>UE 1.1 Biomédecine quantitative — QCM numériques</h1>
+<div class="sub">Calcule chaque réponse, saisis le nombre (virgule ou point) puis Valider (ou Entrée). Tolérance d'arrondi incluse. L'unité attendue est affichée à droite du champ.</div>
+<div class="scorebar">
+<span class="pill">Faites : <b id="s-done">0/29</b></span>
+<span class="pill">Exactes : <b id="s-ok">0/29</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</header>
+<div class="wrap">
+<div class="sect">A — Tests diagnostiques (table BNP : 126 patients, 40 IC ; VP 26 · FP 11 · FN 14 · VN 75)</div><div class="q" id="A1" data-exp="65.0" data-tol="0.5">
+<div class="qhead"><span class="qnum">Diag · Se</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>sensibilité</b> du BNP.</div>
+<div class="extra"><table class="dt"><thead><tr><th></th><th>IC + (malades)</th><th>IC − (sains)</th><th>Total</th></tr></thead><tbody><tr><td>BNP +</td><td>VP = 26</td><td>FP = 11</td><td>37</td></tr><tr><td>BNP −</td><td>FN = 14</td><td>VN = 75</td><td>89</td></tr><tr><td>Total</td><td>40</td><td>86</td><td>126</td></tr></tbody></table></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 65,0" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>65,0 %</b></div><div class="sol"><b>Se = VP/(VP+FN) = P(T+ | M+)</b> = 26/40 = <b>65,0 %</b>.<span class='warn'>⚠️ 26/40, PAS 26/37 (ça c'est la VPP) → colonne des malades.</span></div></div>
+</div><div class="q" id="A2" data-exp="87.2" data-tol="0.6">
+<div class="qhead"><span class="qnum">Diag · Sp</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>spécificité</b> du BNP.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 87,2" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>87,2 %</b></div><div class="sol"><b>Sp = VN/(VN+FP) = P(T− | M−)</b> = 75/86 = <b>87,2 %</b>.<span class='note-i'>Se et Sp ne dépendent PAS de la prévalence.</span></div></div>
+</div><div class="q" id="A3" data-exp="70.3" data-tol="0.6">
+<div class="qhead"><span class="qnum">Diag · VPP</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>valeur prédictive positive (VPP)</b>.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 70,3" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>70,3 %</b></div><div class="sol"><b>VPP = VP/(VP+FP) = P(M+ | T+)</b> = 26/37 = <b>70,3 %</b>.<span class='note-i'>VPP/VPN varient avec la prévalence → on lit sur la <i>ligne</i> BNP+.</span></div></div>
+</div><div class="q" id="A4" data-exp="84.3" data-tol="0.6">
+<div class="qhead"><span class="qnum">Diag · VPN</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>valeur prédictive négative (VPN)</b>.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 84,3" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>84,3 %</b></div><div class="sol"><b>VPN = VN/(VN+FN) = P(M− | T−)</b> = 75/89 = <b>84,3 %</b>.</div></div>
+</div><div class="q" id="A5" data-exp="31.7" data-tol="0.6">
+<div class="qhead"><span class="qnum">Diag · Prévalence</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>prévalence</b> de l'IC dans cet échantillon (probabilité pré-test).</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 31,7" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>31,7 %</b></div><div class="sol"><b>Prévalence = malades/total</b> = 40/126 = <b>31,7 %</b>.</div></div>
+</div><div class="q" id="A6" data-exp="5.1" data-tol="0.2">
+<div class="qhead"><span class="qnum">Diag · RV+</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule le <b>rapport de vraisemblance positif (RV+)</b>.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 5,1" autocomplete="off">
+  <span class="unit">(sans unité)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>5,1 (sans unité)</b></div><div class="sol"><b>RV+ = Se/(1−Sp)</b> = 0,65/(1−0,872) = 0,65/0,128 = <b>5,1</b>.<span class='note-i'>RV+ &gt; 10 → test positif très informatif. Ici intermédiaire.</span></div></div>
+</div><div class="q" id="A7" data-exp="0.4" data-tol="0.04">
+<div class="qhead"><span class="qnum">Diag · RV−</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule le <b>rapport de vraisemblance négatif (RV−)</b>.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 0,40" autocomplete="off">
+  <span class="unit">(sans unité)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>0,4 (sans unité)</b></div><div class="sol"><b>RV− = (1−Se)/Sp</b> = 0,35/0,872 = <b>0,40</b>.<span class='note-i'>RV− &lt; 0,1 → test négatif très informatif. Ici 0,40 = peu discriminant.</span></div></div>
+</div><div class="q" id="A8" data-exp="0.52" data-tol="0.02">
+<div class="qhead"><span class="qnum">Diag · Youden</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule l'<b>indice de Youden</b> (J).</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 0,52" autocomplete="off">
+  <span class="unit">(sans unité)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>0,52 (sans unité)</b></div><div class="sol"><b>J = Se + Sp − 1</b> = 0,65 + 0,872 − 1 = <b>0,52</b>.<span class='note-i'>J ∈ [0 ; 1] ; plus proche de 1 = meilleur test. Sert à choisir le seuil optimal (ROC).</span></div></div>
+</div><div class="q" id="A9" data-exp="80.2" data-tol="0.6">
+<div class="qhead"><span class="qnum">Diag · Exactitude</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule l'<b>exactitude</b> (accuracy) du test.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 80,2" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>80,2 %</b></div><div class="sol"><b>Exactitude = (VP+VN)/N</b> = (26+75)/126 = 101/126 = <b>80,2 %</b>.</div></div>
+</div><div class="sect">B — Épidémiologie descriptive</div><div class="q" id="B1" data-exp="5.0" data-tol="0.1">
+<div class="qhead"><span class="qnum">Épidémio · Incidence</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule l'<b>incidence</b> du paludisme.</div>
+<div class="extra"><div class="data">Population 2017 : <b>1000 habitants</b> · nouveaux cas de paludisme : <b>5</b> · décès toutes causes : <b>10</b> · dont décès dus au paludisme : <b>1</b>.</div></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 5" autocomplete="off">
+  <span class="unit">‰ (pour 1000)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>5,0 ‰ (pour 1000)</b></div><div class="sol"><b>Incidence = nouveaux cas/population à risque</b> = 5/1000 = <b>5 ‰</b> (0,5 %).</div></div>
+</div><div class="q" id="B2" data-exp="10.0" data-tol="0.1">
+<div class="qhead"><span class="qnum">Épidémio · Mortalité brute</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>mortalité brute (globale)</b> de la population.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 10" autocomplete="off">
+  <span class="unit">‰ (pour 1000)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>10,0 ‰ (pour 1000)</b></div><div class="sol"><b>Mortalité brute = décès totaux/population</b> = 10/1000 = <b>10 ‰</b> (1 %).</div></div>
+</div><div class="q" id="B3" data-exp="20.0" data-tol="0.5">
+<div class="qhead"><span class="qnum">Épidémio · Létalité</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>létalité</b> du paludisme.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 20" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>20,0 %</b></div><div class="sol"><b>Létalité = décès dus à la maladie/malades</b> = 1/5 = <b>20 %</b>.<span class='warn'>⚠️ Dénominateur = les <i>malades</i> (5), pas la population.</span></div></div>
+</div><div class="q" id="B4" data-exp="1.0" data-tol="0.1">
+<div class="qhead"><span class="qnum">Épidémio · Mortalité spé</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>mortalité spécifique</b> du paludisme.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 1" autocomplete="off">
+  <span class="unit">‰ (pour 1000)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>1,0 ‰ (pour 1000)</b></div><div class="sol"><b>Mortalité spécifique = décès dus à la maladie/population totale</b> = 1/1000 = <b>1 ‰</b>.<span class='note-i'>Même numérateur que la létalité (1 décès), dénominateur différent → 1 ‰ vs 20 %.</span></div></div>
+</div><div class="q" id="B5" data-exp="30.0" data-tol="0.5">
+<div class="qhead"><span class="qnum">Épidémio · Taux d'attaque</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule le <b>taux d'attaque</b>.</div>
+<div class="extra"><div class="data exo"><span class="extag">exercice type</span>Après un repas collectif, sur <b>80 convives</b>, <b>24</b> développent une toxi-infection alimentaire.</div></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 30" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>30,0 %</b></div><div class="sol"><b>Taux d'attaque = malades/exposés</b> = 24/80 = <b>30 %</b>.<span class='note-i'>= une incidence cumulée sur une période courte et définie (TIAC, épidémie).</span></div></div>
+</div><div class="q" id="B6" data-exp="5.0" data-tol="0.2">
+<div class="qhead"><span class="qnum">Épidémio · Densité d'incidence</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>densité d'incidence</b> (taux d'incidence), exprimée pour 100 personnes-années.</div>
+<div class="extra"><div class="data exo"><span class="extag">exercice type</span>Dans une cohorte, on observe <b>15 nouveaux cas</b> pour un total de <b>300 personnes-années</b> de suivi.</div></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 5" autocomplete="off">
+  <span class="unit">pour 100 PA</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>5,0 pour 100 PA</b></div><div class="sol"><b>Densité d'incidence = cas/personnes-temps</b> = 15/300 = 0,05 = <b>5 pour 100 personnes-années</b>.<span class='note-i'>Le dénominateur intègre le temps de suivi (≠ incidence cumulée, dénominateur = effectif).</span></div></div>
+</div><div class="q" id="B7" data-exp="1.28" data-tol="0.03">
+<div class="qhead"><span class="qnum">Épidémio · RSM</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule le <b>ratio standardisé de mortalité (RSM / SMR)</b>.</div>
+<div class="extra"><div class="data exo"><span class="extag">exercice type</span>Dans une région, <b>32 décès</b> sont observés alors que <b>25</b> étaient attendus (taux de la population de référence appliqués).</div></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 1,28" autocomplete="off">
+  <span class="unit">(sans unité)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>1,28 (sans unité)</b></div><div class="sol"><b>RSM = décès observés/décès attendus</b> = 32/25 = <b>1,28</b>.<span class='note-i'>RSM &gt; 1 → surmortalité ; &lt; 1 → sous-mortalité. Méthode de standardisation indirecte.</span></div></div>
+</div><div class="sect">C — Risque & thérapeutique</div><div class="q" id="C1" data-exp="40.5" data-tol="0.6">
+<div class="qhead"><span class="qnum">Risque · R(décès) RT</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Essai RT seule vs RT + chimio. Calcule le <b>risque de décès dans le bras RT seule</b>.</div>
+<div class="extra"><table class="dt"><thead><tr><th>Bras</th><th>N inclus</th><th>Décès à la date de point</th></tr></thead><tbody><tr><td>Radiothérapie seule (RT)</td><td>126</td><td>51</td></tr><tr><td>RT + chimiothérapie</td><td>125</td><td>37</td></tr></tbody></table></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 40,5" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>40,5 %</b></div><div class="sol"><b>Risque = décès/inclus</b> = 51/126 = <b>40,5 %</b>.</div></div>
+</div><div class="q" id="C2" data-exp="29.6" data-tol="0.6">
+<div class="qhead"><span class="qnum">Risque · R(décès) RT+C</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule le <b>risque de décès dans le bras RT + chimio</b>.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 29,6" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>29,6 %</b></div><div class="sol"><b>Risque = décès/inclus</b> = 37/125 = <b>29,6 %</b>.</div></div>
+</div><div class="q" id="C3" data-exp="0.73" data-tol="0.03">
+<div class="qhead"><span class="qnum">Risque · RR décès</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule le <b>risque relatif (RR) de décès</b> (RT + chimio vs RT seule).</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 0,73" autocomplete="off">
+  <span class="unit">(sans unité)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>0,73 (sans unité)</b></div><div class="sol"><b>RR = risque(RT+chimio)/risque(RT)</b> = 0,296/0,405 = <b>0,73</b>.<span class='note-i'>RR &lt; 1 → la chimio est associée à moins de décès (effet protecteur).</span></div></div>
+</div><div class="q" id="C4" data-exp="10.9" data-tol="0.6">
+<div class="qhead"><span class="qnum">Risque · RAR (ARR)</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>réduction absolue du risque (RAR / ARR)</b> de décès.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 10,9" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>10,9 %</b></div><div class="sol"><b>RAR = risque(RT) − risque(RT+chimio)</b> = 40,5 − 29,6 = <b>10,9 %</b> (points de %).</div></div>
+</div><div class="q" id="C5" data-exp="26.9" data-tol="1.5">
+<div class="qhead"><span class="qnum">Risque · RRR</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule la <b>réduction relative du risque (RRR)</b> de décès.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 27" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>26,9 %</b></div><div class="sol"><b>RRR = RAR/risque(RT) = 1 − RR</b> = 10,9/40,5 = 1 − 0,73 = <b>26,9 %</b> (≈ 27 %).<span class='warn'>⚠️ Ne pas confondre RRR (relative, ≈27 %) et RAR (absolue, 10,9 %).</span></div></div>
+</div><div class="q" id="C6" data-exp="10.0" data-tol="0.5">
+<div class="qhead"><span class="qnum">Risque · NNT</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule le <b>nombre de sujets à traiter (NNT)</b> pour éviter un décès.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 10" autocomplete="off">
+  <span class="unit">patients</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>10,0 patients</b></div><div class="sol"><b>NNT = 1/RAR</b> = 1/0,109 = 9,2 → <b>10</b> (arrondi à l'entier <i>supérieur</i>).<span class='note-i'>Il faut traiter 10 patients par chimio pour éviter 1 décès.</span></div></div>
+</div><div class="q" id="C7" data-exp="4.0" data-tol="0.1">
+<div class="qhead"><span class="qnum">Risque · RR cohorte</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cohorte tabac → BPCO. Calcule le <b>risque relatif (RR)</b> de BPCO chez les fumeurs.</div>
+<div class="extra"><table class="dt"><thead><tr><th></th><th>BPCO</th><th>Pas de BPCO</th><th>Total</th></tr></thead><tbody><tr><td>Fumeurs (exposés)</td><td>40</td><td>160</td><td>200</td></tr><tr><td>Non-fumeurs</td><td>10</td><td>190</td><td>200</td></tr></tbody></table></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 4" autocomplete="off">
+  <span class="unit">(sans unité)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>4,0 (sans unité)</b></div><div class="sol"><b>RR = (40/200)/(10/200)</b> = 0,20/0,05 = <b>4,0</b>.<span class='note-i'>RR &gt; 1 → facteur délétère ; calculable car cohorte (incidence connue).</span></div></div>
+</div><div class="q" id="C8" data-exp="15.0" data-tol="0.5">
+<div class="qhead"><span class="qnum">Risque · Différence de risque</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Même cohorte. Calcule la <b>différence de risque</b> (risque attribuable) de BPCO.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 15" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>15,0 %</b></div><div class="sol"><b>DR = risque exposés − risque non exposés</b> = 20 % − 5 % = <b>15 %</b>.</div></div>
+</div><div class="q" id="C9" data-exp="75.0" data-tol="1.0">
+<div class="qhead"><span class="qnum">Risque · Fraction attribuable</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Même cohorte. Calcule la <b>fraction de risque attribuable chez les exposés</b>.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 75" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>75,0 %</b></div><div class="sol"><b>FAr = (RR − 1)/RR</b> = (4 − 1)/4 = <b>75 %</b>.<span class='note-i'>75 % des BPCO chez les fumeurs sont imputables au tabac.</span></div></div>
+</div><div class="q" id="C10" data-exp="3.5" data-tol="0.1">
+<div class="qhead"><span class="qnum">Risque · OR cas-témoin</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Étude cas-témoin tabac → cancer. Calcule l'<b>odds ratio (OR)</b>.</div>
+<div class="extra"><table class="dt"><thead><tr><th></th><th>Cas (cancer)</th><th>Témoins</th></tr></thead><tbody><tr><td>Exposés (tabac)</td><td>a = 60</td><td>b = 30</td></tr><tr><td>Non exposés</td><td>c = 40</td><td>d = 70</td></tr><tr><td>Total</td><td>100</td><td>100</td></tr></tbody></table></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 3,5" autocomplete="off">
+  <span class="unit">(sans unité)</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>3,5 (sans unité)</b></div><div class="sol"><b>OR = ad/bc</b> = (60×70)/(30×40) = 4200/1200 = <b>3,5</b>.<span class='warn'>⚠️ En cas-témoin : ni incidence ni RR → seul l'OR (≈ RR si maladie rare).</span></div></div>
+</div><div class="sect">D — Survie & pronostic</div><div class="q" id="D1" data-exp="75.0" data-tol="0.5">
+<div class="qhead"><span class="qnum">Survie · à 5 ans</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Calcule le <b>taux de survie à 5 ans</b>.</div>
+<div class="extra"><div class="data exo"><span class="extag">exercice type</span>Cohorte de <b>120 patients</b> suivis 5 ans, <b>sans perdu de vue</b> : <b>30 décès</b> à 5 ans.</div></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 75" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>75,0 %</b></div><div class="sol"><b>Survie = vivants/total</b> = (120 − 30)/120 = 90/120 = <b>75 %</b>.<span class='note-i'>Calcul direct valable car aucun perdu de vue ; sinon → estimateur de Kaplan-Meier (censures).</span></div></div>
+</div><div class="q" id="D2" data-exp="14.0" data-tol="0.5">
+<div class="qhead"><span class="qnum">Survie · médiane</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est la <b>médiane de survie</b> ?</div>
+<div class="extra"><div class="data exo"><span class="extag">exercice type</span>Sur la courbe de Kaplan-Meier d'un groupe, la probabilité de survie franchit la barre des <b>50 %</b> à <b>14 mois</b>.</div></div>
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 14" autocomplete="off">
+  <span class="unit">mois</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>14,0 mois</b></div><div class="sol"><b>Médiane de survie = temps où S(t) = 50 %</b> = <b>14 mois</b>.<span class='warn'>⚠️ Si la courbe ne descend jamais sous 50 % → médiane « non atteinte » (cf. essai RT±chimio).</span></div></div>
+</div><div class="q" id="D3" data-exp="25.0" data-tol="0.5">
+<div class="qhead"><span class="qnum">Survie · mortalité à 5 ans</span><span class="qtype">réponse numérique</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Même cohorte (120 patients, 30 décès à 5 ans). Calcule la <b>mortalité cumulée à 5 ans</b>.</div>
+
+<div class="numrow">
+  <input class="numin" type="text" inputmode="decimal" placeholder="ex : 25" autocomplete="off">
+  <span class="unit">%</span>
+</div>
+<div class="actions"><button class="validate" type="button">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : <b>25,0 %</b></div><div class="sol"><b>Mortalité cumulée = décès/total = 1 − survie</b> = 30/120 = <b>25 %</b> (= 100 − 75).</div></div>
+</div>
+<footer>29 questions · 4 familles. Sources : annale UE 1.1 2023-2024 S1 (table BNP, paludisme, essai RT±chimio, cohorte/cas-témoin) + Ronéo Cours 1-2. Les encarts « exercice type » (taux d'attaque, densité d'incidence, RSM, survie) sont des exercices de calcul à données génériques. Révision personnelle.</footer>
+</div>
+<script>
+const $=s=>document.querySelectorAll(s);
+function parseNum(s){if(s==null)return null;s=(''+s).trim().replace(/\s/g,'').replace('%','').replace('‰','').replace(',','.');if(s==='')return null;const v=parseFloat(s);return isNaN(v)?null:v;}
+function gradeNum(q){
+  if(q.classList.contains('done'))return;
+  const inp=q.querySelector('.numin');const val=parseNum(inp.value);
+  const exp=parseFloat(q.dataset.exp),tol=parseFloat(q.dataset.tol);
+  const ok=val!==null&&Math.abs(val-exp)<=tol;
+  inp.classList.add(ok?'good':'bad');inp.readOnly=true;
+  q.classList.add('done');q.dataset.result=ok?'1':'0';
+  const st=q.querySelector('.status');st.textContent=ok?'✓ exact':'✗ faux';st.className='status '+(ok?'ok':'ko');
+  q.querySelector('.correction').hidden=false;q.querySelector('.validate').disabled=true;
+  updateScore();
+}
+function reveal(q){
+  if(q.classList.contains('done'))return;
+  q.classList.add('done');q.dataset.result='skip';
+  const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  q.querySelector('.numin').readOnly=true;q.querySelector('.validate').disabled=true;
+  q.querySelector('.correction').hidden=false;updateScore();
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const ok=qs.filter(q=>q.dataset.result==='1').length;
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=ok+'/'+all;
+}
+document.addEventListener('click',e=>{
+  const v=e.target.closest('.validate');if(v){gradeNum(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){const inp=e.target.closest('.numin');if(inp){e.preventDefault();gradeNum(inp.closest('.q'));}}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>$('.q').forEach(reveal));
+updateScore();
+</script>
+</body></html>

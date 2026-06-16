@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exos UE 1.1 — Essai thérapeutique</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6a6a66;--line:#e3e1d8;
+--vrai:#1a7f37;--vraibg:#e9f6ec;--faux:#c0392b;--fauxbg:#fbecea;--neu:#9a6a00;--acc:#0b7285;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,245,241,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}.extra{margin:0 0 12px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#b9b7ad;background:#faf9f5}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#e3f1f3}.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#eef3f3}button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f1f0ea}.citem:last-child{border-bottom:0}.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.v-neu .cv{color:var(--neu);font-weight:600}
+.note{background:#eef5f5;border:1px solid #d3e6e6;border-radius:8px;padding:9px 12px;font-size:14px;margin:6px 0 10px;color:#1c4242}.rappel{margin:0}
+footer{max-width:820px;margin:24px auto;padding:0 16px;color:var(--mut);font-size:12.5px}
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+</style></head><body>
+<header>
+<h1>UE 1.1 Biomédecine quantitative — Exercices d'ED : Essai thérapeutique</h1>
+<div class="sub">10 QCM corrigés (double insu, randomisation, NSN/puissance, risques α/β, comparabilité, validité externe). Coche tes réponses, clique sur Valider.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/10</b></span>
+<span class="pill">Score : <b id="s-ok">0</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</header>
+<div class="wrap">
+<div class="sect">QCM — Essai thérapeutique (10 questions)</div>
+<div class="q" id="Q1" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un essai thérapeutique comparant l'efficacité de deux traitements médicamenteux est réalisé en <b>double insu (double aveugle)</b>. Le but du double insu est :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">De faire en sorte que ni le patient ni le médecin ne soit au courant du traitement reçu</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">De continuer à assurer une comparabilité des groupes de traitement pendant la réalisation de l'essai</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">De permettre une attribution au hasard des deux traitements à chaque patient</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">De faire en sorte que seuls les patients sachent quels traitements ils reçoivent</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">De faire en sorte que seuls les médecins soient au courant des traitements reçus</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AB</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Définition du double insu : ni le patient ni le médecin ne connaît le traitement reçu.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le double aveugle maintient la comparabilité des groupes pendant l'essai (évite les biais de suivi/évaluation).</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'attribution au hasard, c'est le tirage au sort (randomisation), pas le double insu.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — C'est l'inverse : le patient ne doit PAS savoir quel traitement il reçoit.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — C'est l'inverse : le médecin ne doit PAS le savoir non plus.</div></div>
+</div><div class="q" id="Q2" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Lors de la conception d'un essai clinique, le calcul du nombre de sujets nécessaires permet :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il sera d'autant plus grand que la différence entre les 2 traitements sera grande</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">De rejeter l'hypothèse nulle avec un risque de première espèce donné</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">D'avoir une puissance suffisante pour rejeter l'hypothèse nulle quand une différence cliniquement significative existe effectivement</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">D'avoir toujours une différence statistiquement significative lors des tests</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">De ne pas passer à côté d'une efficacité réelle par manque de puissance</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : CE</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le NSN augmente d'autant que la différence à mettre en évidence est PETITE.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Rejeter H0 avec un risque α donné n'est pas l'objectif du calcul du NSN.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Objectif du NSN : avoir la puissance suffisante pour rejeter H0 si une différence cliniquement significative existe réellement.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — « Avoir toujours » une différence significative n'a pas de sens.</div><div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le NSN évite de passer à côté d'une efficacité réelle par manque de puissance (ne pas garder H0 alors qu'elle est fausse).</div></div>
+</div><div class="q" id="Q3" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">On souhaite comparer l'efficacité d'un nouvel antihypertenseur B à celle d'un antihypertenseur de référence A. Proposition(s) exacte(s) :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Le traitement A est attribué à tous les patients</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">On effectue un tirage au sort pour attribuer le traitement A ou le traitement B</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">On crée un groupe « patients avec hypertension » et un groupe « patients sans hypertension »</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Que les patients aient le traitement A ou B, la mesure de la pression artérielle sera réalisée</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Aucune de ces propositions n'est exacte</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BD</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Attribuer A à tous casserait le principe de comparaison (il faut 2 bras).</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le tirage au sort (randomisation) attribue A ou B.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les 2 bras incluent des malades (hypertendus) de caractéristiques comparables ; pas de bras « sans hypertension ».</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le critère (pression artérielle) est mesuré chez TOUS les patients, quel que soit le bras.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — B et D sont exactes.</div></div>
+</div><div class="q" id="Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la randomisation dans un essai comparant un traitement A à un traitement B :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle permet d'obtenir des groupes de sujets ayant des caractéristiques comparables</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Elle permet d'éviter les biais de sélection des sujets</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Elle permet à chaque patient d'avoir la même probabilité de recevoir l'un ou l'autre traitement</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Elle permet d'allouer aléatoirement les traitements A ou B</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Aucune de ces propositions n'est exacte</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCD</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — But de la randomisation : obtenir des groupes comparables.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle évite le biais de sélection.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Chaque patient a la même probabilité de recevoir l'un ou l'autre.</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Allocation aléatoire des traitements.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — A, B, C et D sont exactes.</div></div>
+</div><div class="q" id="Q5" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans un essai thérapeutique, pour s'assurer d'être en capacité de montrer une différence significative entre le traitement testé A et la référence :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il n'est pas nécessaire de calculer au préalable un nombre de sujets nécessaires</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il faut privilégier la puissance de l'essai</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il faut augmenter le risque de première espèce α</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il faut que le degré de signification p soit inférieur au risque de deuxième espèce β</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Aucune de ces propositions n'est exacte</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Ne pas calculer le NSN expose à passer à côté d'une efficacité par manque de puissance.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Il faut privilégier la puissance de l'essai (capacité à détecter une vraie différence).</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Augmenter α augmenterait le risque de conclure à tort (1ʳᵉ espèce).</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — « p &lt; β » n'a pas de sens.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — B est exacte.</div></div>
+</div><div class="q" id="Q6" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">À l'issue d'un essai, le traitement A est significativement plus efficace que la référence avec <b>p &lt; 0,01</b>. Proposition(s) exacte(s) :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Si l'essai manque de puissance, cette conclusion est erronée</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il existe une chance sur 100 que cette conclusion soit erronée</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il existe un risque de deuxième espèce que cette conclusion soit erronée</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il existe un risque lié à la fluctuation d'échantillonnage que cette conclusion soit erronée</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Aucune de ces propositions n'est exacte</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BD</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — On a montré une différence significative → la puissance a suffi (pas de problème de non-rejet de H0).</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — p &lt; 0,01 → environ 1 chance sur 100 que le rejet de H0 soit erroné (risque α).</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — C'est le risque de 1ʳᵉ espèce (α), pas de 2ᵉ espèce (β).</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Cette erreur (risque α) est précisément liée à la fluctuation d'échantillonnage.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — B et D sont exactes.</div></div>
+</div><div class="q" id="Q7" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans un essai randomisé en double aveugle comparant un nouveau traitement A à une référence B, proposition(s) exacte(s) :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Chaque patient inclus a la même probabilité de recevoir le traitement A ou B</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Les patients peuvent refuser de recevoir le traitement B si c'est un placebo</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Les traitements A ou B sont attribués en fonction des critères d'inclusion des patients</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les groupes recevant A ou B devraient être comparables</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Aucune des propositions précédentes n'est exacte</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AD</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Définition de la randomisation.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — En aveugle, le patient ne connaît pas le traitement attribué → il ne peut pas refuser sur cette base.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'attribution est aléatoire, pas selon les critères d'inclusion.</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les groupes doivent être comparables (en principe, grâce à la randomisation).</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — A et D sont exactes.</div></div>
+</div><div class="q" id="Q8" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Pour évaluer l'efficacité d'un nouveau médicament dans une pathologie SANS traitement existant, proposition(s) exacte(s) :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il faut définir le critère de jugement principal mesuré chez les patients recevant le nouveau traitement</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il faut constituer 2 groupes : l'un recevant le nouveau traitement, l'autre un placebo</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il faut mesurer le critère de jugement principal uniquement chez les patients semblant tirer bénéfice du nouveau traitement</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il faut éviter les biais de sélection</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Aucune des propositions précédentes n'est exacte</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BD</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le critère de jugement principal est défini et mesuré chez TOUS les patients (pas seulement le bras traité).</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Pas de traitement de référence existant → comparaison à un placebo (2 bras).</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le CJP est mesuré chez TOUS les patients (sinon biais majeur).</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Il faut éviter les biais de sélection.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — B et D sont exactes.</div></div>
+</div><div class="q" id="Q9" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">À l'issue d'un essai, le traitement A est plus efficace que la référence avec <b>p &lt; 0,02</b>. Proposition(s) exacte(s) :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Si le nombre de sujets inclus est insuffisant, cette conclusion est erronée</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Si les traitements n'ont pas été attribués aléatoirement, cette conclusion est erronée</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Si la procédure de double aveugle n'a pas été appliquée, cette conclusion risque d'être erronée</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">La fluctuation d'échantillonnage explique forcément la conclusion</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Aucune de ces propositions n'est exacte</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BC</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le rejet de H0 implique que la puissance (et donc le NSN) était suffisante → pas de problème de conclusion.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Sans randomisation, la comparabilité des groupes n'est pas assurée → la conclusion peut être erronée.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Sans double aveugle, le maintien de la comparabilité n'est pas assuré → conclusion à risque.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La fluctuation d'échantillonnage POURRAIT l'expliquer (risque α), mais pas « forcément ».</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — B et C sont exactes.</div></div>
+</div><div class="q" id="Q10" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Essai chez des sujets de 65 ans et plus consultant au CHU de Bobigny : l'antihypertenseur A est plus efficace que la référence avec <b>p &lt; 0,001</b>. L'IC95% de la pression artérielle systolique (mmHg) sous A est [128–132]. Proposition(s) exacte(s) :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il existe 1 chance sur 100 que la conclusion soit erronée</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Si la population générale était traitée avec A, la PAS se situerait entre 128 et 132 mmHg avec un risque de se tromper de 5%</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">La population source n'est pas représentative de la population générale</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il existe moins de 1 chance sur 1000 d'observer un tel résultat par le simple fait du hasard</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Aucune de ces propositions n'est exacte</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : CD</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — p &lt; 0,001 → 1 chance sur 1000 (pas sur 100).</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La population source (≥ 65 ans, un CHU) n'est pas la population générale → extrapolation invalide.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Échantillon de sujets ≥ 65 ans au CHU de Bobigny → non représentatif de la population générale (validité externe limitée).</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — p &lt; 0,001 → moins de 1 chance sur 1000 d'observer ce résultat sous H0 (hasard seul).</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — C et D sont exactes.</div></div>
+</div>
+<footer>Source : ED UE 1.1 « L'essai thérapeutique » (Pr Duclos). Corrigé OFFICIEL transcrit depuis les slides-réponses du diaporama (chaque QCM y est annoté option par option). Barème EDN (QRM : 1/0,5/0,2/0). Quiz de révision personnelle.</footer>
+</div>
+<script>const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return (Math.round(p*100)/100).toString().replace('.',',');}
+// Barème officiel EDN — QRM : 0 incohérence=1 ; 1=0,5 ; 2=0,2 ; >=3=0. QRU : tout-ou-rien (1 ou 0).
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0));}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');else if(!isC&&isS){o.classList.add('wrong');disc++;}else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';if(isC&&isS)m.textContent='✓';else if(!isC&&isS)m.textContent='✗';else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);});
+  const isQRU=q.dataset.type==='QRU';const pts=qPoints(disc,isQRU);
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';updateScore();
+}
+function reveal(q){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){const correct=new Set(q.dataset.correct.split(''));q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});const v=q.querySelector('.validate');if(v)v.disabled=true;}
+  else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  q.classList.add('done');q.querySelector('.correction').hidden=false;if(q.dataset.pts===undefined)q.dataset.result='skip';updateScore();
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+document.addEventListener('click',e=>{const li=e.target.closest('.opt');if(li){const q=li.closest('.q');if(!q.classList.contains('done'))li.classList.toggle('sel');return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>$('.q').forEach(reveal));
+updateScore();
+</script>
+</body></html>

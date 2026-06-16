@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exos UE 1.1 — Rappels de statistique</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6a6a66;--line:#e3e1d8;
+--vrai:#1a7f37;--vraibg:#e9f6ec;--faux:#c0392b;--fauxbg:#fbecea;--neu:#9a6a00;--acc:#0b7285;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,245,241,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}.extra{margin:0 0 12px}
+.dt{border-collapse:collapse;width:100%;font-size:13.5px;margin:4px 0;background:#fff}
+.dt th,.dt td{border:1px solid var(--line);padding:6px 9px;text-align:center}
+.dt th{background:#f0efe9;font-weight:600}.dt td:first-child,.dt th:first-child{text-align:left}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#b9b7ad;background:#faf9f5}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#e3f1f3}.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;resize:vertical}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #e3f1f3}
+.qrocmodel{font-size:14.5px}.qrocmodel p{margin:6px 0}.qrocmodel .dt{margin:8px 0}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#eef3f3}button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f1f0ea}.citem:last-child{border-bottom:0}.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.v-neu .cv{color:var(--neu);font-weight:600}
+.note{background:#eef5f5;border:1px solid #d3e6e6;border-radius:8px;padding:9px 12px;font-size:14px;margin:6px 0 10px;color:#1c4242}.rappel{margin:0}
+footer{max-width:820px;margin:24px auto;padding:0 16px;color:var(--mut);font-size:12.5px}
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+</style></head><body>
+<header>
+<h1>UE 1.1 Biomédecine quantitative — Exercices d'ED : Rappels de statistique</h1>
+<div class="sub">5 QCM notés (IC, risques α/β, puissance, Chi²) + 2 problèmes ouverts à révéler. Coche/Valide les QCM ; pour les problèmes, réfléchis puis « Voir la réponse ».</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/7</b></span>
+<span class="pill">Score QCM : <b id="s-ok">0</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</header>
+<div class="wrap">
+<div class="sect">QCM notés (5 questions)</div>
+<div class="q" id="Ex4q" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">Ex 4 — QCM</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Étude « fracture du col du fémur » (tableau de contingence ci-dessous). Le test du Chi² donne un degré de signification <b>p&lt;0,01</b> (seuil α = 5 %). Quelle(s) proposition(s) est(sont) exacte(s) ?</div><div class="extra"><table class="dt"><thead><tr><th></th><th>Vivant</th><th>Décédé</th><th>Total</th></tr></thead><tbody><tr><td>T. chirurgical</td><td>103</td><td>36</td><td>139</td></tr><tr><td>T. orthopédique</td><td>34</td><td>31</td><td>65</td></tr><tr><td>Total</td><td>137</td><td>67</td><td>204</td></tr></tbody></table></div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Les 2 variables sont indépendantes</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il y a une liaison entre les 2 variables</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il est possible qu'il n'y ait pas de liaison entre les 2 variables</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'effectif de sujets est suffisant pour rejeter l'hypothèse nulle</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">L'hypothèse nulle n'est pas rejetée</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BC</div><div class="note"><div class="rappel"><b>B</b> est l'item « débattu » : le corrigé l'accepte (« on peut le supposer ») tout en notant que la bonne formulation est « association statistiquement significative ».</div></div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — p&lt;0,01 &lt; 0,05 → on rejette H0 (indépendance) : les variables ne sont pas indépendantes.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Réponse officielle : on peut le supposer. Formulation plus rigoureuse → « il existe une association statistiquement significative ».</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Rejeter H0 ne donne jamais une certitude : il reste un risque de se tromper &lt; 0,01 (1 %).</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — On ne conclut pas « effectif suffisant » : H0 est rejetée, c'est tout ce qu'on peut affirmer.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Au contraire, H0 EST rejetée (p&lt;0,01).</div></div>
+</div><div class="q" id="Ex6" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">Ex 6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'intervalle de confiance à 95 % d'une moyenne estimée sur un échantillon :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il fournit une information sur la précision de l'estimation de la moyenne</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il définit un intervalle pouvant contenir la valeur vraie de la moyenne dans la population avec une confiance de 95 %</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Plus il est large, plus le résultat de l'étude est intéressant</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il est d'autant plus étroit que le nombre de sujets de l'étude est grand</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Il est identique d'un échantillon à l'autre</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABD</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'IC mesure la précision de l'estimation (plus il est étroit, plus c'est précis).</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Définition de l'IC à 95 %.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Inverse : plus l'IC est LARGE, moins l'estimation est précise.</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Plus n est grand, plus l'IC est étroit (estimation plus précise).</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il varie d'un échantillon à l'autre (fluctuation d'échantillonnage).</div></div>
+</div><div class="q" id="Ex7" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">Ex 7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une étude cherche à estimer la fréquence de réussite de la 1ʳᵉ année d'étude de médecine en Île-de-France selon le département de résidence (75, 77, 91, 92, 93, 94, 95) :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">La variable département est une variable quantitative</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">La moyenne est un paramètre utile dans cette étude</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">La proportion d'étudiants par département réussissant la PACES est le paramètre à estimer</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Pour un échantillon représentatif, on peut tirer au sort des facultés franciliennes puis tirer au sort les étudiants de 1ʳᵉ année dans ces facultés</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Pour un échantillon représentatif, on peut interroger un étudiant sur 10 de 2ᵉ année dans chacune des facultés franciliennes</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : CD</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le département est une variable QUALITATIVE (nominale).</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La moyenne n'a pas de sens sur une variable qualitative ; le paramètre pertinent est une proportion.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — C'est bien une proportion de réussite (par département) que l'on cherche à estimer.</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Sondage à deux degrés (facultés puis étudiants) → échantillon représentatif.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Interroger des 2ᵉ année ne renseigne pas sur la réussite en 1ʳᵉ année (les redoublants/échecs ne sont plus là) → biais.</div></div>
+</div><div class="q" id="Ex8" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">Ex 8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">On fixe un seuil de signification à 5 % pour décider si 2 traitements ont une efficacité différente. Les résultats donnent <b>p&lt;0,04</b>.</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Le seuil de signification 5 % correspond au risque α</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">5 % est le seuil fixé de rejeter à tort l'hypothèse nulle d'égalité d'efficacité des 2 traitements</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">La valeur p est le risque maximum de se tromper en rejetant l'hypothèse nulle si elle est vraie</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Si la valeur p est supérieure au seuil de signification, la décision est de rejeter l'hypothèse nulle</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">On peut conclure, dans cette étude, qu'il existe une différence significative d'efficacité entre les 2 traitements</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCE</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le seuil α (ici 5 %) = risque de 1ʳᵉ espèce.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — α = risque de rejeter H0 (égalité) alors qu'elle est vraie (« à tort »).</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — p = probabilité maximale de se tromper en rejetant H0 vraie.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Inverse : si p &gt; seuil, on NE rejette PAS H0.</div><div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — p&lt;0,04 &lt; 0,05 → différence statistiquement significative.</div></div>
+</div><div class="q" id="Ex9" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">Ex 9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Même seuil de 5 %, mais <b>aucun calcul du nombre de sujets nécessaires</b> n'a été fait. Les résultats donnent <b>p&gt;0,05</b>.</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">On rejette l'hypothèse nulle d'égalité d'efficacité des 2 traitements</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il est possible qu'il existe un manque de puissance dans cette étude</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il est possible, si on augmente le nombre de sujets, que le degré de signification change</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">On peut conclure qu'il existe une différence significative d'efficacité entre les 2 traitements</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Il existe un risque de 2ᵉ espèce β de ne pas rejeter l'hypothèse nulle alors qu'elle est fausse</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BCE</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — p&gt;0,05 → on ne rejette PAS H0.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Sans calcul du NSN, un résultat non significatif peut traduire un manque de puissance (effectif insuffisant).</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Augmenter n augmente la puissance → le degré de signification peut devenir significatif.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Non significatif ≠ preuve d'absence de différence : on ne peut rien conclure.</div><div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — β = risque de 2ᵉ espèce = ne pas rejeter H0 alors qu'elle est fausse (rater une vraie différence).</div></div>
+</div>
+<div class="sect">Problèmes ouverts — révéler le corrigé (2)</div>
+<div class="q" id="Ex4o" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">Ex 4 — analyse complète</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Étude « fracture du col du fémur » : 204 sujets, 139 traités chirurgicalement et 65 orthopédiquement ; 137 vivants à 5 ans, 67 décédés. <i>(a)</i> Identifiez les variables, leur type, leurs modalités. <i>(b)</i> Résumez et représentez graphiquement les données. <i>(c)</i> Quels effectifs aurait-on sous indépendance ? <i>(d)</i> H0 et test utilisé ? <i>(e)</i> Calculez et interprétez le RR (vivants chirurgie / vivants orthopédie).</div><div class="extra"><table class="dt"><thead><tr><th></th><th>Vivant</th><th>Décédé</th><th>Total</th></tr></thead><tbody><tr><td>T. chirurgical</td><td>103</td><td>36</td><td>139</td></tr><tr><td>T. orthopédique</td><td>34</td><td>31</td><td>65</td></tr><tr><td>Total</td><td>137</td><td>67</td><td>204</td></tr></tbody></table></div>
+<textarea class="qrocin" rows="3" placeholder="Réfléchis / écris ta réponse, puis clique sur « Voir la réponse »"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse type (corrigé officiel) :</div><div class="qrocmodel">
+<p><b>Variables et types.</b> Variable « type de traitement » = qualitative, modalités {chirurgical ; orthopédique}.
+Variable « état à 5 ans » = qualitative binaire {vivant ; décédé}.</p>
+<p><b>Résumé des données.</b> % de vivants chez les traités chirurgicalement : 103/139 = 74,1 %.
+% de vivants chez les traités orthopédiquement : 34/65 = 52,3 %. % de vivants global : 137/204 = 67,2 %.</p>
+<p><b>Représentation graphique.</b> Camembert ; histogramme (diagramme en barres).</p>
+<p><b>Effectifs théoriques sous indépendance</b> (répartition respectant les proportions générales) :</p>
+<table class="dt"><thead><tr><th>(si indépendance)</th><th>Vivant</th><th>Décédé</th><th>Total</th></tr></thead><tbody><tr><td>T. chirurgical</td><td>93,3</td><td>45,7</td><td>139</td></tr><tr><td>T. orthopédique</td><td>43,7</td><td>21,3</td><td>65</td></tr><tr><td>Total</td><td>137</td><td>67</td><td>204</td></tr></tbody></table>
+<p><b>Hypothèse nulle &amp; test.</b> H0 : les variables sont indépendantes (aucune relation lignes/colonnes
+= le pourcentage est le même quel que soit le traitement). Test du <b>Chi²</b>.</p>
+<p><b>Risque relatif.</b> RR = (103/139) / (34/65) = <b>1,42</b>. Interprétation : un sujet traité chirurgicalement
+a 1,42 fois plus de chances d'être vivant à 5 ans qu'un sujet traité orthopédiquement.</p>
+</div></div>
+</div><div class="q" id="Ex5o" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">Ex 5 — ferritine & inflammation</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La ferritine sérique (normale 80–250 µg/L) s'élève en cas de surcharge en fer ET de syndrome inflammatoire, et diminue en cas de carence martiale. On cherche dans quelle proportion la ferritine s'élève lors d'un syndrome inflammatoire chez l'homme adulte. <i>(1)</i> Critère de jugement principal ? <i>(2)</i> Population ? <i>(3)</i> Modalité de constitution de l'échantillon ? <i>(4)</i> H0 et H1 ? <i>(5)</i> Si p&lt;0,03, interprétez. <i>(6)</i> A-t-on assez de sujets / la puissance est-elle suffisante ?</div>
+<textarea class="qrocin" rows="3" placeholder="Réfléchis / écris ta réponse, puis clique sur « Voir la réponse »"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse type (corrigé officiel) :</div><div class="qrocmodel">
+<p><b>1 — Critère de jugement principal :</b> la ferritinémie.</p>
+<p><b>2 — Population d'étude :</b> hommes adultes.</p>
+<p><b>3 — Constitution de l'échantillon :</b> deux échantillons issus de la population cible (hommes adultes) ne
+différant que par le facteur étudié (l'inflammation). Choisir les patients selon le service d'hospitalisation est
+piégeux : les patients post-opératoires peuvent avoir saigné (carence martiale masquée par l'inflammation → ferritine
+faussement normale) et ceux de médecine interne peuvent avoir une hémochromatose (ferritine élevée sans inflammation).
+On préfère prendre des patients venant successivement aux urgences, doser la CRP (marqueur d'inflammation) pour les
+classer en groupe inflammatoire / non inflammatoire, puis doser la ferritine.</p>
+<p><b>4 — Hypothèses :</b> H0 : la ferritine moyenne en l'absence de syndrome inflammatoire est identique à celle en
+présence de syndrome inflammatoire. H1 : ces deux moyennes sont différentes.</p>
+<p><b>5 — Interprétation (p&lt;0,03) :</b> seuil de décision α = 5 % ; p&lt;0,03 donc p &lt; α → l'hypothèse nulle peut
+être rejetée (augmentation significative de la ferritine en cas d'inflammation).</p>
+<p><b>6 — Puissance :</b> puisqu'on rejette H0, c'est que l'étude est assez puissante (effectif suffisant) pour être
+en capacité de la rejeter.</p>
+</div></div>
+</div>
+<footer>Source : ED UE 1.1 « Cours introductif – Rappel de statistique 2022 » (exercices). Corrigés des problèmes ouverts transcrits verbatim du PDF. Les questions sans corrigé fourni (section A « Vérifiez vos connaissances » ; Ex 1-3 de la partie B) ne figurent pas ici. Barème EDN (QRM : 1/0,5/0,2/0). Quiz de révision personnelle.</footer>
+</div>
+<script>const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return (Math.round(p*100)/100).toString().replace('.',',');}
+// Barème officiel EDN — QRM : 0 incohérence=1 ; 1=0,5 ; 2=0,2 ; >=3=0. QRU : tout-ou-rien (1 ou 0).
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0));}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');else if(!isC&&isS){o.classList.add('wrong');disc++;}else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';if(isC&&isS)m.textContent='✓';else if(!isC&&isS)m.textContent='✗';else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);});
+  const isQRU=q.dataset.type==='QRU';const pts=qPoints(disc,isQRU);
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';updateScore();
+}
+function reveal(q){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){const correct=new Set(q.dataset.correct.split(''));q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});const v=q.querySelector('.validate');if(v)v.disabled=true;}
+  else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  q.classList.add('done');q.querySelector('.correction').hidden=false;if(q.dataset.pts===undefined)q.dataset.result='skip';updateScore();
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+document.addEventListener('click',e=>{const li=e.target.closest('.opt');if(li){const q=li.closest('.q');if(!q.classList.contains('done'))li.classList.toggle('sel');return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>$('.q').forEach(reveal));
+updateScore();
+</script>
+</body></html>

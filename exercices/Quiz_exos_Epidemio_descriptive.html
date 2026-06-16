@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exos UE 1.1 — Épidémiologie descriptive</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6a6a66;--line:#e3e1d8;
+--vrai:#1a7f37;--vraibg:#e9f6ec;--faux:#c0392b;--fauxbg:#fbecea;--neu:#9a6a00;--acc:#0b7285;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,245,241,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}.extra{margin:0 0 12px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#b9b7ad;background:#faf9f5}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#e3f1f3}.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;resize:vertical}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #e3f1f3}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#eef3f3}button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f1f0ea}.citem:last-child{border-bottom:0}.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.v-neu .cv{color:var(--neu);font-weight:600}
+.note{background:#eef5f5;border:1px solid #d3e6e6;border-radius:8px;padding:9px 12px;font-size:14px;margin:6px 0 10px;color:#1c4242}.rappel{margin:0}
+footer{max-width:820px;margin:24px auto;padding:0 16px;color:var(--mut);font-size:12.5px}
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+</style></head><body>
+<header>
+<h1>UE 1.1 Biomédecine quantitative — Exercices d'ED : Épidémiologie descriptive</h1>
+<div class="sub">9 QCM corrigés (incidence/prévalence, taux standardisés, mortalité/létalité). Coche tes réponses, clique sur Valider.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/9</b></span>
+<span class="pill">Score : <b id="s-ok">0</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</header>
+<div class="wrap">
+<div class="sect">QCM — Épidémiologie descriptive (9 questions)</div>
+<div class="q" id="Q1" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est la définition de l'incidence cumulée d'une maladie ? <i>(1 seule réponse)</i></div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est le rapport des cotes d'exposition chez les sujets malades</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">C'est la différence de risque entre le groupe exposé et le groupe non exposé</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">C'est le rapport entre le nombre de nouveaux cas pendant une période Δt et le nombre de personnes à risque pendant la même période Δt</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">C'est le rapport du risque entre le groupe exposé et le groupe non exposé</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">C'est le rapport entre le nombre de cas à l'instant t et le nombre de sujets à risque au même instant t</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le rapport des cotes (odds) = l'odds-ratio, mesure d'association, pas l'incidence.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Différence de risque entre exposés/non-exposés = risque attribuable, pas l'incidence.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Incidence cumulée = nouveaux cas / personnes à risque sur la période Δt (proportion).</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Rapport des risques exposé/non-exposé = risque relatif (RR).</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Cas existants à l'instant t / sujets à risque = prévalence (indicateur statique).</div></div>
+</div><div class="q" id="Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) est (sont) l'(les) intérêt(s) d'une enquête épidémiologique transversale ? <i>(une ou plusieurs réponses)</i></div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Obtenir une bonne documentation de l'état de santé actuel des personnes présentes</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Coût modéré de l'étude</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Rapidité et facilité de mise en œuvre</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Estimation de la prévalence de la maladie étudiée</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Estimation de l'odds-ratio entre facteur d'exposition et maladie</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCD</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La transversale photographie l'état de santé à un instant donné.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Étude ponctuelle (un seul recueil) → peu coûteuse.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Rapide et simple à mettre en œuvre.</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — C'est l'étude de référence pour estimer une prévalence.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Exposition et maladie sont mesurées simultanément → on ne peut pas établir la temporalité → l'OR n'est pas interprétable de façon valide ici.</div></div>
+</div><div class="q" id="Q3" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La prévalence <i>(plusieurs réponses possibles)</i> :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Est une proportion</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Est un indice</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Est un indicateur statique</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Est égale au nombre de nouveaux cas survenus sur une période donnée, divisé par la population à risque pendant cette période</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Fait intervenir le concept de personnes-temps</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AC</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Prévalence = cas existants / population → proportion (numérateur inclus dans le dénominateur).</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un indice rapporte deux grandeurs hétérogènes ; ce n'est pas le cas ici.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Photographie à un instant t = indicateur statique (≠ incidence, dynamique).</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — « Nouveaux cas / population à risque » = incidence, pas prévalence.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les personnes-temps interviennent dans le taux d'incidence (densité d'incidence), pas dans la prévalence.</div></div>
+</div><div class="q" id="Q4" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">On utilise, pour comparer l'état de santé entre différents pays, l'indicateur « taux de mortalité standardisé ». Qu'est-ce qui caractérise un taux « standardisé » ? <i>(énoncé juste)</i></div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il est calculé par des tests statistiques</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il est calculé sur un échantillon</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il est calculé en tenant compte des structures d'âge</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il est calculé en %</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Il représente tous les cas</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La standardisation est un ajustement, pas un test statistique.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle porte sur des populations entières, pas un échantillon.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Standardiser = neutraliser l'effet d'une structure (l'âge surtout) pour comparer des populations de pyramides des âges différentes.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le format d'expression (%) ne définit pas la standardisation.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — « Représenter tous les cas » ne caractérise pas un taux standardisé.</div></div>
+</div><div class="q" id="Q5" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem"><i>(énoncé juste)</i> Les chiffres de prévalence du diabète sont peu fiables parce que :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il y a deux formes de diabète</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Ces chiffres ne tiennent pas compte de l'âge</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il y a des malades qui s'ignorent</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">On ne tient pas compte des nouveaux cas</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">C'est une maladie dont on ne guérit pas</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les deux formes (DT1/DT2) n'empêchent pas de compter les cas.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La standardisation sur l'âge concerne la comparaison, pas la fiabilité du comptage.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le diabète est longtemps asymptomatique → nombreux malades non diagnostiqués (« s'ignorent ») → la prévalence mesurée sous-estime la réalité.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La prévalence inclut tous les cas (anciens + nouveaux) par définition.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La chronicité augmente la prévalence mais n'en altère pas la fiabilité.</div></div>
+</div><div class="q" id="Q6" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem"><i>(énoncé juste)</i> Parmi les taux suivants, quel est celui qui représente le nombre de personnes décédées d'une maladie rapporté au nombre de malades pendant un temps donné ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Taux de mortalité brut</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Taux d'incidence</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Taux de prévalence</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Taux de létalité</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Taux de mortalité spécifique par cause</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Mortalité brute = décès (toutes causes) / population totale.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Incidence = nouveaux cas / population à risque.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Prévalence = cas existants / population.</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Létalité = décès dus à la maladie / nombre de malades → gravité de la maladie.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Mortalité spécifique = décès dus à la maladie / population totale (dénominateur = population, pas les malades).</div></div>
+</div><div class="q" id="Q7" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">Q7</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">On a enregistré 524 685 décès l'année N en France (dont 147 000 de cause cardio-vasculaire et 136 000 par cancer), pour une population de 57 millions d'habitants. Quelle proposition correspond au taux brut de mortalité pour 1000 habitants l'année N ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">57 000 000 / 524 685</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">524 000 / 57 000 000</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">(147 000 + 136 000) / 57 000 000</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">(524 685 / 57 000 000) × 1000</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">[(147 000 + 136 000) / 57 000 000] × 1000</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Numérateur et dénominateur inversés.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Bon sens du rapport mais sans le × 1000 (et chiffre arrondi) → ce n'est pas « pour 1000 ».</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — N'utilise que les décès CV + cancer → ce serait une mortalité spécifique, pas brute.</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Mortalité brute = tous les décès / population totale, × 1000 pour l'exprimer « pour 1000 habitants ».</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Ne prend que 2 causes → mortalité spécifique par cause, pas brute.</div></div>
+</div><div class="q" id="Q8" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la prévalence d'une maladie, quelle est la réponse exacte ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">La prévalence est une mesure de fréquence incluant au numérateur tous les cas (nouveaux ou anciens) de la maladie</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">La prévalence inclut au numérateur uniquement les nouveaux cas de la maladie</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">La prévalence est mesurée par un schéma d'étude de type « cas-témoin »</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">La prévalence est rapportée aux personnes-temps exposées au risque de la maladie</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">La prévalence est un indicateur dynamique de morbidité</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Prévalence = TOUS les cas présents (anciens + nouveaux) / population à un instant donné.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — « Uniquement les nouveaux cas » = incidence.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La prévalence se mesure par une enquête transversale, pas une cas-témoin.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le rapport aux personnes-temps caractérise le taux d'incidence.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La prévalence est un indicateur STATIQUE (l'incidence est dynamique).</div></div>
+</div><div class="q" id="Q9" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les études épidémiologiques descriptives ont un rôle important dans la veille sanitaire car elles permettent de :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Connaître l'évolution naturelle de certaines maladies</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Émettre des hypothèses étiologiques</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Obtenir une bonne documentation de l'état de santé de la population enquêtée</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Mettre en évidence le rôle causal d'un facteur d'exposition</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Surveiller une pathologie de façon discontinue</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCE</div><div class="note"><div class="rappel">Le seul piège est <b>D</b> : le descriptif <u>génère</u> des hypothèses causales mais ne <u>prouve</u> jamais la causalité (rôle de l'analytique).</div></div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La description dans le temps renseigne sur l'histoire naturelle de la maladie.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le descriptif génère des hypothèses étiologiques (testées ensuite par l'analytique).</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Objectif premier du descriptif : documenter l'état de santé de la population.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Établir une causalité relève de l'épidémiologie ANALYTIQUE, pas descriptive.</div><div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Réponse officielle : la surveillance descriptive peut être ponctuelle/répétée (enquêtes successives), donc « discontinue ».</div></div>
+</div>
+<footer>Source : ED UE 1.1 Biomédecine quantitative — « Épidémiologie descriptive, exercices corrigés 2021 ». data-correct = réponse officielle ; explications = raisonnement biostat standard. Barème EDN (QRM : 1/0,5/0,2/0 ; QRU : 1 ou 0). Quiz de révision personnelle.</footer>
+</div>
+<script>const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return (Math.round(p*100)/100).toString().replace('.',',');}
+// Barème officiel EDN — QRM : 0 incohérence=1 ; 1=0,5 ; 2=0,2 ; >=3=0. QRU : tout-ou-rien (1 ou 0).
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0));}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');else if(!isC&&isS){o.classList.add('wrong');disc++;}else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';if(isC&&isS)m.textContent='✓';else if(!isC&&isS)m.textContent='✗';else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);});
+  const isQRU=q.dataset.type==='QRU';const pts=qPoints(disc,isQRU);
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';updateScore();
+}
+function reveal(q){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){const correct=new Set(q.dataset.correct.split(''));q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});const v=q.querySelector('.validate');if(v)v.disabled=true;}
+  else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  q.classList.add('done');q.querySelector('.correction').hidden=false;if(q.dataset.pts===undefined)q.dataset.result='skip';updateScore();
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+document.addEventListener('click',e=>{const li=e.target.closest('.opt');if(li){const q=li.closest('.q');if(!q.classList.contains('done'))li.classList.toggle('sel');return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>$('.q').forEach(reveal));
+updateScore();
+</script>
+</body></html>
