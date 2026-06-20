@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz Bactério — approche syndromique (UE3)</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6a6a66;--line:#e3e1d8;
+--vrai:#1a7f37;--vraibg:#e9f6ec;--faux:#c0392b;--fauxbg:#fbecea;--neu:#9a6a00;--acc:#0b7285;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,245,241,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}.extra{margin:0 0 12px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#b9b7ad;background:#faf9f5}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#e3f1f3}.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;resize:vertical}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #e3f1f3}
+.qrocmodel{font-size:14.5px}.qrocmodel p{margin:6px 0}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#eef3f3}button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f1f0ea}.citem:last-child{border-bottom:0}.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.v-neu .cv{color:var(--neu);font-weight:600}
+.note{background:#eef5f5;border:1px solid #d3e6e6;border-radius:8px;padding:9px 12px;font-size:14px;margin:6px 0 10px;color:#1c4242}.rappel{margin:0}
+footer{max-width:820px;margin:24px auto;padding:0 16px;color:var(--mut);font-size:12.5px}
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+</style></head><body>
+<header>
+<h1>UE3 Bactériologie — Révisions : approche syndromique</h1>
+<div class="sub">15 QCM notés + 2 QROC à révéler. Coche A-E puis « Valider » (barème EDN) ; pour les QROC, réfléchis puis « Voir la réponse ».</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/17</b></span>
+<span class="pill">Score QCM : <b id="s-ok">0</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</header>
+<div class="wrap">
+<div class="sect">QCM notés (15 questions)</div>
+<div class="q" id="b1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Méningite / méningo-encéphalite bactérienne — parmi ces germes, lesquels figurent dans les étiologies de la synthèse syndromique ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Streptococcus agalactiae</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Escherichia coli</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Listeria monocytogenes</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Streptococcus pneumoniae</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Pseudomonas aeruginosa</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCD</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — S. agalactiae (strepto B) : méningite néonatale +++ (prévalence selon l'âge).</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — E. coli : méningite néonatale.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Listeria : terrains à risque (âges extrêmes, grossesse, immunodéprimé).</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Pneumocoque : 1ère cause chez l'adulte. (Aussi N. meningitidis et H. influenzae.)</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Pseudomonas n'est pas une étiologie de méningite communautaire dans la liste.</div></div>
+</div><div class="q" id="b2" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Première cause d'infection urinaire (tous tableaux confondus) :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Escherichia coli</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Staphylococcus saprophyticus</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Enterococcus faecalis</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Klebsiella pneumoniae</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Proteus sp.</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — E. coli = de loin la 1ère cause d'IU.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — S. saprophyticus : cystite de la femme jeune, mais minoritaire.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Entérocoque : possible mais bien moins fréquent.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Klebsiella : entérobactérie possible, pas la 1ère.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Proteus : possible, pas la 1ère.</div></div>
+</div><div class="q" id="b3" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Agents d'IST — lesquels NE sont PAS cultivables ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Neisseria gonorrhoeae</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Chlamydia trachomatis</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Treponema pallidum</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Escherichia coli</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Staphylococcus aureus</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BC</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le gonocoque EST cultivable (et c'est le seul des IST pour lequel on fait une culture).</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Chlamydia : non cultivable en routine → PCR.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Treponema pallidum (syphilis) : non cultivable → diagnostic sérologique.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — E. coli n'est pas un agent d'IST ici.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — S. aureus n'est pas un agent d'IST ici.</div></div>
+</div><div class="q" id="b4" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Pour quel(s) syndrome(s) le cours indique explicitement « JAMAIS de virus » ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Infection urinaire</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">IST</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Bactériémie</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Endocardite</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Gastro-entérite aiguë (GEA)</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ACD</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — IU : « jamais de virus ».</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — IST : au contraire « virus +++ » (VIH, HSV, HPV, VHB…).</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Bactériémie : « jamais de virus ».</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Endocardite : « jamais de virus ».</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — GEA : « virus +++ , parasites » (rotavirus, norovirus…).</div></div>
+</div><div class="q" id="b5" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Bactéries agissant par TOXINE dans les gastro-entérites aiguës :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Staphylococcus aureus</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Clostridium difficile</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Shigella dysenteriae</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Salmonella sp.</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Vibrio cholerae</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AB</div><div class="note"><div class="rappel"><b>Selon la diapo</b>, la colonne « toxine » ne cite que <b>S. aureus</b> et <b>C. difficile</b>. (Dans la vraie vie, Vibrio cholerae et certains E. coli sont aussi toxinogènes.)</div></div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — S. aureus : TIAC par toxine (entérotoxine, incubation courte).</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — C. difficile : toxines A/B (colite post-ATB).</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Shigella : mécanisme invasif (syndrome dysentérique), citée hors « toxine » dans la diapo.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Salmonella : citée parmi les bactéries « classiques » des GEA, pas dans la colonne toxine.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Vibrio cholerae sécrète bien une toxine en réalité, mais n'est pas listé dans la colonne « toxine » de la diapo (piège : se fier à la diapo source).</div></div>
+</div><div class="q" id="b6" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Prélèvement de 1ère intention devant une suspicion de bactériémie OU d'endocardite :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">ECBU</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">LCS (ponction lombaire)</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Hémocultures</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Sérologie</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Antigène urinaire</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — ECBU = infection urinaire.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — LCS = méningite.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Hémocultures (puis subculture ± antibiogramme ± PCR/sérologies si germe non cultivable).</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La sérologie n'est qu'un complément (germe non cultivable).</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Antigène urinaire = pneumonie (pneumocoque, légionelle).</div></div>
+</div><div class="q" id="b7" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">IU « à risque de complication » — quels éléments la définissent (facteur de risque lié au patient) ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Grossesse</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Infection chez l'homme</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Clairance de la créatinine &lt; 30 ml/min</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Femme de 30 ans sans aucune pathologie associée, non enceinte</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Anomalie fonctionnelle ou mécanique de l'appareil urinaire</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCE</div><div class="note"><div class="rappel">Autres facteurs cités : sujet âgé « fragile », immunodépression grave.</div></div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Grossesse = facteur de risque de complication.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Toute IU de l'homme est « à risque de complication ».</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Clairance &lt; 30 ml/min = insuffisance rénale sévère = facteur de risque.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — C'est la définition de l'IU SIMPLE (femme « 15-65 ans », sans pathologie, non enceinte).</div><div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Atteinte fonctionnelle/mécanique de l'arbre urinaire = facteur de risque.</div></div>
+</div><div class="q" id="b8" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">ECBU — quelle(s) situation(s) correspond(ent) à une ECBU considérée POSITIVE ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Leucocyturie &gt; 10⁴/ml + uropathogène ≥ 10³ ufc/ml</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Leucocyturie &gt; 10⁴/ml + une bactérie ≥ 10⁵ ufc/ml</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Leucocyturie &lt; 10⁴/ml + culture stérile</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Leucocyturie &gt; 10⁴/ml + culture stérile</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Présence de plusieurs espèces à 10² ufc/ml</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AB</div><div class="note"><div class="rappel">« ECBU douteuse = tout autre cas » → la clinique prime (sujet immunodéprimé, sondé…).</div></div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Seuil uropathogène : leucocyturie &gt; 10⁴/ml + ≥ 10³ ufc/ml.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Pour une bactérie « banale » : leucocyturie &gt; 10⁴/ml + ≥ 10⁵ ufc/ml.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — C'est la définition de l'ECBU NÉGATIVE.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Cas non concordant → ECBU douteuse, pas positive.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Plusieurs espèces à bas seuil → contamination / ECBU douteuse.</div></div>
+</div><div class="q" id="b9" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Causes de FAUX NÉGATIF d'une culture bactérienne :</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Prise d'antibiotique avant le prélèvement</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Contamination de l'échantillon par le microbiote</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Bactérie difficilement / non cultivable</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Quantité trop faible d'échantillon</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Prélèvement inapproprié</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ACDE</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — ATB → « culture négativée » (faux négatif).</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La contamination par le microbiote donne un FAUX POSITIF, pas un faux négatif.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Germe exigeant/non cultivable → faux négatif.</div><div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Quantité insuffisante → faux négatif (mauvaise qualité d'échantillon).</div><div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Prélèvement inapproprié → faux négatif.</div></div>
+</div><div class="q" id="b10" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">Q10</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Examen direct : diplocoques à Gram négatif. Quel genre évoquer en priorité ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Staphylococcus</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Neisseria</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Streptococcus</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Listeria</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Pseudomonas</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Staphylocoques = cocci à Gram positif en amas.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Neisseria (méningocoque, gonocoque) = diplocoques à Gram négatif « en grain de café ».</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Streptocoques = cocci à Gram positif en chaînettes.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Listeria = bacille à Gram positif.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Pseudomonas = bacille à Gram négatif.</div></div>
+</div><div class="q" id="b11" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi ces antibiotiques, lesquels sont des BÊTALACTAMINES ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Amoxicilline</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Céfotaxime</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Imipénème</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Vancomycine</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Ciprofloxacine</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABC</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Amoxicilline = aminopénicilline (bêtalactamine).</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Céfotaxime = céphalosporine de 3e génération (bêtalactamine).</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Imipénème = carbapénème (bêtalactamine).</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Vancomycine = glycopeptide.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Ciprofloxacine = fluoroquinolone.</div></div>
+</div><div class="q" id="b12" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">Q12</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel groupe d'entérobactéries est NATURELLEMENT sensible à l'amoxicilline (souche sauvage) ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Groupe 1</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Groupe 2</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Groupe 3</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Groupe 4</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Groupe 1 (ex. E. coli sauvage, Proteus mirabilis) : S à l'amoxicilline.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Groupe 2 (ex. Klebsiella) : R amoxicilline (pénicillinase de bas niveau) mais S amox/clav.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Groupe 3 (céphalosporinase) : R amox, amox/clav, C1G, C2G.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Groupe 4 : R amox, amox/clav, C1G, C2G (et R ticarcilline).</div></div>
+</div><div class="q" id="b13" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Entérobactérie du GROUPE 3 (céphalosporinase, ex. Enterobacter, Serratia) — quelles RÉSISTANCES NATURELLES selon le tableau ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">Amoxicilline</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Amoxicilline + acide clavulanique</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Céfotaxime (C3G)</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Imipénème</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Céfalotine (C1G)</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABE</div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Groupe 3 : R amoxicilline.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Groupe 3 : R amox/clav (la céphalosporinase n'est pas inhibée par le clavulanate).</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Groupe 3 : S au céfotaxime (C3G) — point clé du tableau.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Groupe 3 : S à l'imipénème.</div><div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Groupe 3 : R céfalotine (C1G) et R céfuroxime (C2G).</div></div>
+</div><div class="q" id="b14" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Antibiogramme d'un Staphylococcus aureus : Pénicilline G = R, Méticilline = R (= SARM). Quel(s) énoncé(s) concernant la résistance aux bêtalactamines est(sont) exact(s) ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">La résistance à la méticilline = modification de la cible (PLP modifiée, PLP2a / gène mecA)</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Elle est due à la sécrétion d'une bêtalactamase à spectre étendu (BLSE)</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">La résistance à la méticilline implique la résistance à TOUTES les bêtalactamines usuelles</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Elle est due à un défaut de perméabilité (imperméabilité de paroi)</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Elle est levée par l'ajout d'acide clavulanique</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AC</div><div class="note"><div class="rappel">À distinguer : Péni G R = pénicillinase (très fréquente) ; Méticilline R = PLP2a/mecA = SARM.</div></div><div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — SARM = PLP2a (mecA) : la bêtalactamine ne se fixe plus sur sa cible.</div><div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La BLSE est un mécanisme des entérobactéries (enzyme), pas la méti-R du staph.</div><div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Cible modifiée → R à toutes les bêtalactamines usuelles (seules les C5G anti-SARM restent actives).</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le mécanisme est une cible modifiée, pas l'imperméabilité.</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le clavulanate inhibe les bêtalactamases, pas une PLP modifiée.</div></div>
+</div><div class="q" id="b15" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">Q15</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Pneumonie : quel examen permet un diagnostic rapide de la légionellose (Legionella pneumophila) ?</div>
+<ul class="opts"><li class="opt" data-l="A"><span class="box">A</span><span class="otext">ECBU</span></li><li class="opt" data-l="B"><span class="box">B</span><span class="otext">Antigène urinaire</span></li><li class="opt" data-l="C"><span class="box">C</span><span class="otext">Scotch-test</span></li><li class="opt" data-l="D"><span class="box">D</span><span class="otext">Hémoculture sur milieu standard</span></li><li class="opt" data-l="E"><span class="box">E</span><span class="otext">Bandelette urinaire</span></li></ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div><div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — ECBU = infection urinaire.</div><div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Antigène urinaire (légionelle, pneumocoque) : diagnostic rapide des pneumonies.</div><div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Scotch-test = oxyurose / pityriasis versicolor.</div><div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Legionella ne pousse pas sur milieu standard (culture spécialisée).</div><div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La bandelette explore les urines.</div></div>
+</div>
+<div class="sect">QROC — révéler le corrigé (2)</div>
+<div class="q" id="bq1" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">QROC 1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Citez les <b>3 formes cliniques</b> d'infection urinaire décrites, avec leur signe distinctif.</div>
+<textarea class="qrocin" rows="3" placeholder="Réfléchis / écris ta réponse, puis clique sur « Voir la réponse »"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse type :</div><div class="qrocmodel"><p><b>1. Cystite</b> — brûlures mictionnelles, pollakiurie, hématurie (pas de fièvre).</p><p><b>2. Pyélonéphrite / prostatite</b> — fièvre, frissons ; ± bactériémie ; ± sepsis sévère (urosepsis).</p><p><b>3. Bactériurie asymptomatique</b> — aucun signe clinique.</p></div></div>
+</div><div class="q" id="bq2" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">QROC 2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant une suspicion d'IU, la <b>bandelette urinaire</b> est positive. Quelle est la conduite pour une cystite SIMPLE vs une IU à risque de complication / atteinte parenchymateuse ?</div>
+<textarea class="qrocin" rows="3" placeholder="Réfléchis / écris ta réponse, puis clique sur « Voir la réponse »"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse type :</div><div class="qrocmodel"><p><b>Cystite simple</b> : PAS d'examen microbiologique complémentaire → traitement empirique, puis contrôle de l'amélioration clinique sous traitement.</p><p><b>IU à risque de complication / atteinte parenchymateuse / compliquée</b> : <b>ECBU</b>, + examens complémentaires (échographie ; bilan sanguin : numération, CRP ; hémocultures).</p><p><i>Rappel :</i> si bandelette NÉGATIVE → évoquer un diagnostic différentiel.</p></div></div>
+</div>
+<footer>Source unique : diaporama « 7- révisions et approche syndromique 2026 » (Pr B. Lamy, UE3, DFGSM3). Quiz de révision personnelle — barème EDN (QRM 1/0,5/0,2/0 ; QRU tout-ou-rien). Matériel de partiel 3e année, hors charte EDN Major.</footer>
+</div>
+<script>const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return (Math.round(p*100)/100).toString().replace('.',',');}
+// Barème officiel EDN — QRM : 0 incohérence=1 ; 1=0,5 ; 2=0,2 ; >=3=0. QRU : tout-ou-rien (1 ou 0).
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0));}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');else if(!isC&&isS){o.classList.add('wrong');disc++;}else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';if(isC&&isS)m.textContent='✓';else if(!isC&&isS)m.textContent='✗';else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);});
+  const isQRU=q.dataset.type==='QRU';const pts=qPoints(disc,isQRU);
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';updateScore();
+}
+function reveal(q){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){const correct=new Set(q.dataset.correct.split(''));q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});const v=q.querySelector('.validate');if(v)v.disabled=true;}
+  else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  q.classList.add('done');q.querySelector('.correction').hidden=false;if(q.dataset.pts===undefined)q.dataset.result='skip';updateScore();
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+document.addEventListener('click',e=>{const li=e.target.closest('.opt');if(li){const q=li.closest('.q');if(!q.classList.contains('done'))li.classList.toggle('sel');return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>$('.q').forEach(reveal));
+updateScore();
+</script>
+</body></html>
