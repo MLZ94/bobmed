@@ -1,0 +1,718 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz des Annales — UE3 (Agents infectieux et hygiène)</title><style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6a6a66;--line:#e3e1d8;--vrai:#1a7f37;--vraibg:#e9f6ec;--faux:#c0392b;--fauxbg:#fbecea;--neu:#9a6a00;--acc:#0b7285;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,245,241,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}.pill b{color:var(--acc)}
+.legend{max-width:820px;margin:6px auto 0;font-size:12px;color:var(--mut)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#b9b7ad;background:#faf9f5}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef7f9}.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;resize:vertical}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef7f9}
+.qrocmodel{font-size:14.5px}.qrocmodel p{margin:6px 0}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#f0efe9}button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.v-neu .cv{color:var(--neu);font-weight:600}
+.note{background:#eff7f9;border:1px solid #d6ebef;border-radius:8px;padding:9px 12px;font-size:14px;margin:6px 0 10px;color:#185c68}.rappel{margin:0}
+footer{max-width:820px;margin:24px auto;padding:0 16px;color:var(--mut);font-size:12.5px}
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+</style></head><body>
+<header>
+<h1>UE 3 — Quiz des ANNALES (Sessions 2020 - 2024)</h1>
+<div class="sub">30 questions d'annales d'examens (Virologie, Bactériologie, Parasitologie-Mycologie). Coche, Valide.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/30</b></span>
+<span class="pill">Score : <b id="s-ok">0</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+<div class="legend">Barème EDN — QRM : 0 incohérence = 1 pt · 1 = 0,5 · 2 = 0,2 · ≥3 = 0. QRU : 1 ou 0. QROC : auto-évaluation.</div>
+</header>
+<div class="wrap">
+
+<!-- SECTION 1 : VIROLOGIE -->
+<div class="sect">🦠 Virologie — 10 questions</div>
+
+<div class="q" id="V-Q1" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">Viro Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le virus de la varicelle et du zona (VZV) :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il existe des vaccins contre le VZV pour les personnes à risque</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">L'infection initiale par le virus VZV est à porte d'entrée cutanée</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">La varicelle est la forme clinique de l'infection initiale par le VZV et le zona la forme de réactivation virale à distance</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Le zona peut se compliquer de douleurs post-zostériennes séquellaires même après régression des lésions cutanées</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">La latence du VZV est localisée dans les cellules basales de l'épiderme, ce qui explique que la réactivation virale se traduise par des symptômes cutanés</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ACD</div>
+<div class="note"><div class="rappel">📌 <b>Rappel VZV</b> : Primo-infection = Varicelle (transmission respiratoire) · Latence = Ganglions sensitifs crâniens ou rachidiens · Réactivation = Zona (dermatome).</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Vaccin vivant atténué disponible pour la prévention de la varicelle (enfants/adultes exposés) et du zona (sujets âgés).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La porte d'entrée est <b>respiratoire</b> (inhalation de gouttelettes ou aérosols), bien que le virus soit fortement dermatotrope plus tard.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Varicelle = primo-infection (généralisée) ; Zona = réactivation localisée à un métamère.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Douleurs névralgiques post-zostériennes (DPZ), fréquentes chez le sujet âgé, pouvant durer des mois ou années.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le site de latence est le <b>neurone des ganglions sensitifs</b> (spinaux ou des nerfs crâniens), pas l'épiderme.</div>
+</div>
+</div>
+
+<div class="q" id="V-Q2" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">Viro Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le virus de l'hépatite B (VHB) :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il s'agit d'un virus enveloppé à capside icosaédrique</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Son génome est circulaire</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Son génome code pour une ARN polymérase ADN-dépendante</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'AgHBe correspond à la protéine d'enveloppe</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">La réplication a lieu entièrement dans le cytoplasme de la cellule infectée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AB</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Famille des Hepadnaviridae, enveloppé à capside icosaédrique contenant l'Ag HBc.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — ADN circulaire partiellement double brin.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Il code pour une <b>ADN polymérase ARN-dépendante</b> (activité de transcriptase inverse).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'Ag HBe est une protéine soluble marqueur de réplication active. La protéine d'enveloppe est l'<b>Ag HBs</b>.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La réplication nécessite l'entrée du génome dans le **noyau** de la cellule pour être réparé en ADN super-enroulé (ADNccc).</div>
+</div>
+</div>
+
+<div class="q" id="V-Q3" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">Viro Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'évolution de l'infection par le virus de l'hépatite C (VHC) après une contamination à l'âge adulte, quelle est la proposition exacte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Passage à la chronicité dans 5-10% des cas</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Passage à la chronicité dans 20-40% des cas</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Passage à la chronicité dans 60-80% des cas</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Passage à la chronicité dans 90-95% des cas</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Pas de passage à la chronicité en dehors de l’immunodépression</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="note"><div class="rappel">⚠️ <b>Piège classique</b> : À l'inverse du VHC, le VHB ne passe à la chronicité que dans <b>&lt; 10%</b> des cas chez l'adulte immunocompétent.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — C'est le taux de chronicité du VHB chez l'adulte.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Taux sous-estimé.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'infection aiguë par le VHC est asymptomatique dans 90% des cas et évolue vers une infection chronique dans **60 à 80%** des cas (70-85% selon certaines sources).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Trop élevé.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le passage à la chronicité est la règle, y compris chez l'immunocompétent.</div>
+</div>
+</div>
+
+<div class="q" id="V-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Viro Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le virus de l’hépatite Delta (VHD) : quelle(s) est(sont) la(les) proposition(s) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Le VHD est un virus à ARN</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Le VHD est un virus enveloppé</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Le VHD est un virus satellite du virus de l'hépatite B (VHB)</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Le VHD est responsable d’hépatites chroniques sévères</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Le VHD se réplique grâce à une polymérase virale autonome</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCD</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — ARN monocaténaire circulaire de polarité négative.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Il emprunte l'enveloppe du VHB (contenant l'Ag HBs) pour bourgeonner.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Virus défectif/satellite : il dépend de la présence du VHB pour s'encapsider et se propager.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'infection Delta (co-infection ou surinfection) accélère l'évolution vers la cirrhose et le CHC.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il ne possède pas de polymérase propre ; il détourne l'**ARN polymérase II cellulaire** de l'hôte pour copier son génome.</div>
+</div>
+</div>
+
+<div class="q" id="V-Q5" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">Viro Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les techniques virologiques suivantes, laquelle (lesquelles) appartient (appartiennent) au diagnostic direct ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Recherche d’antigènes viraux par agglutination</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Recherche d’antigènes viraux par immunochromatographie</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Recherche d’anticorps viraux par test ELISA</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Recherche du génome viral par PCR qualitative</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Quantification du génome viral par PCR temps réel</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABDE</div>
+<div class="note"><div class="rappel">📌 <b>Direct vs Indirect</b> : Direct = détecter le corps du virus ou son génome (Ag, PCR, culture). Indirect = détecter la réponse de l'hôte (Anticorps, sérologie).</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Met en évidence des antigènes constitutifs du virus.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Met en évidence des protéines virales (ex: test d'orientation rapide TROD).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La recherche d'anticorps est du diagnostic **indirect** (témoigne de la réaction du système immunitaire).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Détection d'acides nucléiques viraux.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Mesure de la charge virale (ex. charge virale VIH ou VHC).</div>
+</div>
+</div>
+
+<div class="q" id="V-Q6" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">Viro Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les critères officiels de positivité du Western Blot VIH-1 en France reposent sur la présence :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">D'anticorps dirigés contre au moins deux protéines d'enveloppe (ex. gp120 et gp41) sans aucune autre réactivité</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">D'anticorps dirigés contre au moins deux protéines d'enveloppe (ex. gp120 et gp41) associés ou non à d'autres anticorps (anti-Gag, anti-Pol)</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">D'une charge virale ARN VIH-1 positive et ARN VIH-2 négative</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">D'anticorps anti-Gag positifs et d'anticorps anti-polymérase et anti-intégrase du virus VIH-1 positifs</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">D'un seul anticorps anti-gp160 isolé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Des anticorps dirigés contre les protéines internes (p24, p68) sont souvent présents et normaux.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les critères français exigent au moins **deux anticorps anti-glycoprotéines d'enveloppe** (gp160, gp120, gp41). Les anticorps anti-Gag (p24) ou anti-Pol sont optionnels.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le Western Blot est un test sérologique (détection d'anticorps), pas moléculaire (génome).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Sans anticorps dirigés contre l'enveloppe (gp), le test ne peut être déclaré positif.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Un seul anticorps anti-gp isolé définit un Western Blot **indéterminé** (possible séroconversion précoce).</div>
+</div>
+</div>
+
+<div class="q" id="V-Q7" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">Viro Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) est(sont) la(les) proposition(s) vraie(s) concernant le virus de l’immunodéficience humaine (VIH) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il appartient à la famille des Retroviridae</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">C'est un virus enveloppé</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il possède une enzyme à activité de Transcriptase Inverse</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Son génome est un ADN diploïde</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Son génome sous forme d'ADN double brin s’intègre dans l'ADN de la cellule infectée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCE</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Retroviridae, genre Lentivirus.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Enveloppé par une membrane lipidique d'origine cellulaire portant les spicules de gp120/gp41.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Rétrotranscrit son génome ARN en ADN double brin proviral.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Son génome est constitué de 2 molécules d'**ARN monocaténaire de polarité positive** (diploïde), pas d'ADN.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'ADN double brin néosynthétisé est inséré de façon stable dans le chromosome de la cellule hôte par l'**intégrase**.</div>
+</div>
+</div>
+
+<div class="q" id="V-Q8" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">Viro Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Votre partenaire a un bouton de fièvre typique (herpès labial) au coin des lèvres pour la première fois. Vous-même n'avez aucun antécédent d'herpès labial. Quelle affirmation est cliniquement correcte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Votre partenaire a obligatoirement contracté ce virus récemment auprès d'une tierce personne extérieure au couple</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il est tout à fait possible que vous soyez à l'origine de sa contamination car l'excrétion asymptomatique d'HSV-1 est fréquente</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'herpès labial est une infection exclusivement due à HSV-2</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il faut réaliser une PCR de la lésion labiale pour confirmer le diagnostic avant de traiter</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">La transmission n'est possible que s'il y a des vésicules visibles</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Il peut s'agir d'une réactivation tardive d'une infection ancienne contractée dans l'enfance, ou d'une transmission par vous.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Plus de 80% des adultes sont porteurs latents d'HSV-1. L'excrétion asymptomatique salivaire est fréquente et transmet le virus à des partenaires naïfs.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'herpès labial est à **90% dû à HSV-1**. HSV-2 est le principal agent de l'herpès génital.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le diagnostic de l'herpès labial est purement **clinique**. La PCR est réservée aux formes graves (encéphalites) ou atypiques.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La transmission peut survenir en période d'excrétion asymptomatique (salive saine).</div>
+</div>
+</div>
+
+<div class="q" id="V-Q9" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">Viro Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les virus des gastro-entérites aiguës (Rotavirus et Norovirus), quelle(s) est(sont) la(les) proposition(s) inexacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Le rotavirus est un virus enveloppé à capside icosaédrique</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Le rotavirus possède un génome à ARN segmenté</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Le rotavirus est surtout responsable d’épidémies de gastroentérites chez le nourrisson</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Le norovirus est surtout responsable d’épidémies de gastroentérites chez l'adulte</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Le norovirus est surtout responsable d’épidémies de gastroentérites chez le nourrisson</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AE</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">INEXACT</span> — Le rotavirus est un virus **nu** (non enveloppé), ce qui le rend très résistant dans le milieu extérieur.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">EXACT</span> — ARN double brin segmenté (11 segments) favorisant les réassortiments.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">EXACT</span> — 1re cause de GEA sévère chez le jeune enfant mondialement.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">EXACT</span> — Le norovirus (Caliciviridae) est le principal pourvoyeur d'épidémies hivernales collectives d'adultes (écoles, EHPAD, hôpitaux).</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">INEXACT</span> — Le rotavirus est le chef de file chez le nourrisson. Bien que le norovirus touche aussi le nourrisson, la question insiste sur les rôles principaux.</div>
+</div>
+</div>
+
+<div class="q" id="V-Q10" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">Viro Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous vous piquez accidentellement avec une aiguille souillée par le sang d'un patient. Indiquez la(les) proposition(s) correcte(s) :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il s’agit d’un cas d’accident d’exposition au sang (AES)</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il faut réaliser en urgence une sérologie VIH chez le patient source</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il faut réaliser en urgence une sérologie VIH chez vous (la victime) pour guider le choix du traitement prophylactique d'urgence</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Si la sérologie du patient source est négative pour le VIH, aucun suivi sérologique n’est nécessaire pour vous</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Il existe un risque de transmission du virus de l’hépatite C (VHC)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABE</div>
+<div class="note"><div class="rappel">⏱️ **Urgence AES** : Lavage et désinfection immédiate (5 min) · Avis médical en &lt; 4 h pour discuter la prophylaxie antirétrovirale (PEP) si patient source VIH+.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Définition de l'effraction cutanée par matériel souillé de sang.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — C'est le statut du patient source (avec son accord) qui détermine le risque et la nécessité d'une prophylaxie.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — On réalise la sérologie de la victime dans les 48h pour attester de son statut de référence (non-infectée avant l'accident), mais le traitement prophylactique d'urgence (si indiqué) doit être initié au mieux dans les 4 heures sans attendre.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Il faut exclure une primo-infection récente (fenêtre sérologique) chez le patient source et surveiller d'autres virus transmissibles (VHB, VHC).</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le VHC fait partie des trois virus majeurs cibles de la surveillance post-AES (VIH, VHB, VHC).</div>
+</div>
+</div>
+
+
+<!-- SECTION 2 : BACTÉRIOLOGIE -->
+<div class="sect">🧫 Bactériologie — 10 questions</div>
+
+<div class="q" id="B-Q1" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles bactéries listées ci-dessous sont non cultivables sur les géloses et bouillons synthétiques usuels in vitro ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Treponema pallidum</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Mycobacterium tuberculosis</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Staphylococcus aureus</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Borrelia burgdorferi</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Listeria monocytogenes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AD</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — *Treponema pallidum* (agent de la syphilis) est absolument **non cultivable** in vitro. Son diagnostic direct repose sur la PCR ou la microscopie sur fond noir.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — *M. tuberculosis* est cultivable mais à croissance lente (3-4 semaines sur milieu solide de Löwenstein-Jensen).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Culture très facile et rapide (18-24h).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — *Borrelia burgdorferi* (maladie de Lyme) est une bactérie très exigeante, nécessitant un milieu complexe (BSK) non utilisé en diagnostic de routine. On la considère comme non cultivable en pratique courante (diagnostic indirect sérologique).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — *L. monocytogenes* pousse facilement sur milieux usuels en 24h.</div>
+</div>
+</div>
+
+<div class="q" id="B-Q2" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les caractéristiques de Streptococcus pneumoniae ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Ce sont des cocci à Gram positif formant de longues chaînettes</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Ce sont des bactéries commensales des voies aériennes supérieures</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Ils sont responsables de méningites</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Ils sont responsables d’infections urinaires communes</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Ils sont équipés d’une capsule</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BCE</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le pneumocoque se présente typiquement en **diplocoques lancéolés** (flamme de bougie), et non en longues chaînettes (qui est le profil de *Streptococcus pyogenes*).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Présent chez 5-10% des adultes sains au niveau du rhinopharynx (portage asymptomatique).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — 1re cause de méningite purulente chez l'adulte et l'enfant en France.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le pneumocoque n'infecte pas le tractus urinaire (réservé aux BGN et entérocoques).</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La capsule polysaccharidique est son principal facteur de virulence (action anti-phagocytaire). C'est la cible des vaccins.</div>
+</div>
+</div>
+
+<div class="q" id="B-Q3" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les caractéristiques associées à la listériose ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">C’est une infection pouvant être associée à une bactériémie</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">C’est une pathologie causée par Listeria monocytogenes</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">C’est une maladie à déclaration obligatoire (MDO) en France</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">C’est une infection affectant uniquement les femmes enceintes et les nouveau-nés</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">C’est une infection causée par une bactérie commensale des voies génitales féminines</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AB</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les formes invasives comportent des bactériémies isolées ou associées à des méningo-encéphalites.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Agent exclusif de la listériose humaine.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La listériose n'est **pas une maladie à déclaration obligatoire** en France, mais elle fait l'objet d'une surveillance par le CNR.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle touche aussi les personnes âgées, les immunodéprimés, et peut causer des gastro-entérites fébriles aiguës chez les sujets sains.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — C'est une bactérie tellurique ubiquitaire d'origine **environnementale / alimentaire** (fromage, charcuterie), elle n'est pas commensale de l'homme.</div>
+</div>
+</div>
+
+<div class="q" id="B-Q4" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les caractéristiques d’une résistance naturelle à un antibiotique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle concerne tous les individus de l’espèce</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Elle est associée à un échec thérapeutique</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Elle résulte d’une modification génétique récente liée à l'exposition à l'ATB</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Son support génétique est fréquemment un plasmide transmissible</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Son support génétique est chromosomique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABE</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Propriété intrinsèque, stable, commune à toutes les souches d'une même espèce ou d'un même genre (ex. résistance naturelle de *Pseudomonas* aux C1G).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Rend l'antibiotique cliniquement inefficace.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle est innée et préexiste à l'utilisation des antibiotiques. La modification récente définit la résistance **acquise**.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les plasmides et transposons portent la résistance acquise.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Codée sur le chromosome de la bactérie (stable et transmise verticalement).</div>
+</div>
+</div>
+
+<div class="q" id="B-Q5" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la paroi bactérienne et sa mise en évidence :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle est formée d'une macromolécule appelée peptidoglycane</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">C’est une enveloppe rigide protégeant la bactérie contre la lyse osmotique</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Sa synthèse est ciblée par les antibiotiques de la famille des béta-lactamines</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">La coloration de Gram permet de différencier deux grands types de paroi</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Les ribosomes bactériens sont situés sur la membrane externe de la paroi des Gram négatif</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCD</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Formée de chaînes de polysaccharides liées par des ponts peptidiques.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Maintient la forme cellulaire et supporte la forte pression osmotique interne.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les béta-lactamines ciblent les Protéines de Liaison aux Pénicillines (PLP) impliquées dans la réticulation du peptidoglycane.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Gram positif (paroi épaisse retenant le colorant violet) vs Gram négatif (paroi fine de peptidoglycane + membrane externe, décolorée par l'alcool et recolorée en rose).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les ribosomes sont intracellulaires (dans le cytoplasme), libres ou associés à la face interne de la membrane plasmique.</div>
+</div>
+</div>
+
+<div class="q" id="B-Q6" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant Clostridium tetani :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est l'agent responsable de la colite pseudomembraneuse post-antibiotique</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">C'est un cocci à Gram positif</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">C'est un germe anaérobie strict</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il existe un vaccin efficace contre les infections par cette bactérie</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">C'est une bactérie tellurique pouvant infecter l'homme lors de piqûres d'épines ou blessures souillées</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : CDE</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'agent de la colite pseudomembraneuse est *Clostridioides difficile*.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — C'est un **bacille** à Gram positif sporulé.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Multiplication uniquement en l'absence d'oxygène (tissus nécrosés, plaies profondes).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Vaccin constitué d'une anatoxine (toxine tétanique inactivée), obligatoire en France.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les spores persistent dans le sol (terre, poussière) et pénètrent lors d'une effraction cutanée (ex. piqûre de rose).</div>
+</div>
+</div>
+
+<div class="q" id="B-Q7" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant Escherichia coli :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est un agent commensal du tube digestif de l'homme et des animaux</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">C'est un bacille à Gram négatif</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il est le principal germe responsable d'infections urinaires communautaires</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il est responsable de méningites chez le nouveau-né</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Il est naturellement résistant à la colistine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCD</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Hôte normal et majoritaire de la flore aérobie colique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Famille des Enterobacteriaceae.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Cause ~80-90% des cystites et pyélonéphrites aiguës communautaires.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Principalement les souches possédant l'antigène capsulaire **K1** (2e cause après le streptocoque B).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — *E. coli* est naturellement sensible à la colistine (polymyxine). Ce sont les genres *Proteus, Providencia, Morganella* et *Serratia* qui possèdent une résistance naturelle (groupe 4).</div>
+</div>
+</div>
+
+<div class="q" id="B-Q8" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le gonocoque (Neisseria gonorrhoeae) :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il is fréquemment isolé dans les hémocultures lors des infections courantes</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Il est parfois responsable d'angines</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">C'est un diplocoque à Gram négatif</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Il est responsable d'arthrites septiques</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">C'est un germe considéré comme fragile qui nécessite pour sa croissance une gélose enrichie (chocolat) et une atmosphère enrichie en CO2</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BCDE</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La bactériémie à gonocoque est rare, contrairement à *Neisseria meningitidis*.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Angine gonococcique par transmission oro-génitale (souvent asymptomatique).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Diplocoques à Gram négatif en "grains de café".</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Complication classique d'une infection gonococcique disséminée (IGD) chez l'adulte jeune.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Bactérie exigeante, sensible au froid et à la dessiccation, cultivée sur milieu enrichi.</div>
+</div>
+</div>
+
+<div class="q" id="B-Q9" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le calendrier diagnostique au laboratoire de bactériologie standard :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">La culture est habituellement rendue 24h après réception du prélèvement</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">L'examen direct d'un ECBU est rendu quelques heures après sa réception</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'antibiogramme complet est rendu 24h après réception du prélèvement initial</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'examen direct d'une hémoculture est rendu systématiquement 24h après le prélèvement</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Le diagnostic d'une listériose par PCR sur sang demande habituellement 5 jours</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AB</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — J1 : identification des colonies après 18-24h d'incubation.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'examen direct (numération et coloration de Gram) se fait rapidement (J0).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'antibiogramme demande J2 (48h). J0: Ensemencement. J1: Culture + Lancement de l'antibiogramme. J2: Lecture de l'antibiogramme.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'examen direct n'est réalisé qu'**après positivité du flacon** détectée par l'automate de culture continue. Il est alors rendu immédiatement (en urgence).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La PCR est une technique rapide, son résultat est obtenu en quelques heures (J0).</div>
+</div>
+</div>
+
+<div class="q" id="B-Q10" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Bactério Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant Listeria monocytogenes :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est un bacille à Gram négatif</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Elle peut survivre et se multiplier à une température de +4 °C</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Le réservoir principal de ce germe est environnemental</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'infection invasive touche principalement les personnes âgées, immunodéprimées et les femmes enceintes</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Son traitement probabiliste de référence en cas de méningite repose sur l'association Céfotaxime + Vancomycine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BCD</div>
+<div class="note"><div class="rappel">⚠️ *Listeria monocytogenes* est **naturellement résistante à TOUTES les céphalosporines** (dont le céfotaxime). Il faut ajouter de l'**Amoxicilline** en cas de suspicion.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — C'est un bacille à Gram **positif**.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Caractère psychrotrophe expliquant la contamination des aliments conservés au réfrigérateur.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Bactérie ubiquitaire présente dans le sol, l'eau, les plantes et les intestins animaux.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Ce sont les populations à risque de formes graves (neuroméningées et materno-fœtales).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — En raison de sa résistance naturelle aux C3G, le traitement repose sur l'**Amoxicilline** (souvent associé à la **Gentamicine**).</div>
+</div>
+</div>
+
+
+<!-- SECTION 3 : PARASITOLOGIE & MYCOLOGIE -->
+<div class="sect">🐛 Parasitologie & Mycologie — 10 questions</div>
+
+<div class="q" id="P-Q1" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">Parasito Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le paludisme :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il y a environ 250 millions de cas de paludisme par an dans le monde</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Plasmodium knowlesi est une espèce infectant fréquemment l’homme en Afrique subsaharienne</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Plasmodium falciparum forme des hypnozoïtes dans le foie</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les trophozoïtes érythrocytaires font partie de la phase sexuée du cycle de reproduction</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">L’accès palustre à Plasmodium falciparum est une urgence diagnostique et thérapeutique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AE</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Données épidémiologiques mondiales de l'OMS.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — *P. knowlesi* est une zoonose en **Asie du Sud-Est**. En Afrique, ce sont *P. falciparum, P. ovale, P. malariae*.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Ce sont **P. vivax et P. ovale** qui forment des hypnozoïtes intrahépatiques quiescents (rechutes à distance).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le cycle érythrocytaire (schizogonie) est la phase **asexuée**. La phase sexuée (gamétogonie) débute chez l'homme par la formation de gamétocytes.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — En raison du risque d'accès pernicieux (neuropaludisme) mortel.</div>
+</div>
+</div>
+
+<div class="q" id="P-Q2" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Parasito Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le kyste (ou l'oocyste) est la forme de résistance environnementale et de transmission chez les protozoaires suivants :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Babesia spp.</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Entamoeba histolytica</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Cryptosporidium spp.</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Giardia intestinalis</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Plasmodium spp.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BCD</div>
+<div class="note"><div class="rappel">📌 **Protozoaires intestinaux** : Se transmettent par voie féco-orale grâce à des formes de résistance (kystes/oocystes) éliminées dans les selles.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — *Babesia* est transmis par tique, sans forme kystique environnementale.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Kystes à 4 noyaux de l'amibiase.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Oocystes de cryptosporidiose (très résistants).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Kystes ovalaires de la giardiose.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — *Plasmodium* est transmis par anophèle, sans kyste environnemental fécal.</div>
+</div>
+</div>
+
+<div class="q" id="P-Q3" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">Parasito Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la toxoplasmose (Toxoplasma gondii), quelle est la proposition FAUSSE ?</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est une infection causée par un protozoaire intracellulaire</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">C'est une zoonose cosmopolite</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'infection est le plus souvent asymptomatique chez le sujet immunocompétent</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'infection peut être grave en cas d'immunodépression ou de grossesse</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Les formes cliniques neurologiques chez l'immunodéprimé (SIDA) sont toujours consécutives à une infection aiguë récente par ingestion d'oocystes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">VRAI</span> — *Toxoplasma gondii* est un coccidien.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">VRAI</span> — Touche un tiers de la population mondiale.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">VRAI</span> — ~80% asymptomatique chez l'adulte sain.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">VRAI</span> — Risque de toxoplasmose cérébrale/oculaire chez l'ID, et congénitale chez le fœtus.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">FAUX (réponse attendue)</span> — Chez l'immunodéprimé (CD4 &lt; 100), la toxoplasmose cérébrale résulte de la **réactivation de kystes latents** (Bradyzoïtes) enkystés dans le cerveau depuis une primo-infection ancienne.</div>
+</div>
+</div>
+
+<div class="q" id="P-Q4" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">Parasito Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diagnostic d'une pneumocystose (Pneumocystis jirovecii) repose sur :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">La mise en évidence directe de Pneumocystis jirovecii dans le LBA après colorations spécifiques</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">L’isolement en culture de Pneumocystis jirovecii à partir du LBA sur gélose Sabouraud</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">La recherche de l’ADN de Pneumocystis jirovecii dans le LBA par PCR</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">La mise en évidence des anticorps anti-Pneumocystis jirovecii dans le sérum</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Une biopsie pulmonaire systématique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : AC</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Examen microscopique direct du LBA ou de l'expectoration induite par colorations.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — *P. jirovecii* est une levure atypique **non cultivable** in vitro.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Technique très sensible (PCR en temps réel) largement utilisée en routine.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La sérologie n'a aucune valeur diagnostique (contact universel dans l'enfance).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Trop invasif ; le LBA est la référence.</div>
+</div>
+</div>
+
+<div class="q" id="P-Q5" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">Parasito Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi ces propositions sur la bilharziose à Schistosoma haematobium, donnez la réponse correcte :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">La contamination s'effectue au cours d'un bain en eau de mer</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Le parasite est retrouvé dans la majorité des cas en Amérique du Sud</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">L’hôte intermédiaire est un mollusque d'eau douce appelé bulin</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">Le miracidium pénètre par la voie transcutanée pour infecter l’homme</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Les œufs sont éliminés habituellement dans les selles</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Contamination en **eau douce** stagnante.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — *S. haematobium* est endémique principalement en **Afrique**.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Mollusque hôte intermédiaire spécifique du genre *Bulinus*.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — C'est la larve **furcocercaire** libérée par le mollusque qui pénètre la peau humaine. Le miracidium infecte le mollusque.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les œufs de *S. haematobium* (à éperon terminal) sont éliminés dans les **urines**.</div>
+</div>
+</div>
+
+<div class="q" id="P-Q6" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">Parasito Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant l'anguillulose (Strongyloides stercoralis) :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Le cycle d'auto-infestation endogène permet de perpétuer l'infection à vie</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">La contamination de l'homme se fait en se baignant en eau douce stagnante</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">C'est une parasitose restreinte aux climats froids d'Europe centrale</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">La transmission à l'homme est assurée par la piqûre d’un moustique</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Elle est causée par un trématode plat</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="note"><div class="rappel">⚠️ **Point critique** : C'est le seul helminthe capable de se multiplier **directement dans l'hôte humain** (auto-infestation), sans passage obligatoire par le milieu extérieur, d'où le risque d'hyperinfection mortelle sous corticoïdes.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les larves rhabditoïdes se transforment en larves strongyloïdes infestantes dans le colon et traversent la muqueuse rectale.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La contamination se fait par contact avec le **sol humide** souillé (pénétration transcutanée active).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Parasitose tropicale et subtropicale.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Transmission transcutanée active directe, pas de vecteur.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — C'est un **nématode** (ver rond).</div>
+</div>
+</div>
+
+<div class="q" id="P-Q7" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">Parasito Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant Candida albicans :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est un champignon commensal normal de la peau saine</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">C'est la levure la plus fréquemment responsable de mycoses chez l'homme</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Il est capable d’émettre des pseudofilaments en conditions pathologiques</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">C'est un commensal normal des muqueuses digestives et vaginales</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Il peut être responsable d’infections nosocomiales graves (candidémies)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : BCDE</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — *C. albicans* n'est **pas un commensal de la peau saine**. Les commensaux normaux de la peau lipidique sont du genre *Malassezia*.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Cause majeure d'infections cutanéo-muqueuses et invasives.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La transition levure → pseudofilament (filamentation) est un facteur de virulence et d'invasion.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Retrouvé dans le tube digestif et le vagin.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Candidémies sur cathéters et candidoses systémiques.</div>
+</div>
+</div>
+
+<div class="q" id="P-Q8" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">Parasito Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le dépistage d’une infection toxoplasmique chez la femme enceinte en France repose sur :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">L'examen clinique mensuel à la recherche d'un syndrome pseudo-grippal</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">La recherche du parasite par PCR dans le sang prénatal à chaque trimestre</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">La sérologie (détection des IgG et IgM) obligatoire au premier examen prénatal et mensuelle chez les femmes séronégatives</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'échographie morphologique fœtale systématique toutes les 2 semaines</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Un interrogatoire alimentaire standard</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'infection est asymptomatique dans 90% des cas chez la mère, d'où la nécessité du dépistage biologique.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La PCR n'est pas un outil de dépistage de routine chez la mère (utilisée sur le liquide amniotique).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Règle de santé publique. Si la femme est séronégative, elle doit être testée **chaque mois** jusqu'à l'accouchement.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Non justifié sans preuve biologique d'infection maternelle.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Utile pour la prévention mais ne remplace pas le dépistage.</div>
+</div>
+</div>
+
+<div class="q" id="P-Q9" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">Parasito Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la découverte d'une hyperéosinophilie sanguine chez un patient :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle est définie par un taux de polynucléaires éosinophiles > 500 / mm³</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Elle doit faire suspecter une helminthose (parasitisme par des vers métazoaires)</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">Les protozoaires intestinaux (ex. amibe, giardia) en sont des causes classiques</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">La distomatose (grande douve), l'anguillulose et la bilharziose sont des étiologies à évoquer</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Un taux persistant > 1500 / mm³ sans cause évidente définit un syndrome hyperéosinophile</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABDE</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Seuil biologique standard.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — En particulier les helminthes ayant une phase de migration tissulaire chez l'homme.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les **protozoaires** (*Giardia, Entamoeba*) ne provoquent **jamais d'hyperéosinophilie**, car ils restent stricts dans la lumière digestive sans contact tissulaire profond.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Ce sont des vers (helminthes) métazoaires migrant dans les tissus de l'hôte.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Définition diagnostique du syndrome hyperéosinophile (SHE).</div>
+</div>
+</div>
+
+<div class="q" id="P-Q10" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">Parasito Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le mode d'action et les cibles des agents antifongiques :</div>
+<ul class="opts">
+<li class="opt" data-l="A"><span class="box">A</span><span class="otext">Les azolés inhibent la synthèse de l'ergostérol constitutif de la membrane plasmique</span></li>
+<li class="opt" data-l="B"><span class="box">B</span><span class="otext">Les échinocandines ciblent la synthèse du bêta-(1,3)-D-glucane, composant de la paroi</span></li>
+<li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'amphotéricine B se lie directement à l'ergostérol membranaire pour créer des pores létaux</span></li>
+<li class="opt" data-l="D"><span class="box">D</span><span class="otext">La 5-fluorocytosine interfère avec la synthèse des acides nucléiques fongiques</span></li>
+<li class="opt" data-l="E"><span class="box">E</span><span class="otext">Les azolés ciblent principalement la synthèse du peptidoglycane de la paroi</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : ABCD</div>
+<div class="note"><div class="rappel">📌 **Ergostérol vs Peptidoglycane** : Le peptidoglycane est exclusif aux bactéries. Les champignons ont une paroi de chitine/glucane et une membrane contenant de l'ergostérol.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Ciblent la 14-alpha-déméthylase, bloquant la voie de biosynthèse de l'ergostérol.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Inhibent la glucane synthase (spécifique de la paroi fongique). Inactifs sur *Cryptococcus* et *Pneumocystis*.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Polyène de référence pour les infections sévères.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Antifongique antimétabolite, souvent associé à l'amphotéricine B dans la cryptococcose.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les champignons n'ont pas de peptidoglycane (paroi bactérienne) et les azolés agissent sur la **membrane**, pas sur la paroi.</div>
+</div>
+</div>
+
+</div>
+<footer>Quiz d'annales interactif conçu à partir des examens réels UE3 (sessions 2020 à 2024). Barème officiel EDN.</footer>
+</div>
+<script>const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return (Math.round(p*100)/100).toString().replace('.',',');}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0));}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');else if(!isC&&isS){o.classList.add('wrong');disc++;}else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';if(isC&&isS)m.textContent='✓';else if(!isC&&isS)m.textContent='✗';else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);});
+  const isQRU=q.dataset.type==='QRU';const pts=qPoints(disc,isQRU);
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';updateScore();
+}
+function reveal(q){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){const correct=new Set(q.dataset.correct.split(''));q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});const v=q.querySelector('.validate');if(v)v.disabled=true;}
+  else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  q.classList.add('done');q.querySelector('.correction').hidden=false;if(q.dataset.pts===undefined)q.dataset.result='skip';updateScore();
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+document.addEventListener('click',e=>{const li=e.target.closest('.opt');if(li){const q=li.closest('.q');if(!q.classList.contains('done'))li.classList.toggle('sel');return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>$('.q').forEach(reveal));
+updateScore();
+</script>
+</body></html>
