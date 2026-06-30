@@ -39,6 +39,7 @@ button.show:hover{background:#f0efe9}button:disabled{opacity:.5;cursor:default}
 .note{background:#eff5fb;border:1px solid #d6e4f2;border-radius:8px;padding:9px 12px;font-size:14px;margin:6px 0 10px;color:#1f3d5c}.rappel{margin:0}
 footer{max-width:820px;margin:24px auto;padding:0 16px;color:var(--mut);font-size:12.5px}
 @media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.q{transition:opacity .35s ease,filter .35s ease}.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
 </style></head><body>
 <header>
 <h1>UE 9.2 Médecine légale — Annale 2024-2025, Session 1 (juin 2025)</h1>
@@ -269,13 +270,15 @@ function grade(q){
   if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
   if(pts>0&&pts<1)st.style.color='#9a6a00';
-  q.querySelector('.validate').disabled=true;q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';updateScore();
+  q.querySelector('.validate').disabled=true;q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
 }
-function reveal(q){
+function reveal(q,skipUnlock){
   if(q.classList.contains('done'))return;
   if(q.dataset.type!=='QROC'){const correct=new Set(q.dataset.correct.split(''));q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});const v=q.querySelector('.validate');if(v)v.disabled=true;}
   else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
-  q.classList.add('done');q.querySelector('.correction').hidden=false;if(q.dataset.pts===undefined)q.dataset.result='skip';updateScore();
+  q.classList.add('done');q.querySelector('.correction').hidden=false;if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
 }
 function updateScore(){
   const qs=[...$('.q')];const all=qs.length;const done=qs.filter(q=>q.classList.contains('done')).length;
@@ -287,7 +290,29 @@ function updateScore(){
 document.addEventListener('click',e=>{const li=e.target.closest('.opt');if(li){const q=li.closest('.q');if(!q.classList.contains('done'))li.classList.toggle('sel');return;}
   const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}});
 const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
-const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>$('.q').forEach(reveal));
-updateScore();
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+initLocks();updateScore();
 </script>
 </body></html>
