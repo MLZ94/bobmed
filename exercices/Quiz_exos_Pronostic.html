@@ -142,7 +142,7 @@ function grade(q){
 function reveal(q){
   if(q.classList.contains('done'))return;
   if(q.dataset.type!=='QROC'){const correct=new Set(q.dataset.correct.split(''));q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});const v=q.querySelector('.validate');if(v)v.disabled=true;}
-  else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  else{const st=q.querySelector('.status');const ta=q.querySelector('.qrocin');const uv=ta?ta.value:'';let pts=0;if(uv.trim()){const nu=normalize(uv);const qans=q.querySelector('.qrocans');let kws=[];if(qans){kws=qans.textContent.split('/').map(s=>normalize(s.trim())).filter(s=>s.length>0);}else{const mdl=q.querySelector('.qrocmodel');if(mdl)kws=[...mdl.querySelectorAll('b')].map(b=>normalize(b.textContent));}pts=kws.some(kw=>{if(nu.includes(kw))return true;const ws=kw.split(' ').filter(w=>w.length>=3||/^\d+$/.test(w));return ws.length>0&&ws.some(w=>nu.includes(w));})?1:0;}q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';st.textContent=pts+' / 1';st.className='status '+(pts===1?'ok':'ko');const cor=q.querySelector('.correction');if(cor&&!cor.querySelector('.qroc-note')){const n=document.createElement('div');n.className='qroc-note';n.style.cssText='background:#fff8e1;border:1px solid #e0c060;border-radius:8px;padding:8px 12px;font-size:13px;color:#7a5000;margin-top:10px';n.innerHTML='⚠️ <i>Notation automatique et approximative — le correcteur peut ajuster les points à sa convenance.</i>';cor.appendChild(n);}}
   q.classList.add('done');q.querySelector('.correction').hidden=false;if(q.dataset.pts===undefined)q.dataset.result='skip';updateScore();
 }
 function updateScore(){
