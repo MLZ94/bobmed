@@ -4,7 +4,7 @@
 
 Site de révision médicale statique (HTML/CSS/JS, zéro build system). Chaque quiz est un fichier HTML autonome : CSS, JS et images (base64) tous embarqués dans le même fichier.
 
-Branche de développement par défaut : `claude/homepage-d1-d2-sections-m5bujj`  
+Branche de développement par défaut : `main`  
 Ne jamais inclure de lien vers la session Claude dans les commits, PR, commentaires ou code.
 
 ---
