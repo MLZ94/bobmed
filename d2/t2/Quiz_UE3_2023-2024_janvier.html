@@ -1,0 +1,586 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz — Psychiatrie · DFA2-UE3 JANVIER 2024</title><style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6a6a66;--line:#e3e1d8;--vrai:#1a7f37;--vraibg:#e9f6ec;--faux:#c0392b;--fauxbg:#fbecea;--neu:#9a6a00;--acc:#6741d9;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,245,241,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#f3f0ff;border:1px solid #d4bbff;border-left:4px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#2d1b6e;margin-bottom:14px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#b9b7ad;background:#faf9f5}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#ede8ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #ede8ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#efeee8}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fef8ec;border:1px solid #f0dfa0;border-radius:8px;padding:9px 12px;font-size:14px;margin:6px 0 10px;color:#4a3200}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 3 — Psychiatrie · DFA2-UE3 JANVIER 2024</h1>
+<div class="sub">29 questions : DP1 dépression post-partum (5, verrouillé) · DP2 TOC (5, verrouillé) · KFP1 syndrome malin des neuroleptiques (3, verrouillé) · SQI1 précarité (7) · SQI2 (8) · TCS1 deuil/ECT (1, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/29</b></span>
+<span class="pill">Score : <b id="s-ok">0/27</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">DP1 — Dépression du post-partum</div>
+
+<div class="q" id="DP1-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Deux mois après son accouchement une patiente vous consulte pour une fatigue importante associée à une insomnie sévère.Elle rapporte, que bien qu'elle était très contente d'avoir récupéré son enfant en très bonne santé, elle est sujette à des pleurs incessants et une manque de la confance en sa capacité à en prendre soin.Elle a perdu tout goût pour la nourriture, avec un amaigrissement chifré à 4 Kg , et n'arrive plus à prendre la moindre décision, se sent « indigne et incapable ».Son mari vous rapporte que cela dure depuis 3 semaines avec une aggravation progressive et constante.</div>
+<div class="stem">Quel(s) diagnostic(s) évoquez-vous à ce stade?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Défcit en vitamines B</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hypothyroïdie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hypopituitarisme</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Baby blues</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Épisode dépressifs caractérisé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous retenez le diagnostic de dépression. Quel prise en charge proposez-vous?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Prescrire un inhibiteur sélectif de la recapture de la sérotonine pendant 1 mois</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Mettre en place en psychothérapie intensive</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Prescrire un somnifère</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Prescrire un inhibiteur sélectif de la recapture de la sérotonine jusqu'à la disparition des symptômes</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Prescrire un inhibiteur sélectif de la recapture de la sérotonine jusqu'à 6 mois après la rémission complète</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E — ISRS jusqu'à 6 mois après la rémission complète</div></div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">1 semaine plus tard, la patiente revient avec son mari qui vous informe que son épouse a refusé de prendre son traitement car elle ne voulait pas devenir dépendante au traitement.Il vous rapporte également qu'elle a commencé a présenter des bizarreries, qu'elle a arrêté de prendre soin de son bébé, qu'elle passe toute la journée à pleurer et à parler seule.A l'entretien, la patiente vous fait part de sa crainte que son bébé serait habité par le diable et qu'il lui aurait été envoyé par une sorcière pour la punir de ses erreurs passées. Elle vous dit qu'elle n'a pas besoin de vous ni de votre traitement et qu'elle entend des voix divines qui vont lui montrer le chemin à suivre. Que faites vous devant cette situation?cocher les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Consultation ambulatoire avec le psychiatre du centre médico-psychologique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hospitalisation en psychiatrie sous le mode « soins psychiatriques libres »</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Association d'un traitement antidépresseur et antipsychotique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hospitalisation en psychiatrie sous le mode « soins psychiatriques à la demande d'un tiers »</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Retour au domicile</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div><div class="note">Tableau de psychose puerpérale avec idées délirantes et hallucinations, refus de soins → hospitalisation sous contrainte (soins psychiatriques à la demande d'un tiers).</div></div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après une évolution très favorable, vous recevez la patiente deux mois plus tard : elle est de nouveau triste, vous rapporte qu'elle se sent désespérée, mais semble en colère et très irritable. Elle est très tendue, ne tient pas en place, avec un discours intarissable et une gestuelle démonstrative. Elle vous rapporte un excès d'énergie malgré son sentiment de désespoir et malgré un sommeil nettement réduit, et ce depuis 15 jours.Son mari vous fait part de son désarroi, vous rapporte que sa femme est devenue inhabituellement très confictuelle voire agressive quand il essaie de la dissuader d 'entreprendre la multitude des projets que toute la famille trouve aberrants et irréalistes. Quel diagnostic évoquez-vous à ce stade ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Dépression avec caractéristiques psychotiques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Dépression avec caractéristiques mixtes</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Caractéristiques atypiques</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Dépression avec début en péri-partum</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Épisode maniaque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — Dépression avec caractéristiques mixtes</div></div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente présente 6 mois plus tard un épisode ayant duré 10 jours caractérisé par une humeur euphorique, une augmentation de l'estime de soi avec une énergie débordante. cet épisode a été très agréable pour elle et aussi pour son entourage. Quel(s) diagnostic(s) posez-vous à ce stade</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un épisode maniaque</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un trouble bipolaire type I</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un trouble bipolaire type II</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un Dépression avec caractéristiques atypiques</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un épisode hypomaniaque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div><div class="note">L'épisode actuel est hypomaniaque (durée ≥ 4 jours, sans retentissement majeur), mais l'ensemble du tableau évolutif est compatible avec un trouble bipolaire de type I.</div></div>
+</div>
+
+<div class="sect">DP2 — TOC</div>
+
+<div class="q" id="DP2-Q1" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez Mme D., 32 ans en consultation au centre médico-psychologique. Vivement encouragée par son mari à consulter, elle vient vous voir car elle est « fatiguée de passer sa journée à tout nettoyer ».Mme D. vous explique qu'elle passe 4 à 5 heures par jour à nettoyer toutes les pièces de son appartement de manière rigoureuse et ritualisée. En efet, elle ne peut s'empêcher de nettoyer chaque pièce selon un ordre précis. De plus, de peur d'être contaminée par des germes, elle se lave les mains au gel hydroalcoolique à chaque fois qu'elle touche un objet n'ayant pas été préalablement nettoyé.Ces symptômes auraient commencé il y a une dizaine d'années mais se seraient aggravés depuis la pandémie du Covid.Épuisée par les lavages de mains très fréquents, Mme D. vous rapporte qu'elle a arrêté de prendre les transports en commun et qu'elle a demandé à son employeur de faire uniquement du télétravail. Son compagnon, bien que très soutenant, serait également impacté par cette situation.Mme D. déclare : « Je ne sais pas pourquoi je fais tout cela. Je n'arrive pas à arrêter. Pourtant je sais que c'est ridicule et que je ne devrais pas nettoyer et laver autant. »</div>
+<div class="stem">Quel diagnostic évoquez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Troubles de anxieux généralisé</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Troubles phobique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hypocondrie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Troubles obsessionnel compulsif</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Schizophrénie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — Troubles obsessionnel compulsif</div></div>
+</div>
+
+<div class="q" id="DP2-Q2" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les symptômes retrouvés chez Mme D</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des obsessions</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Des idées délirantes hypocondriaques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Des compulsions</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des évitements</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Des ruminations anxieuses</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div></div>
+</div>
+
+<div class="q" id="DP2-Q3" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) traitement(s) pharmacologique(s) de fond prescrivez-vous en première intention à cette patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un antipsychotique atypique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un anxiolytique type benzodiazépine</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un antidépresseur type inhibiteur sélectif de la recapture de la sérotonine</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un thymorégulateur</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un antidépresseur tricyclique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — Un antidépresseur type ISRS</div></div>
+</div>
+
+<div class="q" id="DP2-Q4" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) autre(s) prise(s) en charge lui proposez-vous en première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une hospitalisation</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une thérapie comportementale et cognitive</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une thérapie d'inspiration analytique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une électroconvulsivothérapie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une stimulation cérébrale profonde</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — Une thérapie comportementale et cognitive</div></div>
+</div>
+
+<div class="q" id="DP2-Q5" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">4 semaines plus tard, Mme D. revient vous voir en consultation. Elle est inquiète car ne remarque aucune amélioration malgré la prise du traitement antidépresseur à forte dose de manière régulière. Elle vous signale également qu'elle a démarré une thérapie comportementale et cognitive il y a une semaine. Que faites-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hospitalisation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Changement d'antidépresseur</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ajout d'un antipsychotique pour potentialiser l'efet de l'antidépresseur</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Attendre car efcacité observée au bout de 6 à 12 semaines de traitement antidépresseur</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Éducation thérapeutique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div></div>
+</div>
+
+<div class="sect">KFP1 — Syndrome malin des neuroleptiques</div>
+
+<div class="q" id="KFP1-Q1" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Madame X âgée de 30 ans présentant une schizophrénie depuis 5 ans, vient accompagnée de son mari aux urgences amenée par les pompiers . Elle présentait des troubles de la conscience au domicile et aurait reçu le traitement antipsychotique retard en IM, il y a quelques jours, une température à 38,5°C une tackycardie (fc : 115 /mn).</div>
+<div class="stem">Quel est le diagnostic que vous envisagez ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Syndrome malin des neuroleptiques</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels signes cliniques recherchez-vous à l'examen clinique?</div>
+<textarea class="qrocin" rows="3" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Syndrome extrapyramidal · Signes de déshydratation</div>
+<div class="note">Question neutralisée par le jury lors de cette session (annulée dans le calcul de la note officielle).</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels éléments paracliniques peuvent étayer votre hypothèse diagnostic</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Cytolyse hépatique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Insufsance rénale aigue</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hyperleucocytose</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hémodilution</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Insufsance rénale chronique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — Cytolyse hépatique</div></div>
+</div>
+
+<div class="sect">SQI1 — Précarité</div>
+
+<div class="q" id="SQI1-Q1" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Précarité. Cocher la ou les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La notion de pauvreté est plus large que la notion de précarité.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un sujet en situation de précarité est forcément pauvre</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La pauvreté est un concept uniquement économique basé sur des défnitions statistiques relatives</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le seuil de pauvreté monétaire correspond à des ressources inférieures à 40 % du revenu médian national</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le seuil de grande pauvreté correspond à des ressources inférieures à 20 % du revenu médian</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div></div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Précarité ? Cocher la ou les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'exclusion est caractérisée par l'absence, pendant une période de la possibilité de bénéfcier des mêmes droits sociaux qu'un autre individu</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La vulnérabilité sociale représente un état de fragilité matérielle ou morale</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La vulnérabilité confère un risque d'exclusion sociale.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les facteurs de risque sont les habitudes de vie associées à des comportements de santé à risque ;</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les difcultés d'accès aux soins de santé et à la prévention sont des facteurs de risques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div></div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cocher la ou les réponses vraies Les sécurités indispensables à la santé, identifées par l'OMS sont :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Se loger et accéder à l'éducation et à l'information</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Se nourrir convenablement en quantité et qualité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Disposer d'un revenu sufsant, certain et stable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Compter sur un apport durable de ressources</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Avoir droit à la justice sociale et à un traitement équitable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div></div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Addiction comportementale . Cocher la ou les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Comportements pour avoir du plaisir d'origine multiple</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Afn de soulager un malaise intérieur</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Envie répressible de réaliser ce comportement</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Fréquence décroissante mais incontrôlée de ce comportement au dépend d'autres activités</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Poursuite du comportement malgré les conséquences négatives</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div></div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient âgé de 45 ans , en situation de précarité arrive à votre cabinet , en tant que le médecin  que devez-vous évaluer ? Cocher la ou les réponses vraies :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le statut social</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les conditions de vie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les conditions de logement</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La couverture maladie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les ressources actuelles</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div></div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient présente un diabète non équilibré et une HTA non traitée selon vous son statut de  précarité est associée cocher la ou les réponses vraies :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des retards de prise en charge</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une continuité de soins</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une mauvaise observance</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des renoncements ou abandons des soins curatifs et préventifs</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La prise en charge des personnes en situation de précarité repose sur les mêmes principes que la prise en charge de toute autre personne.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div></div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les équipes mobiles psychiatrie-précarité (EMPP). Cocher la ou les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Sont composées d'infrmiers, psychiatres et psychologues et assistants sociaux.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Interviennent à l'extérieur des établissements, au plus près des lieux de vie des personnes en situation de précarité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Peuvent ainsi accompagner ces personnes dans leur parcours de soins</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Ne peuvent former les acteurs sociaux.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les associations à but non lucratif ont un rôle accessoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div><div class="note">Les EMPP ont également un rôle de formation et conseil des acteurs sociaux (D est faux). Les associations à but non lucratif jouent en réalité un rôle important (et non accessoire) dans la prise en charge des personnes en précarité, mais cette proposition E est comptée valide dans le corrigé officiel.</div></div>
+</div>
+
+<div class="sect">SQI2</div>
+
+<div class="q" id="SQI2-Q1" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) est (sont) le(s) afrmation(s) vraie(s) concernant le trouble bipolaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un épisode hypomaniaque présente des symptômes persistants au moins 4 jours</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un épisode maniaque présente des symptômes persistants au moins 15 jours</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un trouble bipolaire avec cycles rapides est défni par la présence sur les 12 derniers mois d'au moins 4 épisodes de l'humeur</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il existe 3 types de trouble bipolaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un syndrome dépressif survenu dans le post-partum peut être évocateur un trouble bipolaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div><div class="note">L'épisode maniaque dure au moins 7 jours (et non 15). Il existe 2 types principaux de trouble bipolaire (type I et type II).</div></div>
+</div>
+
+<div class="q" id="SQI2-Q2" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel trouble de la personnalité appartient au cluster A ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Personnalité antisocial</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Personnalité paranoïaque</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Personnalité obsessionnelle-compulsive</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Personnalité schizoïde</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Personnalité passif-agressive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div></div>
+</div>
+
+<div class="q" id="SQI2-Q3" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le Trouble de la personnalité borderline est caractérisé par :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une instabilité de l'identité</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Des transgressions répétées</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un taux de suicide de 8 à 10%</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un sentiment chronique de vide</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une quête afective excessive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div></div>
+</div>
+
+<div class="q" id="SQI2-Q4" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) est (sont) le(s) afrmation(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La relation sexuelle se déroule en 5 phases</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La phase de plateau se caractérise chez l'homme par l'établissement de l'érection</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La phase de réfractaire nécessite le maintien d'une stimulation</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Chez l'homme, orgasme et éjaculation coïncident généralement</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une période réfractaire peut apparaitre entre la phase de plateau et de l'orgasme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div><div class="note">La réponse sexuelle comporte 4 phases : excitation, plateau, orgasme, résolution.</div></div>
+</div>
+
+<div class="q" id="SQI2-Q5" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) est (sont) le(s) afrmation(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La nicotine est considérée comme cancérigène.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La nicotine est le principal agent responsable de la dépendance.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les goudrons sont responsables des modifcations des cellules épithéliales.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les radicaux libres de la fumée stimulent la dégradation de la paroi alvéolaire et inhibent les enzymes responsables de sa protection.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les signes de sevrage apparaissent lentement après l'arrêt brutal ou diminution signifcative de la quantité fumée.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div><div class="note">Ce sont les goudrons (et non la nicotine) qui sont cancérigènes. Les signes de sevrage nicotinique apparaissent rapidement.</div></div>
+</div>
+
+<div class="q" id="SQI2-Q6" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'état de stress post-traumatique, Quelle(s) est (sont) le(s) afrmation(s) vraie(s) ? :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un diagnostic de stress post-traumatique repose sur une exposition directe ou indirecte à un événement traumatique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un diagnostic de stress post-traumatique repose sur une évolution de plus de 15 jours des symptômes</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un diagnostic de stress post-traumatique repose sur un carré symptomatique : symptôme de répétition, syndrome d'évitement et idées délirantes de persécution</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il existe une altération négative des cognitions et de l'humeur</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Il existe des formes à expression retardées</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div></div>
+</div>
+
+<div class="q" id="SQI2-Q7" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les traitements de la famille des antipsychotiques, quelle(s) est (sont) le(s) afrmation(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ils peuvent être utilisé dans la schizophrénie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ils peuvent être utilisé dans le trouble bipolaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les hypotensions orthostatiques sont dû à des efets anticholinergiques</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le syndrome malin des neuroleptiques est un efet indésirable rare mais grave</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il existe quatre générations d'antipsychotique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div><div class="note">Les hypotensions orthostatiques sont dues au bloc alpha-adrénergique (et non anticholinergique). Il existe 2 générations d'antipsychotiques.</div></div>
+</div>
+
+<div class="q" id="SQI2-Q8" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les traitements de la famille des antidépresseurs, quelle(s) est (sont) le(s) afrmation(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il est recommandé de prescrire en première intention un ISRS ou un ISRNA</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Après un premier épisode dépressif caractérisé, il est recommandé de poursuivre le traitement au moins 6 mois après rémission des symptômes</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La bithérapie est recommandée en deuxième intention</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le délai d'action d'un antidépresseur est de 3 à 4 jours</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Certains antidépresseurs sont disponibles par voie intraveineuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div><div class="note">Le délai d'action des antidépresseurs est de 2 à 4 semaines (et non 3-4 jours).</div></div>
+</div>
+
+<div class="sect">TCS1 — Deuil et ECT</div>
+
+<div class="q" id="TCS1-Q1" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mr. G. 35 ans, a perdu son père il y a 6 mois d'une longue maladie. Depuis, il a perdu 10 kg, présente des troubles du sommeil à type de réveil précoce, a des difcultés à se concentrer et prendre des décisions ce qui l'entrave dans son travail. Vous le trouvez très ralenti sur le plan psychomoteur. « Je ne prends plus plaisir à rien, rien ne m'intéresse plus ». Vous ne retrouvez pas d'idées suicidaires à l'entretien. Vous faîtes le diagnostic d'épisode dépressif caractérisé concomitant à son deuil.</div>
+<div class="stem">Si vous pensez que <em>«&nbsp;Cet épisode dépressif étant concomitant d'un deuil, sa prise en charge doit être plus intensive qu'un épisode dépressif isolé&nbsp;»</em>, et qu'un nouveau renseignement est <em>«&nbsp;Vous décidez donc, en plus de l'introduction d'un ISRS, de commencer des séances d'ECT&nbsp;»</em>, ce renseignement rend votre proposition :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">complètement contre-indiqué</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">contre-indiqué</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins indiqué</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">indiqué</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">fortement indiqué</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — complètement contre-indiqué</div><div class="note">La prise en charge d'un trouble psychiatrique est similaire que l'épisode survienne en dehors ou à l'occasion d'un deuil. L'ECT n'est pas indiqué en 1re intention pour un épisode dépressif sans caractéristique de sévérité particulière.</div></div>
+</div>
+
+<a class="back" href="index.html">← T2 D2</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+</body></html>
