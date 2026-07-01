@@ -1,0 +1,677 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz — Psychiatrie · DFA1-UE3 JUIN 2024 (session normale)</title><style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d1d1b;--mut:#6a6a66;--line:#e3e1d8;--vrai:#1a7f37;--vraibg:#e9f6ec;--faux:#c0392b;--fauxbg:#fbecea;--neu:#9a6a00;--acc:#6741d9;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(246,245,241,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#f3f0ff;border:1px solid #d4bbff;border-left:4px solid var(--acc);border-radius:8px;padding:10px 14px;font-size:14px;color:#2d1b6e;margin-bottom:14px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#b9b7ad;background:#faf9f5}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#ede8ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #ede8ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#efeee8}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fef8ec;border:1px solid #f0dfa0;border-radius:8px;padding:9px 12px;font-size:14px;margin:6px 0 10px;color:#4a3200}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+</style></head><body>
+<header><div class="wrap">
+<h1>UE 3 — Psychiatrie · DFA1-UE3 JUIN 2024 (session normale)</h1>
+<div class="sub">36 questions : DP1 attaque de panique (13, verrouillé) · DP2 pédopsychiatrie/TDAH (10, verrouillé) · KFP1 trouble bipolaire (3, verrouillé) · SQI1 (6) · TCS1 (4, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/36</b></span>
+<span class="pill">Score : <b id="s-ok">0/33</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">DP1 — Attaque de panique / Trouble panique</div>
+
+<div class="q" id="DP1-Q1" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Interne de garde aux urgences, vous êtes sollicités par votre collègue urgentiste pour un avis psychiatrique concernant Madame S., une patiente âgée de 36 ans qui a été amenée par les pompiers qu'elle a elle-même appelés étant persuadée qu'elle était « en train de mourir ». Vous trouvez une patiente en pleurs, elle vous dit qu'elle se sent fatiguée après des manifestations éprouvantes qui ont duré environ une trentaine de minutes. Vous essayez d'en savoir plus, la patiente vous informe que tout a commencé brutalement pendant qu'elle était en train de faire le ménage avec une sensation d'étoufement et d'oppression thoracique suivie d'une douleur au niveau du membre supérieur gauche. Elle sentait alors les battements de son cœur s'emballer et elle était en sueurs. Elle avait l'impression de quitter son propre corps et de s'évanouir avant même de pouvoir appeler les pompiers. Elle afrme que ses symptômes ont atteint une intensité maximale en quelques minutes pendant lesquelles elle était sidérée.</div>
+<div class="stem">Quelle sera votre démarche diagnostique aux urgences ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Installer la patiente dans un endroit calme et bien éclairé.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Indiquer une hospitalisation en psychiatrie en urgence.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Demander des examens complémentaires pour écarter une urgence organique.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Rechercher une consommation de toxique.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Renvoyer la patiente chez elle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div></div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Votre démarche ne retient pas les éléments recherchés. Quels éléments sémiologiques retenez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une symptomatologie à début brutal avec une durée limitée dans le temps</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les symptômes présentent la même intensité du début jusqu'à la fn</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une asthénie post critique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une dépersonnalisation</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Des pensées catastrophiques et une sensation de mort imminente</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel diagnostic psychiatrique évoquez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un épisode dépressif caractérisé</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un trouble de la personnalité borderline</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une attaque de panique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un accès maniaque</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un trouble anxieux généralisé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — Une attaque de panique</div></div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous retournez voir Madame S., vous la retrouvez plus calme et détendue après avoir reçu un traitement anxiolytique. Vous reprenez l'entretien et vous retenez les éléments suivants : Madame S. est célibataire, elle vit seule et travaille comme secrétaire, jusqu'alors sans antécédent psychiatrique. Elle vous explique que tout a commencé il y a environ deux ans lors d'une soirée « bien arrosée » durant laquelle elle a pris quelques rails de cocaïne. Soudainement, elle a senti son cœur battre de plus en plus vite et elle était persuadée que quelque chose n'allait pas. Elle était prise d'une forte angoisse et d'une peur de mourir. Elle s'est présentée aux urgences les plus proches, aucun diagnostic n'a été retenu. Elle a présenté un épisode similaire quelques semaines plus tard après une deuxième consommation de cocaïne. Votre patiente vous afrme qu'elle n'a plus consommé de cocaïne mais que ces crises sont devenues de plus en plus fréquentes et récurrentes jusqu'à deux à trois crises par semaines, de manière inopinée. Elle n'identife pas un facteur déclenchant mais elle décrit une peur et une forte appréhension de voir réapparaitre ses symptômes juste avant le début de la crise. Ces troubles deviennent handicapants. Quels éléments sémiologiques vous semblent pertinents ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La répétition des crises</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'évolution chronique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La présence d'une anxiété anticipatoire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le caractère imprévisible des crises</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un retentissement important sur la qualité de vie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel diagnostic longitudinal retenez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un trouble psychotique chronique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un trouble dépressif persistant</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un trouble de la personnalité borderline</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un trouble panique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un état de stress post traumatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — Un trouble panique</div></div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle manifestation pourrait venir compliquer ce trouble et qui est à rechercher ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Des hallucinations auditives</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Des scarifcations</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un trouble du comportement alimentaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'agoraphobie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Des idées délirantes de grandeur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — L'agoraphobie</div></div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le Trouble Panique :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il est plus fréquent en population masculine</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Son diagnostic se base sur l'histoire de l'évolution du trouble</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il se déclare généralement entre 20 et 30 ans</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Son origine est multifactorielle</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il touche 10% de la population générale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div></div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'agoraphobie :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il s'agit d'une peur de se retrouver dans des grands espaces</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il s'agit d'une peur de se retrouver dans un espace duquel il serait difcile de s'échapper ou d'être secouru en cas de survenue d'une attaque de panique.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle peut contraindre le patient à éviter certaines situations sociales</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle peut passer inaperçue</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle peut être isolée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q9" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Votre patiente est maintenant rassurée. Quelle sera votre conduite à tenir ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Rechercher une comorbidité psychiatrique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Evaluation du risque suicidaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Indiquer une hospitalisation en psychiatrie d'emblée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Adresser la patiente au Centre Médico Psychologique de votre secteur</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Instaurer un traitement médicamenteux de fond</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div></div>
+</div>
+
+<div class="q" id="DP1-Q10" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les complications du Trouble Panique on retrouve :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un épisode dépressif caractérisé</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le suicide</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'évolution vers un trouble psychotique chronique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un trouble de l'usage des substances</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'isolement social.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q11" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels seraient les grands axes de la prise en charge de ce trouble ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La psychoéducation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L'électroconvulsivothérapie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La prise en charge des comorbidités et des complications</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une psychothérapie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un traitement pharmacologique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q12" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q12</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Votre patiente vous interroge sur l'éventualité de démarrer un traitement médicamenteux. Quelle classe pharmacologique est indiquée en première intention dans le traitement de fond du Trouble Panique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Les anxiolytiques de la famille des Benzodiazépines</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les antidépresseurs tricycliques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les antidépresseurs inhibiteurs sélectifs de la recapture de la sérotonine (ISRS).</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les antipsychotiques de deuxième génération</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les thymorégulateurs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — Les ISRS</div></div>
+</div>
+
+<div class="q" id="DP1-Q13" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la prise en charge non pharmacologique du Trouble Panique quelles sont les propositions justes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'hygiène de vie est primordiale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les thérapies comportementales et cognitives n'ont pas montré d'efcacité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'exposition et la désensibilisation aux sensations physiques des attaques de panique sont au centre de la prise en charge.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle n'est pas nécessaire dans les formes sévères</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle se met en place durant l'hospitalisation en psychiatrie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div></div>
+</div>
+
+<div class="sect">DP2 — Pédopsychiatrie / TDAH</div>
+
+<div class="q" id="DP2-Q1" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Interne en pédopsychiatrie dans un service hospitalo-universitaire non-sectorisé, vous accueillez Félix, 7 ans, accompagné par ses deux parents. Les parents vous consultent pour leur fls après avoir été orientés par l'enseignant de l'école primaire dans laquelle Félix est scolarisé en classe de CE1.</div>
+<div class="stem">D'une façon générale, chez un enfant de deux ans et demi, on peut s'attendre à :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">ce qu'il s'habille sans aide</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">ce qu'il puisse tenir sur un pied pendant plus de 10 secondes</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ce qu'il joue à plusieurs, comme à « chat » par exemple</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">ce qu'il puisse comprendre des ordres et nommer des images</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">ce qu'il mange seul</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div></div>
+</div>
+
+<div class="q" id="DP2-Q2" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, quelles sont les situations anormales dans le développement psychomoteur d'un enfant ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Absence de périodicité jour/nuit à 6 mois</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Absence de capacité à mastiquer des aliments solides à 6 mois</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Propreté diurne non acquise à 30 mois (urines + selles)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Absence du sourire-réponse à 3 mois</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Ne peut s'assoir sans support à 9 mois</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div></div>
+</div>
+
+<div class="q" id="DP2-Q3" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les parents qui ont rencontré récemment l'enseignant vous rapportent que ce dernier a remarqué des difcultés de Félix en classe à se concentrer, des oublis fréquents ainsi qu'une certaine lenteur dans l'exécution des tâches qui lui sont demandées. Parallèlement à cela, Félix est décrit comme calme, sans agitation particulière. Face à cette description, à quelles pathologies devez-vous penser?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">le trouble défcit de l'attention avec hyperactivité</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">le trouble défcit de l'attention sans hyperactivité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">la dépression chez l'enfant</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">un trouble métabolique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">un retard intellectuel léger</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div></div>
+</div>
+
+<div class="q" id="DP2-Q4" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous évoquez un trouble défcit de l'attention sans hyperactivité. Quels sont les symptômes que l'on peut retrouver?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">une difculté à se concentrer</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">des comportements ou des actes mentaux répétitifs que le sujet se sent forcé d'accomplir et qui doivent être appliqués de manière infexible</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">une tendance à la procrastination (c'est-à-dire, une tendance à remettre systématiquement à plus tard)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">des difcultés pour comprendre et suivre les règles et consignes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">une impulsivité se manifestant par de la précipitation, une incapacité à attendre son tour et des prises de risques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div><div class="note">B décrit une obsession-compulsion (TOC) et E décrit le versant hyperactif/impulsif du TDAH — non pertinents pour la forme sans hyperactivité.</div></div>
+</div>
+
+<div class="q" id="DP2-Q5" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le trouble défcit de l'attention sans hyperactivité s'intègre dans les troubles neuro-développementaux comme cinq autres catégories diagnostiques suivantes. Lesquelles ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">le trouble du développement intellectuel</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">les troubles des acquisitions (langage et parole, coordinations motrices)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">les troubles des apprentissages (langage écrit, calcul, graphisme)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">la schizophrénie précoce</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">le trouble du spectre autistique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div></div>
+</div>
+
+<div class="q" id="DP2-Q6" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les parents de Félix vous interrogent sur le TDAH. A propos du TDAH, quelles sont les réponses correctes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">les symptômes débutent dans l'enfance et sont durables</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">la prévalence du TDAH est de 5 % et le sex-ratio est de 3/1 en faveur des flles</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">l'expression des symptômes peut varier selon le contexte</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">les autres troubles neurodéveloppementaux devront être activement recherchés car ils sont fréquemment associés entre eux</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">pour poser le diagnostic, il faut un nombre sufsant de symptômes présents dans au moins deux contextes et associés à un retentissement social, scolaire ou professionnel</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div><div class="note">Le sex-ratio du TDAH est en faveur des garçons (et non des filles).</div></div>
+</div>
+
+<div class="q" id="DP2-Q7" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les parents de Félix vous demandent quel traitement médicamenteux pourrait éventuellement être proposé si les aménagements de l'environnement qui seront proposés apportent peu de résultats ? Cochez la ou les réponses vraies :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">mélatonine</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">antidépresseurs inhibiteurs de la recapture de la sérotonine</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">méthylphénidate</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">antipsychotiques de deuxième génération</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">anxiolytiques non-benzodiazépiniques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — Méthylphénidate</div></div>
+</div>
+
+<div class="q" id="DP2-Q8" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les parents vous demandent des précisions sur le méthylphénidate. Cochez les réponses vraies :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le méthylphénidate fait partie de la classe des « psychostimulants »</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le méthylphénidate est un inhibiteur de la recapture de la dopamine</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le méthylphénidate existe sous forme à libération immédiate et à libération prolongée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le méthylphénidate est un dérivé des amphétamines</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le méthylphénidate peut-être prescrit à partir de 3 ans</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div></div>
+</div>
+
+<div class="q" id="DP2-Q9" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Par rapport au méthylphénidate, quel bilan pré-thérapeutique est indiqué ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un ECG et éventuellement un bilan cardiologique pour éliminer toute cardiopathie (insufsance cardiaque, troubles du rythme cardiaque…)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une imagerie cérébrale pour éliminer une hypertension intracrânienne (HTIC)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un bilan thyroïdien</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un fond d'œil</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un bilan métabolique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — ECG et bilan cardiologique</div></div>
+</div>
+
+<div class="q" id="DP2-Q10" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans le cas de l'instauration du méthylphénidate, quelle surveillance et à quels efets indésirables devez-vous veillez ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">surveillance du poids et de la taille</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">surveillance de la fréquence cardiaque et de la tension artérielle</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">recherche de difcultés d'endormissement</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">recherche des douleurs abdominales, nausées ou céphalées</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">un hirsutisme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div></div>
+</div>
+
+<div class="sect">KFP1 — Trouble bipolaire</div>
+
+<div class="q" id="KFP1-Q1" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Madame Y, âgée de 40 ans, présente des dépressions récurrentes depuis 5 ans. Elle vient accompagnée de son mari aux urgences, amenée par les pompiers. Elle présentait une agitation et une logorrhée. L'examen somatique est sans particularité. Les examens paracliniques sont normaux.</div>
+<div class="stem">Quel est le diagnostic qui correspond au tableau clinique présenté par la patiente aux urgences ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Episode maniaque (Manie)</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel est le diagnostic de la patiente ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Trouble bipolaire (Bipolarité)</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel est le traitement de référence ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Lithium (Téralithe)</div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le cannabis, quelles sont les propositions justes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le cannabis est issu de plante cannabis Sativa</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le principe actif est le tetra-hydrocannabinol (THC) delta9 -THC</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les troubles induits par la substance : troubles psychotiques, syndrome confusionnel , syndrome de sevrage</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le delta9-tetra hydrocannabinoide agit sur les récepteurs CB1 et CB2</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Il est le plus souvent fumé sous forme de cigarette avec le tabac</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div></div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans le cadre d'une consommation de cannabis, quelles sont les propositions correctes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le syndrome amotivationnel comprend : indiférence afective, baisse des performances scolaires ou du travail, désinvestissement des relations sociales</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le syndrome de sevrage est présent dans 90 % des cas</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le syndrome de sevrage comprend: Irritabilité, agressivité, anxiété nervosité , impatience, trouble du sommeil</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les signes somatiques du syndrome de sevrage sont : douleurs abdominales, fèvre, céphalées</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les premiers symptômes: 1 à 3 jours après arrêt du traitement et peuvent durer jusqu'à 2 mois</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div><div class="note">Le syndrome de sevrage cannabique est présent dans environ 40% des cas (et non 90%). Les premiers symptômes surviennent 1 à 2 semaines après l'arrêt (et non 1 à 3 jours).</div></div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cocher la ou les réponses vraies concernant la cocaine</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle existe sous forme de poudre blanche, ou de base (cailloux )</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle a une action sédative</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il n'y a pas d'antidote en cas d'overdose à la cocaïne</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il existe un traitement préventif en cas de mésusage</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle est extraite des feuilles de coca en Amérique du Sud, Indonésie et Est de l'Afrique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div><div class="note">La cocaïne a une action stimulante (et non sédative).</div></div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la cocaïne, cocher la ou les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Associée avec du bicarbonate de soude il s'agit de crack ; Associée avec de l'ammoniaque il s'agit de freebase</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Âge moyen de consommation en Europe 35 ans</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les hommes consomment 10 fois plus que les femmes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il y a 400000 consommateurs en France</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Ses efets varient en fonction du mode d'administration</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div><div class="note">Âge moyen de consommation en Europe : 22 ans (et non 35). Les hommes consomment 4 fois plus que les femmes (et non 10 fois).</div></div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome de sevrage à la cocaïne, cocher la ou les réponses vraies :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Les symptômes apparaissent dès l'arrêt de la cocaïne jusqu'à plusieurs semaines</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">On retrouve : hypersomnie ralentissement psychomoteur, augmentation de l'appétit</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">On retrouve : paranoia, dépression, tentative de suicide, attaque de panique induite, épisode délirant aigu, recherche compulsive du produit</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il n'existe pas de complications somatiques</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La prise en charge est en ambulatoire le plus souvent</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div><div class="note">Les symptômes de sevrage apparaissent quelques jours après l'arrêt de la cocaïne (et non dès l'arrêt jusqu'à plusieurs semaines).</div></div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'intoxication aigue aux amphétamines, quelles sont les propositions vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">début des efets en fonction du type d'administration et de la dose et de l'individu</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Intoxication aigue : euphorie , bien être, augmentation de l'attention et concentration</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Augmentation du désir sexuel</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Baisse de la pression artérielle et du rythme cardiaque</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Augmentation de la fréquence respiratoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div><div class="note">L'intoxication aux amphétamines provoque une tachycardie et une hypertension (voire une hyperthermie maligne), pas une baisse de la pression artérielle et du rythme cardiaque.</div></div>
+</div>
+
+<div class="sect">TCS1</div>
+
+<div class="q" id="TCS1-Q1" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Un patient âgé 65 été amené aux urgences pour un mutisme complet depuis 45 jours. Tous les examens cliniques et paracliniques sont normaux.</div>
+<div class="stem">Si vous pensez poser le diagnostic de catatonie, et que vous constatez un négativisme et une immobilité motrice, vous pensez pertinente votre proposition :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E — certain</div><div class="note">Négativisme et immobilité motrice sont des signes cardinaux de la catatonie. Réponse D (probable) également acceptée par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Au bout de 2 heures le patient rapporte avec une prosodie faible et un discours très lent une angoisse importante par rapport à des idées délirantes de persécution. Si vous pensez poser le diagnostic de trouble délirant, et que vous constatez une absence d'hallucination auditives ou autres, vous pensez pertinente votre proposition :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div><div class="note">L'absence d'hallucinations est compatible avec le trouble délirant (contrairement à la schizophrénie). Réponse E (certain) également acceptée par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensez poser le diagnostic de schizophrénie, et que la famille vous révèle que ce tableau a fait suite à un licenciement, que les premiers symptômes étaient une tristesse, une anhédonie, une fatigabilité et une anorexie, vous pensez pertinente votre proposition :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — peu probable</div><div class="note">Un début par un syndrome dépressif suite à un événement de vie (licenciement) oriente davantage vers un trouble de l'humeur que vers une schizophrénie. Réponse A (improbable) également acceptée par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q4" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q4</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous pensez poser le diagnostic de dépression, et vous constatez un délire de persécution en rapport avec un délire de culpabilité (responsable de tous les confits armés mondiaux). Vous pensez pertinente votre proposition :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E — certain</div><div class="note">Le délire de culpabilité est une caractéristique classique de la dépression avec caractéristiques psychotiques (mélancolie délirante). Réponse D (probable) également acceptée par le jury.</div></div>
+</div>
+
+<a class="back" href="index.html">← T2 D2</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+</body></html>
