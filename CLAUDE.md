@@ -14,13 +14,28 @@ Ne jamais inclure de lien vers la session Claude dans les commits, PR, commentai
 ## Structure du site
 
 ```
-index.html           ← page d'accueil (D1 et D2, liste des trimestres et UE)
-d1/t1/index.html     ← portail trimestre D1-T1
-d1/t1/Quiz_*.html    ← quiz UE de D1-T1
-d2/t4/index.html     ← portail trimestre D2-T4
-d2/t4/Quiz_*.html    ← quiz UE de D2-T4
-microbiologie/       ← anciens fichiers de référence
+index.html           ← page d'accueil (blocs D1 et D2, source de vérité pour la navigation)
+annales/index.html   ← portail annales D1 (UE 1.1, UE 3, UE 9.2, UE 9.3 — pas de subdivision par trimestre)
+annales/Quiz_*.html  ← quiz D1 (toutes UE confondues, session normale/rattrapage)
+exercices/           ← entraînement par thème (biostat UE 1.1), hors trimestre
+microbiologie/       ← portail + fiches + quiz UE3 (révisions transversales), hors trimestre
+numerique/           ← quiz numérique biostat, hors trimestre
+d2/tN/index.html     ← portail du trimestre N de D2 (N = 1 à 4)
+d2/tN/Quiz_*.html    ← quiz UE de D2-TN, fichier physique dans le dossier du trimestre
 ```
+
+**IMPORTANT — D1 n'a PAS de sous-dossiers de trimestre** (`d1/t1/`, `d1/t2/`, etc. n'existent pas et ne doivent pas être créés). Toutes les annales D1 vivent à plat dans `annales/`. Seul **D2** est subdivisé par trimestre (`d2/t1/` à `d2/t4/`).
+
+### Table de correspondance UE ↔ trimestre D2 (page d'accueil = source de vérité)
+
+| Trimestre | UE couvertes |
+|---|---|
+| `d2/t1/` | UE 8.2 Cardiologie · UE 7.1 Pneumologie · UE 6 Maladies transmissibles |
+| `d2/t2/` | UE 8.1 Hépato-Gastro/Chir-Dig · UE 4.1 Neurologie-MPR · **UE 3 Psy/Addicto** |
+| `d2/t3/` | UE 4.3 Dermatologie · UE 7.2 Médecine Interne · UE 8.4 Nephro/Uro |
+| `d2/t4/` | UE 4.2 ORL/Ophtalmo/Chir maxillo-faciale · UE 7.3 Rhumatologie · UE 11.1 Chir Orthopédique · UE 8.3 Endocrino/Nutrition · UE 12.1 Anglais · UE 12.2 LCA |
+
+**Avant de créer un portail de trimestre ou de placer une annale**, toujours relire `index.html` (page d'accueil) pour vérifier si le bloc D2/TN correspondant existe déjà et quelles UE lui sont attribuées — ne jamais deviner ou inventer un trimestre. En cas de doute sur le trimestre d'une UE non listée ci-dessus, demander à l'utilisateur plutôt que de supposer.
 
 Couleur accent par défaut : `--acc:#b06800` (ambré/brun doré, utilisé pour D2/T4).
 
