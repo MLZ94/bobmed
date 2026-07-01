@@ -7,6 +7,8 @@ Site de révision médicale statique (HTML/CSS/JS, zéro build system). Chaque q
 Branche de développement par défaut : `main`  
 Ne jamais inclure de lien vers la session Claude dans les commits, PR, commentaires ou code.
 
+**Règle absolue** : à chaque création d'une nouvelle annale (quiz HTML), mettre à jour **dans le même geste** la page d'index correspondante (portail de trimestre `dX/tY/index.html` et/ou `annales/index.html`) pour y ajouter le lien d'accès — jamais d'annale orpheline sans navigation. Par défaut, pousser directement sur `main` (sauf instruction contraire explicite de l'utilisateur).
+
 ---
 
 ## Structure du site
