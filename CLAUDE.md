@@ -37,6 +37,10 @@ d2/tN/Quiz_*.html    ← quiz UE de D2-TN, fichier physique dans le dossier du t
 
 **Avant de créer un portail de trimestre ou de placer une annale**, toujours relire `index.html` (page d'accueil) pour vérifier si le bloc D2/TN correspondant existe déjà et quelles UE lui sont attribuées — ne jamais deviner ou inventer un trimestre. En cas de doute sur le trimestre d'une UE non listée ci-dessus, demander à l'utilisateur plutôt que de supposer.
 
+### Ordre de classement des annales dans un portail de trimestre
+
+À l'intérieur d'un portail (`annales/index.html` ou `d2/tN/index.html`), les annales sont groupées **par UE** (un bloc/titre `.ue` par UE), puis à l'intérieur de chaque groupe UE, classées **par ordre chronologique croissant** (session la plus ancienne en premier, la plus récente en dernier), à l'image de ce qui existe déjà dans `annales/index.html` (ex. UE 1.1 : 2022-2023 S1 → S2 → 2023-2024 S1 → S2 → 2024-2025 S1 → S2). Une session normale précède toujours son rattrapage de la même année. Respecter cet ordre à chaque ajout d'une nouvelle annale, quel que soit le portail concerné.
+
 Couleur accent par défaut : `--acc:#b06800` (ambré/brun doré, utilisé pour D2/T4).
 
 ---
