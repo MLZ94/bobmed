@@ -192,6 +192,8 @@ Les sections DP, KFP et TCS sont verrouillées question par question : on ne peu
 
 La **première question** de chaque section DP/KFP/TCS est libre (non verrouillée). Les suivantes sont ajoutées dynamiquement par `initLocks()`.
 
+**Piège à éviter** : `initLocks()` fait `document.querySelector('.wrap')`, qui renvoie le **premier** élément portant la classe `.wrap` dans le document. Si le `<header>` est structuré en `<header><div class="wrap">…</div></header>` (au lieu de placer `h1`/`.sub`/`.scorebar` directement dans `<header>`, sans wrapper), ce `querySelector` cible le `.wrap` du header — vide de `.q`/`.sect` — et `initLocks()` ne verrouille alors **silencieusement rien** (aucune erreur JS, juste un flou progressif absent). Toujours vérifier après création d'un quiz que le `<header>` ne contient pas de `div class="wrap"` interne (renommer en `.hwrap` si un conteneur centré est nécessaire dans le header), et confirmer visuellement (ou via un test headless) que les questions Q2+ des sections DP/KFP/TCS sont bien floutées au chargement de la page.
+
 ```javascript
 function initLocks() {
   let nextFree = false, inDP = false;
