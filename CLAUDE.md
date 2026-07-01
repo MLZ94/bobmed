@@ -41,7 +41,7 @@ d2/tN/Quiz_*.html    ← quiz UE de D2-TN, fichier physique dans le dossier du t
 
 À l'intérieur d'un portail (`annales/index.html` ou `d2/tN/index.html`), les annales sont groupées **par UE** (un bloc/titre `.ue` par UE), puis à l'intérieur de chaque groupe UE, classées **par ordre chronologique croissant** (session la plus ancienne en premier, la plus récente en dernier), à l'image de ce qui existe déjà dans `annales/index.html` (ex. UE 1.1 : 2022-2023 S1 → S2 → 2023-2024 S1 → S2 → 2024-2025 S1 → S2). Une session normale précède toujours son rattrapage de la même année. Respecter cet ordre à chaque ajout d'une nouvelle annale, quel que soit le portail concerné.
 
-Couleur accent par défaut : `--acc:#b06800` (ambré/brun doré, utilisé pour D2/T4).
+**Palette unifiée du site (depuis 2026-07)** : tous les quiz, portails, fiches et la page d'accueil partagent désormais la même palette « hybride indigo/cyan » — plus de couleur accent différente par UE ou par trimestre. Ne jamais réintroduire de couleur accent ad hoc par section ; toujours utiliser `--acc:#4f46e5` (indigo) comme couleur primaire, `--acc2:#06b6d4` (cyan) comme secondaire le cas échéant.
 
 ---
 
@@ -51,9 +51,10 @@ Couleur accent par défaut : `--acc:#b06800` (ambré/brun doré, utilisé pour D
 
 ```css
 :root {
-  --bg:#f6f5f1; --card:#fff; --ink:#1d1d1b; --mut:#6a6a66;
-  --line:#e3e1d8; --vrai:#1a7f37; --vraibg:#e9f6ec;
-  --faux:#c0392b; --fauxbg:#fbecea; --neu:#9a6a00; --acc:#b06800;
+  --bg:#f5f6f4; --card:#fff; --ink:#132025; --mut:#5b6b73;
+  --line:#dfe4e2; --vrai:#15803d; --vraibg:#eaf7ef;
+  --faux:#b91c1c; --fauxbg:#fbeceb; --neu:#b45309; --neubg:#fdf3e7;
+  --acc:#4f46e5; --acc2:#06b6d4;
 }
 ```
 
@@ -127,16 +128,17 @@ Chaque question `<div class="q">` contient dans cet ordre :
 ```css
 /* Verrouillage par flou — NE PAS utiliser display:none ni animation */
 .q.locked { opacity:.2; filter:blur(3px); pointer-events:none; user-select:none; }
-.q { transition: opacity .35s ease, filter .35s ease; }
+.q { transition: opacity .35s ease, filter .35s ease; border-radius:16px; box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06); }
 
 /* Badges question */
-.qnum { font-size:12px; font-weight:600; color:#fff; background:var(--acc); border-radius:6px; padding:2px 8px; }
+.qnum { font-size:12px; font-weight:600; color:#fff; background:var(--acc); border-radius:7px; padding:2px 8px; }
 .qtype { font-size:11px; font-weight:600; color:var(--mut); border:1px solid var(--line); border-radius:5px; padding:1px 6px; }
 
-/* Options */
-.opt { display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:9px; padding:9px 11px; margin:7px 0; cursor:pointer; }
-.opt .box { flex:none; width:24px; height:24px; border:1.5px solid #b9b7ad; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; }
-.opt.sel { border-color:var(--acc); background:#fdf3e0; }
+/* Options — boîte ronde pour QRU/TCS (choix unique), carrée arrondie pour QRM (choix multiple) */
+.opt { display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:12px; padding:9px 11px; margin:7px 0; cursor:pointer; }
+.opt .box { flex:none; width:24px; height:24px; border:1.5px solid #b9b7ad; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; }
+.q[data-type="QRU"] .opt .box { border-radius:999px; }
+.opt.sel { border-color:var(--acc); background:#eef2ff; }
 .opt.sel .box { background:var(--acc); border-color:var(--acc); color:#fff; }
 .opt.correct { border-color:var(--vrai); background:var(--vraibg); }
 .opt.correct .box { background:var(--vrai); border-color:var(--vrai); color:#fff; }
@@ -144,7 +146,14 @@ Chaque question `<div class="q">` contient dans cet ordre :
 .opt.missed { border-style:dashed; border-color:var(--vrai); }
 
 /* Contexte clinique DP */
-.dpctx { background:#fef8ec; border:1px solid #f0dfa0; border-left:4px solid var(--acc); border-radius:8px; padding:10px 14px; font-size:14px; color:#4a3200; margin-bottom:14px; }
+.dpctx { background:#eef2ff; border:1px solid #dbe4ff; border-left:4px solid var(--acc); border-radius:10px; padding:12px 16px; font-size:14px; color:#1e2a5e; margin-bottom:16px; }
+
+/* Note/explication (encart ambré, distinct de l'accent principal) */
+.note { background:#fffaeb; border:1px solid #fedf89; border-left:3px solid var(--neu); border-radius:9px; padding:10px 14px; font-size:13.5px; margin:8px 0 10px; color:#6b3d0a; }
+
+/* Bouton principal */
+button.validate { background:var(--acc); border-color:var(--acc); color:#fff; border-radius:10px; }
+button.validate:hover { filter:brightness(1.08); }
 
 /* Note de correction */
 .note { background:#fef8ec; border:1px solid #f0dfa0; border-radius:8px; padding:9px 12px; font-size:14px; margin:6px 0 10px; color:#4a3200; }
