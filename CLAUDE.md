@@ -108,7 +108,9 @@ Chaque question `<div class="q">` contient dans cet ordre :
   </div>
   <div class="correction" hidden>
     <div class="ans">Réponse : A, B</div>
-    <div class="note">Explication…</div>
+    <!-- verdict VRAI/FAUX par option, cf. "Format de correction détaillée" plus bas -->
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — justification.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — justification.</div>
   </div>
 </div>
 ```
@@ -157,7 +159,36 @@ button.validate:hover { filter:brightness(1.08); }
 
 /* Note de correction */
 .note { background:#fef8ec; border:1px solid #f0dfa0; border-radius:8px; padding:9px 12px; font-size:14px; margin:6px 0 10px; color:#4a3200; }
+
+/* Correction détaillée VRAI/FAUX par option (cf. section suivante) */
+.citem { font-size:14.5px; padding:5px 0; border-bottom:1px solid #f0efe9; }
+.citem:last-child { border-bottom:0; }
+.cl { font-weight:600; }
+.v-vrai .cv { color:var(--vrai); font-weight:600; }
+.v-faux .cv { color:var(--faux); font-weight:600; }
 ```
+
+### Format de correction détaillée (VRAI/FAUX par option)
+
+Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par option (en couleur) suivi de sa justification, plutôt qu'une simple liste de lettres. C'est le format historique des annales D1, et le standard du site depuis 2026-07 (y compris pour les quiz générés par `pdf_to_quiz.py`) :
+
+```html
+<div class="correction" hidden>
+  <div class="ans">Réponse : AC</div>
+  <!-- note générale optionnelle (rappel de cours, précision transversale) -->
+  <div class="note"><div class="rappel"><b>Attention</b> : précision qui ne concerne pas une seule option…</div></div>
+  <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — justification.</div>
+  <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — justification.</div>
+  <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — justification.</div>
+  <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div> <!-- justification absente = pas de tiret -->
+</div>
+```
+
+- Un `<div class="citem v-vrai">` ou `v-faux"` par option, **dans le même ordre que `<ul class="opts">`**, qu'elle soit notée correcte ou non par l'énoncé.
+- Justification après un tiret cadratin (` — `) uniquement si elle existe dans le PDF source ; sinon la ligne s'arrête après VRAI/FAUX (jamais de justification inventée).
+- Une précision qui ne concerne pas une option précise (rappel de cours, remarque transversale) va dans un `<div class="note"><div class="rappel">…</div></div>` placé **avant** les `.citem`, jamais fondue dans le texte d'une option.
+- **TCS** : ne s'applique pas — ses options (improbable/…/certain) ne sont pas des affirmations vraies/fausses. Garder le format `<div class="ans">Réponse : X — texte</div>` + `<div class="note">` pour les réponses alternatives validées par le jury (cf. section TCS ci-dessous).
+- **QROC** : inchangé (`<div class="qrocans">` / `<div class="qrocmodel">`).
 
 ---
 
@@ -190,6 +221,7 @@ button.validate:hover { filter:brightness(1.08); }
 - Options fixes : A = improbable · B = peu probable · C = ni plus ou moins probable · D = probable · E = certain
 - `data-correct` = réponse de l'expert principal
 - Dans la correction : mentionner les autres réponses validées par les experts
+- **Ne PAS utiliser le format `.citem` VRAI/FAUX** (cf. « Format de correction détaillée » plus haut) : les degrés de probabilité ne sont pas des affirmations vraies/fausses. Garder `<div class="ans">Réponse : X — texte</div>` + `<div class="note">` pour les alternatives validées par le jury.
 
 ---
 
