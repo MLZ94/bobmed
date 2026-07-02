@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BobMed — Révisions interactives</title>
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
 :root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--acc:#4f46e5;--acc2:#06b6d4;--acc3:#7c3aed;--d1:#4338ca;--d2:#0e7490}
 *{box-sizing:border-box}
@@ -14,7 +14,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,
 h1{font-size:26px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
 .sub{color:var(--mut);font-size:15px;max-width:560px}
 
-/* Séparateurs de bloc D1 / D2 */
 .year-block{margin-bottom:48px}
 .year-header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
 .year-badge{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;border-radius:8px;padding:4px 14px}
@@ -42,7 +41,6 @@ h1{font-size:26px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em}
 
 footer{margin-top:20px;color:var(--mut);font-size:12.5px;border-top:1px solid var(--line);padding-top:18px}
 
-/* Toggle thème sombre */
 .theme-row{display:flex;align-items:center;gap:10px;margin-top:14px}
 .theme-label{font-size:13.5px;color:var(--mut);user-select:none;cursor:pointer}
 .sw{position:relative;display:inline-block;width:42px;height:23px;flex:none}
@@ -184,6 +182,26 @@ toggle.addEventListener('change', () => {
   document.documentElement.classList.toggle('dark', dark);
   localStorage.theme = dark ? 'dark' : 'light';
 });
+
+// Scroll vers l'ancre #d1 ou #d2 si présente dans l'URL
+(function () {
+  function scrollToHash() {
+    var hash = window.location.hash.replace('#', '');
+    if (!hash) return;
+    var target = document.getElementById(hash);
+    if (target) {
+      setTimeout(function () {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 80);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scrollToHash);
+  } else {
+    scrollToHash();
+  }
+  window.addEventListener('hashchange', scrollToHash);
+})();
 
 document.querySelectorAll('.quiz-count[data-portal]').forEach(badge => {
   fetch(badge.dataset.portal)
