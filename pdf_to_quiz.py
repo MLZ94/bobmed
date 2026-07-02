@@ -531,6 +531,7 @@ def render_question(section_code, q, image_html=""):
 
 
 HTML_TEMPLATE = """<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="{favicon_href}">
 <title>Quiz — {title_plain}</title><style>
 :root{{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}}
 *{{box-sizing:border-box}}
@@ -720,7 +721,7 @@ initLocks();updateScore();
 """
 
 
-def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None):
+def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, favicon_href="../favicon.svg"):
     images_by_qid = images_by_qid or {}
     total_q = sum(len(s["questions"]) for s in sections)
     graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
@@ -752,6 +753,7 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None):
         total_q=total_q,
         graded_q=graded_q,
         body_html=body_html,
+        favicon_href=favicon_href,
     )
 
 
@@ -977,10 +979,14 @@ def run(pdf_path, debug=False):
         sub_bits.append(f'{esc(s["code"])} ({n}{", verrouillé" if locked else ""})')
     sub_html = f"{total_q} questions : " + " · ".join(sub_bits)
 
-    out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html, images_by_qid)
-    # Injection automatique du fil d'Ariane
+    # Calcul du chemin relatif au favicon selon la profondeur du dossier
     _bc_folder = meta.get("folder", "annales")
-    _bc_depth  = "../../" if str(_bc_folder).startswith("d2/") else "../"
+    favicon_depth = "../../" if str(_bc_folder).startswith("d2/") else "../"
+    favicon_href = favicon_depth + "favicon.svg"
+
+    out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html, images_by_qid, favicon_href)
+    # Injection automatique du fil d'Ariane
+    _bc_depth  = favicon_depth
     out_html   = out_html.replace("</body>", f'<script src="{_bc_depth}breadcrumb.js"></script>\n</body>', 1)
 
     base_dir = os.path.dirname(os.path.abspath(pdf_path))
