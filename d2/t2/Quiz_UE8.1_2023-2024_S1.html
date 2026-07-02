@@ -1,0 +1,890 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz — Hépato-Gastro/Chir-Dig · DFA1-UE8.1 DECEMBRE 2023 (session normale)</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+
+/* --- Design hybride indigo/cyan (mise a jour palette + polish) --- */
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 8.1 — Hépato-Gastro / Chir-Dig · Session normale (décembre 2023)</h1>
+<div class="sub">46 questions : mDP2 hépatite auto-immune (6, verrouillé) · DP1 cancer du pancréas (15, verrouillé) · KFP1 méléna/cirrhose (3, verrouillé) · SQI2 (10) · mDP1 cholécystite (6, verrouillé) · TCS1 (3, verrouillé) · KFP2 fécalome (3, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/46</b></span>
+<span class="pill">Score : <b id="s-ok">0/44</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">mDP2 — Hépatite auto-immune</div>
+
+<div class="q" id="mDP2-Q1" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mademoiselle D. âgée de 17 ans consulte pour asthénie et cytolyse évoluant depuis 6 mois (ALAT 478 UI/l, ASAT 289 UI/l (N &lt; 40)). Elle est née en France d'origine sénégalaise et n'a pas quitté la France métropolitaine depuis 10 ans, est lycéenne en terminal, célibataire sans enfant, et vit chez ses parents. Elle n'a pas d'antécédent personnel et est à jour de toutes ses vaccinations. Elle ne prend aucun médicament, ne déclare pas de consommation d'alcool et n'a jamais été usagère de drogue. Le seul antécédent familial relevé est une thyroïdite d'Haschimoto chez la mère de la patiente. L'examen retrouve un état général conservé, un poids de 78 kg pour une taille de 169 cm, un foie non palpable et l'absence de signe clinique de maladie chronique du foie.</div>
+<div class="stem">Quel(s) signe(s) radiologique(s) parmi les suivants témoignerai(en)t d'une cirrhose ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Atrophie du foie gauche et hypertrophie compensatrice du foie droit</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Atrophie du foie droit et hypertrophie compensatrice du foie gauche</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Splénomégalie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Anastomose spléno-rénale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elargissement des veines sus-hépatiques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div></div>
+</div>
+
+<div class="q" id="mDP2-Q2" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) signe(s) biologique(s) parmi les suivants témoignerai(en)t d'une cirrhose ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Thrombocytose</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hémolyse</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Baisse du TP à 53% avec facteur V à 112%</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Baisse du TP à 53% avec facteur V à 50%</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elévation des GGT à 98 UI/l (N &lt; 40)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div></div>
+</div>
+
+<div class="q" id="mDP2-Q3" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP2 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez à une maladie de Wilson et que vous apprenez que les parents sont consanguins. Cette nouvelle information rend votre hypothèse diagnostique...</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div></div>
+</div>
+
+<div class="q" id="mDP2-Q4" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP2 Q4</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez à une maladie de Wilson et que vous apprenez que la sœur de la patiente âgée de 14 ans est en cours d'exploration pour un syndrome extra-pyramidal. Cette nouvelle information rend votre hypothèse diagnostique...</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div><div class="note">Réponses C (ni plus ou moins probable) et E (certain) également valorisées par le jury.</div></div>
+</div>
+
+<div class="q" id="mDP2-Q5" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">mDP2 Q5</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le bilan fait par le médecin traitant suggère une maladie chronique du foie parvenue au stade de cirrhose (dysmorphie hépatique avec atrophie du foie droit et hypertrophie compensatrice du foie gauche, contours du foie bosselés, élasticité hépatique élevée à 29kPa, thrombopénie à 102 G/L, TP 53%, facteur V 50%) sans élément d'orientation clinique. Le bilan étiologique est en cours et le premier résultat reçu est l'électrophorèse des protéines sériques (EPP), <em>image non disponible dans cette version numérique — voir le PDF original</em>, montrant un bloc bêta-gamma. Quelle est l'anomalie observée (3 mots max) ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Hyper gammaglobulinémie polyclonale (Hypergammaglobulinémie, Elévation polyclonale des gammaglobulines)</div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q6" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">mDP2 Q6</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'hyper-gammaglobulinémie polyclonale observée sur l'EPP est développée aux dépens des IgG (39 g/l). Quelle est alors votre hypothèse diagnostique (3 mots max) ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Hépatite chronique auto-immune (Cirrhose auto-immune)</div>
+</div>
+</div>
+
+<div class="sect">DP1 — Douleurs abdominales, cancer du pancréas</div>
+
+<div class="q" id="DP1-Q1" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme U consulte pour douleurs abdominales. Elle a 54 ans et est caissière dans une librairie. Elle consomme exceptionnellement un verre de champagne. Elle fume un demi-paquet de cigarettes par jour. Elle présente des antécédents d'appendicectomie réalisée dans l'enfance, de reflux gastro-œsophagien ancien peu invalidant traité occasionnellement par alginates et de diabète de type II évoluant depuis plus de 20 ans traité par insulinothérapie depuis plus de 5 ans. On note des antécédents de polypes du colon chez son frère et un diabète de type II chez sa sœur ainée. Mme U pèse 89kg pour 1m69. Vous l'interrogez plus en détail sur son histoire récente et ses symptômes. Elle dit avoir présenté des dorsalgies il y a environ deux semaines et s'être à ce moment automédiquée par ibuprofène pendant 3 à 4 jours. Des douleurs épigastriques sont apparues au décours de cet épisode. Il s'agissait initialement d'une simple gêne épigastrique transitoire. Ces douleurs épigastriques sont décrites comme maintenant plus fortes et transitoirement calmées par la prise d'aliments. Il n'y a pas de fièvre, ni de trouble du transit.</div>
+<div class="stem">Parmi les propositions suivantes, quel est le diagnostic le plus probable ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Cholécystite aigue</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Pancréatite aigue</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Ulcère gastro-duodénal</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Cancer colique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Colique néphrétique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — Ulcère gastro-duodénal</div></div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) est (sont) l'(es) élément(s) de cet énoncé évocateur(s) du diagnostic d'ulcère gastro-duodénal ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le siège de la douleur</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La dorsalgie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La prise d'Ibuprofène</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'aggravation progressive</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le tabagisme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous réalisez l'examen clinique. La fréquence cardiaque est de 65 bpm. La tension artérielle est à 135/98 et la SaO2 à 98% en air ambiant. Il existe une pâleur. La palpation abdominale retrouve une sensibilité épigastrique, sans défense. Les bruits hydro-aériques sont présents. Les aires herniaires sont libres. Le toucher rectal ne retrouve pas d'anomalie. Parmi les explorations suivantes, quelle(s) exploration(s) complémentaire(s) proposez-vous dans un premier temps ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Scanner abdomino-pelvien sans puis avec injection de produit de contraste</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Endoscopie oeso-gastro-duodénale</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Dosage des beta-HCG</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">NFS</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Test immunologique pour recherche de sang occulte dans les selles</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div></div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La NFS montre un taux hémoglobine de 10.5g/dL, un VGM à 79fL, des plaquettes à 350 G/L et des leucocytes à 14 G/L. L'ionogramme est normal. Vous annoncez à la patiente qu'une endoscopie oeso-gastro-duodénale est nécessaire. Elle vous interroge sur l'apport attendu de cette exploration et sur ses modalités. Parmi les propositions suivantes, indiquez la(les) réponse(s) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Cette exploration nécessite d'être à jeûn</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">En cas d'ulcère gastrique ou duodénal identifié, il faudra systématiquement réaliser une recherche d'infection à Helicobacter pylori par test respiratoire au décours de l'exploration endoscopique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">En cas d'ulcère gastrique ou duodénal, une recherche d'infection à Helicobacter pylori sera réalisée pendant l'examen par biopsies de l'antre, l'angle et du fundus gastrique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">En cas d'ulcère duodénal, il est nécessaire de réaliser des biopsies des berges en raison d'un risque de transformation néoplasique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une coloscopie serait également indiquée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'endoscopie oeso-gastro-duodénale retrouve une œsophagite de grade B, il n'y a pas de lésion proliférative oeso-gastro-duodénale ni de lésion ulcéreuse gastro-duodénale. Les prélèvements ne retrouvent pas d'infection à Helicobacter Pylori. La coloscopie totale réalisée dans de bonnes conditions de préparation est normale. Quel est l'examen complémentaire à prescrire dans ce cas ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">pH-impédancemétrie oesophagienne</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Manométrie oesophagienne</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Transit oeso-gastro-duodénal</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Dosage de la gastrinémie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Aucun examen complémentaire n'est nécessaire dans ce cas</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div></div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) traitement(s) et conseil(s) donnez-vous pour le traitement de ce reflux gastro-œsophagien compliqué d'une œsophagite ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Traitement antisécrétoire par inhibiteur de la pompe à proton</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un traitement chirurgical avec intervention de Nissen</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Ne pas se coucher trop tôt après un repas gras</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Perte de poids</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Eradication préventive d'Helicobacter Pylori</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div></div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Mme U revient vous voir deux mois plus tard, accompagnée de son mari après avoir été traitée par un antisécrétoire pleine dose pendant cette période. Les douleurs épigastriques se sont aggravées et sont décrites comme permanentes, diurnes et nocturnes parfois insomniantes. Elle dit avoir perdu 5kg. Elle pense avoir fait une « allergie au médicament prescrit » car elle a commencé à avoir des démangeaisons peu de temps après le début du traitement ce qui n'améliore pas son insomnie. Son mari est inquiet car il trouve qu'elle a le teint jaune. Vous observez un ictère cutanéo-muqueux. Elle a par ailleurs récemment consulté son médecin endocrinologue en raison de troubles de l'équilibre glycémique inhabituels. Ce médecin lui a fait réaliser un bilan sanguin (<em>bilan biologique complet — non disponible dans cette version numérique, voir le PDF original</em>) qu'elle vous remet. Au vu de ces données cliniques et biologiques, indiquez la(les) réponse(s) exacte(s) :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il s'agit d'un ictère à bilirubine mixte</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il s'agit d'un ictère à bilirubine conjuguée</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il s'agit probablement d'un syndrome de Gilbert</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il existe probablement une carence en vitamine K</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il existe probablement une insuffisance hépatocellulaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div></div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, quelle(s) est(sont) la(les) réponse(s) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Mme U a probablement les selles décolorées</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Mme U a probablement les urines claires</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Mme U a probablement les urines foncées</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vous demandez la réalisation d'une échographie abdominale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous demandez la réalisation d'une nouvelle endoscopie digestive haute</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div></div>
+</div>
+
+<div class="q" id="DP1-Q9" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'échographie abdominale retrouve une dilatation de la voie biliaire principale mesurée à 14 mm de diamètre. Les voies biliaires intrahépatiques sont également dilatées. Le radiologue a fait réaliser un scanner abdomino-pelvien complémentaire (<em>compte rendu — non disponible dans cette version numérique, voir le PDF original</em>). Mme U vous appelle immédiatement après la réalisation de ce scanner. Elle dit avoir de la fièvre avec une température mesurée à 38.5°C. Mme U et son mari vous questionnent sur la possibilité d'un cancer du pancréas. Parmi les propositions suivantes, quelle(s) est(sont) la(les) réponse(s) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La présence d'un hydrocholécyste peut être un signe de tumeur pancréatique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le déséquilibre glycémique peut être un signe de tumeur pancréatique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le tabac est un facteur de risque de tumeur pancréatique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'obésité est un facteur de risque de tumeur pancréatique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les tumeurs neuroendocrines pancréatiques sont le type histologique le plus fréquent</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div><div class="note">La présence d'un hydrocholécyste (item A) a été jugée fausse par le barème officiel malgré l'intuition clinique — les tumeurs neuroendocrines (item E) ne sont pas le type le plus fréquent (c'est l'adénocarcinome).</div></div>
+</div>
+
+<div class="q" id="DP1-Q10" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, quelle(s) est(sont) la(les) action(s) à envisager en première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Dosage du CA 125</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Scanner Thoracique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Duodéno-pancréatectomie céphalique pour examen anatomopathologique extemporané</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Echoendoscopie avec ponction pancréatique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Cholangiographie rétrograde endoscopique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q11" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q11</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'écho-endoscopie ponction confirme une tumeur pancréatique céphalique avec dilatation des voies biliaires intrahépatiques et de la voie biliaire principale. Une ponction de la lésion a été réalisée. La CPRE permet la pose d'une prothèse biliaire métallique pour la désobstruction des voies biliaires après sphinctérotomie. Mme U consulte les urgences 48h après la réalisation de ces examens endoscopiques pour l'apparition de douleurs abdominales très intenses. Ces douleurs sont épigastriques et transfixiantes. Les antalgiques de palier 1 ne permettent pas le contrôle de ces douleurs. Devant cette situation, quel est le diagnostic le plus probable ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Péritonite biliaire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Cholécystite aiguë</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Pancréatite aiguë</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Perforation digestive</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ulcère gastro-duodénal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — Pancréatite aiguë</div></div>
+</div>
+
+<div class="q" id="DP1-Q12" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le bilan biologique retrouve une lipasémie à 12 000 UI/L (N 10-60), une CRP à 219 mg/L avec une hyperleucocytose à 18G/L. Il existe également une insuffisance rénale aigue avec oligurie, urée à 14mmol/L et créatinine à 159 mmol/L. La saturation est à 93% en air ambiant. Devant cette situation, parmi les propositions suivantes, laquelle (lesquelles) mettez-vous en œuvre immédiatement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Réalisation d'un scanner abdomino-pelvien</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Réalisation d'une cholangio-IRM</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hospitalisation en unité de soins intensifs</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Prophylaxie thromboembolique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Perfusion abondante de solutés hydroélectrolytiques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q13" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'évolution de cette pancréatite aiguë post CPRE est favorable après un séjour de 72h en unité de soins continus. Mme U est transférée en service de gastroentérologie, le scanner thoracique est normal et vous recevez le compte rendu de l'analyse anatomopathologique de la ponction pancréatique : « Fragments d'un tissu pancréatique avec prolifération tumorale de cellules disposées en tubes ou en amas. L'aspect est en faveur d'un adénocarcinome moyennement différencié excréto-pancréatique ». Concernant l'annonce diagnostique, quelle(s) est (sont) la (les) réponse(s) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le mari ne souhaite pas que son épouse soit informée du diagnostic de cancer et il faut respecter sa volonté</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'annonce de la maladie doit être claire, loyale et appropriée au contexte</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Mme U doit être prévenue de son droit d'obtenir un second avis</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'annonce de la maladie doit se faire lors d'une consultation sans le mari</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le dossier de Mme U doit être discuté en réunion de concertation pluridisciplinaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q14" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le dossier de Mme U est discuté en RCP. Quel(s) est(sont) le(s) critère(s) de qualité d'une RCP ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Au minimum 5 spécialités doivent y être représentées</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Tout nouveau cas est présenté</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Tout changement de traitement y est discuté</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle doit être hebdomadaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle permet d'établir un programme personnalisé de soins</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div></div>
+</div>
+
+<div class="q" id="DP1-Q15" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q15</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La réunion de concertation disciplinaire propose un traitement par chirurgie avec réalisation d'une duodéno-pancréatectomie céphalique suivie d'une chimiothérapie adjuvante à base d'antimétabolite (5-Fluorouracile) et de sels de platine. On observe une perte de 10 kg après la chirurgie et 2 mois de chimiothérapie. Mme U rapporte une diarrhée quotidienne à 4 à 5 exonérations par jour depuis près de 6 semaines. Les selles sont volumineuses, jaunâtres, collant à la cuvette. Elle n'a pas pris de nouveau traitement récemment hormis des antidiarrhéiques qui ne semblent pas être efficaces. Parmi les propositions suivantes, quelle est la proposition la plus probable ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il s'agit probablement d'une diarrhée secondaire à la chimiothérapie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Il s'agit probablement d'une maladie cœliaque</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il s'agit probablement d'une diarrhée par malabsorption</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il s'agit probablement d'une insuffisance pancréatique endocrine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il s'agit probablement d'une récidive d'ictère à bilirubine conjuguée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — Diarrhée par malabsorption</div></div>
+</div>
+
+<div class="sect">KFP1 — Méléna, cirrhose alcoolique</div>
+
+<div class="q" id="KFP1-Q1" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRPL · 3 réponses max</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une femme de 71 ans, sans antécédents médico-chirurgicaux, est adressée aux urgences pour méléna. Elle déclare une consommation d'alcool de deux à trois verres par jour et d'un apéritif le samedi et le dimanche, et ne prend aucun médicament. L'examen clinique montre : score de Glasgow à 15, poids de 59 kg pour une taille d'1,69 m, pression artérielle de 100/70 mm Hg, pouls 105/minute, saturation 97%, subictère conjonctival, hépatosplénomégalie et 5 angiomes stellaires de la base du cou et des épaules.</div>
+<div class="stem">Quels examens complémentaires sont indispensables en urgence ? Sélectionnez jusqu'à 3 items.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Alcoolémie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Groupe sanguin</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">NFS</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Réticulocytes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Facteur V</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Temps de saignement</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Bilirubine totale</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Phosphatases alcalines</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">GGT</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Transaminases</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Ferritine</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Albumine</span></li>
+<li class="opt" data-l="M" data-correct="0"><span class="box">M</span><span class="otext">Gaz du sang</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div></div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="AIJL" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRPL · 4 réponses max</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles mesures thérapeutiques indispensables doivent être mises en œuvre sans délai ? Sélectionnez jusqu'à 4 items.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Mise en place de 2 voies veineuses</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Mise en place d'un cathéter central</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Sonde nasogastrique déclive</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Sonde gastrique en aspiration</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Remplissage vasculaire par sérum salé isotonique</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Remplissage vasculaire par albumine</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Transfusion de culots globulaires</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Antibiothérapie orale</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Antibiothérapie par voie intra-veineuse</span></li>
+<li class="opt" data-l="J" data-correct="1"><span class="box">J</span><span class="otext">Inhibiteurs de la pompe à protons par voie intra-veineuse</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Inhibiteurs de la pompe à protons per os</span></li>
+<li class="opt" data-l="L" data-correct="1"><span class="box">L</span><span class="otext">Drogue vasoactive type sandostatine par voie intra-veineuse</span></li>
+<li class="opt" data-l="M" data-correct="0"><span class="box">M</span><span class="otext">Sonde de tamponnement oesophagien</span></li>
+<li class="opt" data-l="N" data-correct="0"><span class="box">N</span><span class="otext">TIPS de sauvetage</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, I, J, L</div></div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="AF" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRPL · 3 réponses max</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après la prise en charge immédiate aux urgences de votre patiente, quelles explorations digestives envisageriez-vous ? Sélectionnez jusqu'à 3 items.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Fibroscopie oeso-gastroduodénale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Rectoscopie au tube rigide</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Anuscopie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Rectosigmoïdoscopie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Coloscopie totale systématique</span></li>
+<li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Coloscopie totale si la fibroscopie est normale</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Entéroscopie</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Vidéocapsule de grêle</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">EntéroIRM</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Transit oesogastroduodénal</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Transit du grêle</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Lavement Baryté</span></li>
+<li class="opt" data-l="M" data-correct="0"><span class="box">M</span><span class="otext">Lavement aux hydrosolubles</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, F</div></div>
+</div>
+
+<div class="sect">SQI2</div>
+
+<div class="q" id="SQI2-Q1" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquer les propositions exactes concernant la maladie cœliaque ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est liée à une intolérance à la gliadine</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle est associée à une diarrhée motrice</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle est associée à une malabsorption</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il s'agit d'une maladie auto-immune</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le traitement repose sur un régime d'éviction du gluten</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div></div>
+</div>
+
+<div class="q" id="SQI2-Q2" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquer les propositions exactes concernant la maladie cœliaque ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est liée à une intolérance à la gliadine</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle est associée à une diarrhée motrice</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle est associée à une malabsorption</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il s'agit d'une maladie auto-immune</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le traitement repose sur un régime d'éviction du gluten à vie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div></div>
+</div>
+
+<div class="q" id="SQI2-Q3" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI2 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">On vous demande votre avis sur le bilan biologique d'un homme de 39 ans, déclarant une consommation de 5 verres d'alcool/jour, hospitalisé depuis la veille pour crise comitiale généralisée. Il est asymptomatique, pèse 75 kg pour une taille de 1,80m, et ne présente pas d'anomalie de l'examen clinique. Le bilan biologique fait aux urgences montre : Bilirubine totale 12 µmol/l — Ph Alcalines 89 UI/L (N &lt; 110), GGT 195 UI/l (N &lt; 40) — ASAT 931 UI/l (N &lt; 40), ALAT 409 UI/l (N &lt; 40). Parmi les diagnostics suivants, quel est le plus probable ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hépatite alcoolique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hépatite virale aiguë</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hépatite auto immune</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Rhabdomyolyse</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Migration lithiasique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — Rhabdomyolyse</div><div class="note">Les transaminases en cas d'hépatite alcoolique aiguë ne dépassent jamais 10N, généralement 2 à 3N. La prédominance de la cytolyse sur les ASAT est évocatrice de rhabdomyolyse ; le terrain (consommation excessive d'alcool) prédispose aux chutes et/ou à l'immobilisation prolongée à l'origine de rhabdomyolyse.</div></div>
+</div>
+
+<div class="q" id="SQI2-Q4" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient consulte aux urgences pour une ascite apparue depuis 2 semaines. Quelle(s) est(sont) l'(les) anomalie(s) biologique(s) parmi les suivantes qui vous orienterai(en)t vers une cirrhose chez ce patient ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Augmentation de la bilirubine totale à 100 µmol/l (N&lt;20)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Augmentation des ALAT à 1100 UI/L (N&lt;30)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Diminution du facteur V à 30% (N&lt;80)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Plaquettes à 760 000/mm3 (N entre 150 000 et 400 000)</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Ascite pauvre en protides (12 g/l)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div></div>
+</div>
+
+<div class="q" id="SQI2-Q5" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI2 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient consulte pour des anomalies chroniques du bilan hépatique avec des ASAT à 50 UI/l (N&lt;35), des ALAT à 90 UI/l (N&lt;35), des GGT à 34 UI/l (N&lt;50), des PAL à 110 UI/l (N&lt;150) et une bilirubine totale à 10 µmol/L. Le patient vous montre les résultats d'une sérologie virale B : AgHBs négatif, anticorps anti HBc positif, anticorps anti HBs positif. A propos des résultats de la sérologie virale B, quelle est la bonne réponse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hépatite B aiguë</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hépatite B guérie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vaccination efficace contre l'hépatite B</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hépatite B chronique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hépatite C chronique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — Hépatite B guérie</div></div>
+</div>
+
+<div class="q" id="SQI2-Q6" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI2 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une femme de 37 ans est adressée pour tumeur du foie découverte devant des douleurs de l'hypochondre droit. Elle n'a aucun antécédent personnel ou familial, n'a jamais été transfusée ni usagère de drogue, a été vaccinée contre l'hépatite B et ne consomme pas d'alcool. L'examen clinique montre un poids de 62 kg pour une taille d'1,69 m, un foie de taille et de consistance normale, et l'absence de signe de maladie chronique du foie. A l'échographie abdominale le foie, de taille et de morphologie normales, est le siège d'un nodule hyperéchogène de 15 mm de diamètre bien limité. Parmi les diagnostics suivants, quel est le plus probable ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hémangiome bénin</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Kyste biliaire simple</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Adénome hépatocellulaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Carcinome hépatocellulaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ilot de stéatose focale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — Hémangiome bénin</div><div class="note">Terrain (pas de cause ni signe de maladie chronique du foie), aspect échographique typique (hyperéchogène bien limité), et argument de fréquence (la plus fréquente des tumeurs du foie : 5% de la population générale).</div></div>
+</div>
+
+<div class="q" id="SQI2-Q7" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquer les propositions exactes concernant les maladies inflammatoires chroniques de l'intestin (MICI)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le tabagisme actif est associé à un pronostic péjoratif en cas de maladie de Crohn</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une atteinte inflammatoire de l'intestin grêle est observée au cours de la rectocolite hémorragique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La rectocolite hémorragique atteint toujours le rectum et peut s'étendre plus ou moins haut dans le colon</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les MICI constituent un facteur de risque d'adénocarcinome colorectal</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les fistules, abcès et sténoses sont des complications fréquentes en cas de rectocolite hémorragique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div></div>
+</div>
+
+<div class="q" id="SQI2-Q8" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquer les propositions exactes concernant les tumeurs colorectales</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La polypose adénomateuse est une pathologie génétique à transmission récessive</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Au cours de la polypose adénomateuse familiale, le risque d'adénocarcinome colorectal apparait surtout après l'âge de 50 ans</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le test de dépistage du cancer colorectal par recherche immunologique s'adresse aux sujets à risque accru de cancer colorectal comme les patients atteints de MICI</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un test génétique somatique est systématique sur le prélèvement tumoral en cas de cancer métastatique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les cancers superficiels colorectaux peuvent être réséqués au cours d'une coloscopie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div></div>
+</div>
+
+<div class="q" id="SQI2-Q9" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquer les propositions exactes concernant Clostridioides Difficile</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La recherche de Clostridioides Difficile et de ses toxines doit être explicitement demandée lors de la prescription d'une coproculture</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La découverte de Clostridioides Difficile justifie une hospitalisation rapide</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La levée de l'isolement est conditionnée à une coproculture de contrôle négative</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le traitement médicamenteux d'une colite à Clostridioides Difficile associe un traitement anti diarrhéique par lopéramide et une antibiothérapie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le traitement non médicamenteux d'une colite à Clostridioides Difficile associe des mesures d'isolement et d'hygiène avec friction des mains du personnel soignant au gel hydro-alcoolique avant et après les soins</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div><div class="note">L'hygiène des mains en cas de C. difficile impose un lavage à l'eau et au savon (le gel hydro-alcoolique n'est pas sporicide), ce qui invalide l'item E tel que formulé.</div></div>
+</div>
+
+<div class="q" id="SQI2-Q10" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquer les propositions exactes concernant l'ictère</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Des troubles de l'hémostase peuvent survenir en cas d'ictère à bilirubine libre prolongé</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La cholangite biliaire primitive est une des causes d'ictère à bilirubine conjuguée intrahépatique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La cholangiographie rétrograde endoscopique est indiquée pour le traitement d'une angiocholite aigüe</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La cholécystectomie en urgence est indiquée en cas d'angiocholite aigüe</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Des selles décolorées peuvent être un symptôme révélateur d'un cancer</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div></div>
+</div>
+
+<div class="sect">mDP1 — Cholécystite aiguë</div>
+
+<div class="q" id="mDP1-Q1" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Madame H, âgée de 49 ans, consulte pour des douleurs en hypochondre droit et en épigastre depuis 2 jours. Elle est sans emploi, mariée, mère de 4 enfants entre 15 et 29 ans. Comme comorbidités, elle a un diabète de type II sous antidiabétiques oraux, une obésité stade II et une HTA traitée. L'examen clinique retrouve un état général conservé, un poids de 90 kg pour une taille de 162 cm, un état fébrile à 38,6°C et des douleurs à la palpation en hypochondre droit. L'anamnèse est compliquée car la patiente ne parle que très peu français.</div>
+<div class="stem">Au niveau du bilan biologique demandé par les urgentistes, vous voyez une NFS avec une leucocytose à 14 000/mm3 comme seule anomalie, une chimie avec des électrolytes et une fonction rénale dans la norme, ainsi qu'une CRP augmentée à 140 mg/l (norme &lt; 10 mg/l). Quel(s) autre(s) paramètre(s) du bilan sanguin, non demandé(s) par l'urgentiste, voulez-vous connaitre afin de proposer une prise en charge correcte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Ferritine et récepteur soluble de transferrine afin de connaitre un bilan martial actuel</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La fonction thyroïdienne, afin d'exclure une thyrotoxicose</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La procalcitonine, afin de différencier entre l'état inflammatoire et une infection bactérienne aigüe</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le cortisol, afin d'exclure l'origine surrénalienne de l'obésité de la patiente</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les transaminases ainsi que les paramètres de cholestase (phosphatases alcalines, g-glutamyltransferase, bilirubine) ainsi que lipase, afin d'exclure une migration lithiasique et pancréatite biliaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div></div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suspectez chez la patiente une cholécystite aigüe. Le chef de clinique de garde vous demande si le signe de Murphy chez la patiente est positif. Vous savez que ceci veut dire que :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le patient arrête son inspiration pendant que l'examinateur palpe la région sous les côtes dans la ligne medioclaviculaire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le patient arrête son extirpation pendant que l'examinateur palpe la région sous les côtes dans la ligne medioclaviculaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le patient a mal à la palpation de la fosse iliaque droite</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le patient a mal à la palpation de la fosse iliaque gauche</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le patient présente une défense et détente localisées en épigastre</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div></div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les tests hépatiques, les paramètres de cholestase et la lipase sont dans la norme. Quel examen d'imagerie allez-vous demander par la suite ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Aucun. De toute façon il existe l'indication à une cœlioscopie exploratrice, l'imagerie n'aura donc aucune conséquence thérapeutique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le scanner abdominal</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le scanner abdo-pelvien</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le scanner thoraco-abdo-pelvien</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'échographie abdominale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div></div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel élément scanographique et/ou échographique n'est pas associé avec une cholécystite aiguë :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Dilatation des voies biliaires extra- et intrahépatiques</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Infiltration de la graisse avoisinante</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Paroi vésiculaire épaissie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Paroi vésiculaire feuilletée</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Signe de Murphy échographique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div><div class="note">La dilatation des voies biliaires oriente vers un obstacle sur la voie biliaire principale (lithiase de la VBP, angiocholite), pas vers une cholécystite non compliquée.</div></div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diagnostic de cholécystite aigüe lithiasique est posé chez la patiente. Quel est le prochain geste à réaliser ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une gastroscopie afin d'exclure un ulcère gastrique perforé qui peut se présenter avec les mêmes symptômes qu'une cholécystite</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une IRM afin de s'assurer qu'il ne s'agit pas d'un cancer de la vésicule biliaire, en raison de l'âge de la patiente</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une cœlioscopie exploratrice en extrême urgence</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une antibiothérapie intraveineuse</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Pose d'une sonde nasogastrique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div></div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous posez l'indication opératoire. Quel est le geste à effectuer ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une cholécystectomie par cœlioscopie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une cholécystectomie par laparotomie, la cœlioscopie étant contre-indiquée chez les patients très obèses</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une cholécystectomie par cœlioscopie avec révision des voies biliaires</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une cholécystectomie par cœlioscopie avec une cholédochotomie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un drainage de la vésicule biliaire par cœlioscopie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div></div>
+</div>
+
+<div class="sect">TCS1</div>
+
+<div class="q" id="TCS1-Q1" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Un patient consulte pour un ictère avec des ASAT à 2340 UI/L (N&lt;40), des ALAT à 3450 UI/L (N&lt;40), GGT à 200 UI/L (N&lt;60 U), PAL à 156 UI/l (N&lt;120) avec une bilirubine totale à 455 µmol/l.</div>
+<div class="stem">Si votre hypothèse est une hépatite virale E et que vous apprenez que le patient a consommé des sushis de poisson. La nouvelle information rend l'hypothèse diagnostique...</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">très peu probable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">très probable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div><div class="note">Réponse C (ni plus ni moins probable) également valorisée par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si votre hypothèse est une hépatite virale A et que vous apprenez que le patient est revenu de vacances en Inde. La nouvelle information rend l'hypothèse diagnostique...</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">très peu probable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">très probable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div><div class="note">Réponse E (très probable) également valorisée par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si votre hypothèse est une maladie de Wilson et que vous apprenez que le patient a 75 ans. La nouvelle information rend l'hypothèse diagnostique...</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">très peu probable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">très probable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — très peu probable</div><div class="note">Réponse B (peu probable) également valorisée par le jury. La maladie de Wilson se révèle typiquement avant 40 ans.</div></div>
+</div>
+
+<div class="sect">KFP2 — Syndrome occlusif, fécalome</div>
+
+<div class="q" id="KFP2-Q1" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP2 Q1</span><span class="qtype">QRPL · 3 réponses max</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Un patient de 82 ans, sans antécédents médico-chirurgicaux, est adressé aux urgences pour suspicion d'un syndrome occlusif digestif, avec arrêt de transit depuis 3 jours. Il déclare ne pas avoir pris son traitement laxatif habituel depuis une semaine. L'examen clinique montre : score de Glasgow à 15, poids de 72 kg pour une taille d'1,69 m, pression artérielle de 120/70 mm Hg, pouls 105/minute, saturation 97%, hépatosplénomégalie, abdomen sensible en hypogastre, sans défense, ni contracture.</div>
+<div class="stem">Quels examens complémentaires sont indispensables en urgence ? Sélectionnez jusqu'à 3 items.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Alcoolémie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Groupe sanguin</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">NFS</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Réticulocytes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Facteur V</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Temps de saignement</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Bilirubine totale</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Phosphatases alcalines</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">GGT</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Transaminases</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Albumine</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Ferritine</span></li>
+<li class="opt" data-l="M" data-correct="0"><span class="box">M</span><span class="otext">Gaz du sang</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div></div>
+</div>
+
+<div class="q" id="KFP2-Q2" data-correct="AO" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP2 Q2</span><span class="qtype">QRPL · 4 réponses max</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles mesures thérapeutiques indispensables doivent être mises en œuvre sans délai ? Sélectionnez jusqu'à 4 items.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Mise en place de 2 voies veineuses</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Mise en place d'un cathéter central</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Sonde nasogastrique déclive</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Sonde gastrique en aspiration</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Remplissage vasculaire par sérum salé isotonique</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Remplissage vasculaire par albumine</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Transfusion de culots globulaires</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Antibiothérapie orale</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Antibiothérapie IV</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Inhibiteurs de la pompe à protons IV</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Inhibiteurs de la pompe à protons per os</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Drogue vasoactive type sandostatine par voie IV</span></li>
+<li class="opt" data-l="M" data-correct="0"><span class="box">M</span><span class="otext">Sonde de tamponnement oesophagien</span></li>
+<li class="opt" data-l="N" data-correct="0"><span class="box">N</span><span class="otext">TIPS de sauvetage</span></li>
+<li class="opt" data-l="O" data-correct="1"><span class="box">O</span><span class="otext">Toucher rectal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, O</div></div>
+</div>
+
+<div class="q" id="KFP2-Q3" data-correct="MN" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP2 Q3</span><span class="qtype">QRPL · 2 réponses max</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après la prise en charge immédiate aux urgences de votre patiente, vous constatez au toucher rectal un fécalome. Quelles explorations digestives envisageriez-vous ? Sélectionnez jusqu'à 2 items.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Fibroscopie oeso-gastroduodénale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Rectoscopie au tube rigide</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Anuscopie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Rectosigmoïdoscopie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Coloscopie totale systématique</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Coloscopie totale si la fibroscopie est normale</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Entéroscopie</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Vidéocapsule de grêle</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">EntéroIRM</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Transit oesogastroduodénal</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Transit du grêle</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Lavement Baryté</span></li>
+<li class="opt" data-l="M" data-correct="1"><span class="box">M</span><span class="otext">Lavement aux hydrosolubles</span></li>
+<li class="opt" data-l="N" data-correct="1"><span class="box">N</span><span class="otext">Scanner abdomino-pelvien</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : M, N</div></div>
+</div>
+
+<a class="back" href="index.html">← T2 D2</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+</body></html>
