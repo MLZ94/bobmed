@@ -104,6 +104,13 @@ NOISE_FIELD_RES = [
 LIGATURES = {
     "ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl",
     "ﬃ": "ffi", "ﬄ": "ffl",
+    # Certaines polices d'export (observe sur DEC22_HGEUE8.1.pdf) remappent les
+    # glyphes de ligature "f"/"fi"/"fl"/"ff" vers des codepoints de zone privee
+    # Unicode (PUA) au lieu de les resoudre ou de les laisser vides. Invisibles
+    # a l'affichage, ils avalent silencieusement toutes les lettres "f" du
+    # texte si non traites : verifier au cas par cas si le bug "ligature
+    # absente" reapparait (cf. checklist CLAUDE.md pt.2).
+    "": "f", "": "fi", "": "fl", "": "ff",
 }
 
 
