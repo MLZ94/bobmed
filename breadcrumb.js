@@ -77,6 +77,26 @@
       var a = document.createElement('a');
       a.href = item.href;
       a.textContent = item.label;
+      // Gestion du scroll vers l'ancre sur la même page (index.html#d1 / #d2)
+      a.addEventListener('click', function (e) {
+        var href = this.getAttribute('href');
+        var hashIdx = href.indexOf('#');
+        if (hashIdx === -1) return;
+        var anchor = href.slice(hashIdx + 1);
+        var hrefPath = href.slice(0, hashIdx);
+        // Vérifier si on pointe vers index.html de la racine du site
+        var currentPath = window.location.pathname;
+        var resolvedPath = new URL(href, window.location.href).pathname;
+        if (resolvedPath === currentPath) {
+          // Même page : scroll direct sans rechargement
+          e.preventDefault();
+          var target = document.getElementById(anchor);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.pushState(null, '', '#' + anchor);
+        }
+        // Sinon navigation normale vers index.html#d1/d2 :
+        // le script de scroll dans index.html prendra le relais
+      });
       nav.appendChild(a);
     } else {
       var span = document.createElement('span');
