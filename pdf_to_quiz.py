@@ -29,6 +29,7 @@ import re
 import json
 import html
 import base64
+import hashlib
 import argparse
 
 # ----------------------------------------------------------------------------
@@ -844,6 +845,29 @@ def run(pdf_path, debug=False):
         sys.exit(1)
 
     doc = fitz.open(pdf_path)
+
+    # Pré-passe : certains exports PDF intègrent les glyphes de case à cocher
+    # (☑/☐/◎/◉) comme images bitmap répétées à chaque option de chaque question.
+    # Ces icônes décoratives passent le filtre de taille en pixels (elles font
+    # parfois jusqu'à 512×512) mais se distinguent des vraies images cliniques
+    # par leur répétition : une image dont le contenu (hash) apparaît plus de
+    # 2 fois dans tout le document est presque certainement une icône. On
+    # exclut aussi (cf. plus bas) toute image dont la taille d'AFFICHAGE sur
+    # la page (bbox en points, indépendante de la résolution pixel) est petite
+    # — un glyphe de case à cocher s'affiche toujours à ~10-15pt quelle que
+    # soit sa résolution interne, alors qu'une vraie image clinique est
+    # affichée à une taille lisible (100pt+).
+    _hash_counts = {}
+    for page in doc:
+        for img in page.get_images(full=True):
+            xref = img[0]
+            try:
+                pix = fitz.Pixmap(doc, xref)
+                h = hashlib.md5(pix.samples).hexdigest()
+                _hash_counts[h] = _hash_counts.get(h, 0) + 1
+            except Exception:
+                continue
+
     page_texts = []
     pages_images = []   # [(ext, data), …] par page — utilisé en fallback
     image_events = []   # (page, y, ext, data) — pour l'assignation positionnelle
@@ -857,8 +881,14 @@ def run(pdf_path, debug=False):
                 w, h = info.get("width", 0), info.get("height", 0)
                 if w < 100 or h < 100:
                     continue
+                bbox = info.get("bbox", (0, 0, 0, 0))
+                if (bbox[2] - bbox[0]) < 40 or (bbox[3] - bbox[1]) < 40:
+                    continue  # affiché en icône (~10-15pt) : glyphe décoratif, pas une image clinique
                 xref = info["xref"]
                 try:
+                    pix = fitz.Pixmap(doc, xref)
+                    if _hash_counts.get(hashlib.md5(pix.samples).hexdigest(), 0) > 2:
+                        continue  # icône décorative répétée, pas une image clinique
                     extracted = doc.extract_image(xref)
                     imgs.append((extracted["ext"], extracted["image"]))
                     image_events.append((pno, info["bbox"][1], extracted["ext"], extracted["image"]))
@@ -871,6 +901,9 @@ def run(pdf_path, debug=False):
                 try:
                     info = doc.extract_image(xref)
                     if info.get("width", 0) < 100 or info.get("height", 0) < 100:
+                        continue
+                    pix = fitz.Pixmap(doc, xref)
+                    if _hash_counts.get(hashlib.md5(pix.samples).hexdigest(), 0) > 2:
                         continue
                     imgs.append((info["ext"], info["image"]))
                 except Exception:
