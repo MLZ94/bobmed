@@ -25,8 +25,8 @@
   var root  = depth > 0 ? '../'.repeat(depth) : './';
 
   var pageTitle = document.title || 'Quiz';
-  var quizLabel = pageTitle.split(' \u2014 ')[0].split(' | ')[0];
-  if (quizLabel.length > 55) quizLabel = quizLabel.slice(0, 52) + '\u2026';
+  var quizLabel = pageTitle.split(' — ')[0].split(' | ')[0];
+  if (quizLabel.length > 55) quizLabel = quizLabel.slice(0, 52) + '…';
 
   var items = [{ href: root + 'index.html', label: 'BobMed' }];
 
@@ -39,10 +39,10 @@
   if (inD2T) {
     var tNum = inD2T[1].toUpperCase();
     var tLabels = {
-      T1: 'T1 \u2014 Cardio \u00b7 Pneumo \u00b7 MT',
-      T2: 'T2 \u2014 H\u00e9pato-Gastro \u00b7 Neuro \u00b7 Psy',
-      T3: 'T3 \u2014 Dermato \u00b7 M\u00e9d. Interne \u00b7 Nephro',
-      T4: 'T4 \u2014 ORL \u00b7 Rhumato \u00b7 Endocrino \u00b7 LCA'
+      T1: 'T1 — Cardio · Pneumo · MT',
+      T2: 'T2 — Hépato-Gastro · Neuro · Psy',
+      T3: 'T3 — Dermato · Méd. Interne · Nephro',
+      T4: 'T4 — ORL · Rhumato · Endocrino · LCA'
     };
     items.push({ href: root + 'index.html#d2', label: 'D2' });
     items.push({ href: root + 'd2/' + inD2T[1] + '/index.html', label: tLabels[tNum] || tNum });
@@ -70,7 +70,7 @@
       var sep = document.createElement('span');
       sep.className = 'sep';
       sep.setAttribute('aria-hidden', 'true');
-      sep.textContent = '\u203a';
+      sep.textContent = '›';
       nav.appendChild(sep);
     }
     if (item.href) {
