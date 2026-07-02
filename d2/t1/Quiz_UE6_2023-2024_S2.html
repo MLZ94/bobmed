@@ -1,0 +1,959 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<title>Quiz — UE 6 — Maladies transmissibles · Rattrapage (juillet 2024)</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 6 — Maladies transmissibles · Rattrapage (juillet 2024)</h1>
+<div class="sub">42 questions : KFP1 (3, verrouillé) · DP1 (14, verrouillé) · SQI1 (15) · DP2 (10, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/42</b></span>
+<span class="pill">Score : <b id="s-ok">0/36</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">KFP1</div>
+
+<div class="q" id="KFP1-Q1" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une femme âgée de 85 ans, et ayant pour antécédent une chirurgie pour prothèse de hanche, est hospitalisée pour de la fièvre. Vous évoquez une infection associée aux soins.</div>
+<div class="stem">Sur la base de la (des)quelles des situations cliniques suivantes, un diagnostic d'infection associée aux soins pourrait être retenu ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">une infection dont l’incubation est ≥ 3 jours diagnostiquée 24h après l’admission est considérée comme nosocomiale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">une infection de prothèse de hanche survenant 9 mois après l’intervention chirurgicale est considérée comme associée aux soins</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">une infection associée aux soins est nécessairement nosocomiale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">une infection urinaire survenant 48h après l’admission est considérée comme nosocomiale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">une bactériémie à staphylocoque survenant 48h après le début de l’hospitalisation est considérée comme nosocomiale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="ACIJ" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRPL</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente était en rétention aiguë d’urines, elle a donc été sondée à demeure. Concernant l’infection urinaire nosocomiale de la patiente, quelles sont les 4 affirmations exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Enterococcus faecalis fait partie des pathogènes les plus fréquents dans cette situation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Staphylococcus aureus fait partie des pathogènes les plus fréquents dans cette situation</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Klebsiella pneumoniae fait partie des pathogènes les plus fréquents dans cette situation</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il est possible de désadapter la poche d’urines pour prélever un ECBU</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le sac collecteur peut être positionné dans le lit</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Une antibiothérapie est recommandée avant le changement de sonde en cas de bactériurie</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">En cas de fièvre une bandelette urinaire est recommandée pour conforter le diagnostic</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">En cas de présence de dépôts dans les urines le changement de sonde urinaire est recommandé</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">En cas de traitement antibiotique d’une infection urinaire sur sonde le changement de sonde est recommandé</span></li>
+<li class="opt" data-l="J" data-correct="1"><span class="box">J</span><span class="otext">L’infection urinaire est l’infection nosocomiale la plus fréquente</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, I, J</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">J.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L’ECBU isole une entérobactérie productrice de bêta-lactamase à spectre étendu. Quel type de précautions complémentaires préconisez-vous contacte</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Contact</div>
+</div>
+</div>
+
+<div class="sect">DP1</div>
+
+<div class="q" id="DP1-Q1" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une femme de 19 ans vous consulte en fin d’après-midi dans un centre municipal de santé pour la survenue de douleurs pelviennes antérieures très invalidantes apparues il y a 2 jours. Elle n'a pas d'antécédents médicaux notables. Ses douleurs sont importantes et elle les décrit comme une sensation de brulure. A l'examen clinique, vous observez une muqueuse très inflammatoire avec des vésicules mais aussi des érosions et des ulcérations superficielles qui concernent la vulve, le vagin et la zone cutanée périnéale. Vous observez à certains endroits de la zone inflammatoire un exsudat blanchâtre. La température est à 37°8 C. La patiente vous indique ne plus pouvoir uriner depuis la nuit. Le reste de l’examen clinique est sans particularité sachant que la douleur est telle que vous ne pouvez pas examiner la sphère génitale de façon plus approfondie et encore moins réaliser un toucher pelvien.</div>
+<div class="stem">Devant cette impossibilité d’uriner depuis une quinzaine d’heures que recherchez vous par un examen clinique simple ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : globe vésical</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous pensez à un globe vésical. Quel geste clinique vous permet de corroborer votre hypothèse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Silence vésical à l’auscultation de la zone périnéale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Douleur à la pression forte de la zone périnéale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Déclenchement d’une envie d’uriner à la stimulation de la face antérieure du vagin lors d’un toucher vaginal</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Matité à la percussion de la zone hypogastrique basse</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Présence d’urine au sondage urinaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant ce tableau clinique, quel diagnostic vous parait le plus probable ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Erysipèle</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">primo infection au papillomavirus</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">primo-infection herpétique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">gonococcie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">allergie de contact au latex (préservatifs)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diagnostic le plus probable est une primo-infection herpétique. Vous indiquez à la patiente que la transmission s’est faite très vraisemblablement à l’occasion d’un rapport sexuel. La patiente vous indique ne pas avoir de partenaire fixe et avoir eu 5 rapports non protégés dans le dernier mois avec des partenaires différents dont elle est en mesure de préciser les dates. Le ou les quels de ce/ces rapport/s potentiellement infectant/s est/sont compatibles avec cette primo-infection herpétique?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Rapport 3 jours avant le début des symptômes</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Rapport 5 jours avant le début des symptômes</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Rapport 15 jours avant le début des symptômes</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Rapport 20 jours avant le début des symptômes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Rapport 30 jours avant le début des symptômes l'incubation est de 2 à 7 jours</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant ce tableau typique de primo-infection herpétique, quel(s) examen(s) biologique(s) est(sont) recommandé(s) chez cette patiente ? :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">recherche du virus herpes simplex (HSV) par PCR sur un prélèvement des lésions génitales</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">recherche du virus herpes simplex (HSV) par PCR sur un prélèvement sanguin</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">examen cytobactériologique des urines</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">sérologie VIH</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">sérologie toxoplasmose devant un tableau typique comme celui là aucun examen n'est nécessaire pour la confirmation diagnostique. Par contre il y a eu exposition à IST : une sérologie VIH est indispensable . La séro toxo est un distracteur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) traitement(s) lui prescrivez vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">amoxicilline per os pendant 7 jours</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">valaciclovir per os pendant 10 jours</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">pommade à l'aciclovir en application locale pendant 10 jours</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">pommade corticoïdes en application locale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">antalgique palier 2 à la demande</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un mois plus tard la patiente va beaucoup mieux avec des lésions presque complètement cicatrisées. Vous l’informez du risque de récidive (récurrence). Parmi les informations ci-dessous quelle(s) est/ sont celle(s) pertinente(s) à lui transmettre ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La fréquence des récurrences est imprévisible à ce stade</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des sensations locales comme des brulures ou des picotements peuvent précéder l’apparition des lésions</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les lésions de récurrence sont en général plus intenses que lors de la primo-infection</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un traitement préventif des récurrences lui sera proposé dès la 1ère récurrence</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">En dehors des périodes de récurrence (avec des lésions actives visibles) le risque de transmission sexuelle est absolument nul</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Lors d’une récurrence et même si un traitement précoce est prescrit il faut plus d’un mois pour que les lésions cicatrisent</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En raison de cette situation à risque d’IST vous lui aviez prescrit une sérologie VIH le jour de votre consultation initiale. Cette sérologie a donc été prélevée 5 jours après le dernier rapport non protégé. Le résultat est négatif et la patiente vous demande si on peut être sûr qu’elle n’est pas infectée par le VIH. Quelle est votre réponse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Oui c’est sûr</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Non ce n’est pas sûr</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q9" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous lui répondez qu’on ne peut pas être sûr qu’elle n’est pas infectée par le VIH malgré la négativité de la sérologie. Elle réclame une explication. Quelle est la bonne réponse à lui fournir ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">les anticorps prouvant la présence du VIH apparaissent en moyenne 5 jours après le rapport infectant</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">les anticorps prouvant la présence du VIH apparaissent en moyenne 10 jours après le rapport infectant</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">les anticorps prouvant la présence du VIH apparaissent en moyenne 20 jours après le rapport infectant</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">les anticorps prouvant la présence du VIH apparaissent en moyenne 30 jours après le rapport infectant</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">les anticorps prouvant la présence du VIH apparaissent en moyenne 40 jours après le rapport infectant</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q10" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente vous indique alors que son dernier partenaire était un inconnu rencontré en boite et que rétrospectivement elle s’inquiète par rapport au risque d’infection VIH car la seule chose qu’elle sait de lui est qu’il avait beaucoup de partenaires. Lui prescrivez-vous un traitement post exposition ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">oui</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">non</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q11" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comme vous ne lui prescrivez pas de traitement post exposition (TPE) alors qu’elle en a entendu parler et qu’elle le réclame, quel(s) est/sont votre/vos argument(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le TPE n’est efficace que prescrit dans les heures qui suivent le rapport exposant</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le TPE est réservé aux personnes victimes de viol mais pas aux personnes qui pouvaient se protéger lors du rapport exposant</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le TPE n’a aucune efficacité et n’est prescrit que pour rassurer les personnes exposées</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le TPE n’est proposé que pour les soignants exposés à des piqûres accidentelles dans le cadre de leur métier</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q12" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q12</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous vous rendez compte que la patiente qui vous dit que ses premiers rapports remontent à moins d’un an est peu informée des risques d’IST. En dehors de l’herpès de type 2, vous lui parlez alors de plusieurs risques auxquels elle est exposée comme la syphilis, la chlamydiose, la gonococcie, la trichomonose, l’hépatite B. Sans évoquer des IST rares, quelle autre IST très fréquente faut il évoquer avec elle ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Infection à papillomavirus</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q13" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q13</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous lui parlez de l’infection à papillomavirus mais elle n’en a jamais entendu parler. Quel argument mettez vous en avant pour la convaincre de se faire vacciner ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Diminution du risque de cancer du sein</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Diminution du risque de cancer des ovaires</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Diminution du risque de cancer du col utérin</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Diminution du risque de cancer du colon</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Diminution du risque de cancer de la thyroïde</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q14" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q14</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente est convaincue et vous demande à être vaccinée. Combien de dose(s) vaccinale(s) faudra t’il lui faire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">1 dose</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">2 doses</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">3 doses</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">4 doses</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">5 doses</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les infections respiratoires hautes, quelle(s) est/sont la/les indication(s) thérapeutique(s) justes parmi les propositions suivantes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il est indiqué de prescrire un traitement symptomatique antalgique par paracétamol</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Il est indiqué de prescrire un traitement symptomatique décongestionnant par corticoïdes ou AINS et lavage des fosses nasales</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il est indiqué de prescrire un traitement antibiotique pour les rhinites</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il est indiqué de prescrire un traitement antibiotique pour les pharyngites</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Il est indiqué de prescrire un traitement antibiotique pour les sinusites bactériennes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, laquelle ou lesquelles est(sont) une(des) complication(s) fréquente(s) de l'infection VIH non traitée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Infection opportuniste par Pneumocystis jirovecii</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Lymphomes et cancers solides</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Réactivation CMV quand les T CD4+ sont inférieurs à 100/mm3</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">AEG</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cirrhose hépatique quand les T CD4+ sont inférieurs à 200/mm3</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans le cadre du diagnostic microbiologique d’une infection ostéo-articulaire, quels sont les pré-requis exacts pour la réalisation des prélèvements et la conservation des échantillons?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Après arrêt de 48 h de toute antibiothérapie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Asepsie parfaite</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Après arrêt de 15 jours de toute antibiothérapie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un prélèvement de fistule</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Prélèvements conservés à +4°C</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes sur les poux du pubis, indiquez les propositions vraies :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">la phtirose est une parasitose fréquente</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">le prurit pubien est le principal symptôme</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">la parasitose due à Phtirus pubis n’est pas une infection sexuellement transmissible</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">les poux du pubis peuvent se retrouver sur les cils et les cheveux</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">les poux du pubis sont responsables d’une affection grave</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — faux elle est rare</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — vrai c’est un prurit essentiellement de la région pubienne</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — faux c’est une infection transmissible sexuellement</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — vrai il est possible d’en retrouver au niveau des cils et des cheveux</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — faux c’est une maladie bénigne</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les étiologies infectieuses des angines de l’enfant et de l’adulte, quelle(s) est/sont la/les proposition(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'EBV est une cause d’angine pseudo-membraneuse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La diphtérie est une cause d’angine pseudo-membraneuse</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L’angine de Vincent est une angine fébrile unilatérale avec ulcération grisâtre profonde de cause virale sur un terrain de mauvais état bucco-dentaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L’angine vésiculeuse est toujours de cause virale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le chancre syphilitique primaire, dans sa localisation orale, est une cause d’angine ulcéreuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes sur les poux de tête, indiquez celles qui sont justes :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">les poux de tête sont des insectes hématophages</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">les poux de tête survivent plusieurs jours sur des vêtements</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">les poux de tête parasitent les enfants et les adultes</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">les poux de tête peuvent sauter d’une tête à une autre</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">les repas sanguins des poux sont responsables de prurit du cuir chevelu</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — vrai ce sont des insectes qui se nourrissent de sang humain</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — faux ils ne vivent que quelques heures hors du cuir chevelu</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — vrai toutes les catégories d’âge peuvent être touchées</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — faux les poux ne sautent pas et ne marchent pas</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — vrai ce sont les piqures liées aux repas sanguins qui sont responsables du prurit</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les situations cliniques nécessitant un traitement antibiotique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Prostatite</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Plaie colonisée et/ou purulent sans signes d’infection tissulaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bactériurie asymptomatique chez la femme enceinte</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Méningite bactérienne</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">: Fièvre isolée chez l’immunocompétent sans signe de gravité</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les types de prélèvements appropriés pour le diagnostic d’une infection ostéo-articulaire sur matériel?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Prélèvement de fistule</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ecouvillonnage de la cicatrice</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Ponction articulaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Flacons d’hémoculture</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Prélèvements per opératoires</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes sur les poux de corps, indiquez celles qui sont vraies :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">les poux de corps donnent des lésions maculopapuleuses du dos et du thorax</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">les poux de corps sont plus souvent retrouvés parmi les SDF que dans la population générale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">les poux de corps pondent leurs œufs sur les poils du corps</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">les poux de corps se retrouvent surtout sur les vêtements</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">les poux de corps ressemblent morphologiquement aux poux de tête</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — vrai elles prédominent sur les épaules, le dos et le thorax</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — vrai ils sont associés à une certaine précarité</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — faux ils pondent leurs œufs sur les vêtements</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — vrai ils vivent sur les vêtements</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — il y a une grande ressemblance entre ces deux poux</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les angines bactériennes, quelle(s) est/sont la/les proposition(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'étiologie principale est le streptocoque beta-hémolytique du groupe A (SBHA)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La mise en évidence d’un pneumocoque sur un prélèvement de gorge pour une angine pose l’indication d’antibiothérapie immédiate pour prévenir les complications</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La présence du SBHA peut être recherchée par un MNI-test dans le sang</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La présence du SBHA peut être objectivée par un test de diagnostic rapide sur frottis pharyngé</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'angine bactérienne est beaucoup plus fréquente que l’angine virale chez le petit nourrisson à l’immunité immature</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les situations suivantes, quelle(s) est/sont le(s) cas de colonisation urinaire justifiant un traitement antibiotique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Patient diabétique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Patient porteur de prothèse articulaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Femme enceinte</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Geste sur les voies urinaires</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Patient immunodéprimé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En cas d'exposition au sang par piqûre lors de la réalisation d'un gaz du sang chez un patient de statut sérologique VIH inconnu, quel est l’examen à réaliser en urgence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une recherche d’antigène P24 chez le patient, source de l'AES</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un dépistage VIH-1/2 chez le professionnel exposé, victime de l'AES</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un dépistage VIH-1/2 chez le patient, source de l'AES</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une recherche d’antigène P24 chez le professionnel exposé, victime de l'AES</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une charge virale VIH (marqueur le plus précoce de l'infection) chez le professionnel exposé, victime de l'AES</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans le cas d’une prostatite, parmi les réponses suivantes, quelle(s) sont les durées exactes de traitement?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">14 jours en cas de traitement par une fluoroquinolone</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">3 semaines en cas de traitement par du cotrimoxazole</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">10 jours en cas de traitement par une fluoroquinolone</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">14 jours en cas de traitement par du cotrimoxazole</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">3 semaines en cas de traitement par une céphalosporines de 3ème génération</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi ces propositions suivantes, indiquez les réponses justes sur la gale :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">l’incubation est de 3 jours au cours d’une première contamination</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">les espaces inter-digitaux sont rarement touchés</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">dans la prise en charge du patient, la décontamination de l’environnement n’est pas nécessaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">la gale est responsable d’épidémies dans les établissements pour personnes âgées</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">la gale donne habituellement un prurit</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — faux elle est de 5 jours à un mois (en général 2-3 semaines)</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — faux c’est l’une des localisations principales de la maladie</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — faux la décontamination de l’environnement est nécessaire</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — vrai ainsi que dans les autres collectivités (crèche, école, …)</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — vrai c’est le principal symptôme</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous êtes interne aux urgences et vous suspectez une gale chez un de vos patients. Celui-ci vous demande des renseigneme</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">le sarcopte est un acarien</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">le sarcopte se transmet directement par contact cutané, peau contre peau</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">le sarcopte se transmet indirectement par l’intermédiaire de tissus contaminés</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">la gale n’est pas sexuellement transmissible</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">la contagiosité est faible</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — vrai c’est un acarien</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — vrai la transmission est cutanée</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — vrai elle peut se faire aussi par des objets contaminés</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — faux c’est une maladie sexuellement transmissible</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — faux la contagiosité est très importante</div>
+</div>
+</div>
+
+<div class="sect">DP2</div>
+
+<div class="q" id="DP2-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez aux urgences un homme de 85 ans, diabétique de type II insulino-requérant qui est amené par sa famille pour chute et difficultés pour respirer.A l'interrogatoire, le patient rapporte une gêne pour respirer depuis 48 heures avec une fatigue importante et une faiblesse l'empêchant de tenir debout.</div>
+<div class="stem">Quels signes de gravité recherchez vous immédiatement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Troubles des fonctions supérieures</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hypotension artérielle systolique &lt; 90 mmHg</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Tachycardie &gt; 120 battements par minutes</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un hippocratisme digital</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Fréquence respiratoire &gt;= 30 / minutes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient est bien orienté. Les constantes retrouvent une tension artérielle à 120 / 80 mmHg, un pouls à 90 bpm, une fréquence respiratoire à 18 par minutes, une saturation à 92% et une température à 38,2°C.L'examen clinique retrouve un foyer de crépitants en base droite.La glycémie capillaire est à 2.1 g/L sans cétones.Quel est le diagnostic le plus probable?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Prostatite</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Légionellose</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Bronchite aiguë</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Pneumopathie communautaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Tuberculose pulmonaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q3" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est votre première action thérapeutique face à ce patient?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : oxygène</div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q4" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel premier examen prescrivez vous pour confirmer le diagnostic?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : radio pulmonaire</div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q5" data-correct="" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous récupérez la radio réalisée en urgence. Pointez les zones pathologiques. Marqueurs Statut Pondération Foyer 1</div>
+<div class="extra"><img src="data:image/jpeg;base64,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" style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>
+<ul class="opts">
+
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : [A VERIFIER]</div>
+
+</div>
+</div>
+
+<div class="q" id="DP2-Q6" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont le ou les diagnostics radiologiques correct(s)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Pneumonie alvéolaire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Pneumonie interstitielle</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Condensation parenchymateuse systématisée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Pneumonie multi-lobaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Condensation parenchymateuse avec appui scissural</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q7" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le bilan biologique retrouve des leucocytes à 12.5 G/L, une hémoglobine à 13.7 g/dL, des plaquettes à 209x10*9/L, un Sodium à 137 mmol/L, un Potassium à 4.5 mmol/L, une créatinine à 100 micromol/L, une CRP à 120 mg/L, des NT Pro-BNP à 300 ng/L. La PCR SARS-CoV-2 et la PCR grippe son négatives. Les hémocultures sont en cours. L'ECBU retrouve 2.4 hématies x10*3/mL et des leucocytes à 0.4 x10*3/mL.Quelle est votre attitude thérapeutique immédiate?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hospitalisation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Prise en soins ambulatoire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Antibiothérapie par amoxicilline acide clavulanique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Antibiothérapie par azithromycine</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Réhydratation intraveineuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q8" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'hémoculture revient positive à Streptococcus pneumoniae. Quel est votre diagnostic final?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Suspicion d'endocardite à pneumocoque</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Bronchite à Streptococcus pneumoniae</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Pneumonie bilatérale à pneumocoque</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Prostatite à Streptococcus pneumoniae</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Thrombophlébite septique à pneumocoque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q9" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous aviez mis votre patient sous amoxicilline - acide clavulanique. Que décidez vous pour votre antibiothérapie?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Poursuite de l'amoxicilline acide clavulanique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">relais paf ceftriaxone</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">relais par clarithromycine</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">relais par amoxicilline</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">relais par levofloxacine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q10" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP2 Q10</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comment cette infection aurait-t-elle pu être prévenue?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Vaccination antipneumococique</div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+</body></html>
