@@ -1,0 +1,904 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<title>Quiz — UE 6 — Maladies transmissibles · Session normale</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 6 — Maladies transmissibles · Session normale</h1>
+<div class="sub">38 questions : SQI1 (14) · DP1 (12, verrouillé) · DP2 (9, verrouillé) · KFP1 (3, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/38</b></span>
+<span class="pill">Score : <b id="s-ok">0/33</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les dermatophytes peuvent être responsables ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">d’infections cutanées</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">d’infections des muqueuses</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">d’infections des ongles</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">d’infections pulmonaires</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">d’infections invasives</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes sur les poux de tête, indiquez celles qui sont justes :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">les poux de tête peuvent survivre plusieurs jours sur des vêtements</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">les poux de tête sont des insectes hématophages</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">les poux de tête parasitent les enfants et les adultes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">les repas sanguins des poux sont responsables de prurit du cuir chevelu</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">les poux de tête peuvent sauter d’une tête à une autre</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Faux ils ne vivent que quelques heures hors du cuir chevelu</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Faux les poux ne sautent pas et ne marchent pas</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les sinusites, quelle est/quelles sont la/les proposition(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La sinusite sphénoïdale est la première cause de sinusite du nourrisson</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La sinusite maxillaire est la plus à risque de complication neurologique par diffusion de proximité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La méningite et la thrombophlébite septique du sinus caverneux sont deux complications possibles des sinusites bactériennes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un scanner est recommandé d’emblée devant les formes frontales, ethmoïdales et sphénoïdales pour confirmer le diagnostic et rechercher une complication</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une sinusite maxillaire bactérienne est évoquée devant une douleur et une rhinorrhée unilatérales persistant plus de 48h sous traitement symptomatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223 Parmi ces propositions suivantes sur la gale, quelle est la proposition fausse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">la gale donne habituellement un prurit</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">les espaces inter-digitaux sont souvent touchés</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">la gale n’est pas sexuellement transmissible</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">la gale est responsable d’épidémies dans les établissements pour personnes âgées</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">la gale peut être une affection nosocomiale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions ci-dessous concernant la présentation clinique des angines virales de l’enfant et de l’adulte, laquelle/lesquelles est/sont vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Odynophagie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Douleur pharyngée uni- ou bi-latérale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Jamais de fièvre</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Jamais d’adénopathies satellites</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Jamais d’atteinte ORL associée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — toux, rhinite, otalgie</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le traitement antigrippal spécifique, quelles sont les propositions exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">la durée du traitement à visée curative est de 10 jours</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">la confirmation microbiologique n’est pas nécessaire avant de débuter le traitement</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">il est contre-indiqué chez la femme enceinte</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">il peut être prescrit en post-exposition chez les sujets à risque de complications</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">il peut être prescrit en post-exposition chez les sujets résidant en EHPAD</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 19 ans est hospitalisé pour un syndrome méningé de survenue brutale conduisant à faire une ponction lombaire. L'examen direct du liquide cérébro-spinal objective des diplocoques gram négatif encapsulés. Quel est l'agent infectieux a priori en cause dans cette méningite ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">méningocoque</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">pneumocoque</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">listeria</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">bacille de Koch</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">entérovirus Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes sur la pthiriose, indiquez les propositions vraies :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">le prurit est le principal symptôme</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">c'est est une parasitose fréquente</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">c'est une infection sexuellement transmissible</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">c'est une affection grave</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">les cils et les cheveux peuvent être parasités</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Faux elle est rare</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Faux c’est une maladie bénigne</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient gros tabagique a une BPCO (bronchopneumopathie obstructive de l'adulte) connue depuis plusieurs années. A l'occasion d'une visite à domicile pour le suivi d'une fracture de poignet accidentelle, il vous fait part du fait que depuis plusieurs mois il est gêné pour respirer au moindre effort (par exemple en faisant sa toilette). A quel stade de la classification "GOLD" situez vous sa BPCO ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">stade 1</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">stade 2</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">stade 3</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">stade 4</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">stade 5</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant Candida albicans, une seule est fausse, laquelle ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">c’est un commensal de la peau</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">il est responsable d’infections fongiques superficielles</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">il est responsable d’infections fongiques invasives</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">il est capable d’émettre des pseudofilaments en conditions pathologiques</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">c’est un pathogène opportuniste</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Faux c’est un commensal des muqueuses digestive et génito-urinaire</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une femme de 75 ans est hospitalisée pour une infection par le virus SARS-CoV-2. Dans ses antécédents on note un diabète mal contrôlé par son traitement, une obésité (IMC &gt; 30) et un cancer du sein il y a 15 ans considéré comme en rémission complète. Elle a par ailleurs été opérée 6 mois auparavant d'une prothèse totale de hanche. Quel(s) est/sont le/les facteur(s) de risque de forme grave de son covid ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">âge Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">diabète insulino-dépendant</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">obésité IMC &gt; 30</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">antécédent de cancer du sein</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">intervention chirurgicale 6 mois auparavant</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un homme de 23 ans consulte 2 jours après une morsure à la main par son chat. Il décrit la survenue d'une zone inflammatoire, douloureuse et congestive quelques heures après la morsure. Sa main est toujours très inflammatoire et il s'en étonne car il a commencé à désinfecter sa blessure à plusieurs reprises juste après la morsure. Vous évoquez une pasteurellose. Quels sont les éléments en faveur de ce diagnostic ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">le fait que l'animal mordeur soit un chat</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">survenue très rapide des lésions après la morsure</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">la localisation à la main</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">le caractère très inflammatoire de la lésion</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">l'absence d'amélioration malgré désinfection locale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle proposition ne s'applique pas au diagnostic de l'infection à VIH ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">les anticorps anti-VIH apparaissent en moyenne 3 semaines après la contamination</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">En France, le dépistage s’effectue avec un test ELISA combiné détectant à la fois les Ac anti-VIH-1, les Ac anti-VIH-2 et l’Ag P24</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">la confirmation de la séropositivité s'effectue par Western Blot</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">la mesure de l'ARN VIH plasmatique est le meilleur marqueur de la réplication virale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">chez le nouveau-né, le diagnostic repose sur la mise en évidence des anticorps anti-VIH</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div></div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente de 62 ans ayant comme principaux antécédents un retard mental, une obésité (IMC à 32), un diabète mal équilibré et une insuffisance veineuse des membres inférieurs consulte pour un placard inflammatoire douloureux de sa jambe droite pour lequel une évoquez une dermo-hypodermite aiguë bactérienne. Elle refuse l'hospitalisation que vous lui proposez. Quel(s) élément(s) de surveillance allez vous transmettre à l'infirmière qui fera les soins à domicile pour vous alerter précocement sur un risque d'évolution vers une fasciite nécrosante ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">apparition d'un érythème controlatéral</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">majoration des douleurs malgré les antalgiques de palier 2</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">apparition de zones noirâtres au sein de l'érythème</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">décompensation du diabète Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">induration des tissus autour du placard inflammatoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">DP1</div>
+
+<div class="q" id="DP1-Q1" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Fin octobre, vous intervenez à domicile à la demande d’une infirmière pour une femme de 78 ans, en assez bon état général présentant de la toux et de la fièvre. Depuis 6 mois elle a une activité très réduite du fait d’une arthrose évoluée notamment des hanches et des genoux responsable de douleurs invalidantes. Elle vit avec son mari de 75 ans, autonome. Elle sort d’une hospitalisation de 8 jours dans une clinique où elle a été hospitalisée pour pose d’une prothèse de hanche. A l’examen elle a une fièvre à 38°2 C. En dehors de la fièvre, elle se plaint d’une toux et une douleur thoracique droite d’intensité modérée. Son examen neurologique est normal. En dehors d’un diabète correctement équilibré par régime et 2 molécules anti-diabète orales, la patiente n’a pas d’antécédents significatifs ni d’allergie connue.</div>
+<div class="stem">En dehors des causes infectieuses possibles, quelle étiologie devez vous évoquer de principe ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : embolie pulmonaire</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous évoquez une pneumopathie et que vous entendez à l’auscultation pulmonaire un foyer de crépitants à la base droite, en quoi cet élément conforte votre hypothèse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div><div class="note">Réponse(s) E également valorisée(s) par le jury.</div></div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les autres éléments sémiologiques suivants lequel conforterait l’hypothèse d’une pneumopathie basale droite chez cette patiente ? Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Souffle tubaire au sommet droit</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Diminution du murmure vésiculaire de la base droite</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Sonorité tympanique de la base droite</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Diminution des vibrations vocales de la base droite</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Sifflement expiratoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Ses constantes sont les suivantes : TA 140/70 mm Hg, pouls 100 battements /mn, fréquence respiratoire : 20 cycles / mn. Il n’y a ni tirage, ni cyanose ni marbrures. Il y a t'il une indication à hospitaliser la patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">oui</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">non</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En dehors de l’âge indiquez en 3 à 4 mots, le deuxième critère de terrain justifiant l’hospitalisation manque d autonomie</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : hospitalisation dans l'année</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous recommandez l’hospitalisation en expliquant bien les raisons mais la patiente et son mari s’y refusent absolument et demandent un traitement à domicile. Quelle attitude vous parait la plus adaptée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vous appelez quand même une ambulance</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous demandez à la patiente de signer une décharge et vous quittez le domicile</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vous quittez le domicile en indiquant que dans ces conditions vous ne ferez aucune prescription</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vous réitérez votre conseil d’hospitalisation et vous prescrivez le traitement pour cette pneumopathie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous prescrivez le traitement pour cette pneumopathie mais vous indiquez qu’à l’avenir vous ne voulez plus les soigner</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223 Vous avez décidé de prescrire le traitement de cette très probable pneumopathie en respectant le choix de ce couple qui ne présente aucun trouble cognitif. Quel(s) antibiotique(s) vous parait(ssent) le/les plus adapté(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Cotrimoxazole</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Fluoroquinolones à activité pulmonaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Amoxicilline</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Amoxicilline – acide clavulanique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Azithromycine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Selon votre décision commune la patiente vous rappelle le lendemain pour vous dire qu’elle va mieux et vous repassez 8 jours plus tard. Elle n’a pratiquement plus de symptômes pulmonaires et est apyrétique. Par contre elle vous indique que depuis la veille elle a de la diarrhée avec 3 à 4 selles molles à liquides. Son mari n’a aucun trouble digestif. Dans ce contexte quelle/s est/sont votre/vos hypothèse(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Diarrhée dans le cadre d’une pneumopathie à légionnelle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Diarrhée aux antibiotiques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Infection à Clostridioides difficile</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Infection à E. coli entérotoxinogène</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">toxi infection alimentaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q9" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Au cours de cette consultation vous abordez la mise à jour vaccinale. Elle est uniquement à jour du vaccin diphtérie/ tétanos/polio/coqueluche et a eu 1 dose du vaccin anti-sars cov2 en 2021 . Quel(s) vaccin(s) lui proposez vous de faire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Vaccin anti-grippe</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Vaccin anti-sars cov2</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vaccin anti –hépatite B</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vaccin conjugué anti-pneumocoque 13-valent</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vaccin non conjugué anti-pneumocoque 23-valent</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q10" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Il est justifié de vacciner cette patiente contre le pneumocoque avec les 2 vaccins conjugué anti-pneumocoque 13-valent et non conjugué anti-pneumocoque 23-valent. Quel délai minimum faut il respecter entre ces 2 vaccins (en semaines) ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : 8</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q11" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q11</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Faut il faire d’abord le vaccin conjugué anti-pneumocoque 13-valent puis le non conjugué anti-pneumocoque 23- valent ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">oui</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">non</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q12" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le mari profite de votre présence pour vous demander conseil car il part dans 1 mois en Chine pour un séjour de 15 jours chez sa fille qui y vit en expatriation. Quelle(s) prévention(s) lui recommandez vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vaccination contre la fièvre jaune</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vaccin contre la typhoïde</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Chimioprophylaxie contre le paludisme par atovaquone-proguanil</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Lavage des mains avant les repas en prévention de la diarrhée du voyageur</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Fluoroquinolone en prévention de la diarrhée du voyageur pendant tout le séjour</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">DP2</div>
+
+<div class="q" id="DP2-Q1" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez aux urgences, une femme de 74 ans, diabétique sous metformine, qui se présente pour fièvre et brûlures urinaires.A l’interrogatoire, elle signale l’apparition brutale d’une fièvre à 38,5°C depuis 48 heures, avec asthénie et des douleurs sus pubiennes. Elle a du mal à se lever mais bouge correctement ses quatre membres. Sa glycémie au doigt est à 2,5 g/L avec une cétonémie à 0,4 mmol/l.</div>
+<div class="stem">Quels signes de gravité recherchez-vous immédiatement pour calculer le score quickSOFA ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Confusion</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hypotension artérielle systolique &lt; 100 mmHg</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Syndrome méningé</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Tachypnée avec fréquence respiratoire &gt; 22 / minutes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Anurie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q2" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Votre examen est dans les limites de la normale en dehors de douleurs sus pubiennes. Quel(s) examens Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223 complémentaires prescrivez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Bandelette urinaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">ECBU</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">NFS</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Gaz du sang avec lactates</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Aucun</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q3" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La bandelette urinaire retrouve une leucocyturie significative et des nitrites, et l’absence d’hématurie. La NFS retrouve une hyperleucocytose à polynucléaires neutrophiles à 19 G/L, une CRP à 137 UI/mL et une créatinine à 110 micromoles/ml (DFG 65 ml/min).Quel est votre diagnostic ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Cystite aiguë simple</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Cystite aiguë à risque de complication</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Endométrite aiguë</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Pyélonéphrite aiguë simple</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Pyélonéphrite aiguë à risque de complications</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q4" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est votre attitude thérapeutique immédiate ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Antibiothérapie probabiliste par amoxicilline + ac clavulanique per os</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Antibiothérapie probabiliste par C3G IV</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hospitalisation</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Explications à la patiente que l’absence de signes de gravité permet son retour à domicile sans antibiotiques sous réserve de reconsulter dans 48-72 heures</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Explications à la patiente que l’absence de signes de gravité permet son retour à domicile sous antibiotiques sous réserve de reconsulter dans 48-72 heures</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q5" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous avez hospitalisé la patiente et débuté un traitement par cefotaxime. Quelle(s) est(sont) vos mesures thérapeutiques associées ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hydratation par voie veineuse avec du glucosé à 5%</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hydratation par voie veineuse sérum salé à 9 pour 1000</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Poursuite du traitement par metformine Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Protocole insuline basal bolus</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Antipyrétique-antalgie par paracétamol</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q6" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L’ECBU revient positif avec une leucocyturie à 105/mL et la présence d’un Citrobacter koseri (entérobactérie) à 105/ mL avec un antibiogramme retrouvant une résistance à l’amoxicilline, une sensibilité au cotrimoxazole, aux fluoroquinolones et au cefotaxime. Quelles sont les propositions exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Absence de leucocyturie significative</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Leucocyturie significative</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Absence de bactériurie significative</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Bactériurie significative</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Présence d’une bactérie sécrétrice d’une bétalactamase à spectre étendu</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q7" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous concluez à une pyélonéphrite à Citrobacter koseri</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Poursuite de l’antibiothérapie à l’identique avec une C3G</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Relai oral de l’antibiothérapie par amoxicilline per os</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Relai oral de l’antibiothérapie par cotrimoxazole per os</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Relai oral de l’antibiothérapie par fluorquinolone per os</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Prescription d’un ECBU de contrôle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q8" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP2 Q8</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous décidez de faire un relais oral par cotrimoxazole qui a un moindre impact écologique. Quelle durée totale de l’antibiothérapie recommandez-vous ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : 10 jours 10 j 10</div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q9" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Alors que vous en profitez pour faire un point sur le suivi gynécologique de la patiente. La patiente vous rapporte ne pas avoir vu de gynécologue ni sage-femme depuis plus de 10 ans. Que lui proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un rendez-vous en consultation gynécologie Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un dépistage du cancer du col de l’utérus par frottis cervico-vaginal</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un dépistage du cancer du col de l’utérus par recherche de papillomavirus sur un auto-prélèvement vaginal</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un dépistage du cancer du sein par mammographie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un dépistage du cancer du sein par échographie mammaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">KFP1</div>
+
+<div class="q" id="KFP1-Q1" data-correct="DG" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRPL</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une femme de 25 ans vient consulter au centre gratuit d’information, de dépistage et de diagnostic du VIH et des IST (Cegidd) car elle se plaint depuis quelques jours de pertes vaginales plus abondantes que d’habitude et d’aspect purulent. Elle a eu des rapports non protégés avec son nouveau partenaire.</div>
+<div class="stem">Quels sont les 2 signes cliniques les plus importants à rechercher à l’examen clinique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Des ulcérations génitales</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un prurit vulvaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une inflammation cervicale au spéculum</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">De la fièvre</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Des métrorragies</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Des douleurs pelviennes</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Des douleurs latéralisées au toucher vaginal</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Des brûlures urinaires</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Une hépatalgie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, G</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente est apyrétique et ne présente pas de douleur pelvienne ni latéralisée au toucher vaginal. A l’examen au spéculum, le col de l’utérus est érythémateux et œdématié.Quel est votre diagnostic ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Cervicite Infection du col de l’utérus Cervico-vaginite</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="DEFGJK" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous évoquez une cervicite. Quels sont les 6 examens complémentaires qui vous paraissent les plus pertinents ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">NFS Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">CRP</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ionogramme et créatinine</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Prélèvement vaginal pour analyse bactériologique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Prélèvement du col de l'utérus pour analyse microbiologique</span></li>
+<li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">PCR Chlamydiae trachomatis</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">PCR Neisseria gonorrhoea</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">PCR HSV2</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Sérologie chlamydiose</span></li>
+<li class="opt" data-l="J" data-correct="1"><span class="box">J</span><span class="otext">Sérologie VIH</span></li>
+<li class="opt" data-l="K" data-correct="1"><span class="box">K</span><span class="otext">Sérologie hépatite B</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Sérologie hépatite C</span></li>
+<li class="opt" data-l="M" data-correct="0"><span class="box">M</span><span class="otext">Sérologie hépatite A Référence: DFA1-UE6-DECEMBRE 20223 Session: Session DFA1-UE6-DECEMBRE 20223</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E, F, G, J, K</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">J.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">K.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">M.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+</body></html>
