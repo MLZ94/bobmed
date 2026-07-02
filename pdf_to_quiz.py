@@ -130,7 +130,7 @@ def clean_span(text: str) -> str:
 # 2. Regex de structure
 # ----------------------------------------------------------------------------
 
-SECTION_RE = re.compile(r"Element d'épreuve\s*:\s*(\S+)\s+[\d.]+\s*/\s*20")
+SECTION_RE = re.compile(r"Element d'épreuve\s*:\s*(\S+)\s+(?:\(\d+\)\s+)?[\d.]+\s*/\s*20")
 QUESTION_RE = re.compile(
     r"Question\s+([A-Z]+|\d+)\s*:\s*\(Type\s*:\s*(\w+)\)\s*[\d.]+\s*/\s*1\s*(Question neutralisée)?"
 )
