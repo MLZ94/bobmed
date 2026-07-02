@@ -407,6 +407,7 @@ L'utilisateur dispose d'un script local (`pdf_to_quiz.py`, hors dépôt) qui con
 10. **Test headless/visuel obligatoire** : ouvrir le HTML (navigateur ou Playwright headless) et confirmer que les Q2+ des sections DP/KFP/TCS sont floutées au chargement, qu'elles se déverrouillent après validation de la question précédente, et que les compteurs `#s-done`/`#s-ok` reflètent le bon total de questions/points.
 11. **Mise à jour du portail** : coller (en l'adaptant si besoin) le contenu de `*.snippet.html` dans l'`index.html` du trimestre concerné, en respectant l'ordre chronologique par UE (cf. règle plus haut) et en retirant un éventuel bloc `.empty` "à venir" devenu obsolète. Mettre à jour le compteur du footer.
 12. **Commit + push** : une fois la relecture terminée, committer et pousser selon les règles habituelles du dépôt (branche `main` par défaut, sauf instruction contraire).
+13. En cas de doute sur l'integrité de l'annale ou si besoin afin de completer des informations manquantes, demander a l'utilisateur le PDF source.
 
 ---
 
