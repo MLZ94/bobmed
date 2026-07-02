@@ -3,32 +3,33 @@
  * Ajouter avant </body> :
  *   <script src="../breadcrumb.js"></script>   (annales/, microbiologie/, exercices/, numerique/)
  *   <script src="../../breadcrumb.js"></script> (d2/tN/)
+ *
+ * Sur les portails (index.html) qui ont déjà un fil statique,
+ * le script injecte uniquement le CSS et ne crée pas de doublon.
  */
 (function () {
+  /* ── 1. CSS unifié — injecté une seule fois ── */
   if (!document.querySelector('style[data-bc]')) {
     var s = document.createElement('style');
     s.setAttribute('data-bc', '1');
     s.textContent =
-      '.breadcrumb{display:flex;align-items:center;flex-wrap:wrap;gap:3px;' +
-      'font-size:12px;color:var(--mut,#8a9baa);margin-bottom:6px;padding:0;' +
-      'background:none;border:none;border-radius:0}' +
-      '.breadcrumb a{color:var(--mut,#8a9baa);text-decoration:none}' +
-      '.breadcrumb a:hover{text-decoration:underline;color:var(--acc,#4f46e5)}' +
-      '.breadcrumb .sep{opacity:.5;font-size:11px;margin:0 1px}' +
-      '.breadcrumb .current{color:var(--mut,#8a9baa);font-style:italic}';
+      '.breadcrumb{display:flex;align-items:center;flex-wrap:wrap;gap:4px;' +
+      'font-size:12.5px;color:var(--mut,#5b6b73);margin-bottom:12px;' +
+      'padding:5px 10px;background:var(--card,#fff);' +
+      'border:1px solid var(--line,#dfe4e2);border-radius:8px}' +
+      '.breadcrumb a{color:var(--acc,#4f46e5);text-decoration:none;font-weight:500}' +
+      '.breadcrumb a:hover{text-decoration:underline}' +
+      '.breadcrumb .sep{opacity:.4;font-size:11px;margin:0 2px}' +
+      '.breadcrumb .current{color:var(--ink,#132025);font-style:italic}' +
+      'html.dark .breadcrumb{background:var(--card,#1a1d27);border-color:var(--line,#2d3748)}';
     document.head.appendChild(s);
   }
 
-  var path  = window.location.pathname;
-  var parts = path.split('/').filter(Boolean);
-  var depth = parts.length - 1;
-  var root  = depth > 0 ? '../'.repeat(depth) : './';
+  /* ── 2. Fil statique déjà présent → CSS seulement, pas de doublon ── */
+  if (document.querySelector('.breadcrumb')) return;
 
-  var pageTitle = document.title || 'Quiz';
-  var quizLabel = pageTitle.split(' — ')[0].split(' | ')[0];
-  if (quizLabel.length > 55) quizLabel = quizLabel.slice(0, 52) + '…';
-
-  var items = [{ href: root + 'index.html', label: 'BobMed' }];
+  /* ── 3. Détecter le contexte depuis l'URL ── */
+  var path = window.location.pathname;
 
   var inD2T     = path.match(/\/d2\/(t\d+)\//i);
   var inAnnales = path.includes('/annales/');
@@ -36,14 +37,40 @@
   var inExo     = path.includes('/exercices/');
   var inNum     = path.includes('/numerique/');
 
+  /* Racine du site : 2 niveaux pour d2/tN, 1 niveau pour les autres sections */
+  var root = inD2T ? '../../' : '../';
+
+  /* ── 4. Label de la page courante (depuis le h1, plus fiable que le title) ── */
+  var h1El = document.querySelector('h1');
+  var rawTitle = h1El ? h1El.textContent.trim() : document.title;
+
+  /* Extraire l'identifiant utile :
+     - "UE 7.1 — Pneumologie · Session normale (mars 2023)" → "UE 7.1 — Pneumologie"
+     - "UE 1.1 Biomédecine quantitative — Annale 2022-2023" → "UE 1.1 Biomédecine quantitative"
+  */
+  var labelParts = rawTitle.split(' · ')[0].split(' — ');
+  var quizLabel;
+  if (labelParts[0].trim().length <= 10 && labelParts[1]) {
+    /* Préfixe court ("UE 7.1") : ajouter la spécialité */
+    quizLabel = labelParts[0] + ' — ' + labelParts[1].split(' · ')[0];
+  } else {
+    /* Préfixe long ("UE 1.1 Biomédecine quantitative") : s'arrêter là */
+    quizLabel = labelParts[0];
+  }
+  if (quizLabel.length > 55) quizLabel = quizLabel.slice(0, 52) + '…';
+
+  /* ── 5. Construire les segments du fil ── */
+  var items = [{ href: root + 'index.html', label: 'BobMed' }];
+
+  var tLabels = {
+    T1: 'T1 — Cardio · Pneumo · MT',
+    T2: 'T2 — Hépato-Gastro · Neuro · Psy',
+    T3: 'T3 — Dermato · Méd. Interne · Nephro',
+    T4: 'T4 — ORL · Rhumato · Endocrino · LCA'
+  };
+
   if (inD2T) {
     var tNum = inD2T[1].toUpperCase();
-    var tLabels = {
-      T1: 'T1 — Cardio · Pneumo · MT',
-      T2: 'T2 — Hépato-Gastro · Neuro · Psy',
-      T3: 'T3 — Dermato · Méd. Interne · Nephro',
-      T4: 'T4 — ORL · Rhumato · Endocrino · LCA'
-    };
     items.push({ href: root + 'index.html#d2', label: 'D2' });
     items.push({ href: root + 'd2/' + inD2T[1] + '/index.html', label: tLabels[tNum] || tNum });
   } else if (inAnnales) {
@@ -61,6 +88,7 @@
 
   items.push({ href: null, label: quizLabel });
 
+  /* ── 6. Construire le <nav> ── */
   var nav = document.createElement('nav');
   nav.className = 'breadcrumb';
   nav.setAttribute('aria-label', "Fil d'Ariane");
@@ -77,25 +105,19 @@
       var a = document.createElement('a');
       a.href = item.href;
       a.textContent = item.label;
-      // Gestion du scroll vers l'ancre sur la même page (index.html#d1 / #d2)
+      /* Scroll vers l'ancre si on reste sur la même page (index.html#d1 / #d2) */
       a.addEventListener('click', function (e) {
         var href = this.getAttribute('href');
         var hashIdx = href.indexOf('#');
         if (hashIdx === -1) return;
         var anchor = href.slice(hashIdx + 1);
-        var hrefPath = href.slice(0, hashIdx);
-        // Vérifier si on pointe vers index.html de la racine du site
-        var currentPath = window.location.pathname;
         var resolvedPath = new URL(href, window.location.href).pathname;
-        if (resolvedPath === currentPath) {
-          // Même page : scroll direct sans rechargement
+        if (resolvedPath === window.location.pathname) {
           e.preventDefault();
           var target = document.getElementById(anchor);
           if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
           history.pushState(null, '', '#' + anchor);
         }
-        // Sinon navigation normale vers index.html#d1/d2 :
-        // le script de scroll dans index.html prendra le relais
       });
       nav.appendChild(a);
     } else {
@@ -107,7 +129,7 @@
     }
   });
 
-  /* Insérer en haut du header sticky, sinon avant h1 */
+  /* ── 7. Insérer en haut du header (.hwrap prioritaire), sinon avant h1 ── */
   function insert() {
     var header = document.querySelector('header .hwrap') || document.querySelector('header');
     if (header) {
