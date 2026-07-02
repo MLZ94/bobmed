@@ -1,0 +1,1089 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<title>Quiz — UE 8.1 — Hépato-Gastro / Chir-Dig · Session normale (septembre 2023)</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 8.1 — Hépato-Gastro / Chir-Dig · Session normale (septembre 2023)</h1>
+<div class="sub">45 questions : DP1 (10, verrouillé) · mDP1 (7, verrouillé) · SQI1 (11) · SQI2 (17)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/45</b></span>
+<span class="pill">Score : <b id="s-ok">0/45</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">DP1</div>
+
+<div class="q" id="DP1-Q1" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez en consultation M. X, âgé de 50 ans, qui travaille comme plombier, adressé par son médecin traitant pour la découverte d’une hernie inguinale gauche. Il présente comme principal antécédent une appendicectomie par laparotomie. Sa hernie le gêne, notamment à la station debout prolongée.</div>
+<div class="stem">Parmi les propositions suivantes concernant l’anatomie de la région inguinale, lesquelles vous paraissent exactes?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">le ligament inguinal (arcade crurale) est tendu de l’épine iliaque antéro-supérieur à l’épine du pubis</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">les hernies inguinales directes se situent à l’extérieur des vaisseaux épigastriques</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">les hernies crurales sont plus fréquentes que les hernies inguinales</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">la présence de la hernie dans le scrotum affirme son caractère inguinal</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">dans les hernies inguinales directes il existe toujours une faiblesse du fascia transversalis</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — vs crurale</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant l’examen d’une hernie de l’aine lesquelles vous paraissent exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">les hernies s’examinent assis puis debout</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">chez l’homme on peut palper la hernie en mettant son doigt sous le scrotum</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">l’impulsivité désigne le caractère battant de la hernie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">les hernies crurales se situent en dessous de la ligne de Malgaigne</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">une hernie congénitale est plus fréquente chez les hommes de plus de 65 ans</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — contact avec les vaisseaux épigastrique</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L’examen clinique met en évidence une hernie inguinale gauche de volume moyen, probablement une hernie directe, parfaitement réductible. Il n’existe pas de hernie inguinale droite associé.Parmi les propositions thérapeutiques suivantes, lesquelles vous semblent adaptées ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">cure de hernie inguinale avec mise en place d’un voile prothétique non résorbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">cure de hernie inguinale avec mise en place d’un voile prothétique non résorbable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">abstention thérapeutique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">port quotidien d’une ceinture de contention abdominale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">aucune des propositions précédentes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Technique de Lichtenstein</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Technique de Shouldice</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vos explications ont convaincu le patient. Vous avez convenu de la réalisation d’une cure de hernie inguinale selon la technique de Lichtenstein d’ici 1 mois. Vous revoyez malheureusement ce patient aux urgences quelques jours plus tard pour des douleurs abdominales associées à un arrêt du transit et des vomissements.Parmi les propositions suivantes concernant l’examen physique d’un patient suspect d’occlusion, quels gestes vous paraissent indispensables ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">toucher rectal</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">palpation des orifices herniaires</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">palpation de la cicatrice d’appendicectomie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">recherche d’une défense à la palpation</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">pose d’une sonde urinaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous examinez la hernie du patient. Parmi les propositions suivantes quelles sont les 3 signes cliniques en faveur du diagnostic d’étranglement herniaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hernie augmente de volume pendant le manœuvre de Vasalva</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hernie irréductible</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hernie réductible aux manœuvres de taxis</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hernie douloureuse</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Hernie non impulsive à la toux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous avez évoqué le diagnostic d’étranglement herniaire, quelles propositions thérapeutiques vous semblent adaptées si ce diagnostic se confirmait ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">en l’absence de signe de gravités (fièvre, syndrome inflammatoire biologique) on peut proposer un traitement médical premier</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">il est indispensable de confirmer le diagnostic par une imagerie (échographie ou scanner</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">si on décide d’une prise en charge chirurgicale, il faut réaliser une cure de hernie seulement par abord coelioscopique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">si on décide d’une prise en charge chirurgicale, il faut réaliser une cure de hernie sans mise en place d’un voile prothétique non résorbable s’il y a un risque infectieux</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">le principal risque est la nécrose du segment digestif étranglé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel traitement pouvez-vous débuter dans l’attente du bloc opératoire et quels examens biologiques demandez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Pose d’une sonde naso gastrique en aspiration</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">NFS - plaquettes</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Marqueurs tumoraux</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Ionogramme sanguin - créatinine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Antalgiques de palier 2 par voie orale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le ionogramme est normal de même que la créatinine.Dans un contexte d’occlusion intestinal avec les orifices herniaires libres, quels examens radiologiques vous semblent adaptés en première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">radiographies de l’abdomen sans préparation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">ASP avec lavement aux hydrosolubles</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">scanner abdomino-pelvien</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">scanner abdomino-pelvien avec injection</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">aucun examen radiologique n’est nécessaire, le diagnostic est clinique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q9" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant les signes de gravité sur un scanner, lesquelles sont vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Paroi intestinale normale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pneumatose pariétale</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Défaut de rehaussement</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Épanchement de grande abondance</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Lithiase de la vésicule biliaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q10" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous avez opéré votre patient de sa hernie selon la technique de Lichtenstein. A sa sortie, quelles sont les recommandations?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Pas d’arrêt de travail</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Reprise du sport immédiat</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il y a un risque de récidive herniaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Antalgiques de palier 1 et 2</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il n’y a aucun risque infectieux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP1</div>
+
+<div class="q" id="mDP1-Q1" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez en consultation Mme. S une femme de 61 ans.Elle s’inquiète car elle ressent depuis deux mois maintenant, une gêne à la déglutition des aliments solides. Elle ne ressent pas de gêne à l’ingestion des boissons et ne ressent aucune douleur abdominale. Ces symptômes sont apparus très progressivement mais semblent fluctuer dans le temps. Elle suit une alimentation équilibrée, il n’y a pas de perte d’appétit ni de perte de poids. En revanche, mme S se sent fatiguée et anxieuse, elle est inquiète car elle a même l’impression de perdre ses cheveux. Mme S ne rapporte pas de sang dans les selles, il n’y a pas de diarrhée mais à l’inverse elle décrit une constipation. Vous noterez dans ses antécédents médicaux personnels une hypothyroïdie développée à la suite d’une thyroïdite d’Hashimoto actuellement supplémentée (Levothyroxine 150ug/j). Il existe un tabagisme actif à 15 cigarettes par jour depuis une dizaine d’années.Vous lui prenez ses constantes FC = 81bpm, TA = 105/71, SpO2 = 99%, T° = 36.8°C. L’auscultation cardiopulmonaire et l’examen clinique abdominal sont sans particularité. Vous ne décelez pas d’adénopathie cervicale à la palpation.</div>
+<div class="stem">Quel(s) examen(s) paraclinique(s) demandez-vous en première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un bilan biologique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une manométrie œsophagienne</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une endoscopie digestive haute</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un scanner cervico-thoraco-abdomino-pelvien.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une pH-impédancemétrie œsophagienne Il s'agit d'un bilan de dysphagie. Il existe une asthénie sans amaigrissement avec possibles troubles des phanères. L'examen de 1ère intention à prescrire pour toute dysphagie est une endoscopie digestive haute en plus d'un bilan biologique. Le scanner CTAP et la manométrie oesophagienne arrivent en seconde intention. La pH-impédancemétrie est un examen de second intention pour l'exploration d'un RGO.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente a pris rendez-vous pour la réalisation d’une endoscopie digestive haute ainsi qu’une consultation avec un médecin ORL. Vous recevez les résultats du bilan sanguin prescrit : Hémoglobine : 9.5g/dL (12-16g/dL) VGM : 74 fL (82-98fL) Hématocrite = 29.2% (40-50%) Réticulocytes = 109 G/L Plaquettes = 531 G/L (150-400G/L) Leucocytes = 7.2 G/L (4-10 G/L) Albumine = 37 g/L (35-52g/L) CRP = 6mg/L (N&lt; 5mg/L) Folates =5.0ug/L (3.9-26.8ug/L) Vitamine B12 = 764ng/L (197-771 ng/L) Fer sérique =4 umol/L (9-30umol/L) Ferritine = 7 mg/L (N&gt; 15mg/L) Coefficient de saturation = 5% (15-35%) TSH = 3mUI/L (0.5-5 mUI/L) Pas de trouble ionique, pas d’insuffisance rénale. Bilan d’hémostase sans particularité. Au vu des données de l’interrogatoire et des résultats bilan biologique, quel(s) est (sont) le(s) diagnostic(s) suspecté(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Ulcère gastro-duodénal</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Cancer de l’œsophage</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Achalasie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Maladie cœliaque</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Syndrome de Plummer-Vinson Il s'agit d'une dysphagie aux solides d'installation progressive avec asthénie et anémie par carence martiale chez une femme qui est tabagique. On suspecte avant tout un cancer de l'oesophage (plutôt épidermoïde). L'achalasie est un trouble moteur de l'oesophage se caractérisant par une dysphagie paradoxale (aux liquides) non associé à une carence martiale. Le syndrome de Plummer Vinson est rare; il associe une carence martiale et une dysphagie progressive et secondaire à la présence de membranes oesophagiennes d'origine inconnue.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L’endoscopie digestive haute retrouve une œsophagite non hémorragique compliquant une hernie hiatale. Les biopsies gastriques et duodénales sont sans particularité. L’examen ORL par nasofibroscopie est décrit comme normal. Un traitement par IPP (Inhibiteur de la pompe à protons) permet l’atténuation des symptômes de dysphagie. Demandez- vous un (des) autre(s) examen(s) complémentaire(s) ? Lequel / Lesquels ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une échographie thyroïdienne</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une coloscopie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un examen gynécologique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une IRM hépatique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Aucun autre examen. La dysphagie s'attenue sous traitement IPP, l'étiologie de cette dysphagie est probablement par oesophagite peptique compliquant une hernie hiatale. Mais elle n'explique pas cette carence martiale, qui doit être explorée par coloscopie et par des explorations gynécologiques chez cette femme ménopausée.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La coloscopie a identifié une lésion néoplasique du caecum. Les biopsies confirment qu’il s’agit d’un adénocarcinome liberkuhnien du colon droit moyennement différencié. Madame S est surprise, elle dit ne jamais avoir réalisé de test de dépistage pour ce type de pathologie. Quelle(s) est (sont) la (les) proposition(s) juste(s)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Madame S était concernée par le dépistage du cancer colorectal.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une coloscopie de dépistage du cancer colorectal aurait du être réalisée régulièrement depuis plusieurs années.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Madame S faisait partie de la population à risque moyen de développer un cancer colorectal.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Madame S faisait partie de la population à très haut risque de développer un cancer colorectal</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le tabagisme actif est un facteur de risque exogène du cancer colorectal. Dépistage de masse pour la population générale de + de 50 ans (risque moyen) par test immunologique de recherche de sang dans les selles tous les deux ans . Coloscopie chez sujets à risque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — antécédent personnel ou familial de cancer colorectal ou d’adénome, MICI ancienne, prédisposition héréditaires Lynch ou polypose familiale, acromégalie</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant cet adénocarcinome du colon droit, quel(s) sera(seront) l'(les) élément(s) de votre prise en charge?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Scanner thoraco-abdomino-pelvien dans le cadre d'un bilan d'extension</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Scintigraphie osseuse dans le cadre d'un bilan d'extension</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Echo-endoscopie colorectale dans le cadre d'un bilan d'extension</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Programmation d'une réunion de concertation pluridisciplinaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Résection chirurgicale en urgence. Lors du diagnostic de tout cancer, il est nécessaire d'en réaliser le bilan d'extension, Scanner thoraco-abdomino-pelvien pour le cancer colique et rectal. L'IRM rectale ou l'échoendoscopie recale seront proposées en complément en cas de cancer du rectum localisé. La résection chirurgicale en urgence (avant la RCP) est indiquée en cas de syndrome occlusif.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le bilan d’extension et l'analyse anatomopathologique confirment un adénocarcinome invasif, envahissant les couches muqueuses, sous muqueuses et musculeuses du colon droit sans lésion métastatique à distance. Une résection de la tumeur est programmée. Quel(s) sera (seront) le(s) principe(s) du traitement?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une résection endoscopique de la tumeur sera proposée.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une résection chirurgicale de la tumeur avec marges de sécurités et curage ganglionnaire sera proposée.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une chimiothérapie néo adjuvante (avant la résection) sera proposée.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une chimiothérapie adjuvante (après la résection) sera proposée en cas d'envahissement ganglionnaire.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une radiothérapie, associée à la chimiothérapie sera proposée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La résection endoscopique pour des lésions très superficielles est parfois possible (Tis, T1sm1 = lésions intramuqueuses ou sous muqueuses superficielles)</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Dans le cadre d'un cancer du colon sans métastases à distance, le traitement consiste en une exérèse de la tumeur primitive avec des marges d’au moins 5 cm, associée à l’exérèse des vaisseaux et du méso colon contenant le réseau lymphatique avec ses ganglions.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Pour le cancer du rectum sous péritonéal un traitement préopératoire (chimiothérapie, radio-chimiothérapie) est souvent nécessaire. Elle diminue le risque de récidive locale.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Pour les cancers du côlon et du rectum une chimiothérapie post opératoire est recommandée s’il existe un envahissement ganglionnaire.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Pour le cancer du rectum sous péritonéal un traitement préopératoire (chimiothérapie, radio-chimiothérapie) est souvent nécessaire. Elle diminue le risque de récidive locale.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q7" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Mme S a été opérée (colectomie droite) et a été traité dans les suites par une chimiothérapie post opératoire. Elle s'inquiète désormais pour ses proches et vous pose de nombreuses questions au sujets de tests génétiques concernant le cancer du colorectal. Quelle(s) sont l'(les) indication(s) à un test de génétique constitutionnelle ou somatique après le diagnostic positif d’adénocarcinome colorectal ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">En cas de polypose en endoscopie ou sur la pièce opératoire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">En cas de perte d'expression d’une des 4 protéines du système MMR (MismatchRepair) ou statut MSI (MicroSatellite Instability) dans la tumeur</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">En cas de diagnostic à un stade métastatique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Dès un seul antécédent familial au premier degré de cancer dans le spectre du syndrome de Lynch.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">En cas de diagnostic du cancer colorectal avant 40 ans. Indication à un test de génétique constitutionnelle : -Perte d’expression d’une des 4 protéines du système MMR (MismatchRepair) ou statut MSI - Polypose en l'absence de statut MSI-Age au diagnostic &lt; 40 ans sans polypose-Après 40 ans si critères d'Amsterdam III (Syndrome de Lynch) : au moins 3 sujets atteints de cancers du spectre (côlon, rectum, endomètre, ovaire, grêle, uretère ou cavités excrétrices rénales, estomac, pancréas, voies biliaires, glioblastome) dont 1 sujet uni aux 2 autres au 1er degré ET au moins 2 générations successives concernées ; ET au moins 1 cancer diagnostiqué avant 50 ansL’indication d’un test génétique somatique (modification uniquement du tissu tumoral) est systématique sur le prélèvement tumoral en situation métastatique car le résultat influence les indications thérapeutiques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les hémorragies digestives, quel(les) est (sont) la (les) réponse(s) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Tout épisode de rectorragie même sans diminution du taux d’hémoglobine impose la réalisation d’une endoscopie digestive en urgence.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Tout épisode de rectorragie même sans diminution du taux d’hémoglobine impose l’hospitalisation du (de la) patient(e).</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La coloscopie totale doit toujours être réalisée après une préparation optimale.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La pose d’une sonde naso-gastrique est indiquée systématiquement en cas de suspicion d’hémorragie digestive haute avant l’examen endoscopique.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Dans la grande majorité des cas d’hémorragie digestive, il n’y a pas d’indication à un examen d’imagerie en coupe</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — En cas de rectorragie non continue et sans critère de gravité une endoscopie à peut être différée.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — En cas de rectorragie non continue et sans critère de gravité une hospitalisation n'est pas nécessaire.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La pose d'une sonde naso-gastrique est indiquée en cas de choc hypovolémique et en l'absence d'extériorisation.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi ces propositions, quels sont les critères de gravité d’une hémorragie digestive ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les comorbidités cardiovasculaires</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La baisse d’hémoglobine à la phase initiale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le volume estimé de sang extériorisé.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un mauvais rendement transfusionnel.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La réaction par production de mousse après le contact du sang extériorisé et de l’eau oxygénée. Le retentissement hémodynamique est le critère principal de gravité : un état de choc initial et/ou ne répondant pas au remplissage est le critère le plus grave. Lipothymie, chute, tachycardie sont des signes de gravité - La baisse de l’hémoglobinémie à la phase initiale. L’hémoglobinémie peut être normale ou sous-estimer le saignement. - Le terrain : les comorbidités cardiovasculaires aggravent le pronostic. - L’évolution à court terme : l’instabilité hémodynamique malgré le remplissage ou le mauvais rendement transfusionnel (pas de montée de l’hémoglobine après transfusion) sont des critères de gravité. Attention ! Le « volume » évalué de sang extériorisé est un très mauvais indicateur de gravité. La réaction avec l'eau oxygéné n'est pas un critère de gravité et n'est pas validé pour le diagnostic d'une hémorragie digestive.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi ces éléments cliniques et biologiques, quels sont ceux qui peuvent être liés à un ictère à bilirubine conjuguée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une diminution de la valeur de l’haptoglobine biologique.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La présence d’urines décolorées et de selles foncées.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un prurit.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une perturbation du bilan d’hémostase</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une stéatorrhée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La diminution de l'haptoglobine est observée en cas d'hémolyse qui est une des causes de l'ictère à bilirubine libre.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'obstruction des voies biliaires cause un ictère à bilirubine conjugé responsable de la présence d'urines foncées et de selles décolorées.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Une obstruction des voies biliaires prolongée peut être responsable dune carence en vitamines liposolubles (A, D, E, K). La vitamine K est déterminante pour les facteurs de coagulation dits "vitamine K dépandants" (Facteurs II, VII, IX et X). On retrouve à la biologie une baisse du TP mais pas du facteur V.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi ces éléments, quels sont ceux qui sont en faveur d’un diagnostic d’une rectocolite hémorragique plutôt qu'une maladie de Crohn.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des lésions inflammatoires limités au rectum.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une atteinte et des lésions inflammatoires discontinues en endoscopie.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La présence de fistules ano-perinéales.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un granulome épithélioïde gigantocellulaire sans nécrose caséeuse à l’analyse anatomopathologique.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une infiltration transmurale des lésions inflammatoires à l’analyse anatomopathologique.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Dans la rectocolite hémorragique, l'atteinte inflammatoire de la muqueuse colique et rectale est continue sans intervalle de muqueuse saine avec une limite nette.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les lésions ano-périnéales peuvent être associées à une maladie de Crohn.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Cet élément histologique est associé à une maladie de Crohn dans 30% des cas. Il n'est pas associé à la RCH</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L’infiltrat inflammatoire est superficiel dans la RCH (muqueux) et transmural dans la MC.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l’Helicobacter Pylori (HP), quel(les) est (sont) la(les) réponse(s) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il s’agit d’une bactérie gram négatif flagellée acido-résistante.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La gastrite à Helicobacter Pylori constitue un facteur de risque d’adénocarcinome gastrique.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La recherche d’une infection à Helicobacter Pylori est systématique en cas d’ulcère gastrique ou duodénal.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">En cas d’hémorragie digestive révélant un ulcère gastrique lors d’une endoscopie, la recherche d’infection à HP par biopsies gastriques doit se faire dans le même temps diagnostique.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">En cas d’hémorragie digestive révélant un ulcère gastrique lié à HP, le traitement d’éradication doit être débuté en urgence.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — En cas d'hémorragie digestive révélant un ulcère gastrique, le temps est à l'hémostase endoscopique. Le diagnostic de l'infection à HP est necessaire mais sera fait dans une endoscopie ultérieure hors periode hémorragique ou par sérologie.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il n'y a aucune urgence à débuter un traitement d'éradication d'HP. Le traitement urgent de l'hémorragie digestive par ulcère gastrique est l'hémostase endoscopique et l'Inhibiteur de la pompe à protons.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les indications d’un traitement préventif par Inhibiteurs de la pompe à protons (IPP) pour un patient traité par anti-inflammatoires non stéroïdiens ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Age supérieur à 65 ans</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Antécédent de gastrite avec dysplasie ou métaplasie intestinale.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Antécédent de gastrite à Helicobacter Pylori.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Traitement concomitant par antiagrégant plaquettaire.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Traitement concomitant par corticoïdes oraux. Indication du traitement préventif par IPP chez les patients sous AINS ou Aspirine : -plus de 65 ans -antécédent d’UGD -traitement par antiagrégant, anticoagulant ou corticoïdes associés</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les éléments suivants, quel(s) est (sont) celui (ceux) qui sont en faveur d’une diarrhée motrice ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les selles sont fréquentes et fractionnées, souvent post prandiales.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les selles sont fréquentes et fractionnées souvent vespérales</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les selles peuvent contenir des aliments ingérés moins de huit heures avant</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les selles s’accompagnent fréquemment d’un météorisme abdominal et de flatulences</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les traitements ralentisseurs du transit sont souvent efficaces La diarrhée motrice est souvent constituée de selles fréquentes fractionnées le matin et postprandiales, pouvant contenir des résidus d’aliments ou des médicaments ingérés moins de 8 heures avant, rarement nocturnes.s. Les ralentisseurs du transit sont souvent efficaces</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la colite à Clostridium difficile, quel(les) est (sont) la (les) proposition(s) juste(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle nécessite toujours une hospitalisation.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle nécessite l'isolement des patients et la désinfection régulière des mains de l'entourage et/ou des soignants en contact au gel hydro-alcoolique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La levée de l'isolement du (de la) patient(e) nécessite un contrôle de la coproculture à la fin du traitement.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les traitements anti-sécrétoires sont contre indiqués.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les traitements ralentisseurs du transit sont à éviter.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — En l'absence de signe de gravité, un traitement à domicile est possible.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le Clostridioides difficile est une bactérie sporulée qui résiste au gel hydro- alcoolique et nécessite une friction première des mains au savon</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Pas d’indication à un contrôle de la coproculture à la fin du traitement</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Ils sont possibles mais modérément efficaces.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les propositions exactes concernant la pancréatite chronique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La présence de calcifications pancréatiques observées sur un examen tomodensitométrique abdominal de routine est très évocatrice de ce diagnostic</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le diagnostic doit être réalisé par une biopsie pancréatique réalisée sous écho-endoscopie (L’échoendoscopie bilio-pancréatique sous anesthésie générale n’est pas faite en première intention. Elle explore l’intégralité du pancréas avec une très grande sensibilité et caractérise avec précision le mécanisme des obstacles canalaires. Elle permet de réaliser des ponctions à visée anatomopathologique en cas de doute diagnostique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le taux fécal d’élastase est augmenté</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La présence d’une stéatorrhée est fréquente</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La lipase est élevée à plus de 3 N</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le diagnostic repose sur la présence d’anomalies parenchymateuses, notamment de calcifications pancréatiques, et/ou d’anomalies canalaires en imagerie</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — PC de présentation pseudotumorale</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'insuffisance pancréatique exocrine est une complication tardive, associée à une stéatorrhée et un amaigrissement, elle se confirme par un dosage abaissé de l’élastase fécale sur un échantillon de selles</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Lipasémie élevée lors des poussées de pancréatite aiguë (cf. Item 358). En dehors de ces poussées, le dosage n’est pas indiqué car sans intérêt</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un homme de 46 ans, sans antécédent familial particulier, avec comme seul antécédent personnel une hypertension artérielle connue depuis 3 ans et équilibrée sur traitement β-bloquant, consulte pour une constipation inhabituelle apparue récemment au décours d’un voyage aérien. Vous lui expliquez que :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La constipation est habituelle sous traitement β-bloquant</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une étude du temps de transit colique par marqueurs radio-opaques doit être réalisée pour confirmer le diagnostic</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La coloscopie sera à discuter si le trouble persiste</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La coloscopie est indispensable et doit être réalisée dès que possible</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un test fécal de recherche de sang dans les selles est à réaliser La coloscopie avec anesthésie générale devra être proposée dans les situations suivantes : - si les symptômes sont apparus ou s’aggravent après 50 ans ; - en cas de signes d'alarme (rectorragie, altérations de l’état général, modification récente et inexpliquée du transit)Elle se discute si les troubles persistent malgré traitement et règles hygiénodiététiques. -Le test fécal se fait pour la population générale après 50 ans. Constipation médicamenteuse : fer oral - antidiarrhéiques - antalgiques (opiacés, tramadol), antispasmodiques - anticholinergiques - antidépresseurs (carbamazépine), antipsychotiques, anticonvulsivants (amitriptyline), antiparkinsoniens - diurétiques hypokaliémiants (furosémide) - résines (colestyramine)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles seraient vos propositions d’exploration chez une femme de 40 ans pesant 80 kg pour 152 cm sans antécédent particulier qui présente un RGO typique avec gêne à type de brulure ascendante rétro-sternale transitoire survenant à un rythme environ bi-mensuel ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Endoscopie digestive haute</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">pH-métrie des 24 heures</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">pH-métrie impédencemétrie des 24 heures</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Manométrie oesophagienne de haute résolution</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Aucune de ces propositions Aucun examen complémentaire n'est nécessaire en cas de 1ere consultation pour un RGO avec signes typiques avant 50 ans et en dehors de signes d'alarme. La pH-métrie +/- impédancemétrie est indiquée en cas de signes atypiques de RGO, RGO résistants au traitement médical bien conduit et pour le bilan pré-opératoire quand se pose la question d’une chirurgie du RGO La manométrie est indiquée en cas de suspiction de trouble moteur œsophagien, Bilan pré-opératoire d’une chirurgie du RGO</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">SQI2</div>
+
+<div class="q" id="SQI2-Q1" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">1. Parmi ces propositions concernant les pathologies de paroi, lesquelles sont vraies?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une hernie est une déhiscence de la paroi avec protrusion du contenu de la cavité abdominale, au travers un orifice anatomique naturel.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une éventration est une hernie à travers un orifice secondaire à une précédente incision.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une éviscération est une rupture du péritoine et les viscères sont directement exposés.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une éventration est un élargissement d’un orifice naturel avec protrusion du contenu de la cavité abdominale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une hernie ne laisse passer que des tissus adipeux de la cavité abdominale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q2" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi ces propositions concernant les hernies, laquelle est vraie?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une hernie acquise est due à la persistance du canal péritonéo-vaginal.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La limite inférieure du canal inguinal est représentée par le ligament inguinal.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La limite supérieure du canal inguinal est représentée par le fascia transversalis.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une hernie crurale se situe au-dessus de la ligne ilio pubienne.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une hernie inguinale n’existe que chez le sexe masculin.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q3" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant les signes d’occlusion intestinale, lesquelles sont vraies?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Vomissements</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Fièvre</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Douleurs abdominales</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Déshydratation</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Arrêt de gaz et des matières</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q4" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant les mécanismes de survenue d’un syndrome occlusif, lesquelles sont vraies?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le volvulus du sigmoïde provoque une occlusion fonctionnelle</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le syndrome d’Ogilvie nécessite un traitement en urgence par laparotomie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’iléus biliaire correspond à une obstruction digestive intra-luminale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une hernie étranglée correspond à une strangulation</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La maladie de Crohn provoque une obstruction extra-digestive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q5" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant le syndrome occlusif, lesquelles sont vraies?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Au scanner, la dilatation du grêle est définie comme une anse dont le diamètre est supérieur à 17 mm</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Au scanner, la zone de transition correspond à un changement de calibre brutal entre une anse dilatée et une anse plate</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Au scanner, le défaut de rehaussement digestif constitue un signe de gravité</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une aéroportie est constituée par de multiples densités aériques fines et de siège périphérique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une aérobilie est signe d’une souffrance digestive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q6" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles affirmations parmi les suivantes sont vraies à propos de la classification des péritonites?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La péritonite tertiaire est une infection abdominale spontanée, mono bactérienne d’origine hématogène ou par translocation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La péritonite tertiaire est une infection abdominale persistante malgré un traitement seulement médicamenteux, par des germes devenus résistants ou des levures</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La péritonite secondaire survient après la perforation d’un viscère digestif ou après la diffusion d’une infection abdominale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La péritonite primaire impose toujours une prise en charge chirurgicale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La péritonite tertiaire constitue une urgence médico-chirurgicale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q7" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les suivantes, quelles sont les causes de péritonite secondaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Infections/perforations intra-abdominales</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Infections abdominales spontanées, mono-bactériennes d’origine hématogène ou par translocation</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Post-opératoires par désunion anastomotique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Post-traumatiques après traumatisme fermé entraînant une perforation ou une ischémie digestive</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Infections abdominales persistantes malgré un traitement antibiotique et chirurgical par des germes devenus résistants ou des levures</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q8" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles affirmations parmi les suivantes sont vraies à propos du diagnostic de la péritonite?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le diagnostic de péritonite est essentiellement clinique.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La normalité des examens para cliniques doit remettre en cause le diagnostic de péritonite</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les examens para cliniques ne doivent pas retarder la prise en charge</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La péritonite provoque des signes péritonéaux</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La péritonite la plus fréquente est d’origine appendiculaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — contracture, défense et douleur du cul de sac de Douglas</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q9" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles affirmations parmi les suivantes sont vraies à propos de la crise d’appendicite typique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Patient jeune 15-25 ans</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Douleur migratrice de la fosse iliaque gauche +/- épigastre</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Défense de la fosse iliaque droite, avec un signe de Bloomberg positif</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Douleur au point de Mc Burney</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Toucher rectal toujours douloureux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q10" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les examens para cliniques qui confirment le diagnostic d’une appendicite aiguë?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Echographie : n’a de valeur que si positive</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">ASP</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">scanner abdomino-pelvien</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">IRM abdomino-pelvien</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Biologie : présence constante d’une hyperleucocytose à PNN, avec élévation de la CRP</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — radiographie abdominale sans préparation</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q11" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les facteurs parmi les suivants incriminés dans la diverticulose colique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Régime riche en fibres</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Sédentarité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Obésité</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Constipation</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Tabac</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q12" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI2 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles affirmations parmi les suivantes sont correctes à propos de la diverticulose colique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La localisation la plus fréquente des diverticules coliques se situe sur le colon droit et transverse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La localisation la plus fréquente des diverticules se situe sur colon gauche et sigmoïde</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’examen d’imagerie de référence est le scanner abdomino-pelvien avec injection intra veineuse de produit de contraste</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L’ASP est utilisé en première intention</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La principale complication est la diverticulite aiguë</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI2-Q13" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI2 Q13</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est la conduite à tenir de première intention en cas de diverticulite aiguë non compliquée (Hinchey 1) en l’absence de comorbidité́ significative et/ou de contexte social défavorable (une seule réponse) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Traitement ambulatoire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Traitement symptomatique et antibiotiques pour 3 à 5 jours</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Traitement symptomatique et antibiotiques pour 10 à 15 jours</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Traitement chirurgical au décours de la crise dans tous les cas</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une alimentation n'est pas recommandée au cours du traitement de la diverticulite non perforée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI2-Q14" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI2 Q14</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est la conduite à tenir dans le cas de diverticulite aiguë compliquée (Hinchey 2) (une seule réponse)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Traitement ambulatoire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Antibiothérapie seule, sans geste chirurgical ou drainage radiologique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Intervention selon Hartmann en urgence</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Cœlioscopie exploratrice et lavage péritonéal</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Coloscopie en urgence</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI2-Q15" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI2 Q15</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est la conduite à tenir dans le cas de diverticulite aiguë compliquée (Hinchey 4) ? (une seule réponse)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Traitement ambulatoire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Antibiothérapie seule, sans geste chirurgical ou drainage</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Intervention selon Hartmann en urgence</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Cœlioscopie exploratrice et lavage péritonéale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Coloscopie en urgence</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI2-Q16" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI2 Q16</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi ces affirmations concernant l’angiocholite, laquelle est vraie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Sur l’imagerie, on note toujours une dilatation des voies biliaires intra-/extrahépatiques</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les hémocultures sont toujours positives</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une cholécystectomie en urgence est le premier geste à faire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les paramètres biologiques de cholestase sont généralement anormaux</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les patients présentent toujours d’ictère franc</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI2-Q17" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI2 Q17</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions de traitements d’une cholécystite aigüe lithiasique chez un adulte jeune, sans comorbidité notable, quelle est la plus correcte?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une échoendoscopie doit être effectuée en pré-opératoire, pour s’assurer de l’absence de lithiase de voies biliaires</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une antibiothérapie n’est indiquée qu’en cas de sepsis</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une cholécystectomie laparoscopique pratiquée idéalement dans les premiers 24 à 48h est le traitement chirurgical de choix</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une cholécystectomie laparoscopique devrait être pratiquée idéalement après une antibiothérapie i.v. de minimum 5 jours</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle ne nécessite aucun traitement chirurgical</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+</body></html>
