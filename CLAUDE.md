@@ -359,6 +359,24 @@ Le texte des énoncés, données cliniques et items doit être **rigoureusement 
 
 ---
 
+## Intégration d'un quiz généré par `pdf_to_quiz.py` (checklist de relecture)
+
+L'utilisateur dispose d'un script local (`pdf_to_quiz.py`, hors dépôt) qui convertit une annale PDF en un premier jet de quiz HTML suivant le gabarit ci-dessus. Quand il fournit un `.html` issu de ce script (et éventuellement le `.snippet.html` associé), **ne jamais l'intégrer tel quel** — le script est un gain de temps, pas une garantie de justesse. Toujours dérouler cette checklist avant publication :
+
+1. **Marqueurs `[A VERIFIER]`** : chercher toute occurrence dans le fichier (option sans lettre détectée, QROC sans réponse attendue, QRPL sans nombre de réponses détecté) et les résoudre à la main à partir du PDF source si disponible.
+2. **Fidélité au texte du PDF** : vérifier en particulier les mots contenant "fi"/"ffi"/"fl" (ex. déficit, efficace, réflexe) — les ligatures sont une source connue de troncature à l'extraction PDF. Comparer aussi la ponctuation/casse si le PDF original est fourni (règle « texte identique au PDF » ci-dessus s'applique toujours).
+3. **Titres de section** : le script ne génère que le code brut (`DP1`, `KFP2`, `mDP1`…) sans intitulé médical. Ajouter le sujet clinique après le code (ex. `DP1 — Cancer du pancréas`), à déduire du contexte clinique (`dpctx`) de la question 1.
+4. **Placement UE/trimestre** : vérifier le dossier de destination proposé contre la table de correspondance ci-dessus. **UE 3 est ambiguë** (existe en D1 `annales/` ET en D2-T2 `d2/t2/`) — le script ne tranche jamais ce cas, décider selon le contexte (préfixe DFG = D1, DFA = D2, ou demander à l'utilisateur en cas de doute).
+5. **Nom de fichier** : convention `Quiz_UE{x.x}_{AAAA-AAAA}_{S1|S2}.html` (S1 = session normale, S2 = rattrapage), sauf session particulière nécessitant un suffixe dédié (ex. `_janvier`, comme pour UE3 D2-T2) — renommer si besoin.
+6. **Images** : le script associe chaque image détectée à la première question non pourvue de la même page PDF (heuristique best-effort). Vérifier visuellement que chaque image est sur la bonne question et bien positionnée (après `.stem`, avant `.opts`).
+7. **TCS / QRU à réponses multiples acceptées** : quand plusieurs options sont marquées "Valide" dans le PDF, le script retient en priorité l'option cochée par l'étudiant source (si elle est valide), sinon la première option valide — ceci reste une heuristique. Vérifier que `data-correct` pointe vers la réponse la plus pertinente pédagogiquement, et que les alternatives sont bien mentionnées dans la `<div class="note">`.
+8. **Piège `.wrap`/`.hwrap`** : le gabarit du script utilise déjà `.hwrap` dans le `<header>` — revérifier si le fichier a été édité manuellement depuis.
+9. **Test headless/visuel obligatoire** : ouvrir le HTML (navigateur ou Playwright headless) et confirmer que les Q2+ des sections DP/KFP/TCS sont floutées au chargement, qu'elles se déverrouillent après validation de la question précédente, et que les compteurs `#s-done`/`#s-ok` reflètent le bon total de questions/points.
+10. **Mise à jour du portail** : coller (en l'adaptant si besoin) le contenu de `*.snippet.html` dans l'`index.html` du trimestre concerné, en respectant l'ordre chronologique par UE (cf. règle plus haut) et en retirant un éventuel bloc `.empty` "à venir" devenu obsolète. Mettre à jour le compteur du footer.
+11. **Commit + push** : une fois la relecture terminée, committer et pousser selon les règles habituelles du dépôt (branche `main` par défaut, sauf instruction contraire).
+
+---
+
 ## Sécurité
 
 Ne jamais inclure de lien vers une session Claude (`claude.ai/code/session_…`) dans :
