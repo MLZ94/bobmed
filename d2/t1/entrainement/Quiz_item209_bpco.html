@@ -1,0 +1,535 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<title>Item 209 — BPCO · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(245,246,244,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.breadcrumb{font-size:12.5px;color:var(--mut);margin-bottom:18px}
+.breadcrumb a{color:var(--mut);text-decoration:none}.breadcrumb a:hover{color:var(--acc)}
+.breadcrumb .sep{margin:0 5px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q.done{border-color:#e2e8f0}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<style id="dk">
+html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark header{background:rgba(14,17,23,.95)!important}
+html.dark .opt.sel{background:#1e1b4b}
+html.dark .dpctx{background:#1e1b4b!important;border-color:#312e81!important;color:#c7d2fe!important}
+html.dark .note{background:#1c1002!important;border-color:#78350f!important;color:#fde68a!important}
+html.dark .q.done{border-color:#374151}
+html.dark .rang-a{background:#052e16!important;color:#4ade80!important;border-color:#15803d!important}
+html.dark .rang-b{background:#1e3a5f!important;color:#93c5fd!important;border-color:#1d4ed8!important}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 209 — BPCO · Entraînement par item</h1>
+<div class="sub">12 questions — QRM · QRU · QROC. 10 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/12</b></span>
+  <span class="pill">Score : <b id="s-ok">0/10</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<nav class="breadcrumb">
+  <a href="../../../index.html">BobMed</a><span class="sep">›</span>
+  <a href="../../../index.html#d2">D2</a><span class="sep">›</span>
+  <a href="../index.html">T1</a><span class="sep">›</span>
+  <a href="index.html">Entraînement</a><span class="sep">›</span>
+  <span>Item 209 — BPCO</span>
+</nav>
+
+<div class="sect">Questions d'entraînement — Item 209</div>
+
+<!-- Q1 -->
+<div class="q" id="Q1" data-type="QRU" data-correct="C">
+  <div class="qhead">
+    <span class="qnum">Q1</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quel critère spirométrique définit la BPCO après bronchodilatateurs ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">VEMS/CVF < 80 % de la valeur prédite</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">VEMS < 80 % de la valeur prédite</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Rapport de Tiffeneau post-bronchodilatateur VEMS/CVF < 0,70 (70 %)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">CPT augmentée avec VEMS abaissé</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">La BPCO est définie par un trouble ventilatoire obstructif (TVO) non complètement réversible après bronchodilatateurs : VEMS/CVF &lt; 0,70. Ce seuil fixe de 70 % est utilisé selon les recommandations GOLD (risque de surdiagnostic chez les sujets âgés).</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — VEMS/CVF &lt; 80 % de la valeur prédite n'est pas le critère utilisé.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un VEMS abaissé seul ne définit pas une BPCO (peut être présent dans les troubles restrictifs).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — VEMS/CVF &lt; 0,70 après bronchodilatateurs = trouble ventilatoire obstructif persistant = définition de la BPCO selon GOLD.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Une CPT augmentée avec VEMS abaissé décrit le syndrome emphysémateux ; ce n'est pas la définition spirométrique de la BPCO.</div>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="q" id="Q2" data-type="QRM" data-correct="ABDE">
+  <div class="qhead">
+    <span class="qnum">Q2</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Parmi les facteurs de risque suivants, lesquels sont reconnus dans la survenue d'une BPCO ? (4 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Tabagisme actif (principal facteur de risque)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Exposition professionnelle aux poussières et fumées (silice, charbon)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Déficit en vitamine D</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Déficit en alpha-1-antitrypsine</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Pollution atmosphérique et combustion de biomasse</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le tabagisme est la cause principale (85 % des BPCO). Risque proportionnel à l'index paquet-année (IPA).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Expositions professionnelles (mines, BTP, industrie textile) : BPCO non tabagique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le déficit en vitamine D n'est pas un facteur de risque établi de la BPCO.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le déficit en alpha-1-antitrypsine (AAT) est la principale cause génétique de BPCO/emphysème (à rechercher si BPCO < 45 ans, non fumeur ou emphysème panlobulaire).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Pollution de l'air intérieur (biomasse, charbon de bois) et extérieure (particules fines) sont des facteurs de risque, surtout dans les pays à faible revenu.</div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="q" id="Q3" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q3</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">La classification GOLD de sévérité de la BPCO est basée sur le VEMS post-bronchodilatateur. Quels stades correspondent aux seuils corrects ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">GOLD 1 (légère) : VEMS ≥ 80 % de la valeur prédite</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">GOLD 2 (modérée) : VEMS entre 50 % et 79 %</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">GOLD 3 (sévère) : VEMS entre 40 % et 49 %</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">GOLD 4 (très sévère) : VEMS < 30 % de la valeur prédite</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">GOLD 3 (sévère) : VEMS < 80 %</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="note">Classification GOLD : G1 ≥ 80 % · G2 50-79 % · G3 30-49 % · G4 &lt; 30 %. Toujours avec VEMS/CVF &lt; 0,70 préalable.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — GOLD 1 : VEMS/CVF &lt; 0,70 ET VEMS ≥ 80 % prédit.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — GOLD 2 : VEMS entre 50 et 79 % prédit.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — GOLD 3 (sévère) correspond à VEMS entre 30 et 49 %, pas 40-49 %.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — GOLD 4 : VEMS &lt; 30 % prédit (très sévère).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — VEMS &lt; 80 % seul ne définit pas GOLD 3.</div>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="q" id="Q4" data-type="QRM" data-correct="ACE">
+  <div class="qhead">
+    <span class="qnum">Q4</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels sont les piliers du traitement de fond de la BPCO stable ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Arrêt du tabac (mesure la plus efficace)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Corticothérapie orale au long cours</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bronchodilatateurs inhalés (LABA et/ou LAMA)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Antibiothérapie prophylactique systématique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Réhabilitation respiratoire (kinésithérapie, exercice physique)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'arrêt du tabac est la seule mesure qui ralentit le déclin du VEMS et améliore la survie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La corticothérapie orale au long cours n'est pas indiquée dans la BPCO stable (effets secondaires, pas de bénéfice prouvé). Les corticoïdes inhalés peuvent être ajoutés en association dans certaines indications.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — LABA (bêta-2 longue durée) et LAMA (anticholinergiques longue durée) sont les bronchodilatateurs de fond. L'association LABA+LAMA est supérieure en cas de symptômes persistants.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'antibiothérapie prophylactique n'est pas recommandée en routine (sauf cas particuliers).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La réhabilitation respiratoire améliore la dyspnée, la tolérance à l'effort et la qualité de vie.</div>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="q" id="Q5" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q5</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient BPCO GOLD 4 (VEMS 25 %) avec une PaO₂ à 55 mmHg en air ambiant à l'état stable. Quelle est l'indication thérapeutique à ne pas manquer ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Corticothérapie orale prolongée</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Oxygénothérapie de longue durée à domicile (OLD) ≥ 15 h/j</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ventilation non invasive (VNI) systématique</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Transplantation pulmonaire en urgence</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note">Indications de l'OLD dans la BPCO stable : PaO₂ ≤ 55 mmHg <em>ou</em> PaO₂ entre 56-59 mmHg avec polyglobulie, HTAP, ou signes d'insuffisance cardiaque droite. Mesurée 2 fois à 3 semaines d'intervalle hors exacerbation.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La corticothérapie orale n'est pas indiquée dans la BPCO stable.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — PaO₂ ≤ 55 mmHg stable = indication formelle à l'OLD ≥ 15 h/j. Améliore la survie (étude MRC).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La VNI peut être indiquée chez certains patients BPCO sévères (hypercapnie chronique) mais n'est pas systématique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La transplantation est discutée dans les stades très avancés mais pas en urgence.</div>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="q" id="Q6" data-type="QRM" data-correct="BCE">
+  <div class="qhead">
+    <span class="qnum">Q6</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient BPCO connu présente en urgence une dyspnée aiguë avec toux productive purulente, fièvre à 38,5°C et augmentation de la dyspnée. Quels éléments confirment une exacerbation aiguë de BPCO (EABPCO) et orientent la prise en charge initiale ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Spirométrie avec test de réversibilité aux bronchodilatateurs</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Gazométrie artérielle (GDS) pour évaluer l'insuffisance respiratoire aiguë</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Radiographie thoracique (pneumonie associée, pneumothorax ?)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Scanner thoracique systématique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Bronchodilatateurs nébulisés en urgence (SABA ± SAMA)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La spirométrie avec test de réversibilité n'est pas réalisable ni utile lors d'une exacerbation aiguë.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les GDS permettent de quantifier l'hypoxémie et l'hypercapnie (acidose respiratoire = exacerbation grave). Guidant l'indication de VNI ou d'intubation.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La radiographie thoracique cherche les facteurs déclenchants et complications : pneumonie, pneumothorax, épanchement pleural, insuffisance cardiaque gauche.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le scanner n'est pas systématique lors d'une EABPCO (sauf suspicion d'embolie pulmonaire).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les bronchodilatateurs à courte durée d'action (salbutamol ± ipratropium) en nébulisation sont le traitement de 1ère intention de la bronchospasme en urgence.</div>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="q" id="Q7" data-type="QRU" data-correct="C">
+  <div class="qhead">
+    <span class="qnum">Q7</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quel débit d'O₂ est recommandé lors d'une exacerbation aiguë de BPCO avec hypercapnie pour éviter l'aggravation de l'hypercapnie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">O₂ à haut débit (> 10 L/min) pour normaliser la SpO₂ à 100 %</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">O₂ sans limite car l'hypoxémie est toujours plus dangereuse que l'hypercapnie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">O₂ contrôlé titré pour SpO₂ cible entre 88 et 92 %</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Pas d'O₂ car risque de dépression respiratoire systématique</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">Chez le BPCO hypercapnique chronique, le stimulus hypoxique est prédominant pour la commande ventilatoire. Un excès d'O₂ supprime ce stimulus → aggravation de l'hypercapnie et acidose. La cible SpO₂ 88-92 % est recommandée par les sociétés savantes.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — O₂ à haut débit dans la BPCO hypercapnique peut aggraver l'hypercapnie (mécanismes : levée du drive hypoxique, effet Haldane).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'hypercapnie aiguë avec acidose peut être mortelle.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Cible SpO₂ 88-92 % avec oxymétrie continue. Si SpO₂ < 88 % malgré O₂ ou hypercapnie croissante → VNI.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'O₂ est nécessaire pour corriger l'hypoxémie sévère ; il faut le titrer, pas le supprimer.</div>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="q" id="Q8" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q8</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels sont les critères d'hospitalisation devant une exacerbation aiguë de BPCO ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Insuffisance respiratoire aiguë avec hypercapnie (PaCO₂ > 45 mmHg) et/ou acidose respiratoire</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Toute exacerbation, quelle que soit sa sévérité</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Exacerbation grave avec SpO₂ < 90 % sous O₂ ou dyspnée de repos persistante</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Terrain à risque : BPCO GOLD 3-4, comorbidités sévères, isolement social</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Présence d'une toux productive systématiquement</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Insuffisance respiratoire aiguë hypercapnique avec acidose = indication à l'hospitalisation ± VNI/réanimation.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les exacerbations légères-modérées peuvent être traitées en ambulatoire.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Hypoxémie sévère réfractaire ou dyspnée de repos persistante malgré le traitement initial = hospitalisation.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — BPCO sévère, comorbidités (cardiaque, rénale), isolement social, doute diagnostique → hospitalisation.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La toux productive est habituelle dans la BPCO ; elle ne justifie pas à elle seule une hospitalisation.</div>
+  </div>
+</div>
+
+<!-- Q9 -->
+<div class="q" id="Q9" data-type="QRU" data-correct="A">
+  <div class="qhead">
+    <span class="qnum">Q9</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Chez un patient BPCO en exacerbation avec gazométrie : pH 7,28 / PaCO₂ 62 mmHg / PaO₂ 52 mmHg sous 2 L/min O₂, quelle est la prise en charge respiratoire la plus adaptée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ventilation non invasive (VNI) en mode BiPAP</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Intubation oro-trachéale et ventilation mécanique invasive d'emblée</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Augmenter l'O₂ à 10 L/min sans ventilation assistée</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Poursuivre le traitement médical seul et réévaluer dans 4 heures</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Acidose respiratoire (pH &lt; 7,35 + PaCO₂ élevée) = indication à la VNI. La VNI en BiPAP réduit la mortalité, l'intubation et la durée d'hospitalisation dans l'EABPCO hypercapnique avec acidose.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'intubation est réservée aux échecs de la VNI ou aux contre-indications à la VNI (coma, vomissements, obstruction des voies aériennes supérieures).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Augmenter l'O₂ sans assistance ventilatoire aggraverait l'hypercapnie.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'acidose respiratoire (pH 7,28) requiert une prise en charge immédiate.</div>
+  </div>
+</div>
+
+<!-- Q10 -->
+<div class="q" id="Q10" data-type="QRM" data-correct="BCE">
+  <div class="qhead">
+    <span class="qnum">Q10</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelles vaccinations sont recommandées chez un patient BPCO ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">BCG</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Grippe saisonnière (annuelle)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Pneumocoque (Pneumovax 23 et/ou Prévenar 13/15/20)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hépatite B (en priorité chez le BPCO)</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Covid-19</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le BCG n'est pas recommandé chez l'adulte BPCO en routine.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Vaccination antigrippale annuelle fortement recommandée : réduit le risque d'exacerbation et de mortalité.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Vaccination antipneumococcique recommandée (réduction des pneumonies et exacerbations à pneumocoque).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La vaccination hépatite B n'est pas spécifiquement prioritaire pour le BPCO (mais à mettre à jour si non vacciné).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les patients BPCO sont à haut risque de Covid-19 sévère ; la vaccination est fortement recommandée.</div>
+  </div>
+</div>
+
+<!-- Q11 — QROC -->
+<div class="q" id="Q11" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q11</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Définissez le syndrome d'emphysème et expliquez pourquoi il se distingue de la BPCO sur le plan physiopathologique.</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Emphysème :</strong> Destruction anatomique permanente et irréversible des espaces aériens distaux par rapport à la bronchiole terminale (alvéoles), sans fibrose associée.</p>
+      <ul>
+        <li>Mécanisme : déséquilibre protéases/anti-protéases → destruction du tissu élastique alvéolaire.</li>
+        <li>Au scanner : zones d'hyperclarté (bulles d'emphysème).</li>
+        <li>Physiopathologie : diminution du recul élastique → collapsus expiratoire des voies aériennes → obstruction dynamique (piégeage gazeux, augmentation de la CPT).</li>
+      </ul>
+      <p>L'emphysème est une cause anatomique de BPCO mais n'est pas synonyme : on peut avoir une BPCO sans emphysème visible (bronchite chronique obstructive pure) et vice versa (emphysème sans obstruction significative aux EFR).</p>
+    </div>
+  </div>
+</div>
+
+<!-- Q12 — QROC -->
+<div class="q" id="Q12" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q12</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quel est le score de dyspnée mMRC et à partir de quel seuil influence-t-il la stratégie thérapeutique de la BPCO selon GOLD ?</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Score mMRC (modified Medical Research Council) :</strong> Évalue la dyspnée de 0 à 4.</p>
+      <ul>
+        <li>0 : dyspnée uniquement à l'effort intense</li>
+        <li>1 : dyspnée en montant une côte ou en marchant vite</li>
+        <li>2 : dyspnée obligeant à marcher moins vite que les gens du même âge</li>
+        <li>3 : dyspnée après 100 m ou quelques minutes sur terrain plat</li>
+        <li>4 : dyspnée empêchant de sortir de chez soi ou lors de la toilette</li>
+      </ul>
+      <p>Selon GOLD, un mMRC ≥ 2 (ou CAT ≥ 10) définit un patient « symptomatique » → influence le choix thérapeutique (passage au groupe GOLD B ou D, indication à la double bronchodilatation).</p>
+    </div>
+  </div>
+</div>
+
+<footer>12 questions · 10 notées · Item 209 — BPCO · D2 T1 Pneumologie · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+</body></html>
