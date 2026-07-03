@@ -1,0 +1,459 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<title>Item 206 — Épanchement pleural · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(245,246,244,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.breadcrumb{font-size:12.5px;color:var(--mut);margin-bottom:18px}
+.breadcrumb a{color:var(--mut);text-decoration:none}.breadcrumb a:hover{color:var(--acc)}
+.breadcrumb .sep{margin:0 5px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q.done{border-color:#e2e8f0}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<style id="dk">
+html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark header{background:rgba(14,17,23,.95)!important}
+html.dark .opt.sel{background:#1e1b4b}
+html.dark .dpctx{background:#1e1b4b!important;border-color:#312e81!important;color:#c7d2fe!important}
+html.dark .note{background:#1c1002!important;border-color:#78350f!important;color:#fde68a!important}
+html.dark .q.done{border-color:#374151}
+html.dark .rang-a{background:#052e16!important;color:#4ade80!important;border-color:#15803d!important}
+html.dark .rang-b{background:#1e3a5f!important;color:#93c5fd!important;border-color:#1d4ed8!important}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 206 — Épanchement pleural · Entraînement par item</h1>
+<div class="sub">9 questions — QRM · QRU · QROC. 7 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/9</b></span>
+  <span class="pill">Score : <b id="s-ok">0/7</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<nav class="breadcrumb">
+  <a href="../../../index.html">BobMed</a><span class="sep">›</span>
+  <a href="../../../index.html#d2">D2</a><span class="sep">›</span>
+  <a href="../index.html">T1</a><span class="sep">›</span>
+  <a href="index.html">Entraînement</a><span class="sep">›</span>
+  <span>Item 206 — Épanchement pleural</span>
+</nav>
+
+<div class="sect">Questions d'entraînement — Item 206</div>
+
+<!-- Q1 -->
+<div class="q" id="Q1" data-type="QRM" data-correct="BCD">
+  <div class="qhead">
+    <span class="qnum">Q1</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels sont les signes cliniques caractéristiques d'un épanchement pleural liquidien unilatéral abondant ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Tympanisme à la percussion du côté atteint</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Matité déclive à la percussion avec courbe parabolique (courbe de Damoiseau)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Abolition du murmure vésiculaire du côté atteint</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Abolition des vibrations vocales (VV) du côté atteint</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Souffle tubaire avec renforcement des vibrations vocales</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D</div>
+    <div class="note">Triade classique de l'épanchement pleural : matité (liquide) + abolition du MV + abolition des VV. À distinguer du pneumothorax (tympanisme + abolition MV) et de la condensation (matité + souffle tubaire + VV renforcées).</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le tympanisme est le signe du pneumothorax (air dans la plèvre), pas du liquide.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La matité déclive (liquide qui se répartit par gravité), à limite supérieure concave (courbe de Damoiseau) en cas d'épanchement libre, est le signe de percussion caractéristique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le liquide pleural s'interpose entre le poumon et la paroi thoracique, atténuant les bruits respiratoires jusqu'à leur abolition complète si l'épanchement est abondant.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les vibrations vocales (palpées ou mesurées) sont abolies car le liquide transmet mal les vibrations.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le souffle tubaire avec VV renforcées est le signe d'une condensation alvéolaire (pneumopathie lobaire). Il peut exister un frottement pleural en début d'épanchement mais ce n'est pas un signe d'épanchement constitué.</div>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="q" id="Q2" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q2</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Les critères de Light permettent de distinguer exsudat et transsudat pleural. Un liquide est un exsudat si au moins un des critères suivants est présent. Lesquels sont des critères de Light ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Protéines liquide pleural / protéines sériques &gt; 0,5</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">LDH liquide pleural / LDH sérique &gt; 0,6</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Glucose liquide pleural / glucose sérique &lt; 0,5</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">LDH liquide pleural &gt; 2/3 de la limite supérieure normale du LDH sérique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">pH liquide pleural &lt; 7,20</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="note">Critères de Light (1972) : exsudat si ≥ 1 critère parmi les 3. Ces critères ont une sensibilité ~98% et une spécificité ~83% pour identifier les exsudats. Le glucose bas et le pH bas sont des éléments d'orientation étiologique (pleurésie purulente, pleurésie rhumatoïde) mais ne font pas partie des critères de Light.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Rapport protéines pleurales/sériques &gt; 0,5 = exsudat (protéines pleurales élevées par rapport au sérum).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Rapport LDH pleuraux/sériques &gt; 0,6 = exsudat (témoigne d'une inflammation ou d'une nécrose locale).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le rapport glucose pleural/sérique n'est pas un critère de Light. Un glucose bas oriente vers une pleurésie purulente, tuberculeuse ou rhumatoïde.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — LDH pleural &gt; 2/3 de la limite supérieure des LDH normaux sériques = exsudat. Ce critère peut être positif même si les 2 autres sont négatifs (ex. IC traitée par diurétiques).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Un pH pleural &lt; 7,20 (ou &lt; 7,10 selon les études) oriente vers un empyème ou une pleurésie purulente, et indique le drainage. Ce n'est pas un critère de Light.</div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="q" id="Q3" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q3</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelles maladies sont typiquement responsables d'un épanchement pleural transsudatif ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Insuffisance cardiaque congestive</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Mésothéliome pleural malin</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Syndrome néphrotique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cirrhose hépatique décompensée (hydrothorax hépatique)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Pleurésie tuberculeuse</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note">Le transsudat est dû à une perturbation des pressions de Starling (hyperPHT + hypo-oncotique) sans inflammation de la plèvre. Les 3 grandes causes : insuffisance cardiaque, syndrome néphrotique, cirrhose.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'IC est la 1ère cause de transsudat pleural. La stase veineuse pulmonaire et l'hypertension capillaire favorisent la transsudation. L'épanchement est souvent bilatéral.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le mésothéliome pleural donne un exsudat, souvent hémorragique, par envahissement tumoral de la plèvre.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Dans le syndrome néphrotique, l'hypoalbuminémie diminue la pression oncotique → passage de liquide dans les espaces pleuraux (transsudat pauvre en protéines).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'hydrothorax hépatique : passage du liquide d'ascite via des micro-brèches diaphragmatiques vers la cavité pleurale, souvent à droite. C'est un transsudat.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La pleurésie tuberculeuse est un exsudat lymphocytaire (réaction immunologique à <em>M. tuberculosis</em>), non un transsudat.</div>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="q" id="Q4" data-type="QRM" data-correct="BCE">
+  <div class="qhead">
+    <span class="qnum">Q4</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelles étiologies sont associées à un épanchement pleural exsudatif ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hypothyroïdie sévère (myxœdème)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Embolie pulmonaire avec infarctus pulmonaire</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Pleurésie néoplasique (métastases pleurales)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Péricardite constrictive</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Pleurésie purulente bactérienne (empyème)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'hypothyroïdie sévère donne un transsudat (œdème généralisé avec anasarque par diminution de la clairance des protéines). C'est une cause rare.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'EP avec infarctus pulmonaire provoque une réaction pleurale inflammatoire (exsudat souvent hémorragique, parfois rouge sang).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les métastases pleurales (cancer du poumon, sein, ovaire, lymphome) envahissent la plèvre et produisent un exsudat souvent hémorragique, avec cytologie tumorale positive.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La péricardite constrictive augmente la pression veineuse centrale et peut provoquer un transsudat pleural par la même mécanique que l'IC.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'empyème pleural (pus dans la cavité pleurale) est par définition un exsudat avec pH très bas, glucose effondré, polynucléaires abondants.</div>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="q" id="Q5" data-type="QRM" data-correct="ABCE">
+  <div class="qhead">
+    <span class="qnum">Q5</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels examens sont réalisés en routine sur le liquide pleural lors d'une ponction diagnostique ? (4 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Protéines totales et LDH (pour les critères de Light)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Cytologie (comptage et identification des cellules)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bactériologie (examen direct, culture)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Dosage des facteurs de coagulation</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">pH et glucose du liquide pleural</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="note">Examens complémentaires selon le contexte : ADA (adénosine déaminase) si suspicion de tuberculose, amylase si pancréatite ou rupture œsophagienne, triglycérides si chylothorax suspecté, marqueurs tumoraux (peu sensibles). La recherche de BAAR est systématique en contexte évocateur de TB.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Protéines et LDH sont indispensables pour appliquer les critères de Light (exsudat vs transsudat), avec prélèvement sanguin simultané pour le ratio.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La cytologie identifie le type cellulaire dominant : lymphocytes (TB, néoplasie), polynucléaires (infection bactérienne, EP), cellules mésothéliales (transsudat), cellules tumorales.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'examen direct et la culture sont essentiels pour identifier un germe (pleurésie purulente) et guider l'antibiothérapie. La recherche de BAAR est à ajouter si contexte évocateur.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le dosage des facteurs de coagulation sur le liquide pleural n'est pas un examen standard. Il n'apporte pas d'information diagnostique étiologique sur l'épanchement.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le pH pleural (&lt; 7,20 = drainage urgent) et le glucose (&lt; 3,3 mmol/L = mauvais pronostic) aident à décider du drainage en cas de pleurésie infectieuse.</div>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="q" id="Q6" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q6</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient fébrile présente un épanchement pleural avec à la ponction : liquide purulent, pH &lt; 7,10, glucose &lt; 2,2 mmol/L, polynucléaires altérés. Quel est le traitement de première ligne ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Antibiothérapie intraveineuse seule sans drainage</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Drainage pleural (tube de drainage thoracique) associé à une antibiothérapie adaptée</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ponctions pleurales évacuatrices répétées sans drainage</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Corticothérapie systémique pour réduire l'inflammation</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note">Un empyème pleural (pus + critères biologiques de gravité) nécessite un drainage chirurgical en urgence. Si le pus est cloisonné, une videothoracoscopie (VATS) ou une décortication chirurgicale peut être nécessaire. Les fibrinolytiques intrapleural (streptokinase, alteplase) peuvent être utilisés pour fluidifier le pus cloisonné.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'antibiothérapie seule est insuffisante pour un empyème constitué (pus non évacuable) : les antibiotiques ne pénètrent pas dans le pus et la collection persiste.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Drainage pleural (en urgence) + antibiothérapie IV adaptée à la bactériologie : traitement de référence de l'empyème. En cas d'échec ou de cloisonnement, recours à la chirurgie (VATS, décortication).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les ponctions répétées ne permettent pas d'évacuer suffisamment un empyème viscous/cloisonné et exposent à des complications (pneumothorax à répétition).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les corticoïdes sont contre-indiqués dans les pleurésies purulentes bactériennes (risquent de favoriser la dissémination infectieuse). Ils peuvent être discutés en contexte de tuberculose si pleurésie très inflammatoire.</div>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="q" id="Q7" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q7</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelles sont les caractéristiques classiques d'une pleurésie tuberculeuse ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Exsudat à prédominance lymphocytaire</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Liquide purulent (pus franc) avec pH &lt; 7,00</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Taux d'ADA (adénosine déaminase) élevé (&gt; 40 UI/L)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Biopsies pleurales à l'aveugle ou par thoracoscopie montrant des granulomes épithélioïdes et gigantocellulaires avec nécrose caséeuse</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Examen direct du liquide pleural positif dans plus de 80 % des cas</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La pleurésie tuberculeuse est typiquement un exsudat lymphocytaire (&gt; 80 % de lymphocytes) avec peu de cellules mésothéliales.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La pleurésie tuberculeuse est rarement purulente (sauf en cas de fistule broncho-pleurale ou de pleurésie caseuse). Elle est en général séreuse ou séro-fibrinieuse.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'ADA (marqueur de l'activité lymphocytaire) est élevée dans les pleurésies tuberculeuses. Un seuil &gt; 40 UI/L a une bonne sensibilité/spécificité (~95 %/90 %) dans les zones de forte endémie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les biopsies pleurales (à l'aiguille type Cope/Abrams ou par thoracoscopie) montrant des granulomes épithélioïdes et gigantocellulaires avec caséification sont le gold standard diagnostique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'examen direct des BAAR sur le liquide pleural est positif dans seulement 10-25 % des cas (faible charge bacillaire). La culture est positive dans 25-50 % des cas. Les biopsies pleurales ont une rentabilité bien supérieure.</div>
+  </div>
+</div>
+
+<!-- Q8 — QROC -->
+<div class="q" id="Q8" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q8</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Expliquez comment différencier cliniquement et radiologiquement un épanchement pleural liquidien d'un pneumothorax, et précisez la démarche diagnostique immédiate pour chacun.</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Épanchement pleural liquidien :</strong></p>
+      <ul>
+        <li>Percussion : <strong>matité déclive</strong></li>
+        <li>Auscultation : abolition du MV et des VV</li>
+        <li>Radio : opacité homogène à limite supérieure concave (Damoiseau), effacement du cul-de-sac</li>
+        <li>Démarche : ponction pleurale diagnostique à visée étiologique (Light, cytologie, bactério)</li>
+      </ul>
+      <p><strong>Pneumothorax :</strong></p>
+      <ul>
+        <li>Percussion : <strong>tympanisme</strong></li>
+        <li>Auscultation : abolition du MV unilatérale, VV abolies</li>
+        <li>Radio : clarté avasculaire avec liseré de décollement viscéral, poumon rétracté vers le hile</li>
+        <li>Démarche : si bien toléré → surveillance ; si mal toléré → exsufflation à l'aiguille ou drainage. Si compressif : exsufflation immédiate sans attendre l'imagerie</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Q9 — QROC -->
+<div class="q" id="Q9" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q9</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Une patiente de 60 ans, fumeuse, présente un épanchement pleural unilatéral hémorragique. Décrivez la démarche diagnostique pour rechercher une cause maligne.</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Démarche diagnostique :</strong></p>
+      <ol>
+        <li><strong>Ponction pleurale évacuatrice</strong> : analyse du liquide (exsudat hémorragique, cytologie avec recherche de cellules tumorales)</li>
+        <li><strong>TDM thoraco-abdomino-pelvien</strong> : rechercher une tumeur primitive (poumon, sein, ovaire), des adénopathies, d'autres localisations secondaires</li>
+        <li><strong>Fibroscopie bronchique</strong> : si suspicion de cancer bronchique (tumeur endobronchique, biopsies)</li>
+        <li><strong>Thoracoscopie médicale (pleuroscopie)</strong> : si la cytologie du liquide est négative → biopsies pleurales guidées sous vision directe (sensibilité &gt; 90 % pour les pleurésies malignes)</li>
+        <li><strong>TEP-scanner</strong> : bilan d'extension et localisation de la tumeur primitive</li>
+        <li>Si histologie positive : recherche de mutations/translocations (EGFR, ALK, ROS1) pour thérapies ciblées</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<footer>9 questions · 7 notées · Item 206 — Épanchement pleural · D2 T1 Pneumologie · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+</body></html>

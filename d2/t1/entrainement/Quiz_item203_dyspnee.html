@@ -1,0 +1,428 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<title>Item 203 — Dyspnée aiguë · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(245,246,244,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.breadcrumb{font-size:12.5px;color:var(--mut);margin-bottom:18px}
+.breadcrumb a{color:var(--mut);text-decoration:none}.breadcrumb a:hover{color:var(--acc)}
+.breadcrumb .sep{margin:0 5px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q.done{border-color:#e2e8f0}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<style id="dk">
+html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark header{background:rgba(14,17,23,.95)!important}
+html.dark .opt.sel{background:#1e1b4b}
+html.dark .dpctx{background:#1e1b4b!important;border-color:#312e81!important;color:#c7d2fe!important}
+html.dark .note{background:#1c1002!important;border-color:#78350f!important;color:#fde68a!important}
+html.dark .q.done{border-color:#374151}
+html.dark .rang-a{background:#052e16!important;color:#4ade80!important;border-color:#15803d!important}
+html.dark .rang-b{background:#1e3a5f!important;color:#93c5fd!important;border-color:#1d4ed8!important}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 203 — Dyspnée aiguë · Entraînement par item</h1>
+<div class="sub">8 questions — QRM · QRU · QROC. 6 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/8</b></span>
+  <span class="pill">Score : <b id="s-ok">0/6</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<nav class="breadcrumb">
+  <a href="../../../index.html">BobMed</a><span class="sep">›</span>
+  <a href="../../../index.html#d2">D2</a><span class="sep">›</span>
+  <a href="../index.html">T1</a><span class="sep">›</span>
+  <a href="index.html">Entraînement</a><span class="sep">›</span>
+  <span>Item 203 — Dyspnée</span>
+</nav>
+
+<div class="sect">Questions d'entraînement — Item 203</div>
+
+<!-- Q1 -->
+<div class="q" id="Q1" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q1</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Parmi les propositions suivantes concernant la dyspnée, lesquelles sont exactes ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'orthopnée (dyspnée en décubitus soulagée en position assise) oriente vers une insuffisance cardiaque gauche ou un OAP</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La platypnée désigne une dyspnée soulagée par la position debout et aggravée en décubitus</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La trepopnée est une dyspnée soulagée dans un décubitus latéral spécifique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le score mMRC (modified Medical Research Council) cote la dyspnée de 0 à 4 selon le niveau d'effort déclenchant</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une dyspnée d'origine psychogène s'accompagne toujours d'une désaturation en oxygène</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'orthopnée est caractéristique de l'insuffisance cardiaque gauche (OAP) : en décubitus, le retour veineux augmente, majore la surcharge pulmonaire.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La platypnée est l'inverse : dyspnée aggravée en position debout et soulagée en décubitus dorsal (shunt intrapulmonaire dépendant de la posture, syndrome hépato-pulmonaire, foramen ovale perméable).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La trepopnée désigne une dyspnée soulagée dans un décubitus latéral précis (ex. couché côté gauche ou droit), observée dans certaines cardiopathies ou épanchements pleuraux unilatéraux.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le score mMRC cote de 0 (pas de dyspnée sauf effort intense) à 4 (dyspnée au moindre effort ou au repos, ne peut quitter le domicile). Il est utilisé dans la BPCO (GOLD).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La dyspnée psychogène (hyperventilation, attaque de panique) s'accompagne souvent d'une normoxie voire d'une hypocapnie. La désaturation n'est pas constante et son absence n'élimine pas une vraie dyspnée organique.</div>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="q" id="Q2" data-type="QRU" data-correct="C">
+  <div class="qhead">
+    <span class="qnum">Q2</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient de 65 ans dyspnéique présente à la gazométrie artérielle : PaO₂ = 52 mmHg, PaCO₂ = 55 mmHg, pH = 7,32. Quel type d'insuffisance respiratoire aiguë présente-t-il ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Insuffisance respiratoire aiguë de type I (hypoxémique pure)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Alcalose respiratoire compensée</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Insuffisance respiratoire aiguë de type II (hypoxémique et hypercapnique)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Acidose métabolique pure</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">IRA type I = hypoxémie isolée (PaO₂ &lt; 60 mmHg, PaCO₂ normale ou basse). IRA type II = hypoxémie + hypercapnie (PaCO₂ &gt; 45 mmHg) → insuffisance ventilatoire (ex. BPCO décompensée, épuisement musculaire respiratoire). Le pH acide (7,32) confirme l'acidose respiratoire non compensée = situation aiguë.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le type I correspond à une hypoxémie sans hypercapnie (PaCO₂ normale ou basse). Ici la PaCO₂ est à 55 mmHg.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Il n'y a pas d'alcalose ; le pH est à 7,32 (acidose) et la PaCO₂ est élevée.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — PaO₂ &lt; 60 mmHg + PaCO₂ &gt; 45 mmHg + acidose respiratoire = IRA type II (hypoxémique-hypercapnique). Causes : BPCO exacerbée, pneumopathie sévère, épuisement musculaire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — En acidose métabolique pure, la PaCO₂ serait basse (hyperventilation compensatrice).</div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="q" id="Q3" data-type="QRM" data-correct="BCE">
+  <div class="qhead">
+    <span class="qnum">Q3</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Parmi les éléments suivants, lesquels orientent vers une dyspnée d'origine cardiaque plutôt que respiratoire ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Wheezing diffus bilatéral</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Orthopnée avec dyspnée paroxystique nocturne</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Élévation du BNP (NT-proBNP)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hippocratisme digital avec cyanose périphérique progressive</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Crépitants bilatéraux aux bases avec turgescence jugulaire et reflux hépatojugulaire</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le wheezing diffus bilatéral évoque un bronchospasme (asthme ou BPCO). Un OAP peut donner du wheezing (« asthme cardiaque ») mais il n'est pas caractéristique.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'orthopnée et la dyspnée paroxystique nocturne (patient se réveille suffocant, doit s'asseoir) sont des marqueurs classiques de l'insuffisance cardiaque gauche.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le BNP/NT-proBNP est libéré par les cardiomyocytes sous contrainte pariétale. Son élévation a une haute valeur prédictive négative pour l'IC (si normal, IC peu probable).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'hippocratisme digital est davantage associé aux pathologies pulmonaires chroniques (DDB, fibrose, cancer bronchique) ou aux cardiopathies congénitales cyanogènes avec shunt droit-gauche.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Crépitants bilatéraux (œdème pulmonaire) + signes d'insuffisance cardiaque droite (TJ, RHJ) = tableau d'insuffisance cardiaque globale.</div>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="q" id="Q4" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q4</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Une femme de 45 ans, sans antécédent, consulte pour une dyspnée d'installation brutale avec douleur thoracique unilatérale droite et diminution du murmure vésiculaire à droite. La percussion est tympanique. Quel est le diagnostic le plus probable ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Épanchement pleural droit (pleurésie)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pneumothorax droit</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Embolie pulmonaire massive</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Pneumopathie lobaire droite</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note">Triade clinique du pneumothorax : douleur thoracique unilatérale brutale + dyspnée + diminution/abolition du MV unilatéral + tympanisme à la percussion. À distinguer de l'épanchement pleural (matité à la percussion).</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'épanchement pleural donne une matité à la percussion (liquide), pas un tympanisme.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le tympanisme unilatéral + diminution du MV + douleur brutale = pneumothorax. Diagnostic confirmé par la radiographie thoracique (clarté avasculaire avec liseré de décollement).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'embolie pulmonaire ne donne pas typiquement de signe de percussion localisé ni de diminution du MV unilatérale (sauf si infarctus avec épanchement).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La pneumopathie lobaire donne une matité à la percussion et un souffle tubaire, pas un tympanisme.</div>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="q" id="Q5" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q5</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Parmi les causes suivantes, lesquelles peuvent provoquer une dyspnée d'installation brutale (en minutes) ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Embolie pulmonaire</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pneumothorax spontané</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Fibrose pulmonaire idiopathique (FPI)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Œdème aigu pulmonaire (OAP)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Sarcoïdose pulmonaire</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="note">Classification selon la vitesse d'installation : brutale (minutes) = EP, pneumothorax, OAP, crise d'asthme aiguë grave ; progressive (heures–jours) = pneumopathie infectieuse, BPCO décompensée ; chronique (semaines–mois) = FPI, BPCO stable, cancer, sarcoïdose.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'embolie pulmonaire provoque une dyspnée et une douleur thoracique d'installation soudaine par obstruction vasculaire aiguë.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le pneumothorax spontané débute de manière très brutale, souvent au repos.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La FPI est une maladie chronique progressive dont la dyspnée s'installe sur des mois à des années.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'OAP peut se constituer très rapidement (minutes à heures) en cas de poussée hypertensive ou d'ischémie myocardique aiguë.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La sarcoïdose est une maladie subaiguë à chronique. La dyspnée progressive est caractéristique des formes avec fibrose (stade IV).</div>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="q" id="Q6" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q6</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant le débit expiratoire de pointe (DEP, peak flow) dans la surveillance de l'asthme, quelles propositions sont exactes ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le DEP normal est supérieur à 80 % de la valeur théorique ou de la meilleure valeur personnelle</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un DEP &lt; 40 % après bronchodilatateurs signe une crise légère d'asthme</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un DEP entre 40 et 60 % définit une crise d'asthme modérée à sévère nécessitant une surveillance rapprochée</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'autosurveillance du DEP par le patient permet de détecter précocement une dégradation et d'adapter le traitement selon un plan d'action écrit</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le DEP mesure essentiellement les petites voies aériennes périphériques</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — DEP &gt; 80 % = zone verte (contrôle optimal). Entre 60 et 80 % = zone orange (attention). &lt; 60 % = zone rouge (urgence).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un DEP &lt; 40 % post-bronchodilatateurs témoigne d'une crise sévère voire d'un asthme aigu grave, pas d'une crise légère.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — DEP entre 40 et 60 % post-bronchodilatateurs = crise modérée à sévère, nécessite une prise en charge hospitalière et une surveillance rapprochée.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'autosurveillance par peak-flow meter avec plan d'action écrit est un pilier de l'éducation thérapeutique de l'asthmatique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le DEP reflète principalement le calibre des grosses et moyennes voies aériennes. Les petites voies aériennes (& lt; 2 mm) sont mieux explorées par le VEMS₃₀–VEMS₇₅ (débits mésospiratoires).</div>
+  </div>
+</div>
+
+<!-- Q7 — QROC -->
+<div class="q" id="Q7" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q7</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Expliquez l'intérêt et les limites de la mesure de la saturation pulsée en oxygène (SpO₂) en pratique clinique lors de l'évaluation d'une dyspnée aiguë.</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Intérêts :</strong></p>
+      <ul>
+        <li>Mesure non invasive, continue, instantanée de la saturation en O₂ de l'hémoglobine</li>
+        <li>Permet de détecter une hypoxémie (SpO₂ &lt; 94 % en dehors de BPCO) et d'en évaluer la sévérité</li>
+        <li>Guide l'indication d'une oxygénothérapie et en surveille l'efficacité</li>
+        <li>Seuil d'alerte : SpO₂ &lt; 90 % = hypoxémie sévère, nécessite une prise en charge immédiate</li>
+      </ul>
+      <p><strong>Limites :</strong></p>
+      <ul>
+        <li>Ne détecte pas l'hypercapnie (ne remplace pas la gazométrie artérielle)</li>
+        <li>Faussement élevée en cas d'intoxication au CO (carboxyhémoglobine lue comme HbO₂)</li>
+        <li>Fiabilité réduite en cas de mauvaise perfusion périphérique, vernis à ongles, méthémoglobinémie</li>
+        <li>Valeur normale (SpO₂ &gt; 94 %) n'exclut pas une dyspnée d'étiologie non hypoxémique (EP, acidose métabolique, dyspnée psychogène)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Q8 — QROC -->
+<div class="q" id="Q8" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q8</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Décrivez les critères cliniques permettant de définir un asthme aigu grave (AAG) et nécessitant une hospitalisation en urgence.</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Critères d'asthme aigu grave (AAG) :</strong></p>
+      <ul>
+        <li><strong>DEP &lt; 30 % de la valeur théorique</strong> (ou DEP &lt; 40 % si persistance après bronchodilatateurs)</li>
+        <li><strong>Impossibilité de finir les phrases</strong> en une seule expiration</li>
+        <li><strong>Fréquence respiratoire &gt; 30/min</strong></li>
+        <li><strong>Fréquence cardiaque &gt; 120/min</strong></li>
+        <li><strong>SpO₂ &lt; 92 %</strong> en air ambiant</li>
+        <li><strong>Silence auscultatoire</strong> (thorax silencieux = obstruction totale)</li>
+        <li><strong>Tirage, balancement thoraco-abdominal</strong> (épuisement musculaire)</li>
+        <li><strong>Troubles de la conscience, cyanose, hypotension</strong> = mise en jeu du pronostic vital (intubation imminente)</li>
+      </ul>
+      <p>Gazométrie : PaO₂ &lt; 60 mmHg, PaCO₂ normale ou élevée (hypercapnie = épuisement, signe de gravité majeur).</p>
+    </div>
+  </div>
+</div>
+
+<footer>8 questions · 6 notées · Item 203 — Dyspnée aiguë · D2 T1 Pneumologie · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+</body></html>
