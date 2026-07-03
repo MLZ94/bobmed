@@ -61,6 +61,12 @@ button:disabled{opacity:.5;cursor:default}
 button{border-radius:10px}
 button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
 button.validate:hover{filter:brightness(1.08)}
+.opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.opt[data-mandatory="1"] .box{position:relative}
+.opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.opt[data-unacceptable="1"] .box{position:relative}
+.opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
 header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 </style><style id="dk">
 html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8;--acc2:#22d3ee;--acc3:#a78bfa;--d1:#818cf8;--d2:#22d3ee}
@@ -832,12 +838,17 @@ function grade(q){
     if(m.textContent)o.appendChild(m);
   });
   const isQRU=q.dataset.type==='QRU';
-  const pts=qPoints(disc,isQRU);
+  let pts=qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
   q.classList.add('done');
   q.querySelector('.correction').hidden=false;
   const st=q.querySelector('.status');st.style.color='';
   st.textContent=fmtPts(pts)+' / 1';
   if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
   if(pts>0&&pts<1)st.style.color='#9a6a00';
   q.querySelector('.validate').disabled=true;

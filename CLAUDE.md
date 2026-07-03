@@ -122,6 +122,8 @@ Chaque question `<div class="q">` contient dans cet ordre :
 | `data-type` | `QRM` / `QRU` / `QROC` | Type de question |
 | `data-correct` | `"AB"` / `"C"` / `""` | Lettres correctes concaténées (vide pour QROC) |
 | `data-l` sur `.opt` | `"A"` … | Lettre de l'option |
+| `data-mandatory="1"` sur `.opt` | — | Item **indispensable** : si non coché → 0 pt quelle que soit la discordance |
+| `data-unacceptable="1"` sur `.opt` | — | Item **inacceptable** : si coché → 0 pt même si tout le reste est correct |
 | `class="q locked"` | — | Question verrouillée (blur + pointer-events:none) |
 | `id` | `"SQI1-Q3"` | Identifiant unique |
 
@@ -166,6 +168,14 @@ button.validate:hover { filter:brightness(1.08); }
 .cl { font-weight:600; }
 .v-vrai .cv { color:var(--vrai); font-weight:600; }
 .v-faux .cv { color:var(--faux); font-weight:600; }
+
+/* Items indispensable / inacceptable */
+.opt[data-mandatory="1"] { border-left:3px solid var(--neu) }
+.opt[data-mandatory="1"] .box { position:relative }
+.opt[data-mandatory="1"] .box::after { content:'★'; font-size:9px; color:var(--neu); position:absolute; top:-5px; right:-6px }
+.opt[data-unacceptable="1"] { border-left:3px solid var(--faux) }
+.opt[data-unacceptable="1"] .box { position:relative }
+.opt[data-unacceptable="1"] .box::after { content:'✕'; font-size:9px; color:var(--faux); position:absolute; top:-5px; right:-6px }
 ```
 
 ### Format de correction détaillée (VRAI/FAUX par option)
@@ -334,12 +344,18 @@ function grade(q) {
     if (m.textContent) o.appendChild(m);
   });
   const isQRU = q.dataset.type === 'QRU';
-  const pts = qPoints(disc, isQRU);
+  let pts = qPoints(disc, isQRU);
+  // Règles indispensable/inacceptable
+  const missMandatory = [...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o => !sel.has(o.dataset.l));
+  const hitUnacceptable = [...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o => sel.has(o.dataset.l));
+  if (missMandatory || hitUnacceptable) pts = 0;
   q.classList.add('done');
   q.querySelector('.correction').hidden = false;
   const st = q.querySelector('.status'); st.style.color = '';
   st.textContent = fmtPts(pts) + ' / 1';
   if (!isQRU && disc > 0) st.textContent += ' (' + disc + ' incohérence' + (disc > 1 ? 's' : '') + ')';
+  if (missMandatory) st.textContent += ' — item indispensable manqué';
+  if (hitUnacceptable) st.textContent += ' — item inacceptable coché';
   st.className = 'status ' + (pts === 1 ? 'ok' : (pts === 0 ? 'ko' : 'part'));
   if (pts > 0 && pts < 1) st.style.color = '#9a6a00';
   q.querySelector('.validate').disabled = true;
