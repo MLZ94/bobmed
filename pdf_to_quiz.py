@@ -872,7 +872,7 @@ def guess_metadata(epreuve_code, warnings):
 # 6. Point d'entrée
 # ----------------------------------------------------------------------------
 
-def run(pdf_path, debug=False):
+def run(pdf_path, debug=False, strict=False):
     warnings = []
     try:
         import fitz  # PyMuPDF
@@ -1085,6 +1085,20 @@ def run(pdf_path, debug=False):
                        ensure_ascii=False, indent=2)
         print(f"[debug] structure écrite dans {debug_path}")
 
+    # ── Scan post-génération : PUA restants et [A VERIFIER] ──────────────────
+    pua_re = re.compile(r"[-]")
+    pua_found = pua_re.findall(out_html)
+    if pua_found:
+        unique_pua = list(dict.fromkeys(pua_found))
+        hex_list = ", ".join(f"U+{ord(c):04X}" for c in unique_pua[:8])
+        warnings.append(
+            f"[ligatures] {len(pua_found)} caractère(s) PUA non résolus dans le HTML "
+            f"({hex_list}{'…' if len(unique_pua) > 8 else ''}). "
+            "Ajouter ces codepoints à la table LIGATURES de ce script, "
+            "ou corriger manuellement dans le HTML généré."
+        )
+    a_verifier_count = out_html.count("[A VERIFIER]")
+
     print("=" * 70)
     print(f"OK : {out_path}")
     print(f"     {total_q} questions ({graded_q} notées), {len(sections)} sections")
@@ -1099,13 +1113,22 @@ def run(pdf_path, debug=False):
     print("Rappel : relis le HTML généré (titres de section, texte exact, images,")
     print("questions marquées [A VERIFIER]) avant de le publier sur le site.")
 
+    if strict and (a_verifier_count or pua_found):
+        print(f"\n[--strict] Sortie avec code 1 : "
+              f"{a_verifier_count} [A VERIFIER], {len(pua_found)} PUA restants.")
+        sys.exit(1)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Convertit une annale PDF en quiz HTML BobMed.")
     parser.add_argument("pdf", help="Chemin du fichier PDF à convertir")
-    parser.add_argument("--debug", action="store_true", help="Écrit aussi un .debug.json")
+    parser.add_argument("--debug",  action="store_true", help="Écrit aussi un .debug.json")
+    parser.add_argument(
+        "--strict", action="store_true",
+        help="Exit 1 si des marqueurs [A VERIFIER] ou des PUA non résolus restent dans le HTML."
+    )
     args = parser.parse_args()
-    run(args.pdf, debug=args.debug)
+    run(args.pdf, debug=args.debug, strict=args.strict)
 
 
 if __name__ == "__main__":
