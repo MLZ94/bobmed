@@ -105,7 +105,7 @@ NOISE_FIELD_RES = [
     re.compile(r"Page\s*:\s*\d+\s*/\s*\d+\s*"),
     # Référence/Session : bornée à quelques tokens pour éviter de dévorer du
     # texte de question légitime si ces mots apparaissaient par ailleurs.
-    re.compile(r"Référence\s*:\s*\S+\s+Session\s*:\s*(?:Session\s+)?\S+\s*"),
+    re.compile(r"Référence\s*:\s*[^\x00\s]+\s+Session\s*:\s*(?:Session\s+)?[^\x00\s]+\s*"),
 ]
 
 LIGATURES = {
@@ -145,7 +145,7 @@ def clean_span(text: str) -> str:
 # 2. Regex de structure
 # ----------------------------------------------------------------------------
 
-SECTION_RE = re.compile(r"Element d'épreuve\s*:\s*(\S+)\s+(?:\(\d+\)\s+)?[\d.]+\s*/\s*20")
+SECTION_RE = re.compile(r"Element d'épreuve\s*:\s*(\S+)\s+(?:\(\d+\)\s+)?[\d.]+\s*/\s*\d+")
 QUESTION_RE = re.compile(
     r"Question\s+([A-Z]+|\d+)\s*:\s*\(Type\s*:\s*(\w+)\)\s*[\d.]+\s*/\s*1\s*(Question neutralisée)?"
 )
