@@ -223,6 +223,43 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 - Dans la correction : mentionner les autres réponses validées par les experts
 - **Ne PAS utiliser le format `.citem` VRAI/FAUX** (cf. « Format de correction détaillée » plus haut) : les degrés de probabilité ne sont pas des affirmations vraies/fausses. Garder `<div class="ans">Réponse : X — texte</div>` + `<div class="note">` pour les alternatives validées par le jury.
 
+### QZONE (pointage de zone sur une image)
+
+Certaines plateformes source exportent des questions où l'étudiant clique/pointe directement une ou plusieurs zones d'une image (radiographie, schéma…) plutôt que de choisir parmi des options textuelles (`Type: QZONE` dans le PDF). Le site n'a pas de mécanisme de clic-sur-image natif dans le gabarit de base : traiter ces questions comme des **QRM dont les options sont des zones cliquables superposées à l'image**, en réutilisant intégralement le moteur de notation EDN existant (aucune logique de score dédiée).
+
+- `data-type="QZONE"` — `data-correct="AB"` (lettres des zones correctes, même convention que QRM)
+- Structure : l'image et les zones vivent dans un conteneur `.extra.zonewrap` (au lieu du `.extra` simple), avec les `<div class="zone">` en frères de l'`<img>`, positionnés en `%` (responsive) :
+
+```html
+<div class="extra zonewrap">
+  <img src="data:image/jpeg;base64,…" style="max-width:100%;border-radius:8px;display:block">
+  <div class="zone" data-l="A" style="left:13%;top:34%;width:19%;height:32%" title="Zone 1"></div>
+  <div class="zone" data-l="B" style="left:56%;top:18%;width:27%;height:65%" title="Zone 2"></div>
+</div>
+```
+
+- CSS à ajouter (une fois par fichier quiz concerné) :
+
+```css
+.zonewrap{position:relative;display:inline-block;max-width:100%;margin:8px 0 12px}
+.zonewrap img{max-width:100%;border-radius:8px;display:block}
+.zone{position:absolute;border:2px solid transparent;border-radius:8px;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center}
+.zone:hover{border-color:var(--acc)}
+.zone.sel{border-color:var(--acc);background:rgba(79,70,229,.22)}
+.zone.correct{border-color:var(--vrai);background:rgba(21,128,61,.22)}
+.zone.wrong{border-color:var(--faux);background:rgba(185,28,28,.22)}
+.zone.missed{border-style:dashed;border-color:var(--vrai);background:rgba(21,128,61,.10)}
+.zone .mark{margin-left:0;font-size:20px;background:#fff;border-radius:999px;padding:2px 6px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.q.done .zone{cursor:default}
+```
+
+- JS : généraliser les 4 sélecteurs `.opt` du script de référence (`grade()`, `reveal()`, le handler de clic) en `.opt,.zone` — c'est la **seule** modification requise, le reste du moteur (discordance, barème, `unlockNext`, etc.) fonctionne à l'identique car les zones portent `data-l` comme les options :
+  - `grade()` : `q.querySelectorAll('.opt.sel')` → `q.querySelectorAll('.opt.sel,.zone.sel')`, et `q.querySelectorAll('.opt')` → `q.querySelectorAll('.opt,.zone')`
+  - `reveal()` : `q.querySelectorAll('.opt')` → `q.querySelectorAll('.opt,.zone')`
+  - handler de clic : `e.target.closest('.opt')` → `e.target.closest('.opt,.zone')`, et le `querySelectorAll('.opt')` interne (déselection QRU) → `.opt,.zone`
+- Coordonnées des zones : à estimer visuellement (pourcentages du cadre de l'image) à partir de l'image elle-même — pas d'extraction automatique fiable des coordonnées de pointage depuis le PDF, `pdf_to_quiz.py` se contente de détecter et signaler le type (cf. section suivante).
+- Correction : même format `.citem` VRAI/FAUX que les QRM classiques (« Zone 1. VRAI — … », « Zone 2. VRAI — … »), l'`<div class="ans">` désignant les zones par leur nom/label plutôt que par de simples lettres.
+
 ---
 
 ## Système de verrouillage des DP/KFP/TCS

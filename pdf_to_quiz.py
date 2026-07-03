@@ -81,6 +81,13 @@ TYPE_MAP = {
     "QROC": "QROC",
     "QTCS": "TCS", "TCS": "TCS",
     "QRPL": "QRPL",
+    # Pointage de zone sur une image (clic direct sur une radio/schéma dans la
+    # plateforme source) : pas d'options lettrées côté PDF, donc pas de parsing
+    # automatique possible. Produit un stub [A VERIFIER] explicite plutôt que de
+    # tomber silencieusement en QRM vide (cf. section QZONE du CLAUDE.md pour le
+    # gabarit HTML/CSS/JS à compléter à la main : coordonnées de zone en %,
+    # estimées visuellement sur l'image).
+    "QZONE": "QZONE",
 }
 
 # ----------------------------------------------------------------------------
@@ -294,6 +301,18 @@ def parse_question(qtype_raw, neutralized, raw_block, warnings, section_code, qn
             warnings.append(f"{section_code} Q{qnum} (QROC): aucune réponse attendue détectée.")
         return q
 
+    if qtype == "QZONE":
+        # Pas d'options lettrées à parser côté PDF (pointage libre sur l'image) :
+        # on garde tout le bloc brut comme stem, à nettoyer manuellement, et on
+        # laisse render_question produire un stub [A VERIFIER] à compléter avec
+        # de vraies zones (cf. section QZONE du CLAUDE.md).
+        q["stem"] = clean_span(raw_block)
+        warnings.append(
+            f"{section_code} Q{qnum} (QZONE): pointage de zone détecté — stub "
+            f"[A VERIFIER] généré, zones à positionner à la main (cf. CLAUDE.md § QZONE)."
+        )
+        return q
+
     m = OPTION_START_RE.search(raw_block)
     if m:
         stem = raw_block[: m.start()]
@@ -477,6 +496,21 @@ def render_question(section_code, q, image_html=""):
 <div class="actions"><button class="show" type="button">Voir la réponse</button></div>
 <div class="correction" hidden>
 <div class="qrocans">Réponse attendue : {esc(primary)}{esc(alt_html)}</div>
+</div>
+</div>'''
+
+    if q["type"] == "QZONE":
+        # Stub à compléter à la main : convertir l'.extra simple en .extra.zonewrap,
+        # ajouter les <div class="zone"> positionnées en % et le CSS .zonewrap/.zone
+        # (cf. section QZONE du CLAUDE.md — ne PAS publier tel quel).
+        return f'''<div class="q" id="{qid}" data-correct="[A VERIFIER]" data-type="QZONE">
+<div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QZONE</span><span class="status" aria-live="polite"></span></div>
+{dpctx_html}<div class="stem">{esc(q["stem"])}</div>
+{image_html}<!-- [A VERIFIER] QZONE : remplacer .extra par .extra.zonewrap et ajouter les <div class="zone" data-l="…" style="left:%;top:%;width:%;height:%"> (cf. CLAUDE.md § QZONE) -->
+<ul class="opts">
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : [A VERIFIER]</div>
 </div>
 </div>'''
 
