@@ -9,7 +9,7 @@
 #
 # Variable F : chemin vers le quiz HTML (sans le .snippet.html — déduit auto).
 
-.PHONY: validate insert test publish check-f
+.PHONY: validate agent test check insert publish check-f dry-run validate-all help
 
 # Vérification que F est défini
 check-f:
@@ -23,11 +23,31 @@ validate: check-f
 	python3 validate_quiz.py "$(F)"
 	@echo "✓ Validation OK"
 
+# ── Étape 1b : agent de fidélité PDF→HTML (optionnel, nécessite .debug.json) ──
+# Usage : make agent F=Quiz_UE7.3_2023-2024_S1.html
+# Passe --no-api si ANTHROPIC_API_KEY n'est pas défini.
+agent: check-f
+	@echo "▶ Vérification fidélité PDF→HTML de $(F)…"
+	python3 quiz_agent.py "$(F)"
+	@echo "✓ Agent OK"
+
+# ── Étape 1c : tests headless Playwright ──────────────────────────────────────
+# Usage : make test F=Quiz_UE7.3_2023-2024_S1.html
+test: check-f
+	@echo "▶ Tests headless de $(F)…"
+	python3 test_quiz.py "$(F)"
+	@echo "✓ Tests OK"
+
+# ── Barrière qualité complète (structure + fidélité + comportement) ──────────
+# À lancer avant publication. agent/test s'auto-ignorent si l'outillage manque.
+check: validate agent test
+	@echo "✓ Toutes les barrières qualité passées"
+
 # ── Étape 2 : insertion dans le portail ───────────────────────────────────────
-# Dépend de validate : bloqué si des erreurs existent.
+# Dépend de validate + test : bloqué si des erreurs existent.
 SNIPPET = $(F:.html=.snippet.html)
 
-insert: validate
+insert: validate test
 	@echo "▶ Insertion du snippet dans le portail…"
 	@if [ ! -f "$(SNIPPET)" ]; then \
 		echo "✗ Fichier snippet introuvable : $(SNIPPET)"; \
@@ -71,10 +91,13 @@ help:
 	@echo ""
 	@echo "BobMed — Commandes disponibles"
 	@echo "────────────────────────────────────────────────────────────────"
-	@echo "  make validate F=Quiz_XX.html    Valide un quiz (exit 1 si erreurs)"
-	@echo "  make insert   F=Quiz_XX.html    Insère le snippet dans le portail"
+	@echo "  make validate F=Quiz_XX.html    Valide la structure (exit 1 si erreurs)"
+	@echo "  make agent    F=Quiz_XX.html    Vérifie la fidélité PDF→HTML (Claude API)"
+	@echo "  make test     F=Quiz_XX.html    Tests headless Playwright (verrou, score…)"
+	@echo "  make check    F=Quiz_XX.html    validate + agent + test (barrière complète)"
+	@echo "  make insert   F=Quiz_XX.html    Insère le snippet (après validate + test)"
 	@echo "  make dry-run  F=Quiz_XX.html    Prévisualise l'insertion sans écrire"
-	@echo "  make publish  F=Quiz_XX.html    Pipeline complet (validate → insert)"
+	@echo "  make publish  F=Quiz_XX.html    Pipeline complet (validate → test → insert)"
 	@echo "  make validate-all               Valide TOUS les quiz du dépôt"
 	@echo ""
 	@echo "  F = chemin vers le fichier HTML (le .snippet.html est déduit auto)"

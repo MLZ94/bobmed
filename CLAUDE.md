@@ -448,6 +448,23 @@ Le texte des énoncés, données cliniques et items doit être **rigoureusement 
 
 L'utilisateur dispose d'un script local (`pdf_to_quiz.py`, hors dépôt) qui convertit une annale PDF en un premier jet de quiz HTML suivant le gabarit ci-dessus. Quand il fournit un `.html` issu de ce script (et éventuellement le `.snippet.html` associé), **ne jamais l'intégrer tel quel** — le script est un gain de temps, pas une garantie de justesse. Toujours dérouler cette checklist avant publication :
 
+### Outillage automatisé (à lancer AVANT la relecture manuelle)
+
+Trois scripts du dépôt automatisent la majorité des points ci-dessous — les exécuter d'abord évite de relire à la main ce qui est mécanisable, et réserve l'attention (et les tokens) aux vrais points de jugement médical.
+
+```bash
+make check F=chemin/vers/Quiz_UEx.x_AAAA-AAAA_S1.html   # = validate + agent + test
+```
+
+| Script | Couvre les points | Rôle |
+|---|---|---|
+| `validate_quiz.py` | 1 (`[A VERIFIER]`), 2 (ligatures/PUA), 9 (`.wrap`/`.hwrap`), 3 (titres de section), cohérence `data-correct`↔options | Contrôles **structurels/techniques**, 0 token, exit 1 si bloquant. |
+| `quiz_agent.py` | 2 (fidélité texte), 7 (`data-correct` vs options valides du PDF), types | Compare le **`.debug.json`** (produit par `pdf_to_quiz.py --debug`) au HTML ; divergences non triviales classées par Claude Haiku (~1 ct/quiz). Nécessite `ANTHROPIC_API_KEY` (sinon `--no-api`, divergences signalées pour relecture). |
+| `test_quiz.py` | 10 (verrouillage DP/KFP/TCS, déverrouillage, compteurs, révéler/recommencer) | **Test headless Playwright** réel, 0 token. |
+| `insert_snippet.py` | 11 (insertion portail, ordre chronologique par UE, footer) | `make insert` / `make publish`. |
+
+Ces outils **ne remplacent pas** le jugement médical : les points 4 (placement UE/trimestre en cas d'ambiguïté), 6 (placement visuel des images), 8 (justifications collées), et l'exactitude médicale des corrections restent à valider par relecture. En cas de doute sur l'intégrité de l'annale, demander le PDF source (point 13).
+
 1. **Marqueurs `[A VERIFIER]`** : chercher toute occurrence dans le fichier (option sans lettre détectée, QROC sans réponse attendue, QRPL sans nombre de réponses détecté) et les résoudre à la main à partir du PDF source si disponible.
 2. **Fidélité au texte du PDF** : vérifier en particulier les mots contenant "fi"/"ffi"/"fl" (ex. déficit, efficace, réflexe) — les ligatures sont une source connue de troncature à l'extraction PDF. Comparer aussi la ponctuation/casse si le PDF original est fourni (règle « texte identique au PDF » ci-dessus s'applique toujours).
 3. **Titres de section** : le script ne génère que le code brut (`DP1`, `KFP2`, `mDP1`…) sans intitulé médical. Ajouter le sujet clinique après le code (ex. `DP1 — Cancer du pancréas`), à déduire du contexte clinique (`dpctx`) de la question 1.
