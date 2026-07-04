@@ -988,7 +988,8 @@ def run(pdf_path, debug=False, strict=False):
                     break
             return p
 
-        flat_q_ids = [f'{s["code"]}-Q{q["num"]}' for s in sections for q in s["questions"]]
+        flat_q_ids   = [f'{s["code"]}-Q{q["num"]}' for s in sections for q in s["questions"]]
+        flat_stems   = [q["stem"] for s in sections for q in s["questions"]]
 
         if image_events and len(q_page_y) == len(flat_q_ids):
             # Approche positionnelle : trie toutes les questions et images par (page, y)
@@ -1033,6 +1034,30 @@ def run(pdf_path, debug=False, strict=False):
                         f'<div class="extra"><img src="data:image/{ext};base64,{b64}" '
                         f'style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>\n'
                     )
+
+    # Post-processing : corrige le mauvais placement d'image quand le stem d'une
+    # question attend une image ("est la suivante", "ci-dessous"…) mais n'en a pas
+    # reçu, et la question adjacente en a une sans en avoir besoin.
+    if images_by_qid and 'flat_stems' in locals():
+        _IMAGING = (
+            r"(radiographie|scanner|tdm|tep|irm|ecg|électrocardiogramme"
+            r"|coupe|cliché|image|figure|photo|schéma|rx\b)"
+        )
+        _IMG_EXPECTED_RE = re.compile(
+            rf"{_IMAGING}[^.!?]{{0,120}}(est (?:la|le|l') suivante?|sont les suivants?)\s*:"
+            rf"|ci[- ]?dessous[^.!?]{{0,80}}{_IMAGING}",
+            re.I
+        )
+        for i in range(len(flat_q_ids) - 1):
+            qid_curr, qid_next = flat_q_ids[i], flat_q_ids[i + 1]
+            curr_expects = bool(_IMG_EXPECTED_RE.search(flat_stems[i]))
+            next_expects = bool(_IMG_EXPECTED_RE.search(flat_stems[i + 1]))
+            if curr_expects and qid_curr not in images_by_qid and qid_next in images_by_qid and not next_expects:
+                images_by_qid[qid_curr] = images_by_qid.pop(qid_next)
+                warnings.append(
+                    f"[images] Image de {qid_next} déplacée vers {qid_curr} "
+                    f"(stem de {qid_curr} attend une image — positionnement PDF corrigé)."
+                )
 
     if images_by_qid:
         n_multi = sum(1 for v in images_by_qid.values() if v.count('<div class="extra">') > 1)
