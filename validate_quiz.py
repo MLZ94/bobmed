@@ -225,6 +225,43 @@ def _check_broken_words(plain_text: str) -> list[dict]:
     return findings
 
 
+def _check_image_placement(soup) -> list[dict]:
+    """Détecte les questions dont le stem attend une image mais n'ont pas de <div class="extra">."""
+    if soup is None:
+        return []
+    # Détecte un nom d'imagerie médicale suivi (dans la même phrase) de "est la/le suivant(e)"
+    # OU "ci-dessous" suivi d'un nom d'imagerie médicale.
+    # Le nom d'imagerie est obligatoire pour éviter les faux positifs sur
+    # "constantes sont les suivantes" ou "paramètres vitaux sont les suivants".
+    _IMAGING = (
+        r"(radiographie|scanner|tdm|tep|irm|ecg|électrocardiogramme"
+        r"|coupe|cliché|image|figure|photo|schéma|rx\b)"
+    )
+    IMAGE_EXPECTED_RE = re.compile(
+        rf"{_IMAGING}[^.!?]{{0,120}}(est (?:la|le|l') suivante?|sont les suivants?)\s*:"
+        rf"|ci[- ]?dessous[^.!?]{{0,80}}{_IMAGING}",
+        re.I
+    )
+    findings = []
+    for q in soup.select(".q"):
+        stem_el = q.select_one(".stem")
+        if not stem_el:
+            continue
+        stem_text = stem_el.get_text(" ", strip=True)
+        if IMAGE_EXPECTED_RE.search(stem_text) and not q.select_one(".extra"):
+            qid = q.get("id", "?")
+            snippet = stem_text[:70] + ("…" if len(stem_text) > 70 else "")
+            findings.append({
+                "level":   "warning",
+                "code":    "IMAGE_MISSING",
+                "message": (
+                    f"[{qid}] Le stem attend une image (\"…{snippet}…\") "
+                    "mais <div class=\"extra\"> absent — image peut-être déplacée dans la question suivante."
+                ),
+            })
+    return findings
+
+
 def _check_initlocks_call(html_text: str) -> list[dict]:
     """Vérifie que initLocks() est appelé dans le script."""
     if "initLocks()" not in html_text:
@@ -262,6 +299,7 @@ def validate_file(path: Path) -> dict:
         + _check_data_correct(soup)
         + _check_section_titles(soup)
         + _check_broken_words(plain)
+        + _check_image_placement(soup)
         + _check_initlocks_call(html_text)
     )
 
