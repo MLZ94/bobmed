@@ -42,7 +42,9 @@ def bold(s):  return _c("1", s)
 # (poste local), ce chemin n'existe pas → on laisse Playwright localiser son
 # propre navigateur (executable_path=None).
 CHROMIUM_PATH = "/opt/pw-browsers/chromium"
-LOCKED_SECTIONS_RE = re.compile(r"DP|KFP|TCS|mDP", re.IGNORECASE)
+# « DP » suivi d'un chiffre/espace (DP1, mDP1, MINI DP) mais PAS d'une lettre :
+# évite de confondre « DPC » (Développement Prof. Continu) avec un Dossier Progressif.
+LOCKED_SECTIONS_RE = re.compile(r"DP(?![A-Za-z])|KFP(?![A-Za-z])|TCS(?![A-Za-z])", re.IGNORECASE)
 
 
 def _resolve_chromium() -> str | None:
@@ -119,7 +121,7 @@ def test_file(html_path: Path, headed: bool) -> dict:
             for (const el of wrap.children) {
                 if (el.classList.contains('sect')) {
                     if (inLocked) mx = Math.max(mx, cnt);
-                    inLocked = /DP|KFP|TCS|mDP/i.test(el.textContent);
+                    inLocked = /DP(?![A-Za-z])|KFP(?![A-Za-z])|TCS(?![A-Za-z])/i.test(el.textContent);
                     cnt = 0;
                 } else if (el.classList.contains('q') && inLocked) {
                     cnt++;
@@ -174,7 +176,7 @@ def test_file(html_path: Path, headed: bool) -> dict:
                 let inLocked = false, lastQ1 = null;
                 for (const el of wrap.children) {
                     if (el.classList.contains('sect')) {
-                        inLocked = /DP|KFP|TCS|mDP/i.test(el.textContent);
+                        inLocked = /DP(?![A-Za-z])|KFP(?![A-Za-z])|TCS(?![A-Za-z])/i.test(el.textContent);
                         lastQ1 = null;
                         continue;
                     }
