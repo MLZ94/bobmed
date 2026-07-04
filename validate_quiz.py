@@ -135,6 +135,12 @@ def _check_data_correct(soup) -> list[dict]:
         qtype = q.get("data-type", "")
         raw   = q.get("data-correct", "")
 
+        # Questions à réponse numérique (quiz biostat) : notation par data-exp /
+        # data-tol (valeur attendue ± tolérance), pas par data-correct/options.
+        # Format valide — ne pas exiger de data-correct.
+        if q.has_attr("data-exp"):
+            continue
+
         if qtype == "QROC":
             if raw.strip():
                 findings.append({
