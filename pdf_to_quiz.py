@@ -146,8 +146,18 @@ def clean_span(text: str) -> str:
 # ----------------------------------------------------------------------------
 
 SECTION_RE = re.compile(r"Element d'épreuve\s*:\s*(\S+)\s+(?:\(\d+\)\s+)?[\d.]+\s*/\s*\d+")
+# Le marqueur "(Type: XXX)" est l'ancre fiable d'un début de question ; le score
+# qui le suit ("1/1", "0/3", "0.4/2", "Non corrigé"…) est purement décoratif et
+# NE DOIT PAS conditionner la détection. L'ancienne version exigeait "…/1", ce qui
+# faisait disparaître silencieusement toute question notée sur 2, sur 3, ou "Non
+# corrigé" : elle était alors fusionnée dans la question précédente (data-correct
+# concaténés, lettres d'option en double). On rend donc le score optionnel et de
+# format libre — quand il est présent on le consomme (pour qu'il ne déborde pas
+# dans l'énoncé), quand il manque ou change de forme la question reste détectée.
 QUESTION_RE = re.compile(
-    r"Question\s+([A-Z]+|\d+)\s*:\s*\(Type\s*:\s*(\w+)\)\s*[\d.]+\s*/\s*1\s*(Question neutralisée)?"
+    r"Question\s+([A-Z]+|\d+)\s*:\s*\(Type\s*:\s*(\w+)\)"
+    r"(?:\s*(?:[\d.]+\s*/\s*\d+|Non\s+corrigé))?"
+    r"\s*(Question neutralisée)?"
 )
 OPTION_START_RE = re.compile(r"[☐☑◎◉]")
 # Regex de découpe par entrée d'option. La case (☐/☑/◎/◉) est optionnelle car
@@ -896,7 +906,7 @@ def guess_metadata(epreuve_code, warnings):
 # 6. Point d'entrée
 # ----------------------------------------------------------------------------
 
-def run(pdf_path, debug=False, strict=False):
+def run(pdf_path, debug=False, strict=False, force=False):
     warnings = []
     try:
         import fitz  # PyMuPDF
@@ -1115,8 +1125,26 @@ def run(pdf_path, debug=False, strict=False):
     base_dir = os.path.dirname(os.path.abspath(pdf_path))
     out_name = meta["filename"] if meta["ue"] else os.path.splitext(os.path.basename(pdf_path))[0] + ".html"
     out_path = os.path.join(base_dir, out_name)
+    # Garde-fou anti-écrasement. Le nom de sortie est DÉDUIT du code d'épreuve
+    # (UE + année académique + session). Deux annales distinctes peuvent produire
+    # le même nom — ex. une session « BIS » de septembre mal rattachée à l'année
+    # suivante — et s'écraser l'une l'autre en silence ; pire, le nom déduit peut
+    # entrer en collision avec une annale DÉJÀ publiée et l'écraser. On refuse
+    # donc d'écraser un fichier existant sans --force explicite.
+    overwrite = os.path.exists(out_path)
+    if overwrite and not force:
+        print("=" * 70)
+        print(f"✗ REFUS D'ÉCRASEMENT : {out_path} existe déjà.")
+        print("  Le nom est déduit du code d'épreuve : deux annales différentes")
+        print("  peuvent tomber sur le même nom, ou tu t'apprêtes à écraser une")
+        print("  annale déjà publiée. Vérifie le nom de sortie attendu, renomme")
+        print("  si besoin, puis relance avec --force si l'écrasement est voulu.")
+        print("=" * 70)
+        sys.exit(2)
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(out_html)
+    if overwrite:
+        warnings.insert(0, f"[écrasement] {out_name} existait déjà et a été régénéré (--force).")
 
     snippet = f'''<a class="qz" href="{out_name}">
   <div class="qz-t">{meta["acad_year"]} · {"Rattrapage" if meta["rattrapage"] else "Session normale"}{f" ({meta['month']} {meta['year']})" if meta['month'] else ""}</div>
@@ -1176,8 +1204,12 @@ def main():
         "--strict", action="store_true",
         help="Exit 1 si des marqueurs [A VERIFIER] ou des PUA non résolus restent dans le HTML."
     )
+    parser.add_argument(
+        "--force", action="store_true",
+        help="Autorise l'écrasement d'un fichier de sortie existant (sinon refus + exit 2)."
+    )
     args = parser.parse_args()
-    run(args.pdf, debug=args.debug, strict=args.strict)
+    run(args.pdf, debug=args.debug, strict=args.strict, force=args.force)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,625 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<title>Quiz — UE 8.4 — Néphro / Uro · Session normale (juin 2024)</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.opt[data-mandatory="1"] .box{position:relative}
+.opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.opt[data-unacceptable="1"] .box{position:relative}
+.opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 8.4 — Néphro / Uro · Session normale (juin 2024)</h1>
+<div class="sub">22 questions : SQI1 (8) · DP1 (4, verrouillé) · DP2 (10, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/22</b></span>
+<span class="pill">Score : <b id="s-ok">0/21</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle la première cause de syndrome néphrotique chez l’adulte en France ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : diabète</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant une hématurie macroscopique récidivante chez un homme de 18 ans, quels sont les arguments en faveur d’une néphropathie secondaire à une mutation de la chaine alpha 4 du collagène 4 (syndrome Alport) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Protéinurie présente depuis la naissance</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Protéinurie composée d’une minorité d’albumine</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Rétinopathie pigmentaire associée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cataracte précoce chez un oncle maternel</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Surdité de perception associée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">2 air ambiant 98 %, glycémie capillaire 5 mmlol/L. Plis cutané, veines plates, yeux creux. Biologie initiale Sang : [créatinine] 110 µmolL, [urée] 8 mmol/L, [Na] 125 mmol/L, [K] 1.8 mmol/L, [chlore] 80 mmol/L, [Bicarbonates] 40 mmol/L, [protides] 90 g/L, [glycémie] 5.5 mmol/L NFS : Hb 170 g/L, GB 7.2 G/L, plaquettes 250 G/L Urines : [Na] 15 mmol/L, [K] 20 mmol/L, [urée] 100 mmol/L, [créatinine] 8 mmol/L Quelles étiologies peuvent expliquer cette situation clinique et métabolique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Prise cachée de laxatifs</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Prise cachée de diurétiques distaux</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Prise cachée de furosemide</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Vomissements</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Diarrhée aigue</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez un homme de 30 ans, chez qui a été découvert de façon fortuite en médecine du travail une HTA asymptomatique, confirmée en ambulatoire, quels sont les examens complémentaires à demander en 1ière intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Créatinine plasmatique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Urée plasmatique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hb A1c</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Ratio albuminurie/créatininurie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">ECBU</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">HTA traitée par amlodipine Diabète de type 2 (depuis 15 ans) traité par metformine 1 g/jour, bien contrôlé Une cardiopathie ischémique traitée médicalement Un syndrome dépressif A l’examen clinique, 45 kg, PA 120/90 mmHG, fréquence cardiaque 70 /min, pas de signes de déshydratation extracellulaire ni d’hyperhydratation extracellulaire. Examen neurologique normal.Les résultats biologiques sont Sang : [créatinine] 45 µmolL/, [urée] 2.5 mmol/L, [Na] 121 mmol/L, [K] 3.8 mmol/L, [chlore] 90 mmol/L, [Bicarbonates] 24 mmol/L, [protides] 72 g/L, Cholestérol total 6.4 mmol/L (2.5 g/L), HDL 1.5 mmol/L (0.5 g/L), LDL 2.3 mmol/L (0.9 g/L) , Triglycérides 1.7 mmol/L (1.5 g/L) Glycémie à jeun 5.5 mmol/L Urines : [Na] 45 mmol/L, [K] 25 mmol/L, [urée] 90 mmos/L, [glucose] 0. Compte tenu de ces diverses informations, quelle est l’étiologie la plus probable pour expliquer l’hyponatrémie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hyponatrémie de déplétion</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hyponatrémie de dilution</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un syndrome de « tea and toast"</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Une sécrétion inapproprié d’ADH</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une potomanie osmolalité plasmatique basse (calculée = natrémie x 2 + glycémie) + volume extracellulaire normal + osmolalité urinaire augmentée &gt; 100 mosmol/L (= ([Na]u + [K]u) x 2 + [urée]u + [glucose]u = réponse rénale indaptée (urines concentrées) à une volume extracellulaire normal, inadaptée à une osmolalité plasmatique basse = présence en excès d'ADH = Sécrétion inapproprié d'ADH (SIADH)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles circonstances favorisent les lithiases uriques ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Consommation de produits laitiers</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Consommation d’eau de Vichy</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Consommation de soda</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Consommation important de chlorure de sodium</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Consommation importante de charcuterie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les complications de court terme à redouter chez un homme de 25 ans présentant un syndrome néphrotique pur ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Dénutrition</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Insuffisance rénale aigue fonctionnelle</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Infection bactérienne</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Embolie pulmonaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Encéphalopathie hypertensive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En France, selon la législation en cours, quelles sont les personnes pouvant être considérées comme donneur potentiel de rein ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Personne adulte en état de mort cérébrale après homicide</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Personne adulte en état de mort cérébrale après arrêt cardiaque non récupéré sur la voie publique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Personne adulte décédée après arrêt des thérapeutiques actives en réanimation</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Personnes adulte vivante conjoint du receveur depuis 12 mois</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Personnes mineur en état de mort cérébrale après hémorragie méningée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">DP1 — Malaise et insuffisance surrénale périphérique</div>
+
+<div class="q" id="DP1-Q1" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une femme de 25 ans est adressée au SAU en raison d’un malaise sur la voie publique.Elle ne relate aucun antécédent personnel médico-chirurgical, ni traitement en cours.A l’examen clinique : poids 55 kg, taille 1.8 m, PA 100/80 mmHg, fréquence cardiaque 125 /min, saturation 02 air ambiant 98 %, glycémie capillaire 5 mmlol/L.</div>
+<div class="stem">Quels autres signes cliniques pourraient conforter le diagnostic déshydratation extracellulaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Veines jugulaires turgescences</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Oligurie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Muqueuse buccale sèche</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hypotonie des globes oculaires</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Soif</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Sang : [créatinine] 180 µmolL, [urée] 10 mmol/L, [Na] 125 mmol/L, [K] 4.8 mmol/L, [chlore] 80 mmol/L, [Bicarbonates] 20 mmol/L, [protides] 90 g/L, [glycémie] 3.5 mmol/L NFS : Hb 170 g/L, GB 7.2 G/L, plaquettes 250 G/L Bandelettes urinaires : pas de protéinurie, pas d’hématurie, pas de glycosurie, ni cétonurie. Dans ce contexte clinique, quelle est la cause la plus probable d’insuffisance rénale aiguë ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Insuffisance rénale aigue obstructive</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Insuffisance rénale aigue glomérulaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Nécrose tubulaire aigue</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Insuffisance rénale fonctionnelle</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Syndrome urémique et hémolytique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Urines : [Na] 45 mmol/L, [K] 20 mmol/L, [urée] 50 mmol/L, [créatinine] 4 mmol/L Dans ce contexte clinico-biologique quelle est l’étiologie la plus probable de l’insuffisance rénale par perte rénale de sodium ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Prise cachée de furosemide</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Acido-cétose diabétique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Tubulopathie congénitale de Gitelman</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Insuffisance surrénale périphérique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hypercalcémie Insuffisance rénale aiguë fonctionnelle (secondaire à une déshydratation extracellulaire - DEC - = hypovolémie plasmatique) associée à une réponse rénale inadaptée (Natriurèse &gt; 20 mmol/L, urines non concentrées . . ) = perte rénale de sel.La présence d'une hypoglycémie + kaliémie haute = trés évocateur d'insuffisance rénale périphérique (carence en aldostérone + cortisol)La prise de diurétique de l'anse auraient entrainer : hypokaliémie + alcalose L'acidose diabétique = une acidose, kaliémie variable, glycémie augmentée la tubulopathie de Gitelman = congénitale = se révèle par une hypokaliémie de découverte fortuite sans franc signe de DECl'hypercalcémie = n'entraine pas d'hypoglycémie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous retenez le diagnostic le plus probable d’insuffisance surrénale périphérique et décider d’initier un traitement.Quels traitements proposez-vous pour les 24 premières heures de prise en charge ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Gluconate de calcium intraveineux</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Perfusion de bicarbonate de sodium isotonique</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">Perfusion de NaCL 0.9 %</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Hydrocortisone 300 mg IVSE / 24h</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Synacthène immédiat</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">DP2 — Insuffisance rénale aiguë obstructive (HBP)</div>
+
+<div class="q" id="DP2-Q1" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Sang : [créatinine] 395 µmolL (90 µmol/L 3 mois plut tôt), [Na] 139 mmol/L, [K] 4.1 mmol/L, [chlore] 105 mmol/L, [Bicarbonates] 24 mmol/L, [Calcium total] 2.2 mmol/L [protides] 72 g/LCholestérol total 6.4 mmol/L (2.5 g/L), HDL 1.5 mmol/L (0.5 g/L), LDL 2.3 mmol/L (0.9 g/L) , Triglycérides 3.46 mmol/L (1.5 g/L)Glycémie à jeun 5.5 mmol/L</div>
+<div class="stem">A cet âge, quels sont les 3 premières causes d’insuffisance rénale aiguë ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Nécrose tubulaire aigue</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Insuffisance rénale fonctionnelle</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Insuffisance rénale aiguë glomérulaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Insuffisance rénale aiguë médicamenteuse</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Insuffisance rénale aiguë obstructive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q2" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une HTA connue et traitée depuis 10 ans. PA en automesure (moyenne) 145/85 mmHg. Un tabagisme à 40 PA sevré depuis 2 ans. Une dyslipidémie traitée par statine. Une cardiopathie ischémique révélée par un syndrome coronarien aigu 2 ans plus tôt, traitée par angioplastie + stent actif de l’IVA à la phase aigüe. La dernière échographie cardiaque (2 mois plus tôt) objectivait une FEVG à 40 %, et une hypokinésie apicale du ventricule gauche (connue et stable depuis 2 ans). Né en métropole, n’ayant pas quitté le territoire métropolitain depuis sa naissance. Son traitement comprend : ramipril, bisoprolol, aspirine 75 mg, atorvastatine 80 mg.Quels arguments cliniques pourraient orienter vers une insuffisance aiguë fonctionnelle secondaire à une insuffisance cardiaque ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Prise de poids récente</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Sécheresse de la muqueuse buccale</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Veines jugulaires externes turgescentes</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Polyurie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Épanchement pleural droit</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="note"><div class="rappel">IRA fonctionnelle dans un contexte d'insuffisance cardiaque (= syndrome cardio-rénal) = insuffisance cardiaque à prédominance droite = syndrome œdémateux (prise de poids, œdème des membres inférieurs, épanchement pleural prédominant à droite) + turgescence jugulaire.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q3" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Pour affirmer le caractère fonctionnel de l’insuffisance rénale aiguë, quel examen complémentaire vous parait le plus pertinent ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : ionogramme urinaire</div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q4" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Finalement, l’anamnèse, l’examen clinique, et les examens biologiques de 1ière intention n’apportent pas d’argument en faveur d’une insuffisance rénale fonctionnelle secondaire à une décompensation cardiaque. L’absence de toute modification récente du traitement pharmacologique, l’absence de toute automédication écarte avec forte probabilité une insuffisance rénale médicamenteuse.En raison de son âge, de son sexe, vous évoquez alors une insuffisance rénale aiguë de cause obstructive.Dans ce contexte, quelles sont les 2 étiologies les plus probables d’insuffisance rénale aiguë obstructive ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une lithiase urétérale bilatérale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une tumeur de vessie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une fibrose rétropéritonéale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une bilharziose urinaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une hyperplasie bénigne de la prostate</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q5" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels signes fonctionnels ou physiques permettraient de conforter le diagnostic d’insuffisance rénale aiguë obstructive secondaire à une hyperplasie bénigne de la prostate ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Polyurie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Urgenturie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Miction en 3 temps</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Matité sus pubienne</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Prostate dure irrégulière au toucher rectal dun défaut de vidange de la vessie entrainant une pollakiurie (augmentant de fréquence des mictions) et non une polyurie (augmentation du volume de la diurèse) une envie pressant d’uriner = urgenturie une miction en plusieurs temps</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q6" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans ce contexte clinique, quel examen complémentaire de 1ière intention demandez-vous pour confirmer ce diagnostic ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Uro-scanner</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Biopsie prostatique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">IRM prostatique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Biopsie prostatique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Echographie rénale et vésicale La priorité= confirmer le diagnostic d'insuffisance rénale aigue obstructive sur obstacle prostatique par l'examen le plus simple, le plus rapide, le moins couteux = échographie L'IRM prostatique, la biopsie prostatique se discuteraient secondairement en cas de suspicion de tumeur maligne de la prostate</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q7" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">2 reins de 120 cm de hauteur, à contours réguliers, présentant une bonne différentiation cortico-médullaire Une dilatation bilatérale des bassinets et des uretères Une vessie dont le volume est estimé à 800 ml Une voussure au niveau du plancher de la vessie Une volume prostatique apprécié par voie sus pubienne à 75 cm3. Quel traitement proposez-vous en 1 ière intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Alpha-bloquant</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Dutastéride</span></li>
+<li class="opt" data-l="C" data-correct="0" data-unacceptable="1"><span class="box">C</span><span class="otext">Cathéter sus pubien</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Sonde urinaire</span></li>
+<li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">Sonde en double J</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q8" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En raison de la sévérité de l’insuffisance rénale (KDIGO 3) et de ses complications, vous avez décidez de placer une sonde urinaire.Quelles sont les 2 complications que vous redoutez au cours des premières 24 heures ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Infection urinaire nosocomiale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Polyurie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Sténose de l’urètre</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hémorragie vésicale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hyperkaliémie syndrome de levée d'obstacle = polyurie = responsable de déshydratation extracellulaire aiguë + troubles métaboliques (hypernatrémie, hypokaliémie) pouvant entrainer le décès hémorragie vésicale à vacuo</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q9" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Sang : [créatinine] 155 µmolL/ (eDFG selon la formule CKD EPI 41 ml/min/1,73 m²), [Na] 139 mmol/L, [K] 4.1 mmol/L, [chlore] 105 mmol/L, [Bicarbonates] 24 mmol/L, [Calcium total] 2.2 mmol/L, [phosphates] 0.9 mmol/L (08-1.5), [albumine] 38 g/L Urines : ratio [albuminurie]/[créatininurie] 800 mg/g, Dans ce contexte, quelles valeurs de pression artérielles seront considérées comme étant dans les cibles thérapeutiques ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Pression artérielle systolique en consultation 135 mmHg</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pression artérielle systolique en automesure 120 mmHg</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Pression artérielle systolique moyenne en MAPA 130 mmHg</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Pression artérielle diastolique en consultation 75 mmHg</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Pression artérielle diastolique en automesure 80 mmHg en consultation : PA &lt; 130/80 mmHg en automesure : PA &lt; 125/75 mmHg car maladie rénale chronique + ratio albuminurie/créatininurie &gt; 300 mg/g</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — soit &gt; 30 mg/mmol</div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q10" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Pour atteindre la bonne cible thérapeutique de pression artérielle, vous avez, dans le cadre d’une prise en charge en éducation thérapeutique pluridisciplinaire, optimiser la prise en charge diététique, et pharmacologique (ajout d’inhibiteur calcique, dose maximale d’IEC)).Grace à ces mesures, la pression artérielle en automesure et en consultation est dans les cibles thérapeutiques, l'eDFG est stable à 40 ml/min/1,73 m²Persiste cependant biologiquement un ratio albuminurie/créatininurie à 95 mg/mmol.Quel traitement, proposez-vous pour baisser le débit d’albuminurie et ainsi réduire la progression de la maladie rénale ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Ajout d’un antagoniste des récepteurs de l’angiotensine 2 (Sartans)</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Ajout de spironolactone</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ajout de diurétique thiazidique</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Ajout de gliflozine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ajout d’analogue du GLP1</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  let pts=qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+</body></html>

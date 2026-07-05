@@ -188,6 +188,67 @@ def _check_data_correct(soup) -> list[dict]:
     return findings
 
 
+_MERGE_HEADER_RE = re.compile(r"Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type\s*:", re.I)
+
+
+def _check_merged_questions(soup) -> list[dict]:
+    """Détecte deux questions silencieusement fusionnées en une seule.
+
+    Symptôme d'un début de question manqué par pdf_to_quiz.py (score sur /2, /3,
+    « Non corrigé »… avant le correctif de QUESTION_RE) : la question suivante est
+    absorbée dans la précédente. Trois signatures, toutes bloquantes car elles
+    trahissent une perte réelle de contenu :
+      1. le texte d'en-tête « Question N: (Type: … » réapparaît DANS un bloc .q
+         (fondu dans une option, un dpctx ou un énoncé) ;
+      2. une même lettre d'option (data-l) apparaît deux fois dans la question ;
+      3. data-correct contient une lettre en double (ex. « ABBDE », « CDEABE »).
+    """
+    if soup is None:
+        return []
+    findings = []
+    for q in soup.select(".q"):
+        qid = q.get("id", "?")
+
+        # 1. En-tête de question fondu dans le corps du bloc.
+        if _MERGE_HEADER_RE.search(q.get_text(" ", strip=True)):
+            findings.append({
+                "level":   "error",
+                "code":    "MERGED_QUESTION",
+                "message": (
+                    f"[{qid}] Un en-tête « Question N: (Type: … » apparaît dans le bloc — "
+                    "deux questions ont probablement été fusionnées (frontière manquée). "
+                    "Scinder à la main depuis le PDF source."
+                ),
+            })
+
+        # 2. Lettre d'option en double.
+        letters = [o.get("data-l", "") for o in q.select(".opt") if o.get("data-l")]
+        dups = sorted({l for l in letters if letters.count(l) > 1})
+        if dups:
+            findings.append({
+                "level":   "error",
+                "code":    "DUP_OPTION_LETTER",
+                "message": (
+                    f"[{qid}] Lettre(s) d'option en double {dups} — "
+                    "options de deux questions fusionnées dans un même <ul>."
+                ),
+            })
+
+        # 3. data-correct avec lettre répétée.
+        raw = q.get("data-correct", "")
+        rep = sorted({c for c in raw if raw.count(c) > 1})
+        if rep:
+            findings.append({
+                "level":   "error",
+                "code":    "DUP_CORRECT_LETTER",
+                "message": (
+                    f"[{qid}] data-correct=\"{raw}\" contient une lettre répétée {rep} — "
+                    "réponses de deux questions concaténées."
+                ),
+            })
+    return findings
+
+
 def _check_section_titles(soup) -> list[dict]:
     """Sections DP/KFP/TCS/mDP sans intitulé médical (juste le code brut)."""
     if soup is None:
@@ -297,6 +358,7 @@ def validate_file(path: Path) -> dict:
         + _check_pua(plain)
         + _check_header_wrap(html_text)
         + _check_data_correct(soup)
+        + _check_merged_questions(soup)
         + _check_section_titles(soup)
         + _check_broken_words(plain)
         + _check_image_placement(soup)
