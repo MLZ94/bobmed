@@ -122,8 +122,8 @@ Chaque question `<div class="q">` contient dans cet ordre :
 | `data-type` | `QRM` / `QRU` / `QROC` | Type de question |
 | `data-correct` | `"AB"` / `"C"` / `""` | Lettres correctes concaténées (vide pour QROC) |
 | `data-l` sur `.opt` | `"A"` … | Lettre de l'option |
-| `data-mandatory="1"` sur `.opt` | — | Item **indispensable** : si non coché → 0 pt quelle que soit la discordance |
-| `data-unacceptable="1"` sur `.opt` | — | Item **inacceptable** : si coché → 0 pt même si tout le reste est correct |
+| `data-mandatory="1"` sur `.opt` | — | Item **indispensable** : si non coché → 0 pt quelle que soit la discordance. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucune étoile, aucune couleur avant réponse) — cf. « CSS clés » |
+| `data-unacceptable="1"` sur `.opt` | — | Item **inacceptable** : si coché → 0 pt même si tout le reste est correct. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucun repère, aucune couleur avant réponse) — cf. « CSS clés » |
 | `class="q locked"` | — | Question verrouillée (blur + pointer-events:none) |
 | `id` | `"SQI1-Q3"` | Identifiant unique |
 
@@ -169,13 +169,22 @@ button.validate:hover { filter:brightness(1.08); }
 .v-vrai .cv { color:var(--vrai); font-weight:600; }
 .v-faux .cv { color:var(--faux); font-weight:600; }
 
-/* Items indispensable / inacceptable */
-.opt[data-mandatory="1"] { border-left:3px solid var(--neu) }
-.opt[data-mandatory="1"] .box { position:relative }
-.opt[data-mandatory="1"] .box::after { content:'★'; font-size:9px; color:var(--neu); position:absolute; top:-5px; right:-6px }
-.opt[data-unacceptable="1"] { border-left:3px solid var(--faux) }
-.opt[data-unacceptable="1"] .box { position:relative }
-.opt[data-unacceptable="1"] .box::after { content:'✕'; font-size:9px; color:var(--faux); position:absolute; top:-5px; right:-6px }
+/* Items indispensable / inacceptable — NE deviennent visibles qu'une fois la
+   question validée/révélée (.q.done) : avant réponse, l'option est neutre,
+   indiscernable des autres. Ne jamais retirer le préfixe ".q.done" ci-dessous,
+   c'est lui qui empêche l'indice de fuiter la réponse avant coup. */
+.q.done .opt[data-mandatory="1"] { border-left:3px solid var(--neu) }
+.q.done .opt[data-mandatory="1"] .box { position:relative }
+.q.done .opt[data-mandatory="1"] .box::after { content:'★'; font-size:9px; color:var(--neu); position:absolute; top:-5px; right:-6px }
+.q.done .opt[data-unacceptable="1"] { border-left:3px solid var(--faux) }
+.q.done .opt[data-unacceptable="1"] .box { position:relative }
+.q.done .opt[data-unacceptable="1"] .box::after { content:'✕'; font-size:9px; color:var(--faux); position:absolute; top:-5px; right:-6px }
+
+/* Tag textuel "indispensable"/"inacceptable" injecté par JS (markSpecial())
+   dans la ligne .citem correspondante, au moment de la révélation */
+.citem .tag-mandatory, .citem .tag-unacceptable { display:inline-block; font-size:11px; font-weight:700; border-radius:5px; padding:1px 7px; margin-left:8px; vertical-align:middle; }
+.citem .tag-mandatory { color:var(--neu); background:var(--neubg,#fdf3e7); border:1px solid var(--neu); }
+.citem .tag-unacceptable { color:var(--faux); background:var(--fauxbg); border:1px solid var(--faux); }
 ```
 
 ### Format de correction détaillée (VRAI/FAUX par option)
@@ -199,6 +208,7 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 - Une précision qui ne concerne pas une option précise (rappel de cours, remarque transversale) va dans un `<div class="note"><div class="rappel">…</div></div>` placé **avant** les `.citem`, jamais fondue dans le texte d'une option.
 - **TCS** : ne s'applique pas — ses options (improbable/…/certain) ne sont pas des affirmations vraies/fausses. Garder le format `<div class="ans">Réponse : X — texte</div>` + `<div class="note">` pour les réponses alternatives validées par le jury (cf. section TCS ci-dessous).
 - **QROC** : inchangé (`<div class="qrocans">` / `<div class="qrocmodel">`).
+- **Items indispensable/inacceptable** : ne jamais écrire le mot « indispensable »/« inacceptable » à la main dans un `.citem` — le tag est injecté automatiquement par `markSpecial()` (cf. « JS complet de référence ») sur le `.citem` à la même position que l'`.opt` `data-mandatory="1"`/`data-unacceptable="1"` correspondant, uniquement au moment de la révélation. Ne pas non plus placer d'étoile/repère dans le texte de l'option elle-même : c'est purement du CSS conditionné par `.q.done` (cf. « CSS clés »).
 
 ---
 
@@ -263,9 +273,10 @@ Certaines plateformes source exportent des questions où l'étudiant clique/poin
 .q.done .zone{cursor:default}
 ```
 
-- JS : généraliser les 4 sélecteurs `.opt` du script de référence (`grade()`, `reveal()`, le handler de clic) en `.opt,.zone` — c'est la **seule** modification requise, le reste du moteur (discordance, barème, `unlockNext`, etc.) fonctionne à l'identique car les zones portent `data-l` comme les options :
+- JS : généraliser les sélecteurs `.opt` du script de référence (`grade()`, `reveal()`, `markSpecial()`, le handler de clic) en `.opt,.zone` — c'est la **seule** modification requise, le reste du moteur (discordance, barème, `unlockNext`, etc.) fonctionne à l'identique car les zones portent `data-l` comme les options :
   - `grade()` : `q.querySelectorAll('.opt.sel')` → `q.querySelectorAll('.opt.sel,.zone.sel')`, et `q.querySelectorAll('.opt')` → `q.querySelectorAll('.opt,.zone')`
   - `reveal()` : `q.querySelectorAll('.opt')` → `q.querySelectorAll('.opt,.zone')`
+  - `markSpecial()` (items indispensable/inacceptable, cf. « CSS clés » et « JS complet de référence ») : `q.querySelectorAll('.opt')` → `q.querySelectorAll('.opt,.zone')`
   - handler de clic : `e.target.closest('.opt')` → `e.target.closest('.opt,.zone')`, et le `querySelectorAll('.opt')` interne (déselection QRU) → `.opt,.zone`
 - Coordonnées des zones : à estimer visuellement (pourcentages du cadre de l'image) à partir de l'image elle-même — pas d'extraction automatique fiable des coordonnées de pointage depuis le PDF, `pdf_to_quiz.py` se contente de détecter et signaler le type (cf. section suivante).
 - Correction : même format `.citem` VRAI/FAUX que les QRM classiques (« Zone 1. VRAI — … », « Zone 2. VRAI — … »), l'`<div class="ans">` désignant les zones par leur nom/label plutôt que par de simples lettres.
@@ -326,6 +337,25 @@ function qPoints(disc, isQRU) {
   return disc === 0 ? 1 : (disc === 1 ? 0.5 : (disc === 2 ? 0.2 : 0));
 }
 
+// Ajoute le tag "indispensable"/"inacceptable" au .citem correspondant (même
+// position que l'.opt dans la liste — cf. règle d'ordre .opts ↔ .citem),
+// appelée uniquement au moment où la correction devient visible (grade/reveal).
+function markSpecial(q) {
+  const opts = [...q.querySelectorAll('.opt')];
+  const cits = [...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o, i) => {
+    const c = cits[i]; if (!c) return;
+    if (o.dataset.mandatory === '1' && !c.querySelector('.tag-mandatory')) {
+      const t = document.createElement('span'); t.className = 'tag-mandatory'; t.textContent = 'indispensable';
+      c.appendChild(t);
+    }
+    if (o.dataset.unacceptable === '1' && !c.querySelector('.tag-unacceptable')) {
+      const t = document.createElement('span'); t.className = 'tag-unacceptable'; t.textContent = 'inacceptable';
+      c.appendChild(t);
+    }
+  });
+}
+
 function grade(q) {
   if (q.dataset.type === 'QROC') return;
   const correct = new Set(q.dataset.correct.split(''));
@@ -351,6 +381,7 @@ function grade(q) {
   if (missMandatory || hitUnacceptable) pts = 0;
   q.classList.add('done');
   q.querySelector('.correction').hidden = false;
+  markSpecial(q);
   const st = q.querySelector('.status'); st.style.color = '';
   st.textContent = fmtPts(pts) + ' / 1';
   if (!isQRU && disc > 0) st.textContent += ' (' + disc + ' incohérence' + (disc > 1 ? 's' : '') + ')';
@@ -373,6 +404,7 @@ function reveal(q, skipUnlock) {
     const st = q.querySelector('.status'); st.textContent = 'révélée'; st.className = 'status rl';
   }
   q.classList.add('done'); q.querySelector('.correction').hidden = false;
+  markSpecial(q);
   if (q.dataset.pts === undefined) q.dataset.result = 'skip';
   updateScore(); if (!skipUnlock) unlockNext(q);
 }
