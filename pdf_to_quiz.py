@@ -80,7 +80,7 @@ TYPE_MAP = {
     "QRU": "QRU", "QCS": "QRU",
     "QROC": "QROC",
     "QTCS": "TCS", "TCS": "TCS",
-    "QRPL": "QRPL",
+    "QRPL": "QRPL", "QRP": "QRPL",
     # Pointage de zone sur une image (clic direct sur une radio/schéma dans la
     # plateforme source) : pas d'options lettrées côté PDF, donc pas de parsing
     # automatique possible. Produit un stub [A VERIFIER] explicite plutôt que de
@@ -162,6 +162,7 @@ _STRAY_GLYPH_RE = re.compile(r"[☐☑◎◉]")
 REPONSES_VALIDES_RE = re.compile(r"Réponses\s+valides\s*:\s*(.+?)\(\d+\)", re.DOTALL)
 SELECT_N_RE = re.compile(r"[Ss]électionnez\s*(jusqu.à\s*)?(\d+)\s*items?")
 REPONSES_ATTENDUES_RE = re.compile(r"\(\s*(\d+)\s*réponses?\s*attendues?\s*\)", re.IGNORECASE)
+MAX_N_RE = re.compile(r"\(\s*max\.?\s*(\d+)\s*\)", re.IGNORECASE)
 EPREUVE_RE = re.compile(r"Epreuve\s*:\s*(\S+)")
 
 
@@ -257,6 +258,8 @@ def parse_option_block(blob):
             "checked": glyph in ("☑", "◉") if glyph else False,
             "expl":    expl,
             "text":    main_text,
+            "mandatory":    validity == "Indispensable",
+            "unacceptable": validity == "Inacceptable",
         })
     return opts
 
@@ -349,20 +352,25 @@ def parse_question(qtype_raw, neutralized, raw_block, warnings, section_code, qn
 
     # Le tag "(Type: ...)" du PDF source est incohérent d'une plateforme à l'autre :
     # certains exports taguent ces questions "QRM" (avec "Sélectionnez (jusqu'à) N
-    # items" dans l'énoncé), d'autres taguent directement "QRPL" mais formulent le
-    # nombre attendu différemment ("(N réponses attendues)"). On détecte donc le
-    # nombre via les deux formulations connues, indépendamment du tag brut.
+    # items" dans l'énoncé), d'autres taguent directement "QRPL"/"QRP" mais formulent
+    # le nombre attendu différemment ("(N réponses attendues)" ou "(max N)"). On
+    # détecte donc le nombre via les trois formulations connues, indépendamment du
+    # tag brut.
     sm = SELECT_N_RE.search(stem)
     ra = REPONSES_ATTENDUES_RE.search(stem)
-    if (sm or ra) and qtype in ("QRM", "QRPL"):
+    mx = MAX_N_RE.search(stem)
+    if (sm or ra or mx) and qtype in ("QRM", "QRPL"):
         qtype = q["type"] = "QRPL"
         if sm:
             q["select_max"] = bool(sm.group(1))
             q["select_n"] = int(sm.group(2))
-        else:
+        elif ra:
             q["select_max"] = False
             q["select_n"] = int(ra.group(1))
-    elif qtype == "QRPL" and not sm and not ra:
+        else:
+            q["select_max"] = True
+            q["select_n"] = int(mx.group(1))
+    elif qtype == "QRPL" and not sm and not ra and not mx:
         warnings.append(f"{section_code} Q{qnum} (QRPL): nombre de réponses attendues non détecté.")
 
     # Une QRM avec une seule lettre valide et plusieurs options est souvent en
@@ -474,8 +482,13 @@ def render_citems(opts):
 
 
 def render_option_li(opt):
+    extra_attrs = ""
+    if opt.get("mandatory"):
+        extra_attrs += ' data-mandatory="1"'
+    if opt.get("unacceptable"):
+        extra_attrs += ' data-unacceptable="1"'
     return (
-        f'<li class="opt" data-l="{opt["letter"]}" data-correct="{1 if opt["valid"] else 0}">'
+        f'<li class="opt" data-l="{opt["letter"]}" data-correct="{1 if opt["valid"] else 0}"{extra_attrs}>'
         f'<span class="box">{opt["letter"]}</span><span class="otext">{esc(opt["text"])}</span></li>'
     )
 
@@ -610,6 +623,12 @@ h1{{font-size:20px;font-weight:600;margin:0}}
 .opt.wrong .box{{background:var(--faux);border-color:var(--faux);color:#fff}}
 .opt.missed{{border-style:dashed;border-color:var(--vrai)}}
 .opt.missed .box{{color:var(--vrai);border-color:var(--vrai)}}
+.opt[data-mandatory="1"]{{border-left:3px solid var(--neu)}}
+.opt[data-mandatory="1"] .box{{position:relative}}
+.opt[data-mandatory="1"] .box::after{{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}}
+.opt[data-unacceptable="1"]{{border-left:3px solid var(--faux)}}
+.opt[data-unacceptable="1"] .box{{position:relative}}
+.opt[data-unacceptable="1"] .box::after{{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}}
 .mark{{margin-left:auto;font-size:13px;font-weight:600;align-self:center}}
 .qrocin{{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}}
 .qrocin:focus{{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}}
@@ -680,12 +699,17 @@ function grade(q){{
     if(m.textContent)o.appendChild(m);
   }});
   const isQRU=q.dataset.type==='QRU';
-  const pts=qPoints(disc,isQRU);
+  let pts=qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
   q.classList.add('done');
   q.querySelector('.correction').hidden=false;
   const st=q.querySelector('.status');st.style.color='';
   st.textContent=fmtPts(pts)+' / 1';
   if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
   if(pts>0&&pts<1)st.style.color='#9a6a00';
   q.querySelector('.validate').disabled=true;
