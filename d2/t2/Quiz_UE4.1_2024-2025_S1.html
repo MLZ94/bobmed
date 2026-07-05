@@ -1,0 +1,944 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<title>Quiz — UE 4.1 — Neurologie-MPR · Session normale (mars 2025)</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.opt[data-mandatory="1"] .box{position:relative}
+.opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.opt[data-unacceptable="1"] .box{position:relative}
+.opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 4.1 — Neurologie-MPR · Session normale (mars 2025)</h1>
+<div class="sub">37 questions : TCS1 (5, verrouillé) · KFP1 (3, verrouillé) · mDP1 (6, verrouillé) · mDP2 (8, verrouillé) · SQI1 (15)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/37</b></span>
+<span class="pill">Score : <b id="s-ok">0/37</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">TCS1 — Diplopie</div>
+
+<div class="q" id="TCS1-Q1" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Un homme de 31 ans consulte pour vision double présente les deux yeux ouverts.</div>
+<div class="stem">Si vous pensiez à une myasthénie Et que le patient ne présente pas de ptosis lors de l'examen clinique L'impact sur votre hypothèse est?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — ni plus ou moins probable</div></div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez à une hémorragie méningée par rupture anévrismale et que vous apprenez que le patient a des céphalées d’apparition brutales L'impact sur votre hypothèse est?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">très peu probable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">très probable Référence: DFA1-UE4.1-MARS2025 ms,csmkcnqmkcnmdq uuuuuuuuuu uuuuuuuuuuuuuu</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E — très probable Référence: DFA1-UE4.1-MARS2025 ms,csmkcnqmkcnmdq uuuuuuuuuu uuuuuuuuuuuuuu</div></div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez à un AVC ischémique et que le patient est diabétique de type 1 L'impact sur votre hypothèse est?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">très peu probable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">très probable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div><div class="note">Réponse(s) E également valorisée(s) par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q4" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q4</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez à une sclérose en plaques et que le patient n’a jamais eu d’épisode neurologique antérieur L'impact sur votre hypothèse est?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">très peu probable</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ni plus ni moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">très probable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — peu probable</div><div class="note">Réponse(s) C également valorisée(s) par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q5" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q5</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez à une myopathie et que le patient a un déficit moteur distal des membres inférieurs Référence: DFA1-UE4.1-MARS2025 L'impact sur votre hypothèse est?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">très peu probable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ni plus ni moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">très probable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — ni plus ni moins probable</div><div class="note">Réponse(s) D également valorisée(s) par le jury.</div></div>
+</div>
+
+<div class="sect">KFP1 — Compression médullaire (syndrome de Brown-Séquard)</div>
+
+<div class="q" id="KFP1-Q1" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une patiente de 45 ans est adressée aux urgences pour des troubles de la marche d’aggravation progressive depuis 2 semaines plus marqués sur le membre inférieur gauche. Elle a présenté également de façon concomitante une douleur lombaire thoracique lors d’un port de charge. Quand vous reprenez l’interrogatoire, elle semble dire qu’elle sent moins l’eau chaude sur le membre inférieur droit depuis peu. Elle ne présente pas de difficulté pour uriner. Elle ne présente pas d’antécédent particulier. Les paramètres vitaux de la patiente à son arrivée dans le service d’accueil des urgences sont les suivantes : T à 36,8 °C, PA 102/48 mmHg, Fc à 55 bpm, SpO2 99%.A l’examen clinique, la patiente ne présente pas de franc déficit moteur au membre inférieur gauche, mais une hypopallesthésie distale avec des anomalies au sens de position du gros orteil gauche, associé à une hypoesthésie thermoalgique de la jambe droite et des réflexes vifs aux 4 membres prédominant à gauche, avec un signe de Babinski à gauche. Elle présente également des douleurs en ceinture thoracique avec une anesthésie clinique au niveau de T6.</div>
+<div class="stem">Parmi les diagnostiques suivants, lequel vous semble le plus probable ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">méningo-encéphalite</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">compression médullaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">méningite</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">méningo-radiculite</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">encéphalopathie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="note"><div class="rappel">La compression médullaire : dans cette situation la patiente présente l'association d'un syndrome lésionnel, un syndrome sous-lésionnel et d'un syndrome douloureux rachidien compatible avec une compression médullaire.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suspectez une compression médullaire. Est-il possible de préciser le syndrome neurologique clinique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">syndrome de Brown-Séquard</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">syndrome de Wallenberg</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">syndrome de la queue de cheval</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">syndrome de Claude Bernard-Horne r Référence: DFA1-UE4.1-MARS2025</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">syndrome de Pancoast-Tobias</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="note"><div class="rappel">Le syndrome de Brown-Séquard est une atteinte de l'hémi-moelle avec une atteinte proprioceptive et épicritique homolatérale à la lésion et une atteinte thermo-algique controlatérale. S'y associe également un syndrome pyramidal homolatéral.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRPL · 4 réponses max</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suspectez un syndrome de Brown-Séquard sur un phénomène compressif. En attendant les résultats de l’IRM médullaire réalisée en urgence, vous réfléchissez aux différents étiologies possibles ? Parmi ces étiologies, lesquelles pouvez-vous évoquer (max 4) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">métastases vertébrales avec épidurite</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">hématome épidural</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">spondylodiscite avec épidurite</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">accident ischémique médullaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">neurinomes</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">myélopathie cervico-arthrosique</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">syringomyélie</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">hernie cervicale</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">carence en vitamine B12</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">canal lombaire étroit</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="note"><div class="rappel">Dans le cadre d'un phénomène ischémique, l'atteinte clinique prédomine au niveau des cornes antérieures de la moelle. L'atteinte clinique décrite se situe plutôt en thoracique et non cervicale. La syringomyélie a une présentation plutôt de douleurs (névralgie cervicobrachiale, épaule et bras, à type d'étau ou de brûlures), un syndrome suspendu — c'est-à-dire ne touchant qu'une fraction des métamères — au niveau des membres supérieurs le plus souvent avec déficit moteur, amyotrophie, aréflexie, hypoesthésie dissociée (purement thermoalgique), suspendue, scoliose dans un tiers des cas. La carence en vitamine B12 est plutôt responsable d'un syndrome cordonnal postérieur.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP1 — Myasthénie</div>
+
+<div class="q" id="mDP1-Q1" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Madame L., 42 ans, consulte en neurologie pour une gêne visuelle apparue progressivement il y a quelques semaines, au décours d’une infection respiratoire virale. Elle se plaignait d’une vision double, particulièrement en fin de journée et voyait deux écrans l’un à côté de l’autre, et de difficultés à garder la paupière droite ouverte après une journée de travail. Aucune notion de traumatisme crânien n'est retrouvée.</div>
+<div class="stem">L’examen clinique réalisé ce matin est sans anomalie. En particulier vous ne retrouvez pas de paralysie oculomotrice. Dans l’hypothèse d’une atteinte du nerf abducens (VI) ou du muscle droit latéral qu’auriez-vous constaté cliniquement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">une diplopie binoculaire verticale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">une diplopie binoculaire horizontale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">une mydriase aréactive à la lumière</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">une limitation de l’abduction Référence: DFA1-UE4.1-MARS2025</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">une paralysie de l'élévation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="note"><div class="rappel">Dans l'atteinte du nerf abducens (VI) ou du muscle droit latéral on retrouve une diplopie binoculaire horizontale dans le regard au loin et une limitation de l'abduction. La diplopie binoculaire verticale est retrouvée dans l'atteinte du nerf trochléaire (IV) ou du muscle oblique supérieur. On retrouve une mydriase aréactive à la lumière et une paralysie de l'élévation plutôt dans l'atteinte du nerf oculomoteur (III).</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La combinaison des symptômes de ptosis et de diplopie, en particulier fluctuant, vous fait évoquer le diagnostic de myasthénie. Quels éléments cliniques allez-vous rechercher en urgence pour décider du mode de prise en charge ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">dyspnée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">trouble de la déglutition</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ptosis bilatéral</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">orthopnée</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">trouble de la phonation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="note"><div class="rappel">Complications vitales possibles lors des crises myasthéniques, se manifestant par des troubles de la déglutition et respiratoires, avec dyspnée et encombrement. Les crises sévères nécessitent une hospitalisation en réanimation.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est la physiopathologie sous-jacente à la myasthénie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Dégénérescence des motoneurones.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Anticorps dirigés contre les récepteurs à l'acétylcholine.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Blocage de la libération de l’acétylcholine par les terminaisons nerveuses.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Démyélinisation des nerfs périphériques.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Dégénérescence des fibres musculaires.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="note"><div class="rappel">La myasthénie est une maladie auto-immune liée à un blocage des récepteurs de la plaque motrice par des anticorps anti-récepteurs de l'acétylcholine ou d'autres types d'anticorps induisant un dysfonctionnement de la transmission neuromusculaire : il s'agit d'un bloc post-synaptique.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Mme L, inquiète, vous demande s’il est nécessaire de réaliser des examens complémentaires, en plus de la prise de sang à la recherche des anticorps spécifiques, que lui proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Electroneuromyogramme (ENMG)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Electroencéphalogramme (EEG)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">IRM cérébrale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">IRM médullaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Scanner thoracique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="note"><div class="rappel">L'examen électrophysiologique permet de mettre en évidence le bloc neuromusculaire. Le nerf moteur est stimulé à la fréquence de 3 Hz et l'amplitude de la réponse musculaire (potentiel moteur) est enregistrée. Dans le syndrome myasthénique, la perturbation de la transmission neuromusculaire entraîne une diminution de l'amplitude du potentiel moteur (décrément) qui est supérieure à 10 %. Le scanner thoracique sans injection doit être systématique devant toute suspicion de myasthénie, afin d'explorer la loge thymique à la recherche d'une hyperplasie thymique ou d'un thymome (bénin ou malin).</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel traitement peut être proposé en première ligne pour soulager les symptômes oculaires isolés ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Corticostéroïdes oraux.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Inhibiteurs de l’acétylcholinestérase.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Plasmaphérèse.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Immunoglobulines intraveineuses.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Immunosuppresseurs oraux.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="note"><div class="rappel">Les anticholinestérasiques seront prescrits en première intention, permettant d'améliorer transitoirement les symptômes musculaires. Ils prolongent l'action de l'acétylcholine au niveau de la membrane post-synaptique par blocage réversible de l'acétylcholinestérase. Les traitements immunomodulateurs (corticostéroïdes, plasmaphérèse, immunoglobulines) sont réservés aux formes plus sévères ou résistantes.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant cette forme oculaire pure à anticorps anti-récepteurs à l'acétylcholine positifs et sans thymome, vous mettez en place uniquement un traitement par anticholinestérasique 3 fois par jour et vous la prévenez des contre-indications médicamenteuses. La patiente semble bien répondre au traitement. Elle se présente aux urgences en fin de journée quelques mois plus tard pour des difficultés respiratoires. Cliniquement : température 37,9 °C, PA 102/45 mmHg, FC 45 bpm, SpO2 96 % en air ambiant, FR 30 cycles/min. La patiente présente des difficultés à faire des phrases complètes, mais vous explique qu’elle a augmenté d’elle-même les doses de son traitement anticholinestérasique devant une plus grande fatigabilité à l’effort. Vous suspectez dans ce contexte une crise cholinergique, quels symptômes sont compatibles avec cette dernière ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Crampes musculaires</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Constipation</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hypersécrétions bronchiques</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Sécheresse buccale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Fasciculations</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="note"><div class="rappel">Risque de survenue d'une crise cholinergique en cas de surdosage, en particulier chez les patients dont la myasthénie se décompense : hypersécrétion bronchique, accentuation de la faiblesse musculaire, fasciculations et crampes musculaires.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">mDP2 — Neuropathie du nerf fibulaire et syndrome parkinsonien</div>
+
+<div class="q" id="mDP2-Q1" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. Z, 67 ans consulte ce jour pour des chutes à répétitions depuis 1 mois. Sa conjointe vous rapporte qu’il semble toujours se prendre le pied droit dans le tapis ou sur des petites marches. Le patient n’a jamais eu besoin de suivi médical, mais a repris une activité physique depuis sa retraite et a perdu du poids dans ce contexte. Il dit aussi beaucoup s’occuper de son jardin à genou. Vous retrouvez à l’examen clinique un steppage du pied droit lors de la marche.</div>
+<div class="stem">Référence: DFA1-UE4.1-MARS2025 Devant ce steppage vous suspectez une atteinte tronculaire du nerf fibulaire commun droit, quels en sont les signes cliniques ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">une douleur de la face latérale de cuisse irradiant jusqu'au dos du pied droit</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">un déficit sensitif du dos du pied droit</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">un déficit moteur du jambier antérieur droit</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">un déficit moteur du triceps sural droit</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">un déficit sensitif du bord externe du pied droit</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="note"><div class="rappel">Une atteinte du nerf fibulaire droit se caractérise par un déficit sensitif discret intéressant une zone cutanée du dos du pied (cou-de-pied) pouvant s'étendre sur la face antéro-latérale de la jambe et un déficit des muscles de la loge antéro-latérale de jambe (fibulaire, tibial antérieur, long extenseur des orteils, long extenseur de l'hallux, court extenseur des orteils).</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q2" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans votre interrogatoire et votre examen quels éléments cliniques devez-vous relever rapidement afin d’orienter la prise en charge ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">un prurit de la jambe droite</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">un syndrome douloureux aigu de la jambe droite</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">la présence de lésion cutanée de la jambe droite</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">une abolition du réflexe achilléen de la jambe droite</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">une amyotrophie de la loge antérieure de la jambe droite</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="note"><div class="rappel">Les éléments cliniques à rechercher sont ceux évocateurs d'une mono-neuropathie en lien avec une vascularite, dont la prise en charge est une urgence médicale.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q3" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous retenez finalement le diagnostic de compression externe indolore du nerf fibulaire commun droit en rapport avec l’amaigrissement du patient et la position agenouillée. Vous prévoyez quand même de réaliser une prise de sang pour rechercher des facteurs favorisants. Quels sont les examens de biologie standard qui vous intéressent dans ce contexte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Numération formule sanguine</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Bilan hépatique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Glycémie à jeun</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Bilan d’hémostase</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">TSH</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="note"><div class="rappel">Glycémie à jeun ; numération formule sanguine avec vitesse de sédimentation (augmentée en cas de vascularite). Et, selon le contexte, toujours dans un second temps : recherche d'une hypothyroïdie.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q4" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Référence: DFA1-UE4.1-MARS2025 M. Z a bien récupéré de son steppage avec les conseils positionnels et des séances de kinésithérapie. Il ne présentait pas de facteur favorisant biologique particulier. Il consulte 3 ans plus tard dans votre cabinet dans un contexte de raideur du membre inférieur droit avec plus de difficulté à la marche et se demande si son ancien déficit moteur n’en est pas la cause. Entre temps, il a eu un diagnostic de tendinopathie de l’épaule droite découverte dans un contexte de réduction d’amplitude de cette épaule. Il ne prend pas de traitement. Lors de la consultation, alors que le patient est assis en face de vous, vous constatez un tremblement distal du membre supérieur droit. Vous émettez dans un premier temps l’hypothèse d’un tremblement essentiel, quelles caractéristiques cliniques pourriez-vous retrouver en faveur de ce tremblement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">tremblement de repos</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">tremblement postural</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">tremblement touchant la voix</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">tremblement rapide (6-12Hz)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">tremblement unilatéral</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="note"><div class="rappel">Le tremblement essentiel est un tremblement d'action, à la fois postural et intentionnel, qui évolue lentement sur plusieurs années, parfois plusieurs décennies. Il est habituellement bilatéral et symétrique, d'une fréquence de 6 à 12 Hz, touchant les membres supérieurs, le chef, la voix et les membres inférieurs. Il est volontiers amélioré par la prise d'alcool mais aggravé par les émotions et la caféine. Il existe souvent des antécédents familiaux de tremblement d'action.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q5" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cliniquement vous constatez un tremblement de repos, uniquement à droite, et à l’interrogatoire, le patient ne rapporte pas d’antécédent familiaux de tremblement. Il avait d’ailleurs à peine remarqué ce tremblement. Vous avez une nouvelle hypothèse en tête, quels autres arguments cliniques allez-vous rechercher dans ce contexte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">une rigidité spastique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">une rigidité plastique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">une adiadococinésie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">une hypokinésie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">une hypomimie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="note"><div class="rappel">Le syndrome parkinsonien de la maladie de Parkinson est défini par l'association d'une bradykinésie (ralentissement à l'exécution d'un mouvement et décrément de la vitesse), associée potentiellement à une réduction d'amplitude — hypokinésie — et à un défaut d'initiation — akinésie —, avec au moins une rigidité dite plastique ou un tremblement de repos.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q6" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En dehors de ces signes moteurs, quels autres éléments à l’interrogatoire pouvez-vous retrouver en faveur d’une maladie de Parkinson ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">constipation</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">hyposmie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">hypoacousie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">trouble du comportement en sommeil paradoxal Référence: DFA1-UE4.1-MARS2025</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">présence de tics moteurs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="note"><div class="rappel">D'autres formes de début ont été rapportées plus récemment sous forme d'un déficit de l'odorat (hyposmie) par atteinte du noyau du nerf olfactif ou de troubles du comportement en sommeil paradoxal (il s'agit de véritables rêves animés et/ou cauchemars qui peuvent être responsables d'actes auto ou hétéro-agressifs). Ces symptômes, ainsi que la constipation, peuvent précéder les troubles moteurs de plusieurs années.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q7" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP2 Q7</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous expliquez au patient votre suspicion diagnostique qui est celle d’une maladie de Parkinson. Le patient vous demande s’il est nécessaire de réaliser des examens complémentaires afin de poser le diagnostic. A son âge, quels examens sont nécessaires pour poser le diagnostic ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">IRM cérébrale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">DAT-Scanner</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">PET à la Fluoro-dopa</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Aucun</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Angioscanner des troncs supra aortiques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="note"><div class="rappel">Le diagnostic est clinique. Aucun examen complémentaire n'est justifié, sauf chez les sujets de moins de 40 ans.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="mDP2-Q8" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient rentre chez lui avec un courrier pour consulter un neurologue, mais dès le lendemain il vous rappelle car il a vu sur internet qu’il existait d’autres syndromes parkinsoniens dit atypiques et veut en savoir plus. Quels sont les éléments cliniques à rechercher, considérés comme « drapeaux rouges » dans le cadre d’une maladie de Parkinson ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Chutes précoces</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Troubles cognitifs précoces</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Syndrome pyramidal</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Syndrome cérébelleux</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Troubles oculomoteurs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="note"><div class="rappel">Les drapeaux rouges en faveur d'un syndrome parkinsonien atypique sont : absence de réponse prolongée au traitement dopaminergique, progression rapide avec chutes précoces, signes précoces d'atteinte cognitive, pseudo-bulbaire ou de dysautonomie, syndrome cérébelleux, atteinte pyramidale, troubles oculomoteurs et signes corticaux.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous accueillez aux Urgences Mr A. Vaissé qui a depuis 2h un déficit neurologique de l’hémicorps droit apparu subitement. En cas d’infarctus sylvien superficiel, vous pourriez observer :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Déficit moteur à prédominance brachiofaciale droite</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hémianopsie latérale homonyme gauche</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ataxie Référence: DFA1-UE4.1-MARS2025</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Aphasie de Wernicke</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Apraxie idéomotrice et idéatoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les réponses suivantes, laquelle(lesquelles) est(sont) un(des) diagnostic(s) différentiel(s) d’accident ischémique transitoire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Aura migraineuse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Crise épileptique partielle</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hyperglycémie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Lipothymie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Trouble fonctionnel neurologique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En cas de dissection carotidienne, on peut observer cliniquement :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Scapulalgies</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Céphalée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Syndrome de Claude Bernard-Horner</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Paralysie des nerfs crâniens oculomoteurs (III, IV, VI)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vertiges</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En cas de compression médullaire de niveau C2, quel(s) trouble(s) peu(ven)t être retrouvé(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Paraplégie spastique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Paralysie diaphragmatique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Névralgie cervico-brachiale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Paralysie faciale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Hoquet</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les réponses suivantes, laquelle(lesquelles) est(sont) juste(s) concernant les céphalées de tension ? rang A</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Durent entre 30 minutes et 7 jours</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Bilatérales Référence: DFA1-UE4.1-MARS2025</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">A type de pression ou de serrement</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Présence de nausée et/ou vomissement</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Présence possible de phonophobie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les réponses suivantes, laquelle(lesquelles) est(sont) juste(s) concernant la douleur de la névralgie du trijumeau ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Peu intense</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Fulgurante</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Durée modérée</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Bilatérale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Affecte moins la branche ophtalmique V1</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — plusieurs minutes</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les réponses suivantes, laquelle(lesquelles) peu(ven)t être retrouvé(s) dans la névrite optique rétro-bulbaire dans la Sclérose en plaques (SEP) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Phénomène inaugurale dans 3/4 des SEP</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Présence d’une baisse d’acuité visuelle</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Installation sur quelques minutes</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Fond d’œil montrant souvent un œdème papillaire au début</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Présence d’une dyschromatopsie d’axe rouge-vert</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les éléments suivants, le(s)quel(s) peu(ven)t être des signes moteurs de crise d’épilepsie généralisée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Crises toniques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Crises cloniques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Crises myocloniques</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Crises spastiques</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Crises aphasiques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les réponses suivantes, la(s)quelle(s) est(sont) justes concernant la prise en charge d’un état de mal épileptique ? rang B Référence: DFA1-UE4.1-MARS2025</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">En première ligne de traitement : Benzodiazépine en intraveineuse lente, répétée une fois si échec au bout de 5 minutes</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">En première ligne de traitement : antiépileptique d'action prolongée en IV à la seringue électrique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">En deuxième ligne de traitement : en cas d'échec des benzodiazépine, antiépileptique d'action prolongée en IV à la seringue électrique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">En troisième ligne de traitement : si persistance de l'état de mal 20 minutes après traitement de deuxième ligne, sédation (propofol ou midazolam ou thiopental) avec intubation orotrachéale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Traitement étiologique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les réponses suivantes, la(s)quelle(s) peu(vent) être retrouvées dans un syndrome de Gayet-Wernicke ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Inversion du rythme nycthéméral</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ptosis</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Nystagmus</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Marche en tandem difficile</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hypertonie plastique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les réponses suivantes, la(s)quelle(s) peu(vent) être des symptômes ou signes moteurs d’un syndrome du canal carpien ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Paresthésies des trois derniers doigts</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hypoesthésies à tous les modes de la face palmaire des trois premiers doigts</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Signe de Tinel</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Difficulté pour mettre les boutons ou tourner une clé dans une serrure</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Amyotrophie thénarienne</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les symptômes ou signes suivants, le(s)quel(s) peu(vent) être classiquement retrouvé(s) dans un syndrome de Guillain-Barré ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Paresthésies des quatre membres</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Troubles sensitifs d’évolution descendante</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Parésie débutant aux membres inférieurs</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Parésie touchant souvent les nerfs crâniens à la phase initiale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Parésie qui prédomine en distal initialement Référence: DFA1-UE4.1-MARS2025</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les symptômes ou signes suivants, le(s)quel(s) peu(vent) être classiquement retrouvé(s) dans une paralysie faciale centrale ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Prédominance sur la partie inférieure du visage</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Impossibilité de siffler ou de gonfler les joues</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Attraction de la bouche du côté atteint lors du sourire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Signe de Charles Bell</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Agueusie des deux tiers antérieurs de l'hémilangue</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les éléments suivants, quel(s) est(sont) celui(ceux) qui est(sont) un(des) drapeau(x) roug(e) de la maladie de Parkinson on peut retrouver :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Pas réponse prolongée au traitement dopaminergique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Evolution rapide de la maladie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Chutes précoces</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hypotension artérielle orthostatique sévère</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Syndrome pyramidal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les réponses suivantes, laquelle(lesquelles) est(sont) justes concernant l’atteinte cognitive en lien avec une lésion pariétale inférieure gauche ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Présence d’une dysarthrie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Présence d’une acalculie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Présence d’une indistinction entre la droite et la gauche</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Présence d’une agnosie digitale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Présence d’une micrographie Référence: DFA1-UE4.1-MARS2025</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  let pts=qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+</body></html>
