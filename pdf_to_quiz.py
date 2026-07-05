@@ -175,6 +175,27 @@ REPONSES_ATTENDUES_RE = re.compile(r"\(\s*(\d+)\s*réponses?\s*attendues?\s*\)",
 MAX_N_RE = re.compile(r"\(\s*max\.?\s*(\d+)\s*\)", re.IGNORECASE)
 EPREUVE_RE = re.compile(r"Epreuve\s*:\s*(\S+)")
 
+# Détection d'une question qui ANNONCE une image (radio, IRM, scanner…). Sert à
+# (1) corriger un mauvais placement d'image et (2) signaler une image attendue
+# mais absente. L'ancienne version ne reconnaissait que « <imagerie> … est la
+# suivante : » et « ci-dessous … <imagerie> » (ci-dessous AVANT l'imagerie) — elle
+# ratait « l'IRM … Diffusion, ci-dessous » (imagerie AVANT ci-dessous) et « cf
+# image … ». On rend la détection bidirectionnelle et on ajoute « cf image »,
+# « images jointes », « voici … ».
+_IMAGING = (
+    r"(radiographie|scanner|tdm|tep|irm|ecg|électrocardiogramme|angio"
+    r"|coupe|cliché|iconographie|imagerie|image|figure|photo|schéma|fond d.?œil|rx\b)"
+)
+IMG_EXPECTED_RE = re.compile(
+    rf"{_IMAGING}[^.!?]{{0,120}}(est (?:la|le|l.) suivante?|sont les suivants?)\s*:"
+    rf"|ci[- ]?(?:dessous|apr[èe]s|contre|joints?|jointe?s?)[^.!?]{{0,90}}{_IMAGING}"
+    rf"|{_IMAGING}[^.!?]{{0,90}}ci[- ]?(?:dessous|apr[èe]s|contre|joints?|jointe?s?)"
+    rf"|cf\.?\s*(?:image|images|photo|figure|cliché|iconographie)"
+    rf"|images?\s+jointes?"
+    rf"|voici[^.!?]{{0,40}}{_IMAGING}",
+    re.I,
+)
+
 
 # ----------------------------------------------------------------------------
 # 3. Parsing
@@ -1004,6 +1025,21 @@ def run(pdf_path, debug=False, strict=False, force=False):
 
     sections = parse_sections(full_text, warnings)
 
+    # Identifiants et « texte d'attente d'image » à plat, calculés une seule fois
+    # et INDÉPENDAMMENT de la présence d'images : le contrôle « image attendue mais
+    # absente » (plus bas) doit tourner même quand l'extraction n'a produit aucune
+    # image (échec silencieux). Le texte d'attente inclut le contexte clinique
+    # (dpctx) de la 1re question de chaque section — une consigne « cf image …
+    # ci-dessous » vit souvent dans ce contexte, pas dans l'énoncé.
+    flat_q_ids = [f'{s["code"]}-Q{q["num"]}' for s in sections for q in s["questions"]]
+    flat_ctx = []
+    for s in sections:
+        for i, q in enumerate(s["questions"]):
+            ctx = q["stem"]
+            if i == 0 and s.get("dpctx"):
+                ctx = f'{s["dpctx"]} {ctx}'
+            flat_ctx.append(ctx)
+
     # Images : assignées par position (page × ordonnée y) pour gérer correctement
     # les questions dont les illustrations s'étalent sur plusieurs pages PDF.
     images_by_qid = {}
@@ -1021,9 +1057,6 @@ def run(pdf_path, debug=False, strict=False, force=False):
                 else:
                     break
             return p
-
-        flat_q_ids   = [f'{s["code"]}-Q{q["num"]}' for s in sections for q in s["questions"]]
-        flat_stems   = [q["stem"] for s in sections for q in s["questions"]]
 
         if image_events and len(q_page_y) == len(flat_q_ids):
             # Approche positionnelle : trie toutes les questions et images par (page, y)
@@ -1069,29 +1102,36 @@ def run(pdf_path, debug=False, strict=False, force=False):
                         f'style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>\n'
                     )
 
-    # Post-processing : corrige le mauvais placement d'image quand le stem d'une
-    # question attend une image ("est la suivante", "ci-dessous"…) mais n'en a pas
-    # reçu, et la question adjacente en a une sans en avoir besoin.
-    if images_by_qid and 'flat_stems' in locals():
-        _IMAGING = (
-            r"(radiographie|scanner|tdm|tep|irm|ecg|électrocardiogramme"
-            r"|coupe|cliché|image|figure|photo|schéma|rx\b)"
+    # Post-processing : corrige le mauvais placement d'image quand une question
+    # attend une image ("est la suivante", "ci-dessous", "cf image"…) mais n'en a
+    # pas reçu, alors que la question adjacente en a une sans en avoir besoin.
+    for i in range(len(flat_q_ids) - 1):
+        qid_curr, qid_next = flat_q_ids[i], flat_q_ids[i + 1]
+        curr_expects = bool(IMG_EXPECTED_RE.search(flat_ctx[i]))
+        next_expects = bool(IMG_EXPECTED_RE.search(flat_ctx[i + 1]))
+        if curr_expects and qid_curr not in images_by_qid and qid_next in images_by_qid and not next_expects:
+            images_by_qid[qid_curr] = images_by_qid.pop(qid_next)
+            warnings.append(
+                f"[images] Image de {qid_next} déplacée vers {qid_curr} "
+                f"(le contexte de {qid_curr} attend une image — positionnement PDF corrigé)."
+            )
+
+    # Garde-fou : une question dont le contexte/énoncé ANNONCE une image
+    # ("ci-dessous", "cf image", "images jointes"…) mais à laquelle AUCUNE image
+    # n'a été associée. Couvre l'échec silencieux où l'extraction ne produit rien
+    # (image vectorielle/non bitmap, ou filtrée par la taille) : sans ce contrôle,
+    # le quiz sortait sans la moindre image ET sans le moindre message.
+    missing_img = [
+        flat_q_ids[i] for i in range(len(flat_q_ids))
+        if IMG_EXPECTED_RE.search(flat_ctx[i]) and flat_q_ids[i] not in images_by_qid
+    ]
+    if missing_img:
+        warnings.append(
+            f"[images] {len(missing_img)} question(s) annoncent une image mais n'en ont "
+            f"reçu aucune : {', '.join(missing_img)}. L'image est probablement absente de "
+            "l'extraction (image vectorielle/non bitmap, ou filtrée par la taille) — "
+            "vérifier le PDF source et l'ajouter à la main."
         )
-        _IMG_EXPECTED_RE = re.compile(
-            rf"{_IMAGING}[^.!?]{{0,120}}(est (?:la|le|l') suivante?|sont les suivants?)\s*:"
-            rf"|ci[- ]?dessous[^.!?]{{0,80}}{_IMAGING}",
-            re.I
-        )
-        for i in range(len(flat_q_ids) - 1):
-            qid_curr, qid_next = flat_q_ids[i], flat_q_ids[i + 1]
-            curr_expects = bool(_IMG_EXPECTED_RE.search(flat_stems[i]))
-            next_expects = bool(_IMG_EXPECTED_RE.search(flat_stems[i + 1]))
-            if curr_expects and qid_curr not in images_by_qid and qid_next in images_by_qid and not next_expects:
-                images_by_qid[qid_curr] = images_by_qid.pop(qid_next)
-                warnings.append(
-                    f"[images] Image de {qid_next} déplacée vers {qid_curr} "
-                    f"(stem de {qid_curr} attend une image — positionnement PDF corrigé)."
-                )
 
     if images_by_qid:
         n_multi = sum(1 for v in images_by_qid.values() if v.count('<div class="extra">') > 1)
