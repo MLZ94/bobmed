@@ -1,0 +1,1160 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<title>Quiz — UE 4.1 — Neurologie-MPR · Session de rattrapage (septembre 2023)</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.opt[data-mandatory="1"] .box{position:relative}
+.opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.opt[data-unacceptable="1"] .box{position:relative}
+.opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 4.1 — Neurologie-MPR · Session de rattrapage (septembre 2023)</h1>
+<div class="sub">46 questions : SQI1 (18) · TCS1 (3, verrouillé) · mDP1 (6, verrouillé) · KFP1 (3, verrouillé) · mDP2 (5, verrouillé) · DP1 (6, verrouillé) · DP2 (5, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/46</b></span>
+<span class="pill">Score : <b id="s-ok">0/46</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 32 ans, originaire du Mali, est adressé aux urgences pour des céphalées inhabituelles évoluant depuis 2 jours. Il a pour antécédents une infection VIH traitée depuis 1 mois, une hypertension artérielle et un tabagisme actif. Cliniquement, il est fébrile à 38.8°C, il n’a pas de signe de localisation neurologique, il est céphalalgique et présente des nausées. La TDM cérébrale est normale. Quel(s) est (ou sont) la (ou les) réponse(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une thrombose veineuse cérébrale peut être exclue</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une ponction lombaire ne peut être réalisée avant la réalisation d’une IRM cérébrale dans ce contexte</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La réalisation d’une PCR HSV dans le LCR n’est pas nécessaire car il s’agit d’un patient jeune</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un EEG doit être réalisé</span></li>
+<li class="opt" data-l="E" data-correct="1" data-mandatory="1"><span class="box">E</span><span class="otext">Une TDM cérébrale injectée serait utile dans l’hypothèse d’une toxoplasmose cérébrale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un TDM cérébal injectée (avec temps veineux) est nécessaire dans ce contexte pour exclure une thrombose veineuse cérébral. Toutefois un TDM cérébral non injecté peut montrer des signes de thrombose veineuse cérébrale, mais sa normalité n'exclut pas le diagnostic</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le SMUR vous amène un patient pour crise convulsive depuis 15 minutes, n’ayant pas cédé après deux injections de clonazepam à 5 minutes d’intervalle ; quelle est votre attitude thérapeutique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Traitement anti-épileptique d'action rapide par diazepam</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Traitement anti-épileptique d'action lente par phénobarbital</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Traitement antiépileptique par valproate de sodium</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Surveillance simple tant que la crise ne dure pas plus de 30 minutes</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Prise en charge en réanimation En cas d'intervention avant 30 minutes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient est admis aux Urgences pour un déficit brutal moteur à prédominance brachiofaciale, des troubles sensitifs dans le même territoire et une hémianopsie latérale homonyme. Il présente en plus une hémiasomatognosie et une héminégligence. Quelle est la réponse juste concernant ce patient chez qui vous suspectez un accident vasculaire cérébral ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il s’agit d’une atteinte du territoire de l’artère cérébrale antérieure droite</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il s’agit d’une atteinte du territoire superficiel de l’artère cérébrale moyenne droite</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il s’agit d’une atteinte du territoire de l’artère cérébrale postérieure gauche</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il s’agit d’une atteinte du territoire profond de l’artère cérébrale moyenne droite</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il s’agit d’une atteinte du territoire profond et superficiel de l’artère cérébrale moyenne profonde gauche survenue brutale évocatrice d'un événement vasculaire.Atteinte brachio-faciale donc à priori territoire superficiel.Atteinte de l'hémisphère mineure devant l'hémiasomatognosie et l'héminégligence</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 62 ans est adressé par son médecin traitant pour un tremblement des mains évoluant depuis 2 ans. En consultation, vous constatez un tremblement de repos de la main droite, une discrète roue dentée des membres supérieurs, et une perte du ballant du bras droit à la marche. Vous suspectez une maladie de Parkinson, concernant la démarche diagnostique, quel(s) est (ou sont) la (ou les) réponse(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vous devez prescrire une IRM cérébrale car le patient a moins de 65 ans</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un DAT scanner est nécessaire pour confirmer le diagnostic</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">L’existence d’une aphasie associée justifierait la réalisation d’une imagerie cérébrale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un dosage du cuivre est nécessaire car le patient n’a pas d’antécédents familiaux de maladie de Parkinson</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un PET TDM cérébral serait utile au diagnostic dans ce contexte</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le diagnostic de la maladie de parkinson est un diagnostic clinique les examens complémentaires peuvent s'envisager chez le sujet jeune (&lt;40 ans)</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le diagnostic de la maladie de parkinson est un diagnostic clinique</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — vrai, l'aphasie est un signe de localisation non en faveur d'une maladie de parkinson débutante</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — faux, à discuter chez le sujet jeune &lt;40 ans pour maladie de wilson</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente de 60 ans est hospitalisée pour des paresthésies des membres inférieurs évoluant depuis 6 jours. Vous suspectez une polyradiculonévrite aigue. Quel(s) serai(en)t le(s) élément(s) en défaveur de ce diagnostic ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un déficit moteur des releveurs des pieds associé</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une paralysie faciale centrale droite associée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">213 éléments à prédominance lymphocytaire sur la ponction lombaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Des troubles de la déglutition associés</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une aphasie associée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — PF périphérique</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — pas de méningite dans le syndrome de guillain barré mais hyperprotéinorahcie : c'est la dissociation albumino cytologique</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — pas d'atteinte encéphalitique dans le guillain barré</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente de 25 ans est adressée aux urgences pour des céphalées inhabituelles. Quel(s) éléments(s) de l’interrogatoire et l’examen clinique seraient compatible(s) avec une hémorragie méningée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L’installation des céphalées en plusieurs jours</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une raideur méningée à l’examen clinique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une paralysie de l’abduction de l’œil droit à l’examen clinique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L’installation de troubles de la vigilance</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L’apparition d’une crise épileptique tonico-clonique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — typiquement : installation brutale en coup de tonnerre dans l'hémorragie méningiée</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Atteinte du 6 signe une HTIC</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente de 36 ans est adressée en consultation de neurologie par son médecin traitant pour un épisode de trouble de la marche survenu il y a 1 mois. Elle a pour antécédent un diabète de type 1 depuis l’âge de 16 ans, une dyslipidémie et un tabagisme actif. Elle est traitée par Insuline et Statines. Elle rapporte une faiblesse du membre inférieur gauche il y a 1 mois. Ce jour, l’examen clinique est normal. Quel(s) est (ou sont) la (ou les) réponse(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une installation brutale (&lt; 1h) des symptômes serait en faveur d’une sclérose en plaques</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une amélioration progressive (en plusieurs jours/semaines) de la parésie du membre inférieur gauche oriente davantage vers un accident vasculaire cérébral qu’une sclérose en plaques</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">Une résolution des symptômes en moins d’une heure serait en faveur d’un accident vasculaire cérébral transitoire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un antécédent de migraine chez la patiente orienterait vers un épisode d’aura migraineuse</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un signe de Lhermitte à l’interrogatoire pourrait vous orienter vers une lésion médullaire dorsale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — installation en quelques jours</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — amélioration progressive en plusieurs jours ou semaine dans les deux hypothèses</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — symptome moteur non typique d'une aura migraineuse (trouble du langage, troubles sensitifs, troubles visuels)</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — lésion médullaire cervicale</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente de 21 ans est hospitalisée en neurologie pour un bilan diagnostique. Elle présente une fatigabilité à la marche depuis 1 mois, un ptosis fluctuant de l’œil droit en fin de journée, et une diplopie à la lecture. Parmi les résultats paracliniques suivants, le(les)quel(s) serai(en)t compatible(s) avec une myasthénie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un incrément à la stimulodétection répétitive des muscles des membres inférieurs en électroneuromyographie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une IRM cérébrale normale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une prise de contraste spinale sur l’IRM médullaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La présence d’un thymus hyperplasique sur la TDM thoracique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La présence d’une hyperplasie des surrénales sur la TDM abdominal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Madame A, 55 ans, est hospitalisée pour une suspicion de méningite herpétique. Elle a pour antécédent une dysthyroïdie, et un cancer du sein traité il y a 5 ans. Quel(s) serai(en)t le (ou les) signe(s) clinique(s) de gravité ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une température &gt; 39°</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des marbrures des membres inférieurs</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une aphasie associée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une crise d’épilepsie partielle</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un score de Glasgow à 10</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — signes de gravité d'une méningite : purpura, atteinte encéphalique, instabilité hémodynamique</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — signe de gravité : instabilité hémodynamique</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — signe de gravité : atteinte encéphalitique</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — signe de gravité : atteinte encéphalitique</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — signe de gravité : atteinte encéphalitique</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente parkinsonienne de 68 ans vous est adressée car son membre supérieur gauche a des mouvements involontaires, brusques, anarchiques, la main partant en arrière. Les symptômes parkinsoniens sont bien soulagés par le traitement qu'elle prend depuis 6 ans.Elle ne parle pas français. Que pouvez-vous en conclure ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle a probablement un syndrome parkinsonien post-neuroleptique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle a probablement une maladie de Parkinson</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les symptômes parkinsoniens ont probablement débuté du côté gauche</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle a probablement des dyskinésies Dopa-induites de pic de dose</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle a probablement des dyskinésies Dopa-induites de début/fin de dose la patiente a une maladie de Parkinson qui répond bien au traitement par Levodopa qui induit des complications motrices Dopa-inbduites de type dyskinésies de milieu de dose ici car affectant le membre supérieur et survenant lorsque la patiente est soulagée par le traitement.Ces phénomène prédomine du côté où la maladie a débuté donc du côté gauche.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente de 78 ans est adressé par son médecin traitant pour des troubles mnésiques évoluant depuis 3 ans. Cliniquement, vous constatez une désorientation temporo spatiale, des troubles du langage, et des troubles mnésiques de type hippocampique. Concernant la démarche diagnostique quel(s) est (ou sont) la (ou les) réponse(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Réalisation d’une IRM cérébrale en première intention</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Réalisation d’une ponction lombaire en première intention</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Réalisation d’un bilan sanguin avec dosage de la TSH</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Réalisation d’un bilan sanguin avec dosage de la protéine Tau hyperphosphorylée et bêta-amyloïde</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Réalisation d’une sérologie de Lyme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'IRM cérébral est indispensable pour le bilan des troubles neurocognitifs, notamment pour éliminer un diagnostic différentiel aux maladies neurodégénratives</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les marqueurs de la maladie d'Alzheimer sont dosés dans le LCR</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — seulement en cas de contexte évocateur</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 52 ans est adressé aux urgences pour des céphalées fébriles évoluant depuis 48 heures. Cliniquement, vous constatez une raideur méningée, un ralentissement psychomoteur et une faiblesse de l’hémicorps droit. Concernant la réalisation de la ponction lombaire, quel(s) est (ou sont) la (ou les) réponse(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Dans ce contexte, une antibiothérapie probabiliste doit être commencée avant la réalisation de la ponction lombaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Dans ce contexte, une TDM cérébrale doit être réalisée avant la réalisation de la ponction lombaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">En cas de thrombopénie à 100 000/mm3, la ponction lombaire sera contre indiquée</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La ponction lombaire est inutile, la raideur méningée fébrile permet le diagnostic de méningite infectieuse</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La présence d’une méningite à prédominance lymphocytaire associée à une hyperprotéinorachie serait compatible avec une listériose</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — oui car l'hémiparésie droite est un signe de localisation, l'imagerie est nécessaire avant la PL pour s'assurer de l'absence de risque d'engagement cérébral</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — PL contre indiquée si thrombopénie &lt; 50 000</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 40 ans est adressé aux urgences par les pompiers pour une perte de connaissance sur son lieu de travail. Il n’a pas d’antécédent. Cliniquement, il est Glasgow 15, il présente une morsure de langue et des courbatures. Il ne se souvient pas avoir été pris en charge par les pompiers. L’examen neurologique est normal. Les constantes sont normales. Son collègue, qui l’accompagne, rapporte l’avoir vu tomber, et avoir observer une raideur des 4 membres. Concernant la conduite à tenir aux urgences, quel(s) est(ou sont) la (ou les) réponse(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une IRM cérébrale doit être réalisée en urgence</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un TDM cérébral doit être réalisé en urgence</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un EEG doit être réalisé dans les 24-48 heures</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un traitement anti épileptique doit être débuté dans l’hypothèse d’une première crise épileptique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un ECG doit être réalisé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Une imagerie cérébrale doit être réalisé en urgence, TDM en première intentionUne IRM cérébrale sera nécessaire dans le bilan étiologique par la suite, mais pas obligatoirement en urgence</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — pas d'indication à un traitement anti épileptique d'emblée en cas de première crise isolée. Le traitement se discute selon les résultats du bilan étiologique par la suite (EEG, IRM) chez les patients à haut risque de récidie</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — systématique en cas de perte de connaissance, même si suspicion de crise, le diagnostic différentiel est la syncope</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Madame R, 32 ans est amenée aux urgences pour troubles de la vigilance. Elle n’a pas d’antécédent connu et elle a été retrouvée par sa sœur à son domicile, au sol. Elle ne prend pas de traitements. Quel(s) est (ou sont) le (ou les) argument(s) en faveur d’un coma d’origine neurologique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une fièvre associée</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une installation brutale des troubles de la vigilance</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un score de Glasgow inférieur à 8</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Une asymétrie faciale à la manœuvre de Pierre Marie et Foix</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une respiration de type Cheyne-Stokes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Mme P vient aux Urgences car elle présente depuis la veille une hypoesthésie épicritique et thermo-algique des deux membres inférieurs. Elle a une faiblesse au testing moteur des deux membres inférieurs : psoas 4/5, tibial antérieur 4/5. Vous constatez aussi une ataxie à la marche. Quelles pourraient être vos hypothèses diagnostics ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un syndrome de Guillain Barré</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une compression médullaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une crise myasthénique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une polyneuropathie longueur dépendante</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un AVC ischémique sylvien droit</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — atteinte sensitivo-motrice rapidement progressive</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — possible On s'attend à avoir des ROT vifs et autres signes pyramidaux (BBK, Hoffmann etc...)</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'atteinte ne devrait être que motrice</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — non car depuis la veille et atteinte proximale peu compatible</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — non car pas hémicorporelG comme attendu dans un AVC sylvien droit</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q16" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 50 ans est adressé aux urgences pour l’apparition d’une hémiparésie droite survenue il y a 3h, associée à une aphasie. Il est hypertendu et traité par Eliquis pour une fibrillation atriale. Il a une tension artérielle à 180/110 mmHg, une fréquence cardiaque à 52 par minute. Il est apyrétique. Vous suspectez un accident vasculaire cérébral, concernant la conduite à tenir aux urgences, quel(s) est (ou sont) la (ou les) réponse(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Réalisation d’une IRM cérébrale en urgence « alerte thrombolyse »</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Réalisation d’une thrombolyse en urgence car début des symptômes inférieur à 4h30</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Perfusion d’antihypertenseur intra veineux pour un objectif tensionnel &lt; 140/90 mmHg</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Réalisation d’un ECG</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Réalisation d’un EEG en urgence pour le diagnostic différentiel avec un déficit post critique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — imagerie cérébral indispensable thrombolyse se discute si AVC d'origine ischémique sur l'IRM</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'objectif tensionnel dépendra de l'origine du déficit moteur du patient&lt;140/90 si AVC hémorragique&lt;220/120 si AVC ischémique, &lt;180/110 si thrombolyse envisagée</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q17" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q17</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Monsieur H, 66 ans est hospitalisé en chirurgie orthopédique pour une fracture de hanche suite à une chute à domicile. Il est hypertendu, diabétique et a une consommation alcoolo-tabagique non sevré. La nuit, l’infirmière vous appelle car il est agité. Quels seraient les symptômes en faveur d’un delirium tremens ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des sueurs</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une aphasie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une tachycardie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des hallucinations visuelles</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un tremblement de repos des mains</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q18" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q18</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant une douleur faciale, quels seraient les arguments en faveur d’une algie vasculaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’existence d’une agitation motrice</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Douleur à type de décharge électrique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Durée de la douleur de 15 à 180min</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Douleur bilatérale typiquement à bascule chez un même patient</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Rhinorrhée homolatérale Tableau 10.10. Critères diagnostiques ICHD-3 de l'algie vasculaire de la face.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">TCS1 — Diplopie</div>
+
+<div class="q" id="TCS1-Q1" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une femme de 62 ans consulte pour une diplopie.</div>
+<div class="stem">Si vous pensiez à une myasthénie Et que vous apprenez que la paralysie oculomotrice est non systématisée Quel est l'impact sur l'hypothèse?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div></div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez à une atteinte du III sur un anévrisme carotidien Que vous apprenez que la patiente n’a pas de mydriase Quel est l'impact sur l'hypothèse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — peu probable</div></div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez à une fistule carotido-caverneuse Et que vous apprenez que la patiente a une exophtalmie bilatérale Quelle est l'impact sur l'hypothèse?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — improbable</div><div class="note">Réponse(s) B également valorisée(s) par le jury.</div></div>
+</div>
+
+<div class="sect">mDP1 — Vertige et syndrome de Wallenberg</div>
+
+<div class="q" id="mDP1-Q1" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme C., 70 ans, est amenée à 12h par la Brigade des Sapeurs Pompiers de Paris au Service dAvicenne pour vertiges apparus dans la nuit vers 2-3h alors qu’elle se rendait aux toilettes. A l’interrogatoire, elle décrit des vertiges ressentis à la marche avec impossibilité du maintien de la station debout. Ces vertiges sont également décrits comme positionnels déclenchés à lerreurs à gauche, plutôt mieux à droit à l’épreuve du finger chase, et un discret déficit à gauche à l’épreuve des marionnettes.La patiente est hypertendue et asthmatique.</div>
+<div class="stem">Quelle(s) est(sont) votre(vos) principale(s) hypothèse(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Vertige paroxystique positionnel bénin</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">AVC territoire postérieure</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Névrite vestibulaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">AVC cérébelleux gauche</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Maladie de Ménière VPPB ca décrit comme positionnel par la patienteVertige associé à une atteinte cérébelleuse potentiellement lié à un événement vasculaire dans le territoire postérieur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — fossette postérieure</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une IRM cérébrale est demandée (cf images jointes avec Flair, Diffusion, ADC et T1 Gado). Quelle est désormais votre hypothèse ?</div>
+<div class="extra"><img src="data:image/jpeg;base64,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" style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">AVC cérébelleux gauche</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Névrite vestibulaire gauche</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Maladie de Ménière</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">AVC territoire rétro-olivaire gauche</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vertige paroxystique positionnel bénin</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) élément(s) recherché(s) à l'examen clinique appuie(nt) votre hypothèse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Myosis</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ptosis</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Exophtalmie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hémi-anesthésie face droite</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hémiparésie face gauche</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) est(sont) votre(vos) diagnostic(s) syndromique(s) ? Valide A. Syndrome cérébelleux gauche</div>
+<ul class="opts">
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Syndrome alterne</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Syndrome de Brown-Sequard.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Syndrome de pyramidal hémicorps gauche</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Syndrome de Wallenberg le syndrome de Wallenberg est par définition un syndrome alterne associant:- Vertige rotatoire- Céphalées postérieuresDu côté de la lésion : 1. Nystagmus2. Hémisyndrome cérébelleux (à prédominance statique)3. Signe de Claude-Bernard-Horner4. Hypo ou anesthésie de l’hémiface5. Paralysie de l’hémivoile du palais, de l’hémilarynx, et de la corde vocaleDu côté opposé à la lésion :1. Hémianesthésie nociceptive épargnant la face2. Hémianesthésie thermique épargnant la face</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) anomalie(s) sensitive(s) pouvez-vous objectiver dans le cadre de cet AVC mettant en jeu le territoire de l’artère de la fossette latérale du bulbe gauche, branche de l’artère cérébelleuse postéro-inférieure (PICA) gauche ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hémi hypo/anesthésie nociceptive droite épargnant la face</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hémi hypo/anesthésie nociceptive droite aux trois étages</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hémi hypo/anesthésie thermique gauche épargnant la face</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hémi hypo/anesthésie thermique droite aux trois étages</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Hypo/anesthésie de l’hémiface gauche Hypoesthésie/anesthésie thermo-algique de l'hémiface homolatérale à la lésion et de l'hémicorps controlatérale épargnant l'hémiface controlatérale.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Suite au bilan réalisé durant son hospitalisation, il a été mis en évidence l’origine athéromateuse de cet AVC. Quelle a été votre prise en charge thérapeutique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Mise en route d’un anti-thrombotique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Mise en route d’un traitement anticoagulant</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Réalisation d’une thrombolyse</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Mise en place de séances de kinésithérapie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Surveillance de la déglutition origine athéromateuse en contexte d'HTA donc antiagrégant plaquettaire, pas d'anticoagulation; hors délai thrombolyse et thrombectomie même si possible</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Troubles mnésiques et maladie d'Alzheimer</div>
+
+<div class="q" id="KFP1-Q1" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mr D. 76 ans est amené par son épouse pour des troubles de la mémoire et du comportement évoluant progressivement depuis 6 mois. Elle a constaté qu’il perd souvent ses affaires, est plus irritable et répète souvent les mêmes questions. Il n’a pas d’antécédents particuliers en dehors d’une HTA traitée par betabloquants. Dans les antécédents familiaux, on note une maladie d’Alzheimer chez sa grand-mère maternelle diagnostiquée lorsqu’elle avait 80 ans. Il n’y a par ailleurs pas d’altération de l’état général. L’examen physique neurologique est normal.</div>
+<div class="stem">Devant ce tableau, que pouvez-vous évoquer ? (maxi 4 réponses)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une dépression</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une maladie d’Alzheimer</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un fécalome</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">une démence frontotemporale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">une tumeur cérébrale</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Un AVC ischémique</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Une infection urinaire</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">une méningite tuberculeuse</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">une thrombose veineuse cerebrale</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">une maladie de parkinson</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">une hydrocéphalie à pression normale</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">une hémorragie méningée</span></li>
+<li class="opt" data-l="M" data-correct="0"><span class="box">M</span><span class="otext">aucune des hypothèses précédentes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">M.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="ACEI" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le MMS est à 22/30 (perte de 3 points pour le rappel des mots, et de 5 points pour l’orientation). Le patient n’exprime pas de tristesse de l’humeur, mais la femme du patient vous dit qu’il pleure souvent. Quelle est votre attitude ? (maxi 4 réponses)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Vous prescrivez une IRM cérébrale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous prescrivez une ponction lombaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous prescrivez un bilan neuropsychologique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vous prescrivez une scintigraphie cérébrale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vous prescrivez un dosage sanguin de la TSH</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Vous prescrivez un dosage sanguin de la protéine tau</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Vous prescrivez un Electroencéphalogramme</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Vous ne proposez pas d’examen complémentaire</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Vous prescrivez un traitement antidépresseur</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Vous prescrivez un neuroleptique</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Vous prescrivez un anti-épileptique</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Aucune des réponses</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E, I</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="BEGH" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un diagnostic de maladie d’Alzheimer est finalement posé. Quelle est votre prise en charge ? (maxi 4 réponses)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hospitalisation en Urgences</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Prise en charge à 100%</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Mise sous tutelle</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Institutionnalisation</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Rééducation orthophonique</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Déclaration obligatoire de la maladie</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Soutien psychologique</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Soutien de l’aidant</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Traitement par benzodiazépines</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Recherche génétique</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Mise sous neuroleptique</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Aucune des réponses</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E, G, H</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP2 — Syndrome médullaire / queue de cheval</div>
+
+<div class="q" id="mDP2-Q1" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mlle P., 28 ans, vous consulte en urgences pour des fourmillements et des douleurs ayant débuté aux pieds il y a 3 jours, et touchant maintenant l’ensemble des membres inférieurs. Elle a également une faiblesse des membres inférieurs qui s’est progressivement aggravée depuis 3 jours. Elle ne prend pas de traitement particulier en dehors d’une contraception par Minidril® (Ethinylestradiol + Levonorgestrel).</div>
+<div class="stem">Quelle(s) est(sont) votre(vos) principale(s) hypothèse(s) topographique(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Polyradiculonévrite aigue</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Syndrome cérébelleux</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Syndrome médullaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Syndrome de la queue de cheval</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Mononeuropathie multiple</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q2" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Que devez-vous absolument chercher à l’examen clinique pour affiner votre/vos hypothèse(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">un globe urinaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">une abolition des ROT</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">un syndrome parkinsonien</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">une anesthésie en selle</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">un tremblement cinétique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q3" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP2 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Votre examen met en évidence des réflexes vifs et diffusés aux membres inférieurs avec un signe de Babinski bilatéral. Il existe un déficit moteur touchant les membres inférieurs de manière symétrique (triceps sural, jambiers antérieurs et quadriceps à 4/5, psoas à 3/5) et des troubles sensitifs remontant jusqu’à l’ombilic. Quel est votre diagnostic syndromique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Syndrome de la queue de cheval</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Syndrome alterne</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Syndrome de Guillain-Barré</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Syndrome médullaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Syndrome de Brown Sequard.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="mDP2-Q4" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) examens(s) complémentaire(s) demandez-vous en urgence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">IRM cérébrale</span></li>
+<li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">IRM médullaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Electromyogramme</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Ponction lombaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Potentiels évoqués sensitifs et moteurs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q5" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente décrit une douleur en ceinture thoracique (environ au niveau des mamelons). A quoi pensez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Un syndrome lésionnel niveau D4</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un syndrome lésionnel niveau D6</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un syndrome lésionnel niveau D8</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un syndrome sous lésionnel</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un syndrome sus lésionnel</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">DP1 — Traumatisme du rachis cervical et tétraparésie</div>
+
+<div class="q" id="DP1-Q1" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous êtes médecin du sport de l’équipe de rugby féminine de Bobigny, et pendant la surveillance d’un match, vous intervenez pour un cas traumatisme cervical chez une joueuse de 18 ans de votre équipe. Lors d’un plaquage cathédral non autorisé, votre joueuse n’a pu bien se réceptionner, et sa tête a heurté violemment le sol. Après un rapide examen, vous appelez le 15 car vous suspectez un traumatisme grave du rachis cervical. Vous l’accompagnez et réalisez un premier examen clinique. Vous êtes alerté car elle décrit des paresthésies dans les 4 membres.</div>
+<div class="stem">Quelle(s) est (sont) la (les) proposition(s) correcte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Votre score ASIA initial évaluera les déficiences</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une paralysie entre C7 et T1 entrainera une perte du réflexe bicipital</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un scanner du rachis lombaire est à réaliser en urgence</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vous demandez à la patiente si elle réussit à uriner</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une abolition d’un réflexe ostéo tendineux est de bon pronostic</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suspectez une tétraparésie, et elle présente cliniquement une rétention aigue d’urine. L’abduction d’épaule est possible contre résistance légère, la flexion de bras également, il existe une extension du bras contre pesanteur et la flexion du IIIe doigt est impossible.Quelle(s) est (sont) la (les) proposition(s) correcte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L’abduction d’épaule et la flexion de bras sont cotées à 5/5</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L’extension du bras est cotée à 1</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous vous attendez à une abolition du réflexe crémastérien</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La rétention d’urine est une déficience</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ne pas pouvoir réaliser des auto-sondages est une restriction de participations</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Durant son séjour en neurochirurgie, elle a malheureusement développé une escarre talonnière.Parmi les propositions suivantes, la ou lesquelles est(sont) une(des) complications chronique(s) du décubitus ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L’hypertension artérielle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La rétraction Capsulo ligamentaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’ostéoporose</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L’hypertrophie musculaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le reflux gastro œsophagien</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suivez son évolution, après une prise en charge initiale en neurochirurgie, elle a pu récupérer une partie de sa motricité des membres inférieurs et supérieurs, et est donc transférée en centre de rééducation de MPR.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Get-up and Go test</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le SCAT 5</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">MOCA</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Cotton test</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Test des 6 minutes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">A sa sortie d’hospitalisation, elle devra poursuivre une rééducation avec un kinésithérapeute en ville. Concernant la prescription de kinésithérapie, quelle(s) est (sont) la (les) proposition(s) correcte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La fréquence des séances peut figurer sur l'ordonnance</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le diagnostic doit figurer sur l'ordonnance</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les techniques utilisées sont au libre choix du kinésithérapeute</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le nombre total de séance doit figurer sur l'ordonnance</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les principaux objectifs de rééducation doivent figurer sur l'ordonnance</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) restriction(s) de participation pourrait-elle présenter ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Limitation de la marche</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Chutes du fait de son déficit moteur</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Impossibilité de conduire un véhicule</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Impossibilité de pratiquer son sport</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Difficultés à cuisiner</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">DP2 — Sclérose en plaques et perte d'autonomie</div>
+
+<div class="q" id="DP2-Q1" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez dans votre service Mme M, 53 ans, suivie pour une sclérose en plaque, qui à la suite de sa dernière poussée a subi une perte majeure d’autonomie, avec notamment un déficit moteur du membre inférieur droit, des troubles de l’équilibre et de la coordination. Elle vit seule à son domicile, en pavillon, avec 4 marches d’escaliers pour y accéder. Elle travaille en tant que professeure des écoles et tient particulièrement à conserver une activité professionnelle pour sa santé mentale. Actuellement elle a besoin d’une aide humaine pour ses transferts et sa toilette.</div>
+<div class="stem">Concernant le risque d’escarre chez cette patiente, parmi les propositions suivantes, la ou lesquelles est/sont correcte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il est nécessaire d’évaluer le risque d’escarre chez cette patiente avec l’aide de l’échelle de Rankin</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L’apparition d’une phlyctène cutanée signe une escarre de stade 3</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">En cas d’immobilité stricte, une escarre apparait généralement après 24h</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un traitement par corticoïdes favorise l’apparition d’une escarre</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un pansement hydrocolloïde peut être nécessaire en cas d’apparition d’une hyperhémie cutanée persistante</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q2" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, la ou lesquelles peut/peuvent être des limitations d’activités pour cette patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Perte d’autonomie aux transferts</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Constipation</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Douleur neuropathique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Perte de la conduite</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Incapacité à se rendre sur son lieu de travail</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q3" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous souhaitez faire intervenir un ergothérapeute lors de son séjour dans votre service. Parmi les missions suivantes, la ou lesquelles est/sont attribuée(s) à l’ergothérapeute ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Rééducation des troubles de la déglutition</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Installation, positionnement du patient</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bilan et rééducation des troubles des fonctions supérieurs</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Réadaptation à l’effort</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Visite du domicile pour adaptation de l’espace</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q4" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après plusieurs semaines passées dans votre service, elle garde comme séquelle une spasticité du membre inférieure droit. Concernant le testing de la spasticité, quelles sont les échelles adaptées à l'évaluation de celle -ci ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">A. Échelle de Tardieu</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Échelle de Waterloo</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Échelle de Barthel</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Échelle de Lequesne</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Échelle d'Ashworth modifiée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q5" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente vous questionne sur la possibilité de reprendre son travail à sa sortie d’hospitalisation. Quel(s) conseil(s) pouvez-vous lui donner ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Sachant qu’elle souhaite utiliser son véhicule, vous en informerez le médecin de la préfecture</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il n’y a pas nécessité de repasser son examen théorique du permis de conduire si celle-ci détient déjà son permis B</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle peut bénéficier de la reconnaissance de travailleur handicapé si elle en fait la demande à la sécurité sociale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle peut bénéficier de l’attribution d’aides financières grâce à l’AGEFIPH</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous calculerez son score GIR pour qu’elle puisse bénéficier de l’APA</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  let pts=qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+</body></html>
