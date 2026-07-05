@@ -286,38 +286,51 @@ def _check_broken_words(plain_text: str) -> list[dict]:
     return findings
 
 
+# Détecte une question qui ANNONCE une image. Bidirectionnel : l'imagerie peut
+# précéder OU suivre « ci-dessous/ci-après/ci-joint », et on reconnaît aussi « cf
+# image », « images jointes », « voici … ». Le nom d'imagerie reste obligatoire
+# pour éviter les faux positifs (« constantes sont les suivantes », etc.).
+_IMAGING = (
+    r"(radiographie|scanner|tdm|tep|irm|ecg|électrocardiogramme|angio"
+    r"|coupe|cliché|iconographie|imagerie|image|figure|photo|schéma|fond d.?œil|rx\b)"
+)
+IMAGE_EXPECTED_RE = re.compile(
+    rf"{_IMAGING}[^.!?]{{0,120}}(est (?:la|le|l.) suivante?|sont les suivants?)\s*:"
+    rf"|ci[- ]?(?:dessous|apr[èe]s|contre|joints?|jointe?s?)[^.!?]{{0,90}}{_IMAGING}"
+    rf"|{_IMAGING}[^.!?]{{0,90}}ci[- ]?(?:dessous|apr[èe]s|contre|joints?|jointe?s?)"
+    rf"|cf\.?\s*(?:image|images|photo|figure|cliché|iconographie)"
+    rf"|images?\s+jointes?"
+    rf"|voici[^.!?]{{0,40}}{_IMAGING}",
+    re.I,
+)
+
+
 def _check_image_placement(soup) -> list[dict]:
-    """Détecte les questions dont le stem attend une image mais n'ont pas de <div class="extra">."""
+    """Questions qui annoncent une image (stem OU contexte dpctx) sans <div class="extra">."""
     if soup is None:
         return []
-    # Détecte un nom d'imagerie médicale suivi (dans la même phrase) de "est la/le suivant(e)"
-    # OU "ci-dessous" suivi d'un nom d'imagerie médicale.
-    # Le nom d'imagerie est obligatoire pour éviter les faux positifs sur
-    # "constantes sont les suivantes" ou "paramètres vitaux sont les suivants".
-    _IMAGING = (
-        r"(radiographie|scanner|tdm|tep|irm|ecg|électrocardiogramme"
-        r"|coupe|cliché|image|figure|photo|schéma|rx\b)"
-    )
-    IMAGE_EXPECTED_RE = re.compile(
-        rf"{_IMAGING}[^.!?]{{0,120}}(est (?:la|le|l') suivante?|sont les suivants?)\s*:"
-        rf"|ci[- ]?dessous[^.!?]{{0,80}}{_IMAGING}",
-        re.I
-    )
     findings = []
     for q in soup.select(".q"):
-        stem_el = q.select_one(".stem")
-        if not stem_el:
+        if q.select_one(".extra"):
             continue
-        stem_text = stem_el.get_text(" ", strip=True)
-        if IMAGE_EXPECTED_RE.search(stem_text) and not q.select_one(".extra"):
+        # On scanne l'énoncé ET le contexte clinique : une consigne « cf image …
+        # ci-dessous » vit souvent dans le dpctx de la 1re question d'un DP.
+        parts = []
+        for sel in (".stem", ".dpctx"):
+            el = q.select_one(sel)
+            if el:
+                parts.append(el.get_text(" ", strip=True))
+        text = " ".join(parts)
+        if text and IMAGE_EXPECTED_RE.search(text):
             qid = q.get("id", "?")
-            snippet = stem_text[:70] + ("…" if len(stem_text) > 70 else "")
+            snippet = text[:80] + ("…" if len(text) > 80 else "")
             findings.append({
                 "level":   "warning",
                 "code":    "IMAGE_MISSING",
                 "message": (
-                    f"[{qid}] Le stem attend une image (\"…{snippet}…\") "
-                    "mais <div class=\"extra\"> absent — image peut-être déplacée dans la question suivante."
+                    f"[{qid}] Le texte annonce une image (\"…{snippet}…\") "
+                    "mais <div class=\"extra\"> absent — image manquante à l'extraction "
+                    "ou déplacée dans une question voisine."
                 ),
             })
     return findings
