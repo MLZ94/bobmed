@@ -14,17 +14,50 @@ Ne jamais inclure de lien vers la session Claude dans les commits, PR, commentai
 ## Structure du site
 
 ```
-index.html           ← page d'accueil (blocs D1 et D2, source de vérité pour la navigation)
-annales/index.html   ← portail annales D1 (UE 1.1, UE 3, UE 9.2, UE 9.3 — pas de subdivision par trimestre)
-annales/Quiz_*.html  ← quiz D1 (toutes UE confondues, session normale/rattrapage)
-exercices/           ← entraînement par thème (biostat UE 1.1), hors trimestre
-microbiologie/       ← portail + fiches + quiz UE3 (révisions transversales), hors trimestre
-numerique/           ← quiz numérique biostat, hors trimestre
-d2/tN/index.html     ← portail du trimestre N de D2 (N = 1 à 4)
-d2/tN/Quiz_*.html    ← quiz UE de D2-TN, fichier physique dans le dossier du trimestre
+index.html                    ← page d'accueil (blocs D1 et D2, source de vérité pour la navigation)
+breadcrumb.js                 ← fil d'Ariane universel (cf. « Assets JS globaux » plus bas)
+dynamic-header.js             ← header sticky qui se masque au scroll (idem)
+favicon.svg                   ← favicon du site, référencé par toutes les pages
+.nojekyll                     ← désactive le traitement Jekyll de GitHub Pages (site 100% statique)
+.github/workflows/deploy.yml  ← déploie sur GitHub Pages à chaque push sur `main` (cf. « CI/déploiement »)
+Makefile, *.py                ← outillage Python de génération/validation des quiz (cf. « Outillage Python »)
+
+annales/index.html            ← portail annales D1 (UE 1.1, UE 3, UE 9.2, UE 9.3 — pas de subdivision par trimestre)
+annales/Quiz_*.html           ← quiz D1 (toutes UE confondues, session normale/rattrapage)
+exercices/                    ← entraînement par thème (biostat UE 1.1), hors trimestre
+microbiologie/index.html      ← portail microbiologie (fiches + quiz UE3, révisions transversales), hors trimestre
+microbiologie/Fiche_*.html    ← fiches de cours — PAS des quiz, pas de moteur de notation, images en fichiers externes
+microbiologie/Quiz_*.html     ← quiz UE3/microbiologie — mêmes conventions que les autres quiz (images en base64)
+microbiologie/assets/<sujet>/ ← images sources des Fiche_*.html de ce sujet (fig01_xxx.png…), référencées en
+                                <img src="assets/<sujet>/figNN.png"> — jamais en base64 pour les fiches
+numerique/                    ← quiz numérique biostat, hors trimestre
+
+d2/tN/index.html                       ← portail du trimestre N de D2 (N = 1 à 4)
+d2/tN/Quiz_*.html                      ← quiz UE de D2-TN, fichier physique dans le dossier du trimestre
+d2/tN/entrainement/index.html          ← portail d'entraînement par item R2C/EDN (existe pour t1 et t4 à ce jour ;
+                                         peut être créé pour t2/t3 si l'utilisateur le demande)
+d2/tN/entrainement/Quiz_itemNNN_*.html ← quiz d'entraînement par item (ex. `Quiz_item209_bpco.html`), hors session
+                                         d'examen — même gabarit HTML/CSS/JS que les annales
 ```
 
 **IMPORTANT — D1 n'a PAS de sous-dossiers de trimestre** (`d1/t1/`, `d1/t2/`, etc. n'existent pas et ne doivent pas être créés). Toutes les annales D1 vivent à plat dans `annales/`. Seul **D2** est subdivisé par trimestre (`d2/t1/` à `d2/t4/`).
+
+### Assets JS globaux (`breadcrumb.js`, `dynamic-header.js`)
+
+Deux scripts JS partagés (racine du dépôt), à inclure via une balise `<script src="...">` juste avant `</body>` sur toute page qui en a besoin — **jamais copiés/collés dans le fichier**, toujours chargés en externe. Le chemin relatif dépend de la profondeur du fichier :
+
+| Profondeur | Exemple de dossier | Chemin à utiliser |
+|---|---|---|
+| 1 niveau | `annales/`, `microbiologie/`, `exercices/`, `numerique/` | `../breadcrumb.js` |
+| 2 niveaux | `d2/tN/` | `../../breadcrumb.js` |
+| 3 niveaux | `d2/tN/entrainement/` | `../../../breadcrumb.js` (idem pour `dynamic-header.js`) |
+
+- `breadcrumb.js` : injecte le fil d'Ariane (et son CSS, une seule fois par page) ; sur les portails ayant déjà un fil statique, n'injecte que le CSS pour éviter un doublon.
+- `dynamic-header.js` : masque le `<header>` sticky au défilement vers le bas, le réaffiche vers le haut/en haut de page ; ne fait rien sur une page sans `<header>` (page d'accueil, portails de trimestre). Aucune dépendance, aucun effet de bord si absent.
+
+### CI/déploiement
+
+`.github/workflows/deploy.yml` déploie l'intégralité du dépôt sur GitHub Pages à chaque `push` sur `main` (job unique, `actions/deploy-pages`, timeout 10 min, `cancel-in-progress` activé). Aucune étape de build : le site est servi tel quel, d'où l'exigence de zéro build system rappelée en introduction. Un push sur une autre branche ne déclenche **aucun** déploiement.
 
 ### Table de correspondance UE ↔ trimestre D2 (page d'accueil = source de vérité)
 
@@ -454,10 +487,16 @@ Le texte des énoncés, données cliniques et items doit être **rigoureusement 
 
 ## Images
 
+**Quiz (annales, entraînement, numérique)** — convention unique, ne jamais en dévier :
 - Extraire avec PyMuPDF (`fitz`) depuis les PDF sources
-- Encoder en base64 JPEG et embarquer directement dans le HTML
+- Encoder en base64 JPEG et embarquer directement dans le HTML (fichier 100% autonome, cf. « Contexte général »)
 - Placer dans `<div class="extra"><img src="data:image/jpeg;base64,…" style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>`
 - Positionner après `<div class="stem">` et avant `<ul class="opts">`
+
+**Fiches de cours (`microbiologie/Fiche_*.html` uniquement)** — convention différente et volontaire (fiches réutilisées/éditées plus souvent que les quiz, mieux servies par des fichiers externes que par du base64 qui alourdirait le fichier) :
+- Images en **fichiers PNG externes** dans `microbiologie/assets/<sujet>/` (une sous-arborescence par fiche), jamais en base64
+- Référencées par chemin relatif classique : `<img src="assets/<sujet>/fig01_xxx.png">`
+- Ne jamais convertir une image de fiche en base64, ni inversement encoder une image de quiz en fichier externe — les deux conventions sont intentionnellement distinctes selon le type de page.
 
 ---
 
@@ -476,24 +515,100 @@ Le texte des énoncés, données cliniques et items doit être **rigoureusement 
 
 ---
 
+## Outillage Python (scripts du dépôt)
+
+Cinq scripts Python vivent **à la racine du dépôt** (`pdf_to_quiz.py` y compris — ce n'est pas un outil externe à l'utilisateur, il est versionné comme le reste). Tous s'exécutent en local avec `python3 script.py ...` ; aucun n'est un service réseau. Un `Makefile` enchaîne les plus utilisés en pipeline (cf. « Pipeline Makefile » plus bas). Il n'existe pas de `requirements.txt` : installer les dépendances au besoin via `pip install <paquet>` — chaque script tolère l'absence d'une dépendance optionnelle et l'indique par un message explicite plutôt qu'un crash.
+
+### Tableau récapitulatif
+
+| Script | Rôle | Dépendances | Obligatoire ? |
+|---|---|---|---|
+| `pdf_to_quiz.py` | Convertit une annale PDF en premier jet de quiz HTML (+ `.snippet.html` + `.debug.json` optionnel) | `pymupdf` (`import fitz`) | Oui — le script s'arrête (exit 1) si absent |
+| `validate_quiz.py` | Valide la structure d'un quiz HTML (13 points de la checklist ci-dessous, mécanisables) | `beautifulsoup4` (`bs4`) | Optionnel — désactive seulement le check de cohérence `data-correct`↔options |
+| `quiz_agent.py` | Compare le `.debug.json` (PDF parsé) au HTML final, signale les divergences ; les cas ambigus sont classés par Claude Haiku | `beautifulsoup4` **+** `anthropic` **+** `ANTHROPIC_API_KEY` | `beautifulsoup4` obligatoire (sinon `RuntimeError`) ; `anthropic`/clé API optionnels (utiliser `--no-api` sinon) |
+| `test_quiz.py` | Tests headless Playwright : verrouillage DP/KFP/TCS, déverrouillage, compteurs, revealall/reset | `playwright` (paquet Python + navigateur Chromium installé) | Oui — message d'erreur clair si absent |
+| `insert_snippet.py` | Insère le `.snippet.html` d'un quiz dans le bon portail (`index.html`), à la bonne position chronologique | Aucune (stdlib uniquement : `sys`, `re`, `argparse`, `pathlib`) | — |
+
+### Installation des dépendances
+
+```bash
+pip install pymupdf beautifulsoup4 anthropic playwright
+playwright install chromium        # télécharge le binaire Chromium (une seule fois par machine)
+export ANTHROPIC_API_KEY=sk-ant-...   # uniquement pour quiz_agent.py sans --no-api
+```
+
+Sur l'environnement distant BobMed (Claude Code on the web), Chromium est déjà pré-installé (`/opt/pw-browsers/chromium`) et `test_quiz.py` le détecte automatiquement (`_resolve_chromium()`) — `playwright install` n'y est ni nécessaire ni à relancer, seul `pip install playwright` suffit si le paquet manque.
+
+### Détail de chaque script
+
+**`pdf_to_quiz.py`** — `usage: pdf_to_quiz.py [-h] [--debug] [--strict] [--force] pdf`
+- Convertit une annale PDF (export type « Question N: (Type: ...) score/1 » avec cases ☐/☑ ou ◎/◉) en quiz HTML au gabarit de ce fichier.
+- Produit, à côté du PDF : `annale.html` (quiz prêt à publier), `annale.snippet.html` (carte à coller dans le portail), et avec `--debug` un `annale.debug.json` (structure intermédiaire parsée, consommé par `quiz_agent.py`).
+- `--strict` : exit 1 si des marqueurs `[A VERIFIER]` ou des ligatures PUA non résolues subsistent dans le HTML généré.
+- `--force` : autorise l'écrasement d'un fichier de sortie déjà existant (refusé par défaut, exit 2 — cf. point 5 de la checklist).
+- `UE_MAP` (constante en tête de fichier) fait le lien UE → dossier de destination ; c'est un miroir de la table « UE ↔ trimestre D2 » de ce même CLAUDE.md et de la constante du même nom dans `insert_snippet.py` — **garder les trois synchronisées** si l'une évolue.
+- **N'est pas une baguette magique** : ne jamais publier son résultat tel quel, toujours dérouler la checklist de relecture ci-dessous.
+
+**`validate_quiz.py`** — `usage: validate_quiz.py [-h] [--json] files [files ...]`
+- Remplace la relecture manuelle des points structurels/techniques de la checklist : marqueurs `[A VERIFIER]`, ligatures/PUA non résolues, piège `.wrap`/`.hwrap`, titres de section bruts (`DP1`, `KFP2`…), fusion de questions (en-tête `Question N: (Type:` fondu dans un bloc, lettre `data-l` en double, lettre répétée dans `data-correct`), cohérence `data-correct`↔options, image annoncée dans l'énoncé/le `dpctx` mais absente du HTML (code `IMAGE_MISSING`).
+- Accepte plusieurs fichiers ou un glob shell (`d2/t4/*.html`).
+- `--json` : sortie JSON seule (machine-readable).
+- Exit 0 = aucune erreur bloquante (avertissements tolérés, publication possible) ; exit 1 = au moins une erreur bloquante.
+- `make validate-all` le lance sur tous les `Quiz_*.html` du dépôt en une fois.
+
+**`quiz_agent.py`** — `usage: quiz_agent.py [-h] [--debug DEBUG_JSON] [--no-api] [--json] html`
+- Compare le `.debug.json` (produit par `pdf_to_quiz.py --debug`, auto-détecté dans le même dossier si `--debug` omis) au HTML final : `data-correct` incohérent avec les options « Valide » du PDF, divergences de texte (énoncé/intitulé d'option), types de question incorrects, réponses QROC manquantes/incomplètes.
+- Les divergences textuelles non triviales (dérive de ligature vs erreur réelle) sont envoyées à `claude-haiku-4-5-20251001` pour classification (~1 centime/quiz) — nécessite `ANTHROPIC_API_KEY`.
+- `--no-api` : vérifications mécaniques seules, sans appel API ; les divergences textuelles sont simplement listées pour relecture manuelle au lieu d'être classées automatiquement.
+- Exit 0 = rien détecté, 1 = au moins un problème détecté, 2 = erreur d'exécution (ex. `.debug.json` introuvable).
+
+**`test_quiz.py`** — `usage: test_quiz.py [-h] [--headed] files [files ...]`
+- Tests headless Playwright **réels** (un vrai Chromium piloté, pas de mock) : verrouillage initial des Q2+ de sections DP/KFP/TCS, déverrouillage après validation de la question précédente, compteurs `#s-done`/`#s-ok`, bouton « Tout révéler », bouton « Recommencer ».
+- `--headed` : ouvre un navigateur visible au lieu de headless (debug local).
+- Accepte plusieurs fichiers ou un glob.
+
+**`insert_snippet.py`** — `usage: insert_snippet.py [-h] [--portal INDEX_HTML] [--dry-run] snippet`
+- Lit le `.snippet.html` produit par `pdf_to_quiz.py` et insère la carte `<a class="qz">` dans le bon portail, à la bonne position chronologique par UE (cf. « Ordre de classement des annales » plus haut).
+- Détecte le portail cible via sa propre `UE_MAP` (miroir de celle de `pdf_to_quiz.py`) ; `--portal` force un portail explicite quand l'UE est ambiguë (ex. UE 3, D1 `annales/` vs D2 `d2/t2/`).
+- `--dry-run` : affiche ce qui serait fait sans modifier le portail.
+- Exit 1 si portail introuvable, UE ambiguë non résolue automatiquement, ou doublon détecté.
+
+### Pipeline Makefile
+
+```bash
+make validate F=chemin/vers/Quiz.html    # validate_quiz.py
+make agent    F=chemin/vers/Quiz.html    # quiz_agent.py (auto-ignoré si .debug.json/clé API absents)
+make test     F=chemin/vers/Quiz.html    # test_quiz.py
+make check    F=chemin/vers/Quiz.html    # validate + agent + test — barrière qualité complète avant publication
+make insert   F=chemin/vers/Quiz.html    # insert_snippet.py (bloqué si validate ou test échoue)
+make dry-run  F=chemin/vers/Quiz.html    # aperçu de l'insertion sans écrire
+make publish  F=chemin/vers/Quiz.html    # insert, puis rappelle les commandes git à lancer (commit/push manuels)
+make validate-all                        # validate_quiz.py sur tous les Quiz_*.html du dépôt
+make help                                # liste des commandes avec description
+```
+
+`F` est le chemin du quiz HTML ; le `.snippet.html` associé est déduit automatiquement (`.html` → `.snippet.html`). Le `git add`/`commit`/`push` reste toujours manuel (cf. « Commit + push » dans la checklist plus bas) — aucun Makefile target ne pousse sur le dépôt.
+
+---
+
 ## Intégration d'un quiz généré par `pdf_to_quiz.py` (checklist de relecture)
 
-L'utilisateur dispose d'un script local (`pdf_to_quiz.py`, hors dépôt) qui convertit une annale PDF en un premier jet de quiz HTML suivant le gabarit ci-dessus. Quand il fournit un `.html` issu de ce script (et éventuellement le `.snippet.html` associé), **ne jamais l'intégrer tel quel** — le script est un gain de temps, pas une garantie de justesse. Toujours dérouler cette checklist avant publication :
+`pdf_to_quiz.py` (racine du dépôt, cf. « Outillage Python » ci-dessus) convertit une annale PDF en un premier jet de quiz HTML suivant le gabarit de ce fichier. Que le `.html` vienne d'une exécution manuelle de l'utilisateur ou d'une génération à la demande, **ne jamais l'intégrer tel quel** — le script est un gain de temps, pas une garantie de justesse. Toujours dérouler cette checklist avant publication :
 
 ### Outillage automatisé (à lancer AVANT la relecture manuelle)
 
-Trois scripts du dépôt automatisent la majorité des points ci-dessous — les exécuter d'abord évite de relire à la main ce qui est mécanisable, et réserve l'attention (et les tokens) aux vrais points de jugement médical.
+`validate_quiz.py`, `quiz_agent.py` et `test_quiz.py` (détaillés ci-dessus) automatisent la majorité des points ci-dessous — les exécuter d'abord évite de relire à la main ce qui est mécanisable, et réserve l'attention (et les tokens) aux vrais points de jugement médical.
 
 ```bash
 make check F=chemin/vers/Quiz_UEx.x_AAAA-AAAA_S1.html   # = validate + agent + test
 ```
 
-| Script | Couvre les points | Rôle |
-|---|---|---|
-| `validate_quiz.py` | 1 (`[A VERIFIER]`), 2 (ligatures/PUA), 9 (`.wrap`/`.hwrap`), 3 (titres de section), cohérence `data-correct`↔options, **fusion de questions** (en-tête `Question N: (Type:` fondu dans un bloc, lettre d'option `data-l` en double, lettre répétée dans `data-correct`) | Contrôles **structurels/techniques**, 0 token, exit 1 si bloquant. |
-| `quiz_agent.py` | 2 (fidélité texte), 7 (`data-correct` vs options valides du PDF), types | Compare le **`.debug.json`** (produit par `pdf_to_quiz.py --debug`) au HTML ; divergences non triviales classées par Claude Haiku (~1 ct/quiz). Nécessite `ANTHROPIC_API_KEY` (sinon `--no-api`, divergences signalées pour relecture). |
-| `test_quiz.py` | 10 (verrouillage DP/KFP/TCS, déverrouillage, compteurs, révéler/recommencer) | **Test headless Playwright** réel, 0 token. |
-| `insert_snippet.py` | 11 (insertion portail, ordre chronologique par UE, footer) | `make insert` / `make publish`. |
+| Point de la checklist | Couvert par |
+|---|---|
+| 1 (`[A VERIFIER]`), 2 (ligatures/PUA), 9 (`.wrap`/`.hwrap`), 3 (titres de section), cohérence `data-correct`↔options, fusion de questions, 6 (image annoncée mais absente, code `IMAGE_MISSING`) | `validate_quiz.py` |
+| 2 (fidélité texte), 7 (`data-correct` vs options valides du PDF), types | `quiz_agent.py` |
+| 10 (verrouillage DP/KFP/TCS, déverrouillage, compteurs, révéler/recommencer) | `test_quiz.py` |
+| 11 (insertion portail, ordre chronologique par UE, footer) | `insert_snippet.py` (`make insert` / `make publish`) |
 
 Ces outils **ne remplacent pas** le jugement médical : les points 4 (placement UE/trimestre en cas d'ambiguïté), 6 (placement visuel des images), 8 (justifications collées), et l'exactitude médicale des corrections restent à valider par relecture. En cas de doute sur l'intégrité de l'annale, demander le PDF source (point 13).
 
@@ -502,7 +617,7 @@ Ces outils **ne remplacent pas** le jugement médical : les points 4 (placement 
 3. **Titres de section** : le script ne génère que le code brut (`DP1`, `KFP2`, `mDP1`…) sans intitulé médical. Ajouter le sujet clinique après le code (ex. `DP1 — Cancer du pancréas`), à déduire du contexte clinique (`dpctx`) de la question 1.
 4. **Placement UE/trimestre** : vérifier le dossier de destination proposé contre la table de correspondance ci-dessus. **UE 3 est ambiguë** (existe en D1 `annales/` ET en D2-T2 `d2/t2/`) — le script ne tranche jamais ce cas, décider selon le contexte (préfixe DFG = D1, DFA = D2, ou demander à l'utilisateur en cas de doute).
 5. **Nom de fichier** : convention `Quiz_UE{x.x}_{AAAA-AAAA}_{S1|S2}.html` (S1 = session normale, S2 = rattrapage), sauf session particulière nécessitant un suffixe dédié (ex. `_janvier`, comme pour UE3 D2-T2) — renommer si besoin. Le nom est **déduit du code d'épreuve** : deux annales différentes peuvent tomber sur le même nom (ex. session « BIS » de septembre mal rattachée à l'année suivante), ou le nom déduit peut heurter une annale déjà publiée. `pdf_to_quiz.py` **refuse désormais d'écraser** un fichier existant (exit 2) — relancer avec `--force` seulement si l'écrasement est bien voulu, sinon renommer d'abord.
-6. **Images** : le script associe chaque image détectée à la première question non pourvue de la même page PDF (heuristique best-effort). Vérifier visuellement que chaque image est sur la bonne question et bien positionnée (après `.stem`, avant `.opts`).
+6. **Images** : l'association image↔question se fait en 3 passes — (a) assignation **positionnelle** primaire (trie questions et images par page × ordonnée y sur tout le document, chaque image rejoint la question la plus récemment rencontrée — gère les illustrations étalées sur plusieurs pages) ; (b) **repli** sur une heuristique par page (première image de la page où démarre le texte de la question) si le comptage question/bloc PDF ne correspond pas (avertissement émis dans ce cas) ; (c) **correction post-hoc** : si une question dont l'énoncé/le `dpctx` annonce une image (« ci-dessous », « cf image », « … est la suivante : »…) n'en a reçu aucune alors que la question voisine en a une non attendue, l'image est déplacée vers la bonne question. Un **garde-fou final** signale (avertissement, jamais bloquant) toute question qui annonce encore une image sans en avoir reçu — cas typique d'une image non extractible (vectorielle/non bitmap, ou filtrée par la taille) : la récupérer alors à la main depuis le PDF source (PyMuPDF `page.get_pixmap()` sur la zone si `get_images()` ne la voit pas) et l'embarquer en base64. `validate_quiz.py` refait ce contrôle indépendamment de la génération. Vérifier dans tous les cas **visuellement** que chaque image est sur la bonne question et bien positionnée (après `.stem`, avant `.opts`).
 7. **TCS / QRU à réponses multiples acceptées** : quand plusieurs options sont marquées "Valide" dans le PDF, le script retient en priorité l'option cochée par l'étudiant source (si elle est valide), sinon la première option valide — ceci reste une heuristique. Vérifier que `data-correct` pointe vers la réponse la plus pertinente pédagogiquement, et que les alternatives sont bien mentionnées dans la `<div class="note">`.
 8. **Justifications collées aux intitulés d'options** : le PDF source colle souvent une justification entre parenthèses à la fin d'une option (ex. `Hépatite alcoolique (les transaminases ne dépassent jamais 10N...)`). Le script les sépare automatiquement en `<div class="note">` (fonction `split_trailing_paren`), sauf sigles/abréviations courts (`(DCI)`, `(AMM)`) ou valeurs biologiques (`(N < 40)`) volontairement laissés en place. Vérifier qu'aucune parenthèse-justification n'est restée collée au texte d'une option (`grep -oE '<span class="otext">[^<]*\([^<]*\)</span>'` sur le fichier — ne doit remonter que des sigles/valeurs légitimes) et que le rendu final est aussi lisible qu'un quiz rédigé à la main.
 9. **Piège `.wrap`/`.hwrap`** : le gabarit du script utilise déjà `.hwrap` dans le `<header>` — revérifier si le fichier a été édité manuellement depuis.
