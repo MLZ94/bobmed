@@ -987,7 +987,9 @@ def run(pdf_path, debug=False, strict=False, force=False):
     pages_images = []   # [(ext, data), …] par page — utilisé en fallback
     image_events = []   # (page, y, ext, data) — pour l'assignation positionnelle
     q_page_y = []       # (page, y) de chaque bloc "Question N: (Type:" dans le PDF
+    sec_page_y = []     # (page, y) de chaque marqueur "Element d'épreuve:" (frontière de section)
     _Q_BLOCK_RE = re.compile(r'Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type', re.IGNORECASE)
+    _SEC_BLOCK_RE = re.compile(r"Element\s+d'épreuve\s*:", re.IGNORECASE)
     for pno, page in enumerate(doc):
         page_texts.append(page.get_text())
         imgs = []
@@ -1029,6 +1031,8 @@ def run(pdf_path, debug=False, strict=False, force=False):
                 bt = "".join(s["text"] for ln in block["lines"] for s in ln["spans"])
                 if _Q_BLOCK_RE.search(bt):
                     q_page_y.append((pno, block["bbox"][1]))
+                if _SEC_BLOCK_RE.search(bt):
+                    sec_page_y.append((pno, block["bbox"][1]))
     doc.close()
 
     raw_first_page = page_texts[0] if page_texts else ""
@@ -1078,31 +1082,46 @@ def run(pdf_path, debug=False, strict=False, force=False):
             return p
 
         if image_events and len(q_page_y) == len(flat_q_ids):
-            # Approche positionnelle : trie toutes les questions et images par (page, y)
-            # et assigne chaque image à la question la plus récemment rencontrée.
-            # Cela gère : images sur la même page que la question, images sur des pages
-            # intermédiaires entières, et images en haut d'une page dont la question
-            # précédente commence sur une page antérieure.
-            events = []
-            for i in range(len(flat_q_ids)):
-                events.append((q_page_y[i][0], q_page_y[i][1], "q", i))
-            for pno, y, ext, data in image_events:
-                events.append((pno, y, "img", (ext, data)))
-            events.sort(key=lambda e: (e[0], e[1]))
+            # Assignation positionnelle SECTION-AWARE.
+            #
+            # Base : une image appartient à la question « active » = la dernière
+            # question dont l'en-tête « Question N: » précède l'image (par (page,
+            # y)). Gère les images placées après l'énoncé et celles étalées sur
+            # plusieurs pages.
+            #
+            # Correction de frontière de section (cause du décalage historique) :
+            # si un marqueur « Element d'épreuve: » (début de section) s'intercale
+            # ENTRE la question active et l'image, l'image n'appartient pas à la
+            # question active (= dernière question de la section précédente) mais à
+            # la 1re question de la nouvelle section — c'est l'illustration
+            # d'ouverture de section, affichée en haut de page avant le premier
+            # « Question N: ». Sans cette correction, l'image d'une 1re question
+            # (souvent une section verrouillée DP/KFP/mDP) atterrissait sur la
+            # dernière question de la section d'avant.
+            def owner_for_image(ipos):
+                active, active_pos = -1, (-1, -1)
+                for i in range(len(q_page_y)):
+                    if q_page_y[i] <= ipos and q_page_y[i] > active_pos:
+                        active, active_pos = i, q_page_y[i]
+                sec_between = [s for s in sec_page_y if active_pos < s <= ipos]
+                if sec_between:
+                    last_sec = max(sec_between)
+                    cands = [(q_page_y[i], i) for i in range(len(q_page_y)) if q_page_y[i] > last_sec]
+                    if cands:
+                        return min(cands)[1]  # 1re question après le marqueur de section
+                return active
 
-            current_q_idx = -1
-            for _, _, etype, data in events:
-                if etype == "q":
-                    current_q_idx = data
-                elif etype == "img" and current_q_idx >= 0:
-                    qid = flat_q_ids[current_q_idx]
-                    ext, img_data = data
-                    b64 = base64.b64encode(img_data).decode("ascii")
-                    img_html = (
-                        f'<div class="extra"><img src="data:image/{ext};base64,{b64}" '
-                        f'style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>\n'
-                    )
-                    images_by_qid[qid] = images_by_qid.get(qid, "") + img_html
+            for pno, y, ext, img_data in image_events:
+                owner = owner_for_image((pno, y))
+                if owner < 0:
+                    continue
+                qid = flat_q_ids[owner]
+                b64 = base64.b64encode(img_data).decode("ascii")
+                img_html = (
+                    f'<div class="extra"><img src="data:image/{ext};base64,{b64}" '
+                    f'style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>\n'
+                )
+                images_by_qid[qid] = images_by_qid.get(qid, "") + img_html
         else:
             # Fallback (PyMuPDF ancien ou écart de comptage) : une image par question,
             # sur la page où commence le texte de la question.
