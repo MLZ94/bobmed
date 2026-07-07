@@ -1,0 +1,853 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<title>Quiz — UE 7.1 — Pneumologie · Sujet type</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style><style id="dk">
+html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8;--acc2:#22d3ee;--acc3:#a78bfa;--d1:#818cf8;--d2:#22d3ee}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark header{background:rgba(14,17,23,.95)!important}
+html.dark .dpctx{background:#1e1b4b!important;border-color:#312e81!important;color:#c7d2fe!important}
+html.dark .note{background:#1c1002!important;border-color:#78350f!important;color:#fde68a!important}
+html.dark .note .rappel{color:#fde68a}
+html.dark .qrocin{background:#1a1d27!important;border-color:var(--line)!important;color:var(--ink)!important}
+html.dark .opt.sel{background:#1e1b4b}
+html.dark .xlink{background:#0f2a1e!important;border-color:#1a4a35!important;color:#6ee7b7!important}
+html.dark .b-quiz{background:#1e1b4b!important}
+html.dark .b-fiche{background:#0c2d35!important}
+html.dark .block.green .badge{background:#1e1b4b!important}
+html.dark .block.blue .badge{background:#0c2d35!important}
+html.dark .block.purple .badge{background:#2d1b4b!important}
+html.dark .block.amber .badge{background:#0d2c30!important}
+html.dark .year-badge.d1{background:var(--d1)}
+html.dark .year-badge.d2{background:var(--d2)}
+html.dark .q.done{border-color:#374151}
+html.dark .qz:hover{border-color:var(--acc)}
+html.dark a.card:hover{border-color:var(--acc)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 7.1 — Pneumologie · Sujet type (synthèse des annales 2022-2024)</h1>
+<div class="sub">35 questions : DP1 hémoptysie révélant un cancer bronchique (8, verrouillé) · KFP1 détresse respiratoire aiguë et pneumothorax compressif (4, verrouillé) · mDP1 BPCO : exacerbation et suivi (6, verrouillé) · SQI1 (17). 31 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/35</b></span>
+<span class="pill">Score : <b id="s-ok">0/31</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n'est pas une annale réelle. C'est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d'UE 7.1 (2022-2024, cf. section « Annales officielles » ci-dessous pour les sujets réels). Objectif : réviser en priorité le contenu à plus fort rendement avant l'examen.
+</div>
+
+<div class="sect">DP1 — Hémoptysie révélant un cancer bronchique</div>
+
+<div class="q" id="DP1-Q1" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. D., 58 ans, tabagique à 40 paquets-années non sevré, consulte aux urgences pour une hémoptysie de faible abondance évoluant depuis 2 jours, sans douleur thoracique, apyrétique. SpO2 à 96% en air ambiant, constantes hémodynamiques normales.</div>
+<div class="stem">Concernant l'estimation clinique de l'abondance de cette hémoptysie, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un demi-crachoir de sang correspond à environ 50 mL</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un haricot plein correspond à environ 500 mL</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une cuillère à soupe de sang correspond à environ 5 mL</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La gravité d'une hémoptysie se juge avant tout sur son retentissement hémodynamique (choc hypovolémique)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un choc hypovolémique est une complication fréquente, même pour une hémoptysie de faible abondance</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la gravité d'une hémoptysie se juge avant tout sur son retentissement respiratoire (SpO2, dyspnée), le retentissement hémodynamique direct étant exceptionnel.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les principaux diagnostics différentiels à rechercher à l'interrogatoire devant une authentique hémoptysie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une épistaxis déglutie, saignement d'origine ORL</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une hématémèse lors d'un effort de vomissement</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un saignement gingival</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une émission de sang par la bouche lors d'un effort de toux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — c'est la définition même de l'hémoptysie, pas un diagnostic différentiel.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen d'imagerie demandez-vous en première intention devant cette hémoptysie ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : angioscanner thoracique (TDM thoracique injectée)</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le scanner thoracique injecté objective une masse spiculée de 3 cm du lobe supérieur droit associée à des adénopathies médiastinales, sans épanchement pleural. Quelles caractéristiques sont en faveur d'une origine maligne ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le caractère spiculé des contours</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une taille supérieure à 2 cm</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Des contours réguliers et bien limités</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le terrain tabagique actif</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — des contours réguliers et bien limités sont plutôt évocateurs de bénignité.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen permet le plus souvent d'obtenir une preuve histologique de cette masse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La cytologie des crachats</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La fibroscopie bronchique avec biopsies</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le dosage des marqueurs tumoraux sériques</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La scintigraphie osseuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — la fibroscopie bronchique avec biopsies</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La biopsie confirme un carcinome bronchique non à petites cellules. Quel bilan d'extension systématique demandez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une imagerie cérébrale injectée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une imagerie abdomino-pelvienne</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une chirurgie d'exérèse d'emblée, à visée à la fois diagnostique et thérapeutique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un bilan fonctionnel respiratoire préopératoire incluant les EFR</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — aucune exérèse ne doit être réalisée sans preuve histologique préalable.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le bilan préopératoire prévoit une lobectomie supérieure droite. Quel examen permet d'estimer la fonction respiratoire post-opératoire prédite ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La scintigraphie pulmonaire de ventilation-perfusion</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La radiographie thoracique de face</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le dosage des gaz du sang seul</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'échographie cardiaque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — la scintigraphie pulmonaire de ventilation-perfusion</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la prise en charge globale de ce patient, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'arrêt du tabac reste bénéfique sur le pronostic même après le diagnostic de cancer posé</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le tabagisme actif est responsable d'environ 90% des cancers bronchiques</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le tabagisme passif n'est jamais responsable de cancer bronchique chez le non-fumeur</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une aide au sevrage tabagique doit être proposée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le tabagisme passif est responsable d'environ 25% des cancers bronchiques chez le non-fumeur.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Détresse respiratoire aiguë et pneumothorax compressif</div>
+
+<div class="q" id="KFP1-Q1" data-correct="CEGHI" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous êtes interne de garde aux urgences. Un patient de 68 ans, suivi pour BPCO post-tabagique, est amené par les pompiers pour une détresse respiratoire brutale. Constantes : PA 85/55 mmHg, FC 135/min, SpO2 88% sous 9L/min au masque à haute concentration.</div>
+<div class="stem">Parmi les signes suivants, lesquels témoignent d'une véritable faillite respiratoire (et non de simples signes de lutte), imposant une prise en charge extrêmement urgente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Polypnée à 32/min</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Tirage intercostal</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Cyanose</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Battement des ailes du nez</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Abolition du murmure vésiculaire</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Contraction des muscles sterno-cléido-mastoïdiens</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Somnolence</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Sueurs profuses</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Respiration abdominale paradoxale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E, G, H, I</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — signe de lutte/détresse, pas de faillite.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — idem.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — signe de lutte/détresse, pas de faillite.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span> — signe de lutte/détresse, pas de faillite.</div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'examen clinique retrouve une abolition du murmure vésiculaire et un tympanisme de l'hémithorax droit, avec une déviation trachéale controlatérale. La radiographie de thorax au lit confirme le diagnostic. Quel est ce diagnostic précis ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : pneumothorax droit complet compressif (suffocant)</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle prise en charge immédiate mettez-vous en œuvre ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Oxygénothérapie à haut débit</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ventilation non invasive en pression positive</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Exsufflation à l'aiguille en urgence</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Pose d'un drain thoracique d'emblée avant tout autre geste</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Remplissage vasculaire prudent</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — contre-indication formelle en cas de pneumothorax : la pression positive aggrave la fuite d'air vers l'espace pleural.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la pose d'un drain en conditions d'asepsie retarderait la décompression en urgence.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q4" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">KFP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la ventilation non invasive dans ce contexte de pneumothorax compressif, quelle affirmation est exacte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle est indiquée en cas d'acidose respiratoire hypercapnique associée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle est formellement contre-indiquée, y compris en cas d'acidose hypercapnique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle doit précéder l'exsufflation à l'aiguille</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle est sans danger dans ce contexte</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — elle est formellement contre-indiquée, y compris en cas d'acidose hypercapnique</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP1 — BPCO : exacerbation et suivi</div>
+
+<div class="q" id="mDP1-Q1" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Un patient de 64 ans, tabagique à 35 paquets-années, connu pour une BPCO, consulte pour majoration de sa dyspnée habituelle et de sa toux productive depuis 3 jours, sans fièvre.</div>
+<div class="stem">Quels éléments sont nécessaires au diagnostic positif de BPCO ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des EFR objectivant un trouble ventilatoire obstructif non complètement réversible</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un tabagisme actif obligatoire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un scanner thoracique systématique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un rapport VEMS/CVF abaissé après bronchodilatateur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — une exposition professionnelle (BTP, etc.) peut suffire en l'absence de tabagisme.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — non nécessaire au diagnostic initial.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les gaz du sang réalisés en air ambiant à distance de tout épisode aigu retrouvent une PaO2 à 62 mmHg, confirmée à deux reprises. Quelle est la signification de ce résultat ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est un critère d'insuffisance respiratoire chronique, mais cela ne pose pas formellement l'indication d'une oxygénothérapie de longue durée</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ce résultat pose formellement l'indication d'une oxygénothérapie de longue durée</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ce résultat est normal pour l'âge</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une PaO2 à 62 mmHg exclut toute indication d'oxygénothérapie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le diagnostic d'insuffisance respiratoire chronique repose sur une PaO2 &lt; 70 mmHg à deux reprises, mais l'indication formelle d'oxygénothérapie de longue durée nécessite une PaO2 ≤ 55 mmHg (ou 55-60 mmHg avec polyglobulie, cœur pulmonaire ou désaturations nocturnes).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles mesures ont démontré un bénéfice sur la survie des patients BPCO ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'oxygénothérapie de longue durée, si elle est indiquée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La ventilation non invasive à domicile, si elle est indiquée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'activité physique régulière</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'arrêt du tabac</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les bronchodilatateurs de longue durée d'action utilisés seuls</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — effet symptomatique démontré, mais pas de bénéfice pronostique sur la survie.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En cas d'indication d'oxygénothérapie de longue durée, quelle durée quotidienne minimale est recommandée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">6 heures par jour</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">12 heures par jour</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">15 heures par jour au minimum</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Uniquement pendant le sommeil</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — 15 heures par jour au minimum</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — insuffisant, bien qu'un chiffre souvent proposé à tort.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — idéalement 24h/24 pour couvrir la nuit et l'activité physique.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient présente une exacerbation aiguë avec majoration de la dyspnée, de la purulence des crachats et du volume de l'expectoration, sans signe de gravité. Quelle prise en charge proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Bronchodilatateurs de courte durée d'action nébulisés</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Antibiothérapie, la purulence franche des crachats étant un critère de prescription</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une oxygénothérapie titrée prudemment, sans viser une saturation supérieure à 95%</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un repos strict prolongé au lit</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — une oxygénothérapie trop généreuse expose à l'aggravation d'une hypercapnie.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles vaccinations doivent être systématiquement proposées à ce patient BPCO ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : vaccination antigrippale annuelle et vaccination antipneumococcique (± rappel DTP)</div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient asthmatique sous corticoïdes inhalés et bêta2-mimétique de courte durée d'action à la demande présente un score ACT à 24/25, un VEMS à 95% de la théorique et moins de 2 exacerbations par an. Quelle est votre interprétation et conduite ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'asthme de ce patient est contrôlé</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Il faut arrêter le traitement de fond puisque l'asthme est contrôlé</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le traitement de fond repose sur les corticoïdes inhalés, pas sur des bronchodilatateurs de longue durée d'action utilisés seuls</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une diminution progressive du traitement par paliers peut être envisagée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — un asthme contrôlé ne doit jamais conduire à l'arrêt du traitement de fond, seulement à une décroissance par paliers.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une coiffeuse de 32 ans, sans antécédent respiratoire, présente une toux et des sibilants apparaissant en fin de semaine de travail et s'améliorant pendant ses congés. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un asthme professionnel doit être évoqué en priorité</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'exposition aux persulfates utilisés pour la décoloration est une cause classique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'absence de symptômes le week-end élimine le diagnostic</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une déclaration en maladie professionnelle peut être envisagée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'absence de symptômes au domicile n'exclut pas le diagnostic d'asthme professionnel.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient présente une toux chronique fébrile avec altération de l'état général. La radiographie thoracique objective des lésions excavées des lobes supérieurs. L'examen direct des crachats retrouve des bacilles acido-alcoolo-résistants et la PCR confirme Mycobacterium tuberculosis. Quel traitement instaurez-vous en première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une bithérapie par isoniazide-rifampicine</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une quadrithérapie associant isoniazide, rifampicine, pyrazinamide et éthambutol</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une trithérapie sans pyrazinamide</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une monothérapie par rifampicine dans l'attente de l'antibiogramme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — quadrithérapie isoniazide-rifampicine-pyrazinamide-éthambutol</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la déclaration de cette tuberculose maladie confirmée bactériologiquement, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un signalement nominatif doit être fait au Centre de Lutte Antituberculeuse (CLAT)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une déclaration obligatoire anonyme est également transmise à l'ARS</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il s'agit des deux mêmes démarches, l'une faisant doublon avec l'autre</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un isolement respiratoire de type air (masque FFP2) est nécessaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — ce sont deux circuits distincts et complémentaires : signalement nominatif au CLAT (pour l'enquête autour du cas) et déclaration obligatoire anonyme à l'ARS.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la distribution radiologique typique des micronodules, quelle association est exacte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Sarcoïdose = distribution diffuse et aléatoire ; miliaire tuberculeuse = distribution périlymphatique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Sarcoïdose = distribution périlymphatique et sous-pleurale ; miliaire tuberculeuse = distribution diffuse et aléatoire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les deux pathologies ont la même distribution périlymphatique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les deux pathologies ont la même distribution aléatoire diffuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — association inversée.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 35 ans, non-fumeur, présente des adénopathies médiastinales bilatérales symétriques et des micronodules périlymphatiques sous-pleuraux, associés à des lésions cutanées infiltrées du visage. Un lavage broncho-alvéolaire retrouve un rapport CD4/CD8 élevé. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le LBA typique suffit à lui seul à confirmer le diagnostic</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une biopsie cutanée de la lésion accessible est l'examen à privilégier en première intention pour la preuve histologique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La médiastinoscopie reste aujourd'hui l'examen de référence pour la preuve histologique dans ce contexte</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La sarcoïdose débute le plus souvent entre 25 et 45 ans</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — une preuve histologique reste nécessaire même devant un LBA typique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — on privilégie la lésion la plus accessible.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — désormais rarement utilisée, au profit de techniques moins invasives (écho-endoscopie).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel bilan systématique proposez-vous une fois le diagnostic de sarcoïdose confirmé ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un ECG</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une IDR à la tuberculine ou un test IGRA</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un PET-scanner systématique quel que soit le contexte</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un examen ophtalmologique à la recherche d'une atteinte oculaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — réservé à des situations particulières (preuve histologique difficile, suspicion d'atteinte cardiaque, fatigue inexpliquée).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — dépistage systématique (kérato-conjonctivite sèche, uvéites, atteinte du nerf optique).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant la découverte d'une pneumopathie interstitielle diffuse, quels éléments recherchez-vous systématiquement à l'interrogatoire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une exposition professionnelle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une prise médicamenteuse</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un contact avec des oiseaux</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des antécédents familiaux de pneumopathie interstitielle</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un terrain allergique personnel</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un terrain allergique personnel n'oriente pas vers une étiologie de PID.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez un patient présentant une fibrose pulmonaire idiopathique, quel est le principal mécanisme de l'hypoxémie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une hypoventilation alvéolaire pure</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une hétérogénéité des rapports ventilation/perfusion et un trouble de la diffusion</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un effet espace mort isolé</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un shunt vrai exclusif</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la capnie est habituellement normale ou basse dans la FPI.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'effet espace mort ne cause pas d'hypoxémie par lui-même.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la physiopathologie des épanchements pleuraux, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est la plèvre pariétale, et non viscérale, qui porte les principaux pores de résorption lymphatique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un chylothorax se caractérise par un taux de triglycérides pleuraux élevé</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une atélectasie sous-jacente s'accompagne typiquement d'un liquide de type exsudatif</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une ascite peut traverser le diaphragme par des pores diaphragmatiques et entraîner un épanchement pleural réactionnel</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'atélectasie relève d'un mécanisme transsudatif (augmentation de la dépression pleurale), pas exsudatif.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les biopsies pleurales à l'aveugle, quelle affirmation est exacte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elles ont une bonne rentabilité diagnostique en cas de suspicion de pleurésie tuberculeuse</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elles ont une bonne rentabilité diagnostique en cas de suspicion de mésothéliome, sans besoin de thoracoscopie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elles remplacent avantageusement l'analyse mycobactériologique du liquide pleural</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elles sont contre-indiquées en cas de suspicion de tuberculose pleurale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — leur rentabilité est mauvaise pour le mésothéliome, qui nécessite une thoracoscopie.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient présente une embolie pulmonaire bilatérale proximale avec état de choc et dysfonction ventriculaire droite à l'échographie. Quelle prise en charge initiale est appropriée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une anticoagulation par héparine non fractionnée intraveineuse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une thrombolyse en l'absence de contre-indication</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une hospitalisation en secteur conventionnel</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un lever précoce dès que possible</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — hospitalisation en réanimation devant l'état de choc.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — pas de lever précoce en cas d'instabilité hémodynamique.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comment définit-on une embolie pulmonaire à haut risque de mortalité ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Par la seule présence d'une dilatation des cavités cardiaques droites au scanner</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Par la présence de signes de choc ou d'instabilité hémodynamique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Par le siège strictement proximal des thrombus</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Par l'élévation isolée de la troponine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — une dilatation des cavités droites sans choc classe en risque intermédiaire, pas en haut risque.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un ancien ouvrier du bâtiment présente des plaques pleurales calcifiées bilatérales et un emphysème centrolobulaire sur son scanner thoracique, dans un contexte de tabagisme important. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'emphysème centrolobulaire de ce patient est imputable à son exposition à l'amiante</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les plaques pleurales peuvent coexister avec un emphysème d'origine tabagique chez un même patient</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'arrêt du tabac reste l'intervention la plus bénéfique sur son pronostic respiratoire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une exposition professionnelle qualifiée de « soutenue et prolongée » est requise pour la reconnaissance en maladie professionnelle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la BPCO/l'emphysème n'est pas une complication liée à l'amiante ; il est ici imputable au tabac.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une polygraphie ventilatoire retrouve un index d'apnées-hypopnées à 38/heure chez un patient obèse somnolent. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ce résultat correspond à un SAOS sévère</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La polygraphie est l'examen de première intention pour ce diagnostic</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La pression positive continue (PPC) est le traitement de première intention</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'orthèse d'avancée mandibulaire est le traitement de première intention dans cette situation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — seuil de sévérité fixé à un IAH ≥ 30/h.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'orthèse est une alternative de deuxième intention (refus ou mauvaise tolérance de la PPC), pas le traitement de première intention d'un SAOS sévère.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q16" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome d'apnées obstructives du sommeil, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le score d'Epworth évalue la somnolence diurne</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le seuil diagnostique retenu est un index d'apnées-hypopnées supérieur ou égal à 5 par heure</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'obésité est une cause fréquente d'apnées centrales</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le SAOS est associé à un surrisque d'AVC et de fibrillation atriale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'obésité est associée au SAOS obstructif, pas aux apnées centrales.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q17" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">SQI1 Q17</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient présente une toux chronique évoluant depuis 2 mois, sans aucun symptôme digestif associé. Quelle étiologie fréquente de toux chronique ne doit pourtant pas être écartée par cette absence de symptômes digestifs ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : le reflux gastro-œsophagien (RGO)</div>
+<div class="note">Plus de la moitié des tousseurs chroniques dont la toux est liée à un RGO n'ont aucun symptôme digestif associé : son absence n'élimine pas ce diagnostic.</div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function grade(q){
+ if(q.dataset.type==='QROC')return;
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ let pts=qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+</body></html>
