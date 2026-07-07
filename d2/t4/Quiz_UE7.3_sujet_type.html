@@ -1,0 +1,866 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<title>Quiz — UE 7.3 — Rhumatologie · Sujet type</title><style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap,.hwrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style><style id="dk">
+html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8;--acc2:#22d3ee;--acc3:#a78bfa;--d1:#818cf8;--d2:#22d3ee}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark header{background:rgba(14,17,23,.95)!important}
+html.dark .dpctx{background:#1e1b4b!important;border-color:#312e81!important;color:#c7d2fe!important}
+html.dark .note{background:#1c1002!important;border-color:#78350f!important;color:#fde68a!important}
+html.dark .note .rappel{color:#fde68a}
+html.dark .qrocin{background:#1a1d27!important;border-color:var(--line)!important;color:var(--ink)!important}
+html.dark .opt.sel{background:#1e1b4b}
+html.dark .xlink{background:#0f2a1e!important;border-color:#1a4a35!important;color:#6ee7b7!important}
+html.dark .b-quiz{background:#1e1b4b!important}
+html.dark .b-fiche{background:#0c2d35!important}
+html.dark .block.green .badge{background:#1e1b4b!important}
+html.dark .block.blue .badge{background:#0c2d35!important}
+html.dark .block.purple .badge{background:#2d1b4b!important}
+html.dark .block.amber .badge{background:#0d2c30!important}
+html.dark .year-badge.d1{background:var(--d1)}
+html.dark .year-badge.d2{background:var(--d2)}
+html.dark .q.done{border-color:#374151}
+html.dark .qz:hover{border-color:var(--acc)}
+html.dark a.card:hover{border-color:var(--acc)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 7.3 — Rhumatologie · Sujet type (synthèse des annales 2022-2025)</h1>
+<div class="sub">35 questions : DP1 pseudopolyarthrite rhizomélique et maladie de Horton (9, verrouillé) · KFP1 lombosciatique et signes de gravité (4, verrouillé) · mDP1 polyarthrite chronique : diagnostics différentiels (6, verrouillé) · SQI1 (16). 30 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/35</b></span>
+<span class="pill">Score : <b id="s-ok">0/30</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n'est pas une annale réelle. C'est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d'UE 7.3 (2022-2025, cf. section « Annales officielles » ci-dessous pour les sujets réels). Objectif : réviser en priorité le contenu à plus fort rendement avant l'examen.
+</div>
+
+<div class="sect">DP1 — Pseudopolyarthrite rhizomélique et maladie de Horton</div>
+
+<div class="q" id="DP1-Q1" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme R., 72 ans, sans antécédent notable, consulte pour des douleurs bilatérales des épaules et du bassin évoluant depuis 6 semaines, avec un dérouillage matinal de plus d'une heure et des réveils nocturnes. Elle a perdu 4 kg. L'examen ne retrouve aucune synovite des mains.</div>
+<div class="stem">Quels diagnostics évoquez-vous en priorité devant ce tableau ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Pseudopolyarthrite rhizomélique (PPR)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Polyarthrite rhumatoïde à début tardif</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Myélome multiple</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Goutte polyarticulaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Fibromyalgie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le diagnostic le plus probable sur ce terrain et cette présentation.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — différentiel classique, à rechercher par le FR et les anti-CCP.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'altération de l'état général chez une patiente âgée doit faire évoquer une hémopathie.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la goutte polyarticulaire ne donne classiquement pas un tableau bilatéral symétrique des ceintures avec dérouillage prolongé.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la fibromyalgie ne s'accompagne ni d'altération de l'état général ni de syndrome inflammatoire biologique.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen biologique simple permet de rechercher un pic monoclonal évocateur d'un myélome ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : électrophorèse des protéines sériques (EPP)</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le bilan retrouve : CRP 85 mg/L, NFS avec anémie normocytaire normochrome arégénérative, fer sérique bas, transferrine basse, ferritine élevée, EPP sans pic monoclonal. Quelles propositions sont exactes concernant cette anémie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il s'agit d'une anémie de profil inflammatoire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ce profil (transferrine basse, ferritine élevée) est celui d'une carence martiale vraie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Cette anémie est arégénérative</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une supplémentation martiale intraveineuse est indiquée en urgence</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Ce profil biologique est compatible avec une pseudopolyarthrite rhizomélique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — c'est le profil inverse d'une carence martiale vraie, où la transferrine serait au contraire élevée et la ferritine basse.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — il ne s'agit pas d'une carence martiale, une supplémentation en fer est inutile.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — l'anémie inflammatoire est un signe biologique fréquent de la PPR.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Des radiographies des épaules sont réalisées. Qu'en attendez-vous le plus probablement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Des érosions caractéristiques de la tête humérale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un pincement global de l'interligne gléno-huméral</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un aspect radiographique normal</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une ostéophytose majeure évocatrice d'omarthrose</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — un aspect radiographique normal</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la PPR ne comporte pas de lésion radiographique spécifique ; une anomalie nette doit faire évoquer un autre diagnostic (omarthrose, PR).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diagnostic de pseudopolyarthrite rhizomélique est retenu. Quelle prise en charge thérapeutique initiale proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Corticothérapie orale à la dose de 0,2 à 0,3 mg/kg/j</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">AINS à pleine dose en première intention</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Prévention de l'ostéoporose cortico-induite par bisphosphonates et supplémentation vitamino-calcique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Régime pauvre en sel et en sucre, avec un apport protéique conservé voire augmenté</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Abstention thérapeutique avec simple réévaluation à un mois</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — les AINS ne sont pas recommandés en première intention dans la PPR.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — un régime pauvre en protéines serait délétère (fonte musculaire) : c'est l'inverse qui est recommandé.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente est revue à J3 de la corticothérapie. Quel élément clinique attendu, s'il est absent, doit faire reconsidérer le diagnostic de PPR ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : une amélioration clinique spectaculaire sous 24 à 72h (corticosensibilité)</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Trois mois plus tard, sous corticothérapie à dose décroissante, la patiente rapporte des céphalées temporales, une claudication de la mâchoire et un flou visuel de l'œil droit. Quelle est votre conduite à tenir ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ces signes doivent faire suspecter une maladie de Horton associée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le flou visuel est une urgence ophtalmologique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La corticothérapie doit être reprise à dose plus élevée sans délai</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une biopsie de l'artère temporale doit impérativement précéder toute majoration du traitement</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ces symptômes sont sans rapport avec la PPR sous-jacente</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le risque de cécité définitive impose de ne pas retarder le traitement.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le traitement ne doit jamais être retardé par la réalisation d'une biopsie de l'artère temporale.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la PPR et la maladie de Horton sont deux expressions d'un même spectre de vascularite à cellules géantes.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un PET-scanner confirme une aortite et une artérite fémorale bilatérale, sans complication ischémique aiguë. Quelle posologie initiale de corticothérapie est recommandée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">0,2 à 0,3 mg/kg/j</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">0,5 mg/kg/j</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">0,7 mg/kg/j</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">1 mg/kg/j</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un bolus de méthylprednisolone systématique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — 0,7 mg/kg/j</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — dose insuffisante pour une maladie de Horton confirmée.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — posologie historique, non retenue en l'absence de complication ischémique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le bolus est réservé aux complications ischémiques aiguës (baisse brutale de l'acuité visuelle constituée, par exemple).</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q9" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le suivi au long cours de cette patiente sous corticothérapie prolongée, quelles mesures sont indiquées ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Poursuite de la supplémentation vitamino-calcique et des bisphosphonates</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Surveillance glycémique régulière</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Entretien d'une activité physique et musculaire régulière</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vaccination antigrippale contre-indiquée sous corticoïdes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Arrêt brutal de la corticothérapie dès normalisation de la CRP</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — les vaccins inactivés (grippe, pneumocoque) restent recommandés sous corticothérapie.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la décroissance doit être progressive, jamais brutale.</div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Lombosciatique et signes de gravité</div>
+
+<div class="q" id="KFP1-Q1" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. B., 45 ans, sans antécédent, présente une lombosciatique gauche évoluant depuis 3 jours, déclenchée par un effort de soulèvement. La douleur est majorée à la toux et à la défécation. Il ne rapporte ni fièvre, ni amaigrissement.</div>
+<div class="stem">Quels éléments sont en faveur d'une origine discale commune de cette lombosciatique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Douleur déclenchée par un effort de soulèvement</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Caractère impulsif à la toux et à la défécation</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Horaire à prédominance nocturne et inflammatoire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Contexte fébrile associé</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Notion d'épisodes similaires antérieurs résolutifs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — orientation discale classique.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un horaire inflammatoire est un drapeau rouge, pas un argument pour l'origine commune.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — un drapeau rouge également.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'examen retrouve une abolition du réflexe achilléen gauche et l'impossibilité de marcher sur la pointe des pieds. Quel territoire radiculaire est atteint ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L3</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L4</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">S1</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L5</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — S1</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le territoire S1 explique l'abolition du réflexe achilléen et le déficit du triceps sural/fléchisseurs des orteils (marche sur la pointe des pieds impossible). L5 n'abolit typiquement pas ce réflexe et touche plutôt les releveurs (marche sur les talons impossible).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) signe(s), s'il(s) était(ent) présent(s), imposerait(ent) la réalisation d'une IRM lombaire en urgence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un déficit moteur coté à 3/5</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une abolition isolée du réflexe achilléen, sans déficit moteur</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une anesthésie en selle avec troubles sphinctériens</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un Lasègue croisé isolé</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Des déficits radiculaires bilatéraux évocateurs d'un syndrome de la queue de cheval</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — un déficit moteur coté ≤ 3/5 impose l'IRM en urgence.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — signe d'atteinte radiculaire, pas un critère de gravité chirurgicale à lui seul.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — évocateur d'un syndrome de la queue de cheval, urgence chirurgicale absolue.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — signe de tension radiculaire, pas un critère de gravité en soi.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q4" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q4</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient est mis sous traitement médical bien conduit sans signe de gravité. Il revient 10 jours plus tard avec une fièvre à 39°C et une recrudescence douloureuse rachidienne. Quel diagnostic devez-vous évoquer en priorité ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : spondylodiscite infectieuse</div>
+<div class="note">La surveillance précoce sous traitement repose sur des paramètres cliniques et biologiques rapides (EVA, température, CRP) : la radiographie et l'IRM de contrôle sont trop tardives pour juger de l'efficacité à ce stade (délai de plusieurs semaines).</div>
+</div>
+</div>
+
+<div class="sect">mDP1 — Polyarthrite chronique : diagnostics différentiels</div>
+
+<div class="q" id="mDP1-Q1" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme K., 52 ans, présente une polyarthrite bilatérale et symétrique des poignets, des MCP et des IPP évoluant depuis 4 mois, avec un dérouillage matinal d'une heure. L'examen ne retrouve pas d'atteinte des IPD.</div>
+<div class="stem">Quels éléments cliniques sont en faveur d'une polyarthrite rhumatoïde plutôt que d'un rhumatisme psoriasique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Atteinte symétrique des petites articulations</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Épargne des articulations interphalangiennes distales (IPD)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Présence de dactylites (orteils ou doigts « en saucisse »)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Raideur matinale prolongée au-delà de 30 minutes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Atteinte préférentielle des IPD</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la dactylite est caractéristique du rhumatisme psoriasique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c'est au contraire le rhumatisme psoriasique qui touche préférentiellement les IPD.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel bilan de première intention demandez-vous devant cette polyarthrite ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Anticorps anti-peptides citrullinés (anti-CCP)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Facteur rhumatoïde</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Radiographies des mains et des pieds de face</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">HLA-B27</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Radiographie thoracique (bilan préthérapeutique)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — mains et poignets de face, mais aussi les pieds de face et 3/4.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — pas d'intérêt dans le bilan initial d'une polyarthrite évocatrice de PR.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les anticorps anti-CCP et le facteur rhumatoïde (FR), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les anti-CCP sont plus spécifiques de la PR que le FR</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le FR est constamment présent en cas de PR</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un FR positif est toujours synonyme de PR</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un FR positif implique nécessairement un syndrome de Sjögren associé</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les anti-CCP peuvent précéder l'apparition des symptômes cliniques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le FR n'est ni constant ni spécifique.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un FR positif s'observe dans d'autres pathologies (Sjögren, infections, sujets âgés sains).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La radiographie des mains objective un pincement diffus et des érosions marginales. Quelle est la signification pronostique de ces érosions ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elles signent une arthrose associée</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elles sont un facteur de bon pronostic</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elles sont un facteur pronostique de sévérité</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elles sont habituellement réversibles sous traitement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — un facteur pronostique de sévérité</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — les érosions et le pincement diffus signent la PR ; l'arthrose se caractérise à l'inverse par des ostéophytes et une ostéocondensation.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diagnostic de polyarthrite rhumatoïde est retenu et un traitement par méthotrexate est envisagé. Quel bilan préthérapeutique est nécessaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Dosage des β-HCG chez la femme en âge de procréer</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Sérologie VIH</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Quantiféron (recherche de tuberculose latente)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Radiographie thoracique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Bilan hépatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le méthotrexate est tératogène, une contraception efficace est également requise.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le Quantiféron appartient au bilan préthérapeutique des biothérapies (anti-TNF), pas à celui du méthotrexate.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est la fréquence de prise recommandée du méthotrexate dans le traitement de fond de la polyarthrite rhumatoïde ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : une prise hebdomadaire unique (associée à une supplémentation en folates)</div>
+<div class="note">Piège classique : le méthotrexate est pris une fois par semaine, jamais quotidiennement — une prise quotidienne exposerait à une toxicité sévère.</div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une femme de 68 ans consulte pour une lombalgie brutale sans traumatisme. La radiographie confirme un tassement vertébral de T12. Le bilan biologique retrouve : NFS normale, EPP normale, phosphorémie normale, calcémie corrigée à 2,75 mmol/L. Quel élément de ce bilan doit faire évoquer une cause secondaire (métastase, myélome) plutôt qu'une fracture ostéoporotique commune ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La NFS normale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L'EPP normale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La phosphorémie normale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La calcémie corrigée à 2,75 mmol/L</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — la calcémie corrigée à 2,75 mmol/L</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — plutôt rassurant (élimine une hémopathie).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — élimine un pic monoclonal.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — élimine une ostéomalacie.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — une hypercalcémie (normale : 2,2-2,6 mmol/L) oriente vers une cause secondaire, métastase ou myélome, et non vers une ostéoporose commune.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) examen(s) demandez-vous en première intention devant la suspicion clinique d'une fracture vertébrale, en l'absence de signe neurologique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Radiographies du rachis, face et profil</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">IRM rachidienne systématique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Scintigraphie osseuse</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Densitométrie osseuse pour objectiver la fracture</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Bilan phosphocalcique et rénal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — réservée aux signes neurologiques.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — irradiante, non nécessaire ici.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la densitométrie mesure la densité osseuse, elle ne visualise pas une fracture.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — avant d'envisager un bisphosphonate notamment.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diagnostic de fracture ostéoporotique est confirmé, avec un bilan étiologique par ailleurs normal. Quel traitement de fond instaurez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Abstention thérapeutique et réévaluation de la densité osseuse à un an</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Bisphosphonate oral associé à une supplémentation vitamino-calcique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Tériparatide en première intention</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Corticothérapie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — bisphosphonate oral et supplémentation vitamino-calcique</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la survenue d'une fracture suffit à l'indication d'un traitement, même avec une densité osseuse normale.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — traitement de deuxième intention.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un homme de 28 ans consulte pour des lombalgies inflammatoires évoluant depuis 4 mois. Quels éléments de l'interrogatoire sont en faveur d'une spondyloarthrite ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Antécédent personnel de psoriasis unguéal</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Talalgies inflammatoires</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Fièvre vespérale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Antécédent familial de spondyloarthrite au premier degré</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Syndrome de Raynaud</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel bilan de première intention demandez-vous pour rechercher une sacro-iliite chez ce patient ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Radiographie du bassin de face</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Échographie des sacro-iliaques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">IRM du rachis et des sacro-iliaques</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Scintigraphie osseuse</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">CRP</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'IRM détecte les lésions inflammatoires actives, non visibles sur la radiographie au stade précoce.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après échec de deux AINS différents à pleine dose pendant quatre semaines chacun sur l'atteinte axiale de cette spondyloarthrite, quelle est l'étape thérapeutique suivante ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Méthotrexate</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Corticothérapie orale prolongée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Anti-TNF</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Poursuite d'un troisième AINS</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — anti-TNF</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — le méthotrexate est inefficace sur l'atteinte axiale de la spondyloarthrite (utile seulement sur l'atteinte périphérique).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — indiqué après échec d'au moins deux AINS à pleine dose pendant 4 semaines chacun.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un homme de 62 ans, obèse, consulte pour une gonalgie évoluant depuis plusieurs mois. Quels éléments orientent vers une origine mécanique (arthrose) plutôt qu'inflammatoire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Douleur majorée en fin de journée et à l'effort, calmée par le repos</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Dérouillage matinal de plus d'une heure</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Présence d'un épanchement articulaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Efficacité franche des AINS</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Absence de signe inflammatoire local net</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — évocateur au contraire d'une origine inflammatoire.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un épanchement peut s'observer dans les deux cadres (poussée congestive d'arthrose comprise) : ce n'est pas discriminant.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la réponse aux AINS n'est pas discriminante non plus, une arthrose pouvant transitoirement s'en améliorer.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles radiographies du genou demandez-vous de façon systématique devant cette gonalgie mécanique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Face et profil en charge</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Incidence schuss (en charge, légère flexion)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Incidence fémoro-patellaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Incidence fémoro-tibiale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">IRM systématique du genou</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la plus sensible pour le pincement fémoro-tibial.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — cette incidence n'existe pas.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Ce patient présente un genu varum. Quel compartiment fémoro-tibial est préférentiellement atteint par l'arthrose ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Compartiment externe</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Compartiment interne</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Compartiment fémoro-patellaire exclusivement</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Aucun lien entre le morphotype et la localisation de l'arthrose</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — compartiment interne</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — le compartiment externe est plutôt atteint en cas de genu valgum.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle prise en charge de première intention proposez-vous à ce patient ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Perte de poids</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Canne tenue du côté opposé au genou douloureux</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Infiltration de corticoïdes systématique d'emblée</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Prothèse totale de genou d'emblée</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Antalgiques de palier 1</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — piège classique : la canne se tient du côté sain, controlatéral à l'articulation douloureuse.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — pas en première intention.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — réservée à l'échec des mesures conservatrices bien conduites (Lequesne élevé).</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une femme de 84 ans, sans antécédent notable, présente un gonflement douloureux bilatéral du poignet et du genou d'apparition brutale depuis 48h, sans traumatisme ni fièvre. L'uricémie est normale. Quel diagnostic évoquez-vous en priorité ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Goutte</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Rhumatisme à pyrophosphate de calcium (chondrocalcinose)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Fracture de fatigue bilatérale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Polyarthrite rhumatoïde à début brutal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — rhumatisme à pyrophosphate de calcium</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — terrain atypique (femme âgée, uricémie normale) ; l'atteinte bilatérale poignet+genou d'apparition brutale chez une femme âgée est le tableau-signature de la chondrocalcinose.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — début trop brutal pour une PR à cet âge.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La ponction articulaire du genou ramène un liquide inflammatoire à 8000 éléments/mm³ avec présence de cristaux de pyrophosphate de calcium à la microscopie en lumière polarisée. Quelle(s) proposition(s) est(sont) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un liquide à plus de 2000 éléments/mm³ est de nature inflammatoire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ce résultat confirme le diagnostic de chondrocalcinose articulaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ce résultat est celui attendu dans une poussée congestive d'arthrose</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Ces cristaux sont identiques à ceux observés dans la goutte</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — seuil de 2000 éléments/mm³ séparant liquide mécanique (arthrose) et inflammatoire.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — une poussée congestive d'arthrose donne un liquide mécanique, inférieur à 2000 éléments/mm³.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — les cristaux d'urate de sodium (goutte) sont différents des cristaux de pyrophosphate de calcium (chondrocalcinose) en microscopie polarisée.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 55 ans, connu pour une hyperuricémie, présente sa première crise de goutte du gros orteil. Quelle proposition concernant la prise en charge est exacte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La colchicine doit être débutée le plus précocement possible</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un traitement hypo-uricémiant ne peut être proposé qu'après la 3e crise</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un lavage articulaire chirurgical est systématique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une diarrhée sous colchicine est un signe sans gravité, à ne pas surveiller</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — la colchicine doit être débutée le plus précocement possible</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — son efficacité est temps-dépendante.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — un traitement hypo-uricémiant peut être instauré dès la première crise si l'hyperuricémie est confirmée.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — réservé à la suspicion d'arthrite septique associée.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la diarrhée est au contraire le premier signe de surdosage en colchicine, elle doit faire réduire la posologie.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un traitement hypo-uricémiant est débuté chez ce patient devant une hyperuricémie confirmée à distance de la crise. Quelles modalités sont correctes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une colchicine prophylactique doit être associée pendant plusieurs mois</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'objectif est une uricémie inférieure à 360 µmol/L</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le traitement peut être arrêté dès normalisation de l'uricémie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il fallait attendre une deuxième crise avant de débuter ce traitement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — prévient les crises de mobilisation liées à la baisse rapide de l'uricémie.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — traitement poursuivi à vie une fois débuté.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la polyarthrite rhumatoïde, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle touche préférentiellement les femmes</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le tabac est un facteur de risque reconnu</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les articulations interphalangiennes distales (IPD) sont classiquement épargnées</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les lésions radiographiques typiques sont les ostéophytes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le méthotrexate se prend quotidiennement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — les ostéophytes et l'ostéocondensation caractérisent l'arthrose ; la PR se manifeste par des érosions et un pincement diffus.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — prise hebdomadaire unique.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q16" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez une patiente suivie pour une polyarthrite rhumatoïde ancienne, sous méthotrexate et anti-TNF, une cervicalgie haute fébrile associée à une hyperréflexie ostéotendineuse des membres doit faire évoquer, outre une spondylodiscite infectieuse, quelle complication mécanique cervicale haute caractéristique de la PR évoluée ?</div>
+<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : diastasis atloïdo-axoïdien (instabilité C1-C2)</div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function grade(q){
+ if(q.dataset.type==='QROC')return;
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ let pts=qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+</body></html>
