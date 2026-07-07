@@ -1,0 +1,510 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<title>Item 188 — Asthme · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(245,246,244,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.breadcrumb{font-size:12.5px;color:var(--mut);margin-bottom:18px}
+.breadcrumb a{color:var(--mut);text-decoration:none}.breadcrumb a:hover{color:var(--acc)}
+.breadcrumb .sep{margin:0 5px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q.done{border-color:#e2e8f0}
+.qrocin{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px}
+.qrocmodel p{margin:4px 0}.qrocmodel ul{margin:4px 0 4px 18px}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<style id="dk">
+html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark header{background:rgba(14,17,23,.95)!important}
+html.dark .opt.sel{background:#1e1b4b}
+html.dark .dpctx{background:#1e1b4b!important;border-color:#312e81!important;color:#c7d2fe!important}
+html.dark .note{background:#1c1002!important;border-color:#78350f!important;color:#fde68a!important}
+html.dark .q.done{border-color:#374151}
+html.dark .rang-a{background:#052e16!important;color:#4ade80!important;border-color:#15803d!important}
+html.dark .rang-b{background:#1e3a5f!important;color:#93c5fd!important;border-color:#1d4ed8!important}
+html.dark .qrocin{background:#1a1d27!important;border-color:var(--line)!important;color:var(--ink)!important}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 188 — Asthme · Entraînement par item</h1>
+<div class="sub">11 questions — QRM · QRU · QROC. 9 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/11</b></span>
+  <span class="pill">Score : <b id="s-ok">0/9</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<nav class="breadcrumb">
+  <a href="../../../index.html">BobMed</a><span class="sep">›</span>
+  <a href="../../../index.html#d2">D2</a><span class="sep">›</span>
+  <a href="../index.html">T1</a><span class="sep">›</span>
+  <a href="index.html">Entraînement</a><span class="sep">›</span>
+  <span>Item 188 — Asthme</span>
+</nav>
+
+<div class="sect">Questions d'entraînement — Item 188</div>
+
+<!-- Q1 -->
+<div class="q" id="Q1" data-type="QRU" data-correct="C">
+  <div class="qhead">
+    <span class="qnum">Q1</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quel critère spirométrique confirme la réversibilité du trouble ventilatoire obstructif (TVO) dans l'asthme ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Augmentation du VEMS ≥ 10 % de la valeur initiale après bronchodilatateurs</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Normalisation complète du VEMS/CVF après bronchodilatateurs</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Augmentation du VEMS ≥ 12 % ET ≥ 200 mL après bronchodilatateurs</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Augmentation du VEMS > 15 % après bronchodilatateurs sans seuil absolu</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">Le double critère (relatif ≥ 12 % ET absolu ≥ 200 mL) évite les faux positifs chez les patients avec très faible VEMS de base. La réversibilité peut être absente lors d'une spirométrie normale ; dans ce cas, le test à la méthacholine (hyperréactivité bronchique) peut confirmer le diagnostic.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — 10 % relatif seul est insuffisant (seuil non retenu par les guidelines).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La normalisation du ratio n'est pas exigée ; le critère porte sur la variation du VEMS seul.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Critère GINA/ERS : ΔVEMS ≥ 12 % de la valeur initiale ET ≥ 200 mL en valeur absolue.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le seuil absolu de 200 mL est indispensable pour éviter les faux positifs.</div>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="q" id="Q2" data-type="QRM" data-correct="ABDE">
+  <div class="qhead">
+    <span class="qnum">Q2</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Parmi les éléments suivants, lesquels sont des facteurs déclenchants reconnus des crises d'asthme ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Allergènes (acariens, pollens, phanères d'animaux)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Effort physique (asthme d'effort) et air froid</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Consommation d'alcool (mécanisme bronchospastique direct)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">AINS (aspirine, ibuprofène) et bêtabloquants</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Infections respiratoires virales (rhinovirus)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les allergènes inhalés sont les principaux déclenchants de l'asthme allergique (atopique), le plus fréquent chez l'enfant et l'adulte jeune.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'exercice intense et l'air froid déclenchent un bronchospasme réflexe (asthme d'effort) par hyperosmolarité et refroidissement des VAS.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'alcool peut déclencher des symptômes via les sulfites (asthme à l'aspirine) mais n'est pas un déclenchant bronchospastique direct classique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les AINS (syndrome de Fernand-Widal : asthme, polypose nasale, intolérance aspirine) et les bêtabloquants (y compris collyres) déclenchent des bronchospasmes graves.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les infections virales (rhinovirus, VRS) sont les premiers déclenchants des exacerbations d'asthme à tout âge.</div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="q" id="Q3" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q3</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelle est la molécule de référence du traitement de fond de l'asthme persistant léger à modéré (palier 2-3 GINA) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Bêta-2-agoniste à longue durée d'action (LABA) en monothérapie</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Corticostéroïde inhalé (CSI) à faible dose, seul ou en association CSI+LABA</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Théophylline orale à libération prolongée</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Corticostéroïde oral au long cours (prednisone)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note">Les CSI (béclométasone, fluticasone, budésonide) sont le traitement de fond de référence à tous les stades persistants de l'asthme. Un LABA ne doit JAMAIS être prescrit en monothérapie (risque d'aggravation paradoxale).</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le LABA seul est contre-indiqué dans l'asthme ; il ne doit être utilisé qu'en association avec un CSI.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le CSI est le pilier du traitement de fond. Palier 2 : CSI faible dose ; palier 3 : CSI faible dose + LABA (ou CSI dose moyenne seul).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La théophylline est un traitement de fond de 2ème ligne, moins efficace et avec fenêtre thérapeutique étroite.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La corticothérapie orale au long cours est réservée à l'asthme sévère non contrôlé (palier 5), avec surveillance des effets secondaires.</div>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="q" id="Q4" data-type="QRM" data-correct="BCE">
+  <div class="qhead">
+    <span class="qnum">Q4</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels critères définissent un asthme aigu grave (AAG) chez l'adulte ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Sibilants à l'auscultation bilatéraux</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">DEP < 50 % de la meilleure valeur personnelle ou de la valeur prédite</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Impossibilité de terminer une phrase en une seule inspiration</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Toux sèche nocturne uniquement</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Fréquence respiratoire > 25/min, SpO₂ < 92 %</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="note">Signes de gravité de l'AAG : DEP &lt; 50 % · FC > 110 · FR > 25 · SpO₂ &lt; 92 % · impossible de parler/compter · orthopnée · silence auscultatoire (thorax muet = gravité extrême). L'asthme quasi-fatal est caractérisé par un thorax silencieux, un trouble de conscience ou une hypercapnie.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les sibilants sont présents dans toute crise ; leur disparition (thorax muet) est un signe de gravité extrême, pas un critère d'AAG per se.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — DEP &lt; 50 % = crise sévère selon la classification internationale.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'impossibilité de finir une phrase témoigne d'une dyspnée sévère.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La toux nocturne est évocatrice d'asthme en général, mais pas spécifiquement de gravité.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — FR > 25/min et SpO₂ &lt; 92 % sont des critères de gravité de l'AAG.</div>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="q" id="Q5" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q5</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels sont les traitements de 1ère intention lors d'un asthme aigu grave (AAG) aux urgences ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Bêta-2-agoniste à courte durée d'action (SABA) en nébulisations répétées (salbutamol)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Corticostéroïdes systémiques (prednisolone orale ou méthylprednisolone IV)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Adrénaline sous-cutanée systématiquement</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Oxygénothérapie titrée pour SpO₂ cible 94-98 %</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Antibiotiques systématiques (surinfection bactérienne présumée)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le salbutamol nébulisé (2,5-5 mg, répété toutes les 20 min les 3 premières heures si nécessaire) est le bronchodilatateur de 1ère intention.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les corticoïdes systémiques (0,5-1 mg/kg de prednisolone, max 50-60 mg) réduisent le délai de récupération et le risque de rechute ; à débuter le plus tôt possible.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'adrénaline sous-cutanée n'est pas recommandée en 1ère intention dans l'AAG ; elle peut être utilisée dans l'anaphylaxie avec bronchospasme.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'oxygène est titré pour SpO₂ 94-98 % (contrairement à la BPCO, pas de restriction à 88-92 %).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les exacerbations d'asthme sont majoritairement virales ; les antibiotiques ne sont indiqués qu'en cas de pneumonie documentée ou de sinusite bactérienne.</div>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="q" id="Q6" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q6</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels médicaments sont contre-indiqués ou à éviter chez un patient asthmatique ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Bêtabloquants (y compris les collyres ophtalmiques)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Inhibiteurs calciques (amlodipine)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">AINS (aspirine, ibuprofène) en cas d'intolérance connue</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">IEC (toux sèche pouvant aggraver l'asthme)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Corticoïdes inhalés</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les bêtabloquants (même sélectifs, même en collyre) peuvent déclencher un bronchospasme sévère chez l'asthmatique. Contre-indication absolue.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les inhibiteurs calciques ne provoquent pas de bronchospasme et sont utilisables chez l'asthmatique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — En cas de syndrome de Fernand-Widal ou d'intolérance connue, les AINS sont contre-indiqués (risque de crise sévère).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La toux sèche des IEC peut aggraver les symptômes de l'asthme ; si nécessaire, remplacer par un ARA II.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les CSI sont le traitement de fond de l'asthme ; ils ne sont pas contre-indiqués.</div>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="q" id="Q7" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q7</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient asthmatique présente une crise nocturne fréquente malgré un SABA quotidien. Son DEP matinal varie de 30 % entre le matin et le soir. Quel palier thérapeutique GINA doit être initié ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Palier 1 : SABA uniquement à la demande</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Palier 2 : CSI faible dose en traitement de fond quotidien</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Palier 4 : CSI forte dose + LABA + tiotropium</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Palier 5 : corticothérapie orale au long cours</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note">Asthme persistant léger : symptômes nocturnes &gt; 2 fois/mois, variabilité du DEP &gt; 20 %. Indication au palier 2 (CSI faible dose + SABA à la demande). Le palier 1 (SABA seul) n'est adapté qu'à l'asthme intermittent.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le palier 1 est réservé à l'asthme intermittent (symptoms &lt; 2 fois/semaine, réveil nocturne &lt; 2 fois/mois, DEP normal entre les crises).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Asthme persistant léger non contrôlé sur SABA = initiation d'un CSI faible dose (béclométasone 100-200 µg/j ou équivalent).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le palier 4 (forte dose CSI + LABA) n'est indiqué qu'en cas d'asthme sévère persistant mal contrôlé malgré palier 3.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La corticothérapie orale est réservée à l'asthme sévère réfractaire (palier 5), à éviter au long cours.</div>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="q" id="Q8" data-type="QRM" data-correct="AC">
+  <div class="qhead">
+    <span class="qnum">Q8</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels éléments gazométriques sont attendus au cours d'un asthme aigu grave non compliqué d'insuffisance respiratoire aiguë hypercapnique ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">PaO₂ abaissée (hypoxémie modérée à sévère)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">PaCO₂ élevée d'emblée (hypercapnie initiale)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">PaCO₂ normale ou abaissée (hyperventilation réactionnelle)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Alcalose respiratoire sévère (pH > 7,6)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="note">Dans l'AAG non compliqué : hypoxémie + hypocapnie (hyperventilation). Si la PaCO₂ commence à monter et se normalise ou dépasse 40 mmHg → signe d'épuisement musculaire = asthme quasi-fatal → VNI/intubation imminente.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'hypoxémie est présente par anomalies de ventilation-perfusion.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une hypercapnie initiale dans l'AAG est un signe de gravité extrême (épuisement), pas le tableau habituel.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La polypnée réactionnelle génère une hyperventilation avec PaCO₂ normale ou basse (hypocapnie).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Une alcalose respiratoire sévère (pH > 7,6) n'est pas caractéristique de l'AAG.</div>
+  </div>
+</div>
+
+<!-- Q9 -->
+<div class="q" id="Q9" data-type="QRU" data-correct="D">
+  <div class="qhead">
+    <span class="qnum">Q9</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelle biothérapie est indiquée dans l'asthme sévère éosinophilique non contrôlé (palier 5) avec éosinophiles sanguins ≥ 300/µL ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Omalizumab (anti-IgE)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Dupilumab (anti-IL-4Rα)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Benralizumab (anti-IL-5Rα)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Mépolizumab ou benralizumab (anti-IL-5 ou anti-IL-5Rα) selon les cas</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="note">Biothérapies disponibles dans l'asthme sévère : omalizumab (anti-IgE, asthme allergique IgE-dépendant) ; mépolizumab/reslizumab (anti-IL-5) ; benralizumab (anti-IL-5Rα) ; dupilumab (anti-IL-4Rα, asthme éosinophilique + dermatite atopique) ; tézépélumab (anti-TSLP, tous phénotypes). L'asthme éosinophilique avec éosinophiles ≥ 300/µL est une indication aux anti-IL-5.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'omalizumab cible les IgE libres ; indiqué dans l'asthme allergique IgE-dépendant sévère (IgE totales 75-1500 UI/mL), pas spécifiquement l'asthme éosinophilique.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le dupilumab bloque IL-4/IL-13 ; indiqué si éosinophiles ≥ 150/µL ou FeNO ≥ 25 ppb ; peut aussi traiter la dermatite atopique associée.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le benralizumab seul sans mépolizumab est une réponse incomplète (les deux ont des indications dans l'asthme éosinophilique sévère).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Mépolizumab (anti-IL-5) ou benralizumab (anti-IL-5Rα) sont les biothérapies de référence de l'asthme éosinophilique sévère avec éosinophiles ≥ 300/µL.</div>
+  </div>
+</div>
+
+<!-- Q10 — QROC -->
+<div class="q" id="Q10" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q10</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Définissez la variabilité du débit expiratoire de pointe (DEP) et expliquez son utilité dans le suivi de l'asthme.</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Débit expiratoire de pointe (DEP) :</strong> Débit maximal lors d'une expiration forcée après inspiration complète, mesuré au débitmètre de pointe (peak-flow meter).</p>
+      <p><strong>Variabilité circadienne :</strong> (DEP max – DEP min) / DEP max × 100 sur 2 semaines. Normale &lt; 10-15 %. Variabilité ≥ 20 % est caractéristique de l'asthme (hyperréactivité bronchique diurne).</p>
+      <p><strong>Utilité :</strong></p>
+      <ul>
+        <li>Diagnostic d'asthme (variabilité ≥ 20 % sur 2 semaines)</li>
+        <li>Évaluation du contrôle (DEP normal entre les crises, bonne variabilité)</li>
+        <li>Plans d'action : alertes si DEP &lt; 80 % de la meilleure valeur personnelle (traitement de secours), DEP &lt; 60 % (urgences)</li>
+        <li>Surveillance dans les asthmes sévères instables en ambulatoire</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Q11 — QROC -->
+<div class="q" id="Q11" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q11</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Décrivez les 5 paliers du traitement de fond de l'asthme selon GINA.</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <ul>
+        <li><strong>Palier 1 :</strong> SABA à la demande uniquement (asthme intermittent)</li>
+        <li><strong>Palier 2 :</strong> CSI faible dose quotidien + SABA à la demande (asthme persistant léger)</li>
+        <li><strong>Palier 3 :</strong> CSI faible dose + LABA OU CSI dose moyenne (asthme modéré non contrôlé)</li>
+        <li><strong>Palier 4 :</strong> CSI dose moyenne-forte + LABA ± tiotropium ± antileucotriènes (asthme sévère)</li>
+        <li><strong>Palier 5 :</strong> palier 4 + biothérapie ciblée (anti-IgE, anti-IL-5, anti-IL-4Rα, anti-TSLP) ± corticothérapie orale minimale (asthme très sévère, réfractaire)</li>
+      </ul>
+      <p>La stratégie GINA recommande de palier à la hausse si non contrôlé et de palier à la baisse (step-down) si contrôle maintenu ≥ 3 mois.</p>
+    </div>
+  </div>
+</div>
+
+<footer>11 questions · 9 notées · Item 188 — Asthme · D2 T1 Pneumologie · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const pts=qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../dynamic-header.js"></script>
+</body></html>
