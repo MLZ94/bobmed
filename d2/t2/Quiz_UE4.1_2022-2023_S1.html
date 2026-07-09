@@ -47,6 +47,15 @@ h1{font-size:20px;font-weight:600;margin:0}
 .citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
 .mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
 .qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
 .qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
 .qrocans{color:var(--vrai);font-weight:600}
 .actions{display:flex;gap:8px;margin-top:10px}
@@ -80,7 +89,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 <div class="sub">40 questions : SQI1 (12) · TCS1 (3, verrouillé) · KFP1 (3, verrouillé) · DP1 (12, verrouillé) · DP2 (10, verrouillé)</div>
 <div class="scorebar">
 <span class="pill">Validées : <b id="s-done">0/40</b></span>
-<span class="pill">Score : <b id="s-ok">0/39</b></span>
+<span class="pill">Score : <b id="s-ok">0/40</b></span>
 <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
 <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
 </div>
@@ -380,7 +389,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 <div class="dpctx">Un homme de 71 ans est adressé aux urgences à 16h15 par les pompiers pour malaise à domicile. Il présente des céphalées depuis le réveil, avec nausées et vomissements.Il a pour antécédents : un cancer du poumon traité en 2019 en surveillance, un tabagisme sevré, une hypertension artérielle. Il vit avec son épouse en appartement, est autonome à domicile. Son traitement habituel comprend : Amlodipine 10mg, Périndopil 2mg. Cliniquement, il est somnolent Glasgow 10, vous constatez une dysarthrie et un nystagmus. Il ne semble pas exister de déficit moteur. Il continue de vomir dans le box des urgences. Il est dyspnéique. Il a une tension artérielle à 198/120 mmHg, une fréquence cardiaque à 103 battements par minutes, une saturation à 89%, et une température à 38,8°. L’ECG montre une tachycardie sinusaleVous réalisez un scanner cérébral en urgence qui met en évidence un volumineux hématome cérébelleux avec compression du 4ème ventricule.La radiographie thoracique montre une foyer pulmonaire basal droit.</div>
 <div class="stem">Quels sont les 3 problèmes cliniques à prendre en charge dans l’immédiat ?</div>
 <textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
-<div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
 <div class="correction" hidden>
 <div class="qrocans">Réponse attendue : • Prise en charge</div>
 </div>
@@ -919,7 +928,7 @@ function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(dis
 
 function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
 function grade(q){
-  if(q.dataset.type==='QROC')return;
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
   const correct=new Set(q.dataset.correct.split(''));
   const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
   let disc=0;
@@ -971,13 +980,19 @@ function reveal(q,skipUnlock){
 function updateScore(){
   const qs=[...$('.q')];const all=qs.length;
   const done=qs.filter(q=>q.classList.contains('done')).length;
-  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  const grad=qs.length;
   let pts=0;
   qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
   const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
   const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
 }
 
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
 document.addEventListener('click',e=>{
   const li=e.target.closest('.opt');
   if(li){
@@ -989,7 +1004,9 @@ document.addEventListener('click',e=>{
     return;
   }
   const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
-  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
 });
 
 function initLocks(){
