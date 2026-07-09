@@ -623,7 +623,8 @@ HTML_TEMPLATE = """<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><m
 *{{box-sizing:border-box}}
 body{{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}}
 header{{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}}
-.wrap,.hwrap{{max-width:820px;margin:0 auto;padding:0 16px 80px}}
+.wrap{{max-width:820px;margin:0 auto;padding:0 16px 80px}}
+.hwrap{{max-width:820px;margin:0 auto}}
 h1{{font-size:20px;font-weight:600;margin:0}}
 .sub{{color:var(--mut);font-size:13px;margin-top:2px}}
 .scorebar{{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}}
