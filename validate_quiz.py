@@ -347,6 +347,28 @@ def _check_initlocks_call(html_text: str) -> list[dict]:
     return []
 
 
+def _check_qrp_engine(html_text: str) -> list[dict]:
+    """Une question data-type="QRP" exige que le moteur embarqué gère les QRP.
+
+    Le moteur (grade()/click handler) est dupliqué dans chaque fichier ; un fichier
+    contenant un QRP mais dont le <script> ne connaît pas le type QRP noterait la
+    question au barème EDN (QRM) et laisserait cocher plus d'items que le nombre
+    attendu — silencieusement. On bloque donc ce cas."""
+    if 'data-type="QRP"' not in html_text:
+        return []
+    if "isQRP" not in html_text:
+        return [{
+            "level":   "error",
+            "code":    "QRP_ENGINE_MISSING",
+            "message": (
+                "Question data-type=\"QRP\" présente mais le moteur JS embarqué ne "
+                "gère pas les QRP (marqueur 'isQRP' absent) — la notation "
+                "proportionnelle et le plafond de sélection ne s'appliqueront pas."
+            ),
+        }]
+    return []
+
+
 # ── Entrée principale ─────────────────────────────────────────────────────────
 
 def validate_file(path: Path) -> dict:
@@ -376,6 +398,7 @@ def validate_file(path: Path) -> dict:
         + _check_broken_words(plain)
         + _check_image_placement(soup)
         + _check_initlocks_call(html_text)
+        + _check_qrp_engine(html_text)
     )
 
     errors   = [f for f in findings if f["level"] == "error"]

@@ -152,7 +152,7 @@ Chaque question `<div class="q">` contient dans cet ordre :
 
 | Attribut | Valeur | Description |
 |---|---|---|
-| `data-type` | `QRM` / `QRU` / `QROC` | Type de question |
+| `data-type` | `QRM` / `QRU` / `QROC` / `QRP` | Type de question (QRP = notation proportionnelle + sélection plafonnée, cf. « Types de questions ») |
 | `data-correct` | `"AB"` / `"C"` / `""` | Lettres correctes concaténées (vide pour QROC) |
 | `data-l` sur `.opt` | `"A"` … | Lettre de l'option |
 | `data-mandatory="1"` sur `.opt` | — | Item **indispensable** : si non coché → 0 pt quelle que soit la discordance. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucune étoile, aucune couleur avant réponse) — cf. « CSS clés » |
@@ -268,6 +268,16 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 ### QRPL (Question à Réponses Partiellement Liées)
 - Traiter comme QRM avec EDN standard
 - Indiquer le nombre de réponses attendues dans l'énoncé : `<em>(4 réponses attendues)</em>`
+
+### QRP (Question à Réponses Prédéfinies)
+- Plusieurs options cochables (comme une QRM), mais **notation et sélection différentes du barème EDN** — ne pas confondre avec QRM/QRPL.
+- `data-type="QRP"` — `data-correct="ABC"` (lettres concaténées des items vrais, même convention que QRM).
+- **Nombre de réponses attendu = nombre d'items vrais** (options `data-correct="1"`). C'est la seule source de vérité : ne pas dépendre d'un « N réponses attendues » écrit dans l'énoncé.
+- **Notation proportionnelle** : `score = (nombre d'items vrais cochés) / (nombre de réponses attendu)`. Ex. 3 items vrais, 2 cochés justes → 0,67 / 1. Contribue au score global comme une question notée sur 1 (comptée dans M, jamais exclue comme une QROC).
+- **Plafond de sélection** : on ne peut pas cocher plus d'items que le nombre attendu (le moteur bloque le clic au-delà) — cocher un item faux « consomme » donc un emplacement et pénalise mécaniquement le score, inutile de retirer des points en plus.
+- Correction : même format `.citem` VRAI/FAUX par option que les QRM (cf. « Format de correction détaillée »).
+- Badge conseillé dans le `qhead` : `QRP · N réponses` (N = nombre d'items vrais), pour indiquer d'emblée le plafond à l'étudiant.
+- Le moteur JS est embarqué dans chaque quiz : une question QRP n'est correctement notée que si le `<script>` du fichier connaît le type (marqueur `isQRP`). `validate_quiz.py` bloque (`QRP_ENGINE_MISSING`) tout fichier contenant un QRP sans moteur à jour.
 
 ### TCS (Test de Concordance de Script)
 - Traiter comme QRU
@@ -407,7 +417,10 @@ function grade(q) {
     if (m.textContent) o.appendChild(m);
   });
   const isQRU = q.dataset.type === 'QRU';
-  let pts = qPoints(disc, isQRU);
+  const isQRP = q.dataset.type === 'QRP';
+  // QRP : nb attendu = nb d'items vrais ; score = (bonnes cochées / nb attendu).
+  const nExp = correct.size, good = [...sel].filter(l => correct.has(l)).length;
+  let pts = isQRP ? (nExp > 0 ? good / nExp : 0) : qPoints(disc, isQRU);
   // Règles indispensable/inacceptable
   const missMandatory = [...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o => !sel.has(o.dataset.l));
   const hitUnacceptable = [...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o => sel.has(o.dataset.l));
@@ -417,7 +430,8 @@ function grade(q) {
   markSpecial(q);
   const st = q.querySelector('.status'); st.style.color = '';
   st.textContent = fmtPts(pts) + ' / 1';
-  if (!isQRU && disc > 0) st.textContent += ' (' + disc + ' incohérence' + (disc > 1 ? 's' : '') + ')';
+  if (isQRP) st.textContent += ' (' + good + '/' + nExp + ' bonne' + (nExp > 1 ? 's' : '') + ' réponse' + (nExp > 1 ? 's' : '') + ')';
+  else if (!isQRU && disc > 0) st.textContent += ' (' + disc + ' incohérence' + (disc > 1 ? 's' : '') + ')';
   if (missMandatory) st.textContent += ' — item indispensable manqué';
   if (hitUnacceptable) st.textContent += ' — item inacceptable coché';
   st.className = 'status ' + (pts === 1 ? 'ok' : (pts === 0 ? 'ko' : 'part'));
@@ -458,6 +472,11 @@ document.addEventListener('click', e => {
     const q = li.closest('.q');
     if (!q.classList.contains('done')) {
       if (q.dataset.type === 'QRU') { q.querySelectorAll('.opt').forEach(o => o.classList.remove('sel')); li.classList.add('sel'); }
+      else if (q.dataset.type === 'QRP') {
+        // Plafond QRP : pas plus d'items cochés que le nombre attendu (= nb d'items vrais).
+        if (li.classList.contains('sel')) li.classList.remove('sel');
+        else if (q.querySelectorAll('.opt.sel').length < q.querySelectorAll('.opt[data-correct="1"]').length) li.classList.add('sel');
+      }
       else { li.classList.toggle('sel'); }
     }
     return;
