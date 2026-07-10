@@ -56,10 +56,10 @@ def bold(s):  return _c("1", s)
 TEXT_DIFF_THRESHOLD = 0.20   # 20% de différence = signalé
 HAIKU_MODEL = "claude-haiku-4-5-20251001"
 
-# Le HTML fusionne certains types : TCS est rendu data-type="QRU",
-# QRPL est rendu data-type="QRM". Pour comparer debug.json (type source) au HTML,
-# on canonicalise le type source vers son type HTML.
-DEBUG_TO_HTML_TYPE = {"TCS": "QRU", "QRPL": "QRM"}
+# Le HTML fusionne certains types : TCS est rendu data-type="QRU". QRPL et QRP
+# gardent en revanche leur propre data-type (barème/plafond dédiés). Pour comparer
+# debug.json (type source) au HTML, on canonicalise le type source vers son type HTML.
+DEBUG_TO_HTML_TYPE = {"TCS": "QRU"}
 
 def canon_type(t: str) -> str:
     return DEBUG_TO_HTML_TYPE.get(t, t)
@@ -212,7 +212,7 @@ def mechanical_check(html_qs: list[dict], debug_qs: list[dict]) -> list[dict]:
         htype = hq["type"]          # data-type HTML (QRM/QRU/QROC/QZONE)
         dtype_html = canon_type(dtype)   # type source projeté sur le rendu HTML
 
-        # Type — comparer après canonicalisation (TCS→QRU, QRPL→QRM)
+        # Type — comparer après canonicalisation (TCS→QRU ; QRPL/QRP inchangés)
         if dtype_html != htype and htype not in ("?",) and dtype != "QZONE":
             findings.append({
                 "level": "warning",
