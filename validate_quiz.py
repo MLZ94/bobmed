@@ -369,6 +369,28 @@ def _check_qrp_engine(html_text: str) -> list[dict]:
     return []
 
 
+def _check_qrpl_engine(html_text: str) -> list[dict]:
+    """Une question data-type="QRPL" exige un moteur qui plafonne la sélection.
+
+    QRPL = barème EDN (comme QRM) MAIS nombre d'items sélectionnables plafonné.
+    Le plafond est appliqué dans le click handler par la branche `||q.dataset.type
+    ==='QRPL'`. Un fichier contenant un QRPL sans cette branche laisserait cocher
+    autant d'items que voulu — on bloque donc ce cas."""
+    if 'data-type="QRPL"' not in html_text:
+        return []
+    if "'QRPL'" not in html_text:  # marqueur de la comparaison de type dans le JS
+        return [{
+            "level":   "error",
+            "code":    "QRPL_ENGINE_MISSING",
+            "message": (
+                "Question data-type=\"QRPL\" présente mais le moteur JS embarqué ne "
+                "plafonne pas la sélection des QRPL (comparaison 'QRPL' absente du "
+                "click handler)."
+            ),
+        }]
+    return []
+
+
 # ── Entrée principale ─────────────────────────────────────────────────────────
 
 def validate_file(path: Path) -> dict:
@@ -399,6 +421,7 @@ def validate_file(path: Path) -> dict:
         + _check_image_placement(soup)
         + _check_initlocks_call(html_text)
         + _check_qrp_engine(html_text)
+        + _check_qrpl_engine(html_text)
     )
 
     errors   = [f for f in findings if f["level"] == "error"]

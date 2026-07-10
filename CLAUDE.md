@@ -152,8 +152,9 @@ Chaque question `<div class="q">` contient dans cet ordre :
 
 | Attribut | Valeur | Description |
 |---|---|---|
-| `data-type` | `QRM` / `QRU` / `QROC` / `QRP` | Type de question (QRP = notation proportionnelle + sélection plafonnée, cf. « Types de questions ») |
+| `data-type` | `QRM` / `QRU` / `QROC` / `QRP` / `QRPL` | Type de question (QRP = notation proportionnelle + sélection plafonnée ; QRPL = barème EDN + sélection plafonnée ; cf. « Types de questions ») |
 | `data-correct` | `"AB"` / `"C"` / `""` | Lettres correctes concaténées (vide pour QROC) |
+| `data-max="N"` sur `.q` | `"3"` … | QRPL « jusqu'à N » uniquement : relève le plafond de sélection à N (sinon plafond = nombre de bonnes réponses) |
 | `data-l` sur `.opt` | `"A"` … | Lettre de l'option |
 | `data-mandatory="1"` sur `.opt` | — | Item **indispensable** : si non coché → 0 pt quelle que soit la discordance. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucune étoile, aucune couleur avant réponse) — cf. « CSS clés » |
 | `data-unacceptable="1"` sur `.opt` | — | Item **inacceptable** : si coché → 0 pt même si tout le reste est correct. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucun repère, aucune couleur avant réponse) — cf. « CSS clés » |
@@ -266,8 +267,11 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 - Correction dans `<div class="qrocmodel"><p>…</p></div>`
 
 ### QRPL (Question à Réponses Partiellement Liées)
-- Traiter comme QRM avec EDN standard
-- Indiquer le nombre de réponses attendues dans l'énoncé : `<em>(4 réponses attendues)</em>`
+- `data-type="QRPL"` — `data-correct="ABC"` (lettres concaténées, même convention que QRM).
+- **Notation = barème EDN** (identique à la QRM : 0 discordance = 1 pt · 1 = 0,5 · 2 = 0,2 · ≥3 = 0). La correction s'affiche avec le format `.citem` VRAI/FAUX et le statut montre les incohérences, exactement comme une QRM.
+- **Plafond de sélection** : on ne peut pas cocher plus d'items que le nombre attendu. Base du plafond = **nombre de bonnes réponses** (`data-correct`). Pour un énoncé « sélectionnez **jusqu'à N** items » (borne haute supérieure au nombre de bonnes réponses), ajouter `data-max="N"` sur le `<div class="q">` pour relever le plafond à N et autoriser la sur-sélection (pénalisée par le barème EDN). Sans `data-max`, le plafond vaut le nombre de bonnes réponses.
+- Indiquer le nombre attendu dans le badge `qtype` (`QRPL · N réponses` ou `QRPL · N réponses max`) et/ou l'énoncé : `<em>(4 réponses attendues)</em>`.
+- Différence avec **QRP** : même plafond de sélection, mais QRPL garde le barème EDN alors que QRP note en proportionnel (bonnes cochées / nb attendu).
 
 ### QRP (Question à Réponses Prédéfinies)
 - Plusieurs options cochables (comme une QRM), mais **notation et sélection différentes du barème EDN** — ne pas confondre avec QRM/QRPL.
@@ -472,10 +476,14 @@ document.addEventListener('click', e => {
     const q = li.closest('.q');
     if (!q.classList.contains('done')) {
       if (q.dataset.type === 'QRU') { q.querySelectorAll('.opt').forEach(o => o.classList.remove('sel')); li.classList.add('sel'); }
-      else if (q.dataset.type === 'QRP') {
-        // Plafond QRP : pas plus d'items cochés que le nombre attendu (= nb d'items vrais).
+      else if (q.dataset.type === 'QRP' || q.dataset.type === 'QRPL') {
+        // Plafond QRP/QRPL : pas plus d'items cochés que le nombre attendu.
+        // Base = nombre de bonnes réponses (data-correct, robuste aux data-correct="1"
+        // manquants sur les .opt) ; relevé au « max N » d'un QRPL « jusqu'à N » via
+        // data-max (QRP n'a jamais de data-max).
+        const _c = (q.dataset.correct || '').replace(/[^A-Za-z]/g, '').length, _mx = Math.max(_c, +q.dataset.max || 0);
         if (li.classList.contains('sel')) li.classList.remove('sel');
-        else if (q.querySelectorAll('.opt.sel').length < q.querySelectorAll('.opt[data-correct="1"]').length) li.classList.add('sel');
+        else if (!_mx || q.querySelectorAll('.opt.sel').length < _mx) li.classList.add('sel');
       }
       else { li.classList.toggle('sel'); }
     }

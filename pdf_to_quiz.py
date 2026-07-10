@@ -599,12 +599,19 @@ def render_question(section_code, q, image_html=""):
     correct_letters = "".join(o["letter"] for o in opts if o["valid"])
     data_type = "QRM"
     badge = "QRM"
+    extra_q_attrs = ""
     if q["type"] == "QRPL":
+        # Barème EDN (comme une QRM) + plafond de sélection côté JS. Le plafond
+        # vaut le nombre de bonnes réponses ; pour un « jusqu'à N » (select_max),
+        # on le relève à N via data-max pour autoriser la sur-sélection.
+        data_type = "QRPL"
         n = q["select_n"]
         if n:
             badge = f'QRPL · {n} réponse{"s" if n > 1 else ""}' + (" max" if q["select_max"] else "")
         else:
             badge = "QRPL"
+        if q["select_max"] and n:
+            extra_q_attrs = f' data-max="{n}"'
     elif q["type"] == "QRP":
         # Notation proportionnelle : nb attendu = nb d'items vrais, qui plafonne
         # aussi le nombre d'items sélectionnables côté JS (cf. click handler).
@@ -614,7 +621,7 @@ def render_question(section_code, q, image_html=""):
     opts_html = "\n".join(render_option_li(o) for o in opts)
     ans_display = ", ".join(correct_letters) if correct_letters else "[A VERIFIER]"
     citems = render_citems(opts)
-    return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}">
+    return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}"{extra_q_attrs}>
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
 {dpctx_html}<div class="stem">{esc(q["stem"])}</div>
 {image_html}<ul class="opts">
@@ -811,7 +818,7 @@ document.addEventListener('click',e=>{{
     const q=li.closest('.q');
     if(!q.classList.contains('done')){{
       if(q.dataset.type==='QRU'){{q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}}
-      else if(q.dataset.type==='QRP'){{if(li.classList.contains('sel'))li.classList.remove('sel');else if(q.querySelectorAll('.opt.sel').length<q.querySelectorAll('.opt[data-correct="1"]').length)li.classList.add('sel');}}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){{const _c=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length,_mx=Math.max(_c,+q.dataset.max||0);if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}}
       else{{li.classList.toggle('sel');}}
     }}
     return;
