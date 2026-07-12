@@ -157,7 +157,7 @@ Chaque question `<div class="q">` contient dans cet ordre :
 
 | Attribut | Valeur | Description |
 |---|---|---|
-| `data-type` | `QRM` / `QRU` / `QROC` / `QRP` / `QRPL` | Type de question. QRM = barème EDN (discordance) ; QRP et QRPL = notation R2C proportionnelle X/N + sélection plafonnée à N (cf. « Types de questions ») |
+| `data-type` | `QRM` / `QRU` / `QROC` / `QRP` / `QRPL` / `QZONE` | Type de question. QRM = barème EDN (discordance) ; QRP, QRPL et QZONE = notation R2C proportionnelle X/N + sélection plafonnée à N (cf. « Types de questions ») |
 | `data-correct` | `"AB"` / `"C"` / `""` | Lettres correctes concaténées (vide pour QROC) |
 | `data-l` sur `.opt` | `"A"` … | Lettre de l'option |
 | `data-mandatory="1"` sur `.opt` | — | Item **indispensable** : si non coché → 0 pt quelle que soit la discordance. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucune étoile, aucune couleur avant réponse) — cf. « CSS clés » |
@@ -294,8 +294,9 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 
 ### QZONE (pointage de zone sur une image)
 
-Certaines plateformes source exportent des questions où l'étudiant clique/pointe directement une ou plusieurs zones d'une image (radiographie, schéma…) plutôt que de choisir parmi des options textuelles (`Type: QZONE` dans le PDF). Le site n'a pas de mécanisme de clic-sur-image natif dans le gabarit de base : traiter ces questions comme des **QRM dont les options sont des zones cliquables superposées à l'image**, en réutilisant intégralement le moteur de notation EDN existant (aucune logique de score dédiée).
+Certaines plateformes source exportent des questions où l'étudiant clique/pointe directement une ou plusieurs zones d'une image (radiographie, schéma…) plutôt que de choisir parmi des options textuelles (`Type: QZONE` dans le PDF). Le site n'a pas de mécanisme de clic-sur-image natif dans le gabarit de base : traiter ces questions comme des **questions à zones cliquables superposées à l'image**, notées comme une QRP/QRPL.
 
+- **Notation R2C (QZP)** : proportionnelle **x/n** — x = bonnes zones pointées, n = bonnes zones attendues (`data-correct`) — et **plafond de sélection = n** (comme QRP/QRPL). Pas de barème EDN par discordance : le type QZONE est inclus dans le drapeau `isProp` du moteur.
 - `data-type="QZONE"` — `data-correct="AB"` (lettres des zones correctes, même convention que QRM)
 - Structure : l'image et les zones vivent dans un conteneur `.extra.zonewrap` (au lieu du `.extra` simple), avec les `<div class="zone">` en frères de l'`<img>`, positionnés en `%` (responsive) :
 
@@ -322,11 +323,11 @@ Certaines plateformes source exportent des questions où l'étudiant clique/poin
 .q.done .zone{cursor:default}
 ```
 
-- JS : généraliser les sélecteurs `.opt` du script de référence (`grade()`, `reveal()`, `markSpecial()`, le handler de clic) en `.opt,.zone` — c'est la **seule** modification requise, le reste du moteur (discordance, barème, `unlockNext`, etc.) fonctionne à l'identique car les zones portent `data-l` comme les options :
+- JS : généraliser les sélecteurs `.opt` du script de référence (`grade()`, `reveal()`, `markSpecial()`, le handler de clic) en `.opt,.zone` — le reste du moteur fonctionne à l'identique car les zones portent `data-l` comme les options. Le type `QZONE` est déjà dans `isProp` (notation x/n) ; seuls les sélecteurs sont à généraliser :
   - `grade()` : `q.querySelectorAll('.opt.sel')` → `q.querySelectorAll('.opt.sel,.zone.sel')`, et `q.querySelectorAll('.opt')` → `q.querySelectorAll('.opt,.zone')`
   - `reveal()` : `q.querySelectorAll('.opt')` → `q.querySelectorAll('.opt,.zone')`
   - `markSpecial()` (items indispensable/inacceptable, cf. « CSS clés » et « JS complet de référence ») : `q.querySelectorAll('.opt')` → `q.querySelectorAll('.opt,.zone')`
-  - handler de clic : `e.target.closest('.opt')` → `e.target.closest('.opt,.zone')`, et le `querySelectorAll('.opt')` interne (déselection QRU) → `.opt,.zone`
+  - handler de clic : `e.target.closest('.opt')` → `e.target.closest('.opt,.zone')`, le `querySelectorAll('.opt')` interne (déselection QRU) → `.opt,.zone`, **et le plafond de sélection** `q.querySelectorAll('.opt.sel')` → `q.querySelectorAll('.opt.sel,.zone.sel')`
 - Coordonnées des zones : à estimer visuellement (pourcentages du cadre de l'image) à partir de l'image elle-même — pas d'extraction automatique fiable des coordonnées de pointage depuis le PDF, `pdf_to_quiz.py` se contente de détecter et signaler le type (cf. section suivante).
 - Correction : même format `.citem` VRAI/FAUX que les QRM classiques (« Zone 1. VRAI — … », « Zone 2. VRAI — … »), l'`<div class="ans">` désignant les zones par leur nom/label plutôt que par de simples lettres.
 
@@ -423,9 +424,9 @@ function grade(q) {
     if (m.textContent) o.appendChild(m);
   });
   const isQRU = q.dataset.type === 'QRU';
-  const isProp = q.dataset.type === 'QRP' || q.dataset.type === 'QRPL';
-  // QRP/QRPL (R2C, « nombre de réponses précisé ») : score = X/N, X = bonnes
-  // cochées, N = nb de bonnes réponses (data-correct). QRM reste au barème EDN.
+  const isProp = q.dataset.type === 'QRP' || q.dataset.type === 'QRPL' || q.dataset.type === 'QZONE';
+  // QRP/QRPL/QZONE (R2C, notation « x/n ») : score = X/N, X = bonnes cochées,
+  // N = nb de bonnes réponses (data-correct). QRM reste au barème EDN (discordance).
   const nExp = correct.size, good = [...sel].filter(l => correct.has(l)).length;
   let pts = isProp ? (nExp > 0 ? good / nExp : 0) : qPoints(disc, isQRU);
   // Règles indispensable/inacceptable
