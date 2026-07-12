@@ -269,6 +269,7 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 - Non notée dans le score (exclue du compteur M)
 - Bouton "Voir la réponse" uniquement (pas de "Valider")
 - Correction dans `<div class="qrocmodel"><p>…</p></div>`
+- **Conformité R2C (écart assumé)** : le barème officiel R2C prévoit **3 catégories** — 1 pt (réponse exacte, cat. 1) · 0,5 pt (réponse acceptable mais non exacte, cat. 2) · 0 pt (fausse, cat. 3). La catégorie 0,5 est déterminée par le jury à partir d'une liste fournie avec le sujet : elle **n'est pas calculable automatiquement** à partir des annales. Le site s'en tient donc volontairement à **1/0** (auto-correction par mots-clés + auto-évaluation « juste/faux » en D2 ; auto-correction seule en D1). Choix délibéré de ne pas exposer le 0,5 en auto-évaluation. Tous les autres types (QRM, QRU, QRP, QRPL, QZONE) sont conformes au barème R2C.
 
 ### QRP (Question à nombre de Réponses Précisé)
 - `data-type="QRP"` — `data-correct="ABC"` (lettres concaténées des items vrais, même convention que QRM).
