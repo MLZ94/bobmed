@@ -600,29 +600,24 @@ def render_question(section_code, q, image_html=""):
     correct_letters = "".join(o["letter"] for o in opts if o["valid"])
     data_type = "QRM"
     badge = "QRM"
-    extra_q_attrs = ""
     if q["type"] == "QRPL":
-        # Barème EDN (comme une QRM) + plafond de sélection côté JS. Le plafond
-        # vaut le nombre de bonnes réponses ; pour un « jusqu'à N » (select_max),
-        # on le relève à N via data-max pour autoriser la sur-sélection.
+        # QRPL = « QRP longue » : notation R2C proportionnelle X/N (identique à la
+        # QRP), plafond de sélection = N = nombre de bonnes réponses (cf. grade()
+        # et click handler). Se distingue de la QRP seulement par le nombre
+        # d'options (liste longue).
         data_type = "QRPL"
-        n = q["select_n"]
-        if n:
-            badge = f'QRPL · {n} réponse{"s" if n > 1 else ""}' + (" max" if q["select_max"] else "")
-        else:
-            badge = "QRPL"
-        if q["select_max"] and n:
-            extra_q_attrs = f' data-max="{n}"'
+        n = sum(1 for o in opts if o["valid"])
+        badge = f'QRPL · {n} réponse{"s" if n > 1 else ""}'
     elif q["type"] == "QRP":
-        # Notation proportionnelle : nb attendu = nb d'items vrais, qui plafonne
-        # aussi le nombre d'items sélectionnables côté JS (cf. click handler).
+        # Notation proportionnelle X/N : N = nb d'items vrais, qui plafonne aussi
+        # le nombre d'items sélectionnables côté JS (cf. click handler).
         data_type = "QRP"
         n = sum(1 for o in opts if o["valid"])
         badge = f'QRP · {n} réponse{"s" if n > 1 else ""}'
     opts_html = "\n".join(render_option_li(o) for o in opts)
     ans_display = ", ".join(correct_letters) if correct_letters else "[A VERIFIER]"
     citems = render_citems(opts)
-    return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}"{extra_q_attrs}>
+    return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
 {dpctx_html}<div class="stem">{esc(q["stem"])}</div>
 {image_html}<ul class="opts">
@@ -767,8 +762,8 @@ function grade(q){{
     if(m.textContent)o.appendChild(m);
   }});
   const isQRU=q.dataset.type==='QRU';
-  const isQRP=q.dataset.type==='QRP';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
-  let pts=isQRP?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
@@ -777,7 +772,7 @@ function grade(q){{
   markSpecial(q);
   const st=q.querySelector('.status');st.style.color='';
   st.textContent=fmtPts(pts)+' / 1';
-  if(isQRP)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
   else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
@@ -819,7 +814,7 @@ document.addEventListener('click',e=>{{
     const q=li.closest('.q');
     if(!q.classList.contains('done')){{
       if(q.dataset.type==='QRU'){{q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}}
-      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){{const _c=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length,_mx=Math.max(_c,+q.dataset.max||0);if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){{const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}}
       else{{li.classList.toggle('sel');}}
     }}
     return;

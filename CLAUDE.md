@@ -157,9 +157,8 @@ Chaque question `<div class="q">` contient dans cet ordre :
 
 | Attribut | Valeur | Description |
 |---|---|---|
-| `data-type` | `QRM` / `QRU` / `QROC` / `QRP` / `QRPL` | Type de question (QRP = notation proportionnelle + sélection plafonnée ; QRPL = barème EDN + sélection plafonnée ; cf. « Types de questions ») |
+| `data-type` | `QRM` / `QRU` / `QROC` / `QRP` / `QRPL` | Type de question. QRM = barème EDN (discordance) ; QRP et QRPL = notation R2C proportionnelle X/N + sélection plafonnée à N (cf. « Types de questions ») |
 | `data-correct` | `"AB"` / `"C"` / `""` | Lettres correctes concaténées (vide pour QROC) |
-| `data-max="N"` sur `.q` | `"3"` … | QRPL « jusqu'à N » uniquement : relève le plafond de sélection à N (sinon plafond = nombre de bonnes réponses) |
 | `data-l` sur `.opt` | `"A"` … | Lettre de l'option |
 | `data-mandatory="1"` sur `.opt` | — | Item **indispensable** : si non coché → 0 pt quelle que soit la discordance. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucune étoile, aucune couleur avant réponse) — cf. « CSS clés » |
 | `data-unacceptable="1"` sur `.opt` | — | Item **inacceptable** : si coché → 0 pt même si tout le reste est correct. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucun repère, aucune couleur avant réponse) — cf. « CSS clés » |
@@ -271,22 +270,20 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 - Bouton "Voir la réponse" uniquement (pas de "Valider")
 - Correction dans `<div class="qrocmodel"><p>…</p></div>`
 
-### QRPL (Question à Réponses Partiellement Liées)
-- `data-type="QRPL"` — `data-correct="ABC"` (lettres concaténées, même convention que QRM).
-- **Notation = barème EDN** (identique à la QRM : 0 discordance = 1 pt · 1 = 0,5 · 2 = 0,2 · ≥3 = 0). La correction s'affiche avec le format `.citem` VRAI/FAUX et le statut montre les incohérences, exactement comme une QRM.
-- **Plafond de sélection** : on ne peut pas cocher plus d'items que le nombre attendu. Base du plafond = **nombre de bonnes réponses** (`data-correct`). Pour un énoncé « sélectionnez **jusqu'à N** items » (borne haute supérieure au nombre de bonnes réponses), ajouter `data-max="N"` sur le `<div class="q">` pour relever le plafond à N et autoriser la sur-sélection (pénalisée par le barème EDN). Sans `data-max`, le plafond vaut le nombre de bonnes réponses.
-- Indiquer le nombre attendu dans le badge `qtype` (`QRPL · N réponses` ou `QRPL · N réponses max`) et/ou l'énoncé : `<em>(4 réponses attendues)</em>`.
-- Différence avec **QRP** : même plafond de sélection, mais QRPL garde le barème EDN alors que QRP note en proportionnel (bonnes cochées / nb attendu).
-
-### QRP (Question à Réponses Prédéfinies)
-- Plusieurs options cochables (comme une QRM), mais **notation et sélection différentes du barème EDN** — ne pas confondre avec QRM/QRPL.
+### QRP (Question à nombre de Réponses Précisé)
 - `data-type="QRP"` — `data-correct="ABC"` (lettres concaténées des items vrais, même convention que QRM).
-- **Nombre de réponses attendu = nombre d'items vrais** (options `data-correct="1"`). C'est la seule source de vérité : ne pas dépendre d'un « N réponses attendues » écrit dans l'énoncé.
-- **Notation proportionnelle** : `score = (nombre d'items vrais cochés) / (nombre de réponses attendu)`. Ex. 3 items vrais, 2 cochés justes → 0,67 / 1. Contribue au score global comme une question notée sur 1 (comptée dans M, jamais exclue comme une QROC).
-- **Plafond de sélection** : on ne peut pas cocher plus d'items que le nombre attendu (le moteur bloque le clic au-delà) — cocher un item faux « consomme » donc un emplacement et pénalise mécaniquement le score, inutile de retirer des points en plus.
-- Correction : même format `.citem` VRAI/FAUX par option que les QRM (cf. « Format de correction détaillée »).
-- Badge conseillé dans le `qhead` : `QRP · N réponses` (N = nombre d'items vrais), pour indiquer d'emblée le plafond à l'étudiant.
-- Le moteur JS est embarqué dans chaque quiz : une question QRP n'est correctement notée que si le `<script>` du fichier connaît le type (marqueur `isQRP`). `validate_quiz.py` bloque (`QRP_ENGINE_MISSING`) tout fichier contenant un QRP sans moteur à jour.
+- **Nombre de réponses attendu N = nombre d'items vrais** (`data-correct`). C'est la seule source de vérité : ne pas dépendre d'un « N réponses attendues » écrit dans l'énoncé.
+- **Notation R2C proportionnelle** : `score = X/N` (X = items vrais cochés, N = nombre attendu). Ex. 3 attendus, 2 cochés justes → 0,67 / 1. Contribue au score global comme une question notée sur 1 (comptée dans M, jamais exclue comme une QROC).
+- **Plafond de sélection = N** : on ne peut pas cocher plus de N items (le moteur bloque le clic au-delà) — cocher un item faux « consomme » un emplacement et pénalise donc mécaniquement le X/N.
+- **Ne pas confondre avec la QRM** : la QRM (nombre de réponses non précisé) se note au barème EDN **par discordance** ; la QRP précise le nombre de réponses et se note **en proportionnel**.
+- Correction : même format `.citem` VRAI/FAUX par option que les QRM. Badge conseillé : `QRP · N réponses`.
+- Le moteur JS est embarqué dans chaque quiz : une QRP n'est correctement notée que si le `<script>` gère le proportionnel (marqueur `isProp`). `validate_quiz.py` bloque (`QRP_ENGINE_MISSING`) tout fichier QRP sans moteur à jour.
+
+### QRPL (QRP Longue — Question à nombre de Réponses Précisé, version longue)
+- **« QRP longue » : exactement la même notation (X/N) et le même plafond (= N) que la QRP** ci-dessus ; seule la liste d'options est plus longue. Ne PAS la traiter au barème EDN par discordance (celui-ci ne concerne que la QRM).
+- `data-type="QRPL"` — `data-correct="ABC"` — `score = X/N`, plafond de sélection = N = nombre de bonnes réponses.
+- Correction : format `.citem` VRAI/FAUX. Badge conseillé : `QRPL · N réponses`.
+- Moteur JS requis (drapeau `isProp` + comparaison `'QRPL'` dans le click handler) ; `validate_quiz.py` bloque (`QRPL_ENGINE_MISSING`) sinon.
 
 ### TCS (Test de Concordance de Script)
 - Traiter comme QRU
@@ -426,10 +423,11 @@ function grade(q) {
     if (m.textContent) o.appendChild(m);
   });
   const isQRU = q.dataset.type === 'QRU';
-  const isQRP = q.dataset.type === 'QRP';
-  // QRP : nb attendu = nb d'items vrais ; score = (bonnes cochées / nb attendu).
+  const isProp = q.dataset.type === 'QRP' || q.dataset.type === 'QRPL';
+  // QRP/QRPL (R2C, « nombre de réponses précisé ») : score = X/N, X = bonnes
+  // cochées, N = nb de bonnes réponses (data-correct). QRM reste au barème EDN.
   const nExp = correct.size, good = [...sel].filter(l => correct.has(l)).length;
-  let pts = isQRP ? (nExp > 0 ? good / nExp : 0) : qPoints(disc, isQRU);
+  let pts = isProp ? (nExp > 0 ? good / nExp : 0) : qPoints(disc, isQRU);
   // Règles indispensable/inacceptable
   const missMandatory = [...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o => !sel.has(o.dataset.l));
   const hitUnacceptable = [...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o => sel.has(o.dataset.l));
@@ -439,7 +437,7 @@ function grade(q) {
   markSpecial(q);
   const st = q.querySelector('.status'); st.style.color = '';
   st.textContent = fmtPts(pts) + ' / 1';
-  if (isQRP) st.textContent += ' (' + good + '/' + nExp + ' bonne' + (nExp > 1 ? 's' : '') + ' réponse' + (nExp > 1 ? 's' : '') + ')';
+  if (isProp) st.textContent += ' (' + good + '/' + nExp + ' bonne' + (nExp > 1 ? 's' : '') + ' réponse' + (nExp > 1 ? 's' : '') + ')';
   else if (!isQRU && disc > 0) st.textContent += ' (' + disc + ' incohérence' + (disc > 1 ? 's' : '') + ')';
   if (missMandatory) st.textContent += ' — item indispensable manqué';
   if (hitUnacceptable) st.textContent += ' — item inacceptable coché';
@@ -482,11 +480,11 @@ document.addEventListener('click', e => {
     if (!q.classList.contains('done')) {
       if (q.dataset.type === 'QRU') { q.querySelectorAll('.opt').forEach(o => o.classList.remove('sel')); li.classList.add('sel'); }
       else if (q.dataset.type === 'QRP' || q.dataset.type === 'QRPL') {
-        // Plafond QRP/QRPL : pas plus d'items cochés que le nombre attendu.
-        // Base = nombre de bonnes réponses (data-correct, robuste aux data-correct="1"
-        // manquants sur les .opt) ; relevé au « max N » d'un QRPL « jusqu'à N » via
-        // data-max (QRP n'a jamais de data-max).
-        const _c = (q.dataset.correct || '').replace(/[^A-Za-z]/g, '').length, _mx = Math.max(_c, +q.dataset.max || 0);
+        // Plafond QRP/QRPL = N = nombre de bonnes réponses (data-correct, robuste
+        // aux data-correct="1" manquants sur les .opt). On ne peut pas cocher plus
+        // de N items : cocher un item faux « consomme » un emplacement et pénalise
+        // donc le score X/N.
+        const _mx = (q.dataset.correct || '').replace(/[^A-Za-z]/g, '').length;
         if (li.classList.contains('sel')) li.classList.remove('sel');
         else if (!_mx || q.querySelectorAll('.opt.sel').length < _mx) li.classList.add('sel');
       }
