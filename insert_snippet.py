@@ -39,11 +39,11 @@ UE_MAP = {
     "8.3":  ("Endocrino / Nutrition",                 "d2/t4"),
     "12.1": ("Anglais",                               "d2/t4"),
     "12.2": ("LCA",                                   "d2/t4"),
-    "1.1":  ("Biostatistiques (D1)",                  "annales"),
-    "9.2":  ("UE 9.2 (D1)",                           "annales"),
-    "9.3":  ("UE 9.3 (D1)",                           "annales"),
-    # UE 3 : ambiguïté D1 (annales/) vs D2-T2 (d2/t2/) — demande interactive
-    "3":    ("Psychiatrie / Addictologie",             "AMBIGU"),
+    "1.1":  ("Biostatistiques (D1)",                  "d1/t4"),
+    "9.2":  ("UE 9.2 (D1)",                           "d1/t4"),
+    "9.3":  ("UE 9.3 (D1)",                           "d1/t4"),
+    # UE 3 : ambiguïté D1 (d1/t4/) vs D2-T2 (d2/t2/) — demande interactive
+    "3":    ("Agents infectieux (D1) / Psy-Addicto (D2-T2)", "AMBIGU"),
 }
 
 # ── Couleurs terminal ─────────────────────────────────────────────────────────
@@ -198,13 +198,13 @@ def _update_footer(portal_text: str) -> str:
 
 def resolve_ue3_ambiguity(snippet_href: str) -> str:
     """Demande à l'utilisateur de résoudre l'ambiguïté UE 3 (D1 vs D2-T2)."""
-    print(amber("⚠ UE 3 ambiguë — existe en D1 (annales/) ET en D2-T2 (d2/t2/)."))
+    print(amber("⚠ UE 3 ambiguë — existe en D1 (d1/t4/) ET en D2-T2 (d2/t2/)."))
     print(f"  Fichier : {snippet_href}")
     print("  Indices : préfixe DFG → D1 · préfixe DFA → D2.")
     while True:
-        rep = input("  Portail cible [1=annales, 2=d2/t2] : ").strip()
+        rep = input("  Portail cible [1=d1/t4, 2=d2/t2] : ").strip()
         if rep == "1":
-            return "annales"
+            return "d1/t4"
         if rep == "2":
             return "d2/t2"
         print("  Répondre 1 ou 2.")

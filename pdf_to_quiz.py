@@ -52,12 +52,13 @@ UE_MAP = {
     "8.3": ("Endocrino / Nutrition", "d2/t4"),
     "12.1": ("Anglais", "d2/t4"),
     "12.2": ("LCA", "d2/t4"),
-    "1.1": ("Biostatistiques (D1)", "annales"),
-    "9.2": ("UE 9.2 (D1)", "annales"),
-    "9.3": ("UE 9.3 (D1)", "annales"),
-    # UE 3 existe en D1 (Psy/Addicto, annales/) ET en D2-T2 (Psy/Addicto aussi) :
-    # ambiguïté réelle, laissée à vérifier manuellement (cf. avertissement console).
-    "3": ("Psychiatrie / Addictologie — VERIFIER D1 vs D2-T2", "annales OU d2/t2"),
+    "1.1": ("Biostatistiques (D1)", "d1/t4"),
+    "9.2": ("UE 9.2 (D1)", "d1/t4"),
+    "9.3": ("UE 9.3 (D1)", "d1/t4"),
+    # UE 3 existe en D1 (Agents infectieux et hygiène, d1/t4/) ET en D2-T2
+    # (Psy/Addicto, d2/t2/) : ambiguïté réelle, laissée à vérifier manuellement
+    # (cf. avertissement console ; préfixe DFG = D1, DFA = D2).
+    "3": ("Agents infectieux (D1) / Psy-Addicto (D2-T2) — VERIFIER", "d1/t4 OU d2/t2"),
 }
 
 MONTHS_FR = {
@@ -1212,9 +1213,11 @@ def run(pdf_path, debug=False, strict=False, force=False):
         sub_bits.append(f'{esc(s["code"])} ({n}{", verrouillé" if locked else ""})')
     sub_html = f"{total_q} questions : " + " · ".join(sub_bits)
 
-    # Calcul du chemin relatif au favicon selon la profondeur du dossier
-    _bc_folder = meta.get("folder", "annales")
-    favicon_depth = "../../" if str(_bc_folder).startswith("d2/") else "../"
+    # Calcul du chemin relatif au favicon selon la profondeur du dossier.
+    # d1/tN/ et d2/tN/ sont à 2 niveaux de la racine (annale à plat dans le
+    # dossier de trimestre) ; tout autre dossier éventuel reste à 1 niveau.
+    _bc_folder = meta.get("folder", "d1/t4")
+    favicon_depth = "../../" if str(_bc_folder).startswith(("d1/", "d2/")) else "../"
     favicon_href = favicon_depth + "favicon.svg"
 
     out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html, images_by_qid, favicon_href)

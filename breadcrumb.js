@@ -31,14 +31,22 @@
   /* ── 3. Détecter le contexte depuis l'URL ── */
   var path = window.location.pathname;
 
+  var inD1T     = path.match(/\/d1\/(t\d+)\//i);
   var inD2T     = path.match(/\/d2\/(t\d+)\//i);
-  var inAnnales = path.includes('/annales/');
   var inMicro   = path.includes('/microbiologie/');
   var inExo     = path.includes('/exercices/');
   var inNum     = path.includes('/numerique/');
 
-  /* Racine du site : 2 niveaux pour d2/tN, 1 niveau pour les autres sections */
-  var root = inD2T ? '../../' : '../';
+  /* Profondeur vers la racine du site :
+     - d1/tN/<sous-section>/ (microbiologie, exercices, numerique) : 3 niveaux
+     - d1/tN/ (annale à plat) et d2/tN/ : 2 niveaux
+     - autre : 1 niveau (repli) */
+  var depth;
+  if (inD1T) depth = (inMicro || inExo || inNum) ? 3 : 2;
+  else if (inD2T) depth = 2;
+  else depth = 1;
+  var root = '';
+  for (var d = 0; d < depth; d++) root += '../';
 
   /* ── 4. Label de la page courante (depuis le h1, plus fiable que le title) ── */
   var h1El = document.querySelector('h1');
@@ -62,28 +70,30 @@
   /* ── 5. Construire les segments du fil ── */
   var items = [{ href: root + 'index.html', label: 'BobMed' }];
 
-  var tLabels = {
+  var d2Labels = {
     T1: 'T1 — Cardio · Pneumo · MT',
     T2: 'T2 — Hépato-Gastro · Neuro · Psy',
     T3: 'T3 — Dermato · Méd. Interne · Nephro',
     T4: 'T4 — ORL · Rhumato · Endocrino · LCA'
   };
+  var d1Labels = {
+    T4: 'T4 — Biostat · Microbio · Méd. légale · SP'
+  };
 
   if (inD2T) {
     var tNum = inD2T[1].toUpperCase();
     items.push({ href: root + 'index.html#d2', label: 'D2' });
-    items.push({ href: root + 'd2/' + inD2T[1] + '/index.html', label: tLabels[tNum] || tNum });
-  } else if (inAnnales) {
+    items.push({ href: root + 'd2/' + inD2T[1] + '/index.html', label: d2Labels[tNum] || tNum });
+  } else if (inD1T) {
+    var tNumD1 = inD1T[1].toUpperCase();
     items.push({ href: root + 'index.html#d1', label: 'D1' });
-    items.push({ href: root + 'annales/index.html', label: 'Annales' });
-  } else if (inMicro) {
-    items.push({ href: root + 'index.html#d1', label: 'D1' });
-    items.push({ href: root + 'microbiologie/index.html', label: 'Microbiologie UE3' });
-  } else if (inExo) {
-    items.push({ href: root + 'index.html#d1', label: 'D1' });
-    items.push({ href: root + 'exercices/index.html', label: 'Exercices ED' });
-  } else if (inNum) {
-    items.push({ href: root + 'index.html#d1', label: 'D1' });
+    items.push({ href: root + 'd1/' + inD1T[1] + '/index.html', label: d1Labels[tNumD1] || tNumD1 });
+    /* Sous-portail intermédiaire (microbiologie / exercices) ; numerique va droit au quiz */
+    if (inExo) {
+      items.push({ href: root + 'd1/' + inD1T[1] + '/exercices/index.html', label: 'Exercices ED' });
+    } else if (inMicro) {
+      items.push({ href: root + 'd1/' + inD1T[1] + '/microbiologie/index.html', label: 'Microbiologie UE3' });
+    }
   }
 
   items.push({ href: null, label: quizLabel });
