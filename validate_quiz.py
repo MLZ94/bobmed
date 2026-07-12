@@ -356,14 +356,14 @@ def _check_qrp_engine(html_text: str) -> list[dict]:
     attendu — silencieusement. On bloque donc ce cas."""
     if 'data-type="QRP"' not in html_text:
         return []
-    if "isQRP" not in html_text:
+    if "isProp" not in html_text:
         return [{
             "level":   "error",
             "code":    "QRP_ENGINE_MISSING",
             "message": (
                 "Question data-type=\"QRP\" présente mais le moteur JS embarqué ne "
-                "gère pas les QRP (marqueur 'isQRP' absent) — la notation "
-                "proportionnelle et le plafond de sélection ne s'appliqueront pas."
+                "gère pas la notation proportionnelle (marqueur 'isProp' absent) — "
+                "la notation X/N et le plafond de sélection ne s'appliqueront pas."
             ),
         }]
     return []
@@ -372,20 +372,21 @@ def _check_qrp_engine(html_text: str) -> list[dict]:
 def _check_qrpl_engine(html_text: str) -> list[dict]:
     """Une question data-type="QRPL" exige un moteur qui plafonne la sélection.
 
-    QRPL = barème EDN (comme QRM) MAIS nombre d'items sélectionnables plafonné.
-    Le plafond est appliqué dans le click handler par la branche `||q.dataset.type
-    ==='QRPL'`. Un fichier contenant un QRPL sans cette branche laisserait cocher
-    autant d'items que voulu — on bloque donc ce cas."""
+    QRPL = « QRP longue » : notation R2C proportionnelle X/N (comme la QRP) +
+    plafond de sélection = N. Le moteur doit donc gérer les QRPL à la fois dans
+    grade() (drapeau `isProp`) et dans le click handler (comparaison 'QRPL'). Un
+    fichier contenant un QRPL sans ce support noterait la question au barème EDN
+    et laisserait cocher autant d'items que voulu — on bloque donc ce cas."""
     if 'data-type="QRPL"' not in html_text:
         return []
-    if "'QRPL'" not in html_text:  # marqueur de la comparaison de type dans le JS
+    if "isProp" not in html_text or "'QRPL'" not in html_text:
         return [{
             "level":   "error",
             "code":    "QRPL_ENGINE_MISSING",
             "message": (
                 "Question data-type=\"QRPL\" présente mais le moteur JS embarqué ne "
-                "plafonne pas la sélection des QRPL (comparaison 'QRPL' absente du "
-                "click handler)."
+                "gère pas les QRPL (notation proportionnelle 'isProp' ou plafond "
+                "'QRPL' absent du script)."
             ),
         }]
     return []
