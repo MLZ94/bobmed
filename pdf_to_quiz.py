@@ -186,7 +186,12 @@ EPREUVE_RE = re.compile(r"Epreuve\s*:\s*(\S+)")
 # suivante : » et « ci-dessous … <imagerie> » (ci-dessous AVANT l'imagerie) — elle
 # ratait « l'IRM … Diffusion, ci-dessous » (imagerie AVANT ci-dessous) et « cf
 # image … ». On rend la détection bidirectionnelle et on ajoute « cf image »,
-# « images jointes », « voici … ».
+# « images jointes », « voici … ». Ratait aussi « <imagerie> que voici » (voici
+# APRÈS l'imagerie, jamais couvert — seul le sens inverse l'était) et « <imagerie>
+# a été réalisée » (tournure au passé composé, sans « voici »/« ci-dessous » ni
+# « suivante ») : les deux repérées sur l'annale UE7.1 2023-2024 S1 (SQI1 Q4 et
+# Q10), où leur absence a empêché la correction de repositionnement de rattraper
+# le décalage d'image constaté (cf. commentaire sur owner_for_image plus bas).
 _IMAGING = (
     r"(radiographie|scanner|tdm|tep|irm|ecg|électrocardiogramme|angio"
     r"|coupe|cliché|iconographie|imagerie|image|figure|photo|schéma|fond d.?œil|rx\b)"
@@ -197,7 +202,9 @@ IMG_EXPECTED_RE = re.compile(
     rf"|{_IMAGING}[^.!?]{{0,90}}ci[- ]?(?:dessous|apr[èe]s|contre|joints?|jointe?s?)"
     rf"|cf\.?\s*(?:image|images|photo|figure|cliché|iconographie)"
     rf"|images?\s+jointes?"
-    rf"|voici[^.!?]{{0,40}}{_IMAGING}",
+    rf"|voici[^.!?]{{0,40}}{_IMAGING}"
+    rf"|{_IMAGING}[^.!?]{{0,40}}voici"
+    rf"|{_IMAGING}[^.!?]{{0,60}}a\s+(?:été|ete)\s+réalisée?s?",
     re.I,
 )
 
@@ -1118,6 +1125,26 @@ def run(pdf_path, debug=False, strict=False, force=False):
             # « Question N: ». Sans cette correction, l'image d'une 1re question
             # (souvent une section verrouillée DP/KFP/mDP) atterrissait sur la
             # dernière question de la section d'avant.
+            #
+            # LIMITE CONNUE (décalage intra-section, sans frontière de section) :
+            # certains exports placent une image dans un emplacement de mise en
+            # page FIXE en haut de la page qui la suit (souvent y≈60, juste après
+            # un saut de page forcé pour lui faire de la place), AVANT le reliquat
+            # d'options de la question précédente qui déborde sur cette même page,
+            # alors que l'image illustre en réalité la question SUIVANTE (celle
+            # dont l'en-tête n'apparaît que plus bas sur cette page). Vu par
+            # (page, y), rien ne distingue ce cas d'une image qui appartient
+            # légitimement à la question encore active (même forme : image en
+            # haut de page suivie d'un reliquat d'options). Impossible à trancher
+            # de façon fiable par la seule position — voir IMG_EXPECTED_RE et la
+            # correction de repositionnement plus bas, qui rattrapent les cas où
+            # l'énoncé annonce explicitement une image, mais ne couvrent pas les
+            # questions qui montrent une image sans jamais la nommer dans le
+            # texte (ex. un simple tableau de gaz du sang introduit sans mot-clé
+            # « radio/scanner/… »). D'où l'obligation de relecture visuelle
+            # (point 6 et 10 de la checklist CLAUDE.md) : ne jamais publier un
+            # quiz généré sans vérifier chaque image à l'œil, en particulier
+            # toute question dont l'image se trouve juste après un saut de page.
             def owner_for_image(ipos):
                 active, active_pos = -1, (-1, -1)
                 for i in range(len(q_page_y)):
