@@ -111,6 +111,11 @@ NOISE_FIELD_RES = [
     # Référence/Session : bornée à quelques tokens pour éviter de dévorer du
     # texte de question légitime si ces mots apparaissaient par ailleurs.
     re.compile(r"Référence\s*:\s*[^\x00\s]+\s+Session\s*:\s*(?:Session\s+)?[^\x00\s]+\s*"),
+    # Certains exports n'ont qu'un "Référence: <code>" isolé (sans "Session:") en
+    # pied de page : sans ce nettoyage, il se colle au texte de la dernière
+    # option de la dernière question de la page (bug confirmé sur DFA1-UE7.1-
+    # NOVEMBRE2025, où "Référence: DFA1-UE7.1-NOVEMBRE2025" polluait plusieurs options).
+    re.compile(r"Référence\s*:\s*[^\x00\s]+\s*"),
 ]
 
 LIGATURES = {
@@ -137,6 +142,19 @@ def strip_noise(text: str) -> str:
     for rx in NOISE_FIELD_RES:
         text = rx.sub(" ", text)
     return text
+
+
+# Un code de section long ("PARTIE2-RANG A/B-DP1") peut être coupé par un retour
+# à la ligne PDF au milieu du token (aucun espace réel dans le code source) :
+# sans ce recollage, SECTION_RE (qui capture \S+, un seul token) ne matche
+# plus rien et la section entière disparaît silencieusement.
+_WRAPPED_SECTION_RE = re.compile(r"(Element d'épreuve\s*:\s*)(.+?)\s+([\d.]+\s*/\s*\d+)", re.DOTALL)
+
+
+def fix_wrapped_section_codes(text: str) -> str:
+    def repl(m):
+        return m.group(1) + re.sub(r"\s+", "", m.group(2)) + " " + m.group(3)
+    return _WRAPPED_SECTION_RE.sub(repl, text)
 
 
 def clean_span(text: str) -> str:
@@ -174,7 +192,18 @@ _OPT_ENTRY_RE = re.compile(
     r"([☐☑◎◉])?\s*(Faux|Valide|Indispensable|Inacceptable)\s+([A-Z])\.\s*"
 )
 _STRAY_GLYPH_RE = re.compile(r"[☐☑◎◉]")
-REPONSES_VALIDES_RE = re.compile(r"Réponses\s+valides\s*:\s*(.+?)\(\d+\)", re.DOTALL)
+# Marqueur de début de la liste des réponses valides d'une QROC. On ne capture
+# QUE le début : l'ancienne version bornait la capture au premier "(\d+)", ce qui
+# (a) ratait les pondérations décimales "(0.5)"/"(0.2)" et s'arrêtait donc au
+# premier "(1)" rencontré — fusionnant plusieurs réponses en une seule chaîne —
+# et (b) ne distinguait pas les réponses créditées des distracteurs "(0)".
+REPONSES_VALIDES_START_RE = re.compile(r"Réponses\s+valides\s*:\s*", re.IGNORECASE)
+# Chaque réponse valide est de la forme "<texte> (<points>)", une par ligne,
+# les points pouvant être entiers ou décimaux (0.2, 0.5, 1). On extrait chaque
+# couple (texte, points) indépendamment ; le texte est capturé en non-gourmand
+# jusqu'à sa propre pondération, ce qui segmente correctement une liste collée
+# sur une seule ligne à l'extraction PDF.
+QROC_ENTRY_RE = re.compile(r"(.+?)\s*\(\s*(\d+(?:[.,]\d+)?)\s*\)", re.DOTALL)
 SELECT_N_RE = re.compile(r"[Ss]électionnez\s*(jusqu.à\s*)?(\d+)\s*items?")
 REPONSES_ATTENDUES_RE = re.compile(r"\(\s*(\d+)\s*réponses?\s*attendues?\s*\)", re.IGNORECASE)
 MAX_N_RE = re.compile(r"\(\s*max\.?\s*(\d+)\s*\)", re.IGNORECASE)
@@ -308,16 +337,35 @@ def parse_option_block(blob):
 
 
 def parse_qroc_block(blob):
-    m = REPONSES_VALIDES_RE.search(blob)
+    """Retourne (stem, answers) où answers est une liste de couples
+    (texte, points) — points = crédit accordé par le jury (1 = réponse exacte,
+    0.5/0.2 = réponse partielle acceptée, 0 = distracteur explicitement faux).
+    L'appelant filtre ensuite sur points > 0 pour l'auto-correction (un
+    distracteur "(0)" ne doit jamais être accepté)."""
+    m = REPONSES_VALIDES_START_RE.search(blob)
     if not m:
         return clean_span(blob), []
-    answers_blob = m.group(1)
     stem_and_junk = blob[: m.start()]
     idx = stem_and_junk.rfind("?")
     stem = stem_and_junk[: idx + 1] if idx != -1 else stem_and_junk
     stem = clean_span(stem)
-    answers = [clean_span(a) for a in answers_blob.split(",")]
-    answers = [a.rstrip(".").strip() for a in answers if a.strip()]
+
+    answers_blob = clean_span(blob[m.end():])
+    answers = []
+    for em in QROC_ENTRY_RE.finditer(answers_blob):
+        text = em.group(1).strip().rstrip(".").strip()
+        try:
+            pts = float(em.group(2).replace(",", "."))
+        except ValueError:
+            pts = 1.0
+        if text:
+            answers.append((text, pts))
+    if not answers:
+        # Repli : aucune paire "(points)" détectée — conserver le bloc brut comme
+        # réponse unique (à relire) plutôt que de perdre l'information.
+        raw = answers_blob.rstrip(".").strip()
+        if raw:
+            answers.append((raw, 1.0))
     return stem, answers
 
 
@@ -536,22 +584,59 @@ def render_option_li(opt):
     )
 
 
-def render_question(section_code, q, image_html=""):
+def qroc_answer_data(answers):
+    """À partir de la liste (texte, points) d'une QROC, calcule :
+      - accepted : toutes les réponses créditées (points > 0), pour l'auto-
+        correction par mots-clés (data-answer, séparées par « | ») ;
+      - display  : les réponses exactes (points maximum) pour l'affichage
+        « Réponse attendue : … » (les partielles restent auto-acceptées mais on
+        met en avant la formulation attendue).
+    Un distracteur "(0)" n'est jamais accepté ni affiché.
+    Tolère l'ancien format (liste de chaînes) au cas où."""
+    norm = []
+    for a in answers:
+        if isinstance(a, (list, tuple)):
+            norm.append((a[0], float(a[1])))
+        else:
+            norm.append((a, 1.0))
+    credited = [(t, p) for t, p in norm if p > 0] or norm
+    accepted = [t for t, _ in credited]
+    max_pts = max((p for _, p in credited), default=1.0)
+    exact = [t for t, p in credited if p >= max_pts] or accepted
+    return accepted, exact
+
+
+def render_question(section_code, q, image_html="", is_d2=False):
     qid = f'{section_code}-Q{q["num"]}'
     qnum_label = f'{section_code} Q{q["num"]}'
     dpctx_html = ""
 
     if q["type"] == "QROC":
-        answers = q["qroc_answers"] or ["[A VERIFIER — réponse non détectée]"]
-        primary, *alt = answers
-        alt_html = f" ({', '.join(alt)})" if alt else ""
+        answers = q["qroc_answers"] or [("[A VERIFIER — réponse non détectée]", 1.0)]
+        accepted, exact = qroc_answer_data(answers)
+        display = " / ".join(exact)
+        data_answer = " | ".join(accepted)
+        if is_d2:
+            # D2 : auto-correction par mots-clés (data-answer) + bouton Valider,
+            # avec repli auto-évaluation « juste/faux » (cf. moteur QROC injecté).
+            return f'''<div class="q" id="{qid}" data-answer="{esc(data_answer)}" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+{dpctx_html}<div class="stem">{esc(q["stem"])}</div>
+{image_html}<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : {esc(display)}</div>
+</div>
+</div>'''
+        # D1 : auto-correction par l'étudiant à la lecture du modèle (pas de
+        # notation automatique ni d'auto-évaluation — choix délibéré, cf. CLAUDE.md).
         return f'''<div class="q" id="{qid}" data-correct="" data-type="QROC">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
 {dpctx_html}<div class="stem">{esc(q["stem"])}</div>
 {image_html}<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
 <div class="actions"><button class="show" type="button">Voir la réponse</button></div>
 <div class="correction" hidden>
-<div class="qrocans">Réponse attendue : {esc(primary)}{esc(alt_html)}</div>
+<div class="qrocans">Réponse attendue : {esc(display)}</div>
 </div>
 </div>'''
 
@@ -863,10 +948,74 @@ initLocks();updateScore();
 """
 
 
-def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, favicon_href="../favicon.svg"):
+# CSS des états d'auto-correction / auto-évaluation QROC (D2 uniquement).
+QROC_ENGINE_CSS = (
+    ".qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}\n"
+    ".qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}\n"
+    ".selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}\n"
+    ".selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}\n"
+    ".selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}\n"
+    ".selfassess .sa-no{color:var(--faux);border-color:var(--faux)}\n"
+    ".selfassess button:disabled{opacity:.55;cursor:default}\n"
+    ".selfassess .sa-yes.chosen{background:var(--vraibg)}\n"
+    ".selfassess .sa-no.chosen{background:var(--fauxbg)}\n"
+)
+
+# Moteur JS QROC (D2) : auto-correction par mots-clés (qrocAccept lit data-answer
+# ou le texte de .qrocans/.qrocmodel, normalise et compare) puis, si l'auto-
+# correction échoue, propose une auto-évaluation « juste/faux » (qrocSelfBox /
+# qrocSelf). Barème 1/0 volontaire (cf. CLAUDE.md § QROC). Repris à l'identique
+# du moteur des annales D2 rédigées à la main pour rester cohérent.
+QROC_ENGINE_JS = r'''function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+'''
+
+
+def upgrade_qroc_engine_d2(html):
+    """Greffe le moteur QROC D2 (auto-correction + auto-évaluation) sur le HTML
+    produit par le gabarit : CSS, fonctions JS, aiguillage de grade() vers
+    gradeQroc, comptage des QROC dans le score (grad = toutes les questions),
+    gestion du clic « J'avais juste/faux » et affichage de l'auto-évaluation à la
+    révélation. Remplacements ancrés sur des chaînes uniques du gabarit — sans
+    effet si le gabarit évolue (à re-vérifier dans ce cas)."""
+    html = html.replace("</style></head>", QROC_ENGINE_CSS + "</style></head>", 1)
+    html = html.replace(
+        "if(q.dataset.type==='QROC')return;",
+        "if(q.dataset.type==='QROC'){gradeQroc(q);return;}",
+        1,
+    )
+    html = html.replace(
+        "const grad=qs.filter(q=>q.dataset.type!=='QROC').length;",
+        "const grad=qs.length;",
+        1,
+    )
+    html = html.replace("function grade(q){", QROC_ENGINE_JS + "function grade(q){", 1)
+    html = html.replace(
+        "const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}",
+        "const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);"
+        "if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}\n"
+        "  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}\n"
+        "  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}",
+        1,
+    )
+    return html
+
+
+def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None,
+               favicon_href="../favicon.svg", is_d2=False):
     images_by_qid = images_by_qid or {}
     total_q = sum(len(s["questions"]) for s in sections)
-    graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
+    # En D2, les QROC sont notées (auto-correction + auto-évaluation « juste/faux »)
+    # et comptent donc dans le dénominateur du score ; en D1 elles en sont exclues
+    # (auto-correction seule à la lecture du modèle, cf. CLAUDE.md § QROC).
+    if is_d2:
+        graded_q = total_q
+    else:
+        graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
 
     body_parts = []
     for s in sections:
@@ -878,7 +1027,7 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, 
         for i, q in enumerate(s["questions"]):
             qid = f'{s["code"]}-Q{q["num"]}'
             img_html = images_by_qid.get(qid, "")
-            block = render_question(s["code"], q, image_html=img_html)
+            block = render_question(s["code"], q, image_html=img_html, is_d2=is_d2)
             if i == 0 and s["dpctx"]:
                 block = block.replace(
                     '<div class="stem">',
@@ -888,7 +1037,7 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, 
             body_parts.append(block)
 
     body_html = "\n\n".join(body_parts)
-    return HTML_TEMPLATE.format(
+    out = HTML_TEMPLATE.format(
         title_plain=esc(title_plain),
         title_html=esc(title_html),
         sub_html=sub_html,
@@ -898,6 +1047,9 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, 
         favicon_href=favicon_href,
         theme_href=favicon_href.replace("favicon.svg", "theme.css"),
     )
+    if is_d2:
+        out = upgrade_qroc_engine_d2(out)
+    return out
 
 
 # ----------------------------------------------------------------------------
@@ -1072,6 +1224,7 @@ def run(pdf_path, debug=False, strict=False, force=False):
         f"\x00PAGE{i}\x00{t}" for i, t in enumerate(page_texts)
     )
     full_text = strip_noise(full_text)
+    full_text = fix_wrapped_section_codes(full_text)
 
     sections = parse_sections(full_text, warnings)
 
@@ -1228,7 +1381,11 @@ def run(pdf_path, debug=False, strict=False, force=False):
     meta = guess_metadata(epreuve_code, warnings)
 
     total_q = sum(len(s["questions"]) for s in sections)
-    graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
+    # D2 : QROC notées (comptées) ; D1 : QROC hors score (cf. build_html).
+    if meta["is_d2_guess"]:
+        graded_q = total_q
+    else:
+        graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
 
     sub_bits = []
     for s in sections:
@@ -1244,7 +1401,8 @@ def run(pdf_path, debug=False, strict=False, force=False):
     favicon_depth = "../../" if str(_bc_folder).startswith(("d1/", "d2/")) else "../"
     favicon_href = favicon_depth + "favicon.svg"
 
-    out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html, images_by_qid, favicon_href)
+    out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html,
+                          images_by_qid, favicon_href, is_d2=meta["is_d2_guess"])
     # Injection automatique du fil d'Ariane + suivi de progression local
     _bc_depth  = favicon_depth
     out_html   = out_html.replace(
