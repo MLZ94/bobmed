@@ -1218,9 +1218,14 @@ def run(pdf_path, debug=False, strict=False, force=False):
     favicon_href = favicon_depth + "favicon.svg"
 
     out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html, images_by_qid, favicon_href)
-    # Injection automatique du fil d'Ariane
+    # Injection automatique du fil d'Ariane + suivi de progression local
     _bc_depth  = favicon_depth
-    out_html   = out_html.replace("</body>", f'<script src="{_bc_depth}breadcrumb.js"></script>\n</body>', 1)
+    out_html   = out_html.replace(
+        "</body>",
+        f'<script src="{_bc_depth}breadcrumb.js"></script>\n'
+        f'<script src="{_bc_depth}progress.js"></script>\n</body>',
+        1,
+    )
 
     base_dir = os.path.dirname(os.path.abspath(pdf_path))
     out_name = meta["filename"] if meta["ue"] else os.path.splitext(os.path.basename(pdf_path))[0] + ".html"
