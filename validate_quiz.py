@@ -189,6 +189,15 @@ def _check_data_correct(soup) -> list[dict]:
 
 
 _MERGE_HEADER_RE = re.compile(r"Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type\s*:", re.I)
+# Marqueur d'option (« Faux E. », « Neutraliser D. »…) apparaissant DANS le texte
+# d'une option : signe qu'une option a avalé la suivante — soit sa case ☐/☑ a été
+# séparée par un saut de page (l'entrée n'a pas été reconnue), soit son libellé de
+# validité n'était pas géré (« Neutraliser » avant correctif). Bug confirmé sur
+# l'annale UE7.1 mars 2024 (SQI1-Q6 : D avale « Faux E. Lupus… » ; SQI1-Q15 : D
+# avale « Neutraliser E. Une pleurésie »).
+_MERGED_OPTION_RE = re.compile(
+    r"\b(Faux|Valide|Indispensable|Inacceptable|Neutraliser)\s+[A-Z]\.\s", re.I
+)
 
 
 def _check_merged_questions(soup) -> list[dict]:
@@ -220,6 +229,21 @@ def _check_merged_questions(soup) -> list[dict]:
                     "Scinder à la main depuis le PDF source."
                 ),
             })
+
+        # 1bis. Marqueur d'option fondu dans le texte d'une option (option suivante
+        # avalée : case ☐/☑ orpheline sur saut de page, ou label de validité non géré).
+        for o in q.select(".opt"):
+            otext = o.select_one(".otext")
+            if otext and _MERGED_OPTION_RE.search(otext.get_text(" ", strip=True)):
+                findings.append({
+                    "level":   "error",
+                    "code":    "MERGED_OPTION",
+                    "message": (
+                        f"[{qid}] Le texte de l'option {o.get('data-l', '?')} contient un "
+                        "marqueur d'option (« Faux X. », « Neutraliser X. »…) — l'option "
+                        "suivante a été avalée. La scinder depuis le PDF source."
+                    ),
+                })
 
         # 2. Lettre d'option en double.
         letters = [o.get("data-l", "") for o in q.select(".opt") if o.get("data-l")]
