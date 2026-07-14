@@ -164,6 +164,99 @@ def clean_span(text: str) -> str:
     return text
 
 
+# Couleur des justifications/explications du jury dans l'export Uness (bleu). Le
+# texte des options, lui, est en noir (#000000). Cette distinction est FIABLE et
+# sert à détacher la « note générale du jury » (placée après la dernière option)
+# de cette dernière option, où le flux de texte PDF la colle sans séparateur —
+# cause des justifications mal découpées (ex. SQI1-Q8 « cyphoscolise <note> » et
+# DP1-Q1-E « La température <note> » de l'annale UE7.1 mars 2024). On raisonne sur
+# la couleur, jamais sur une heuristique de coupure du texte (trop risquée : une
+# note peut contenir mot pour mot le libellé d'une autre option, cf. « saturation
+# en oxygène »). Dégrade proprement : un PDF sans span de cette couleur ne produit
+# aucune note (comportement inchangé).
+JUSTIF_COLORS = {0x00A1FE}
+
+
+def _alnum(text: str) -> str:
+    """Réduit un texte à ses seuls caractères alphanumériques, en minuscules —
+    pour comparer deux extractions PDF d'un même passage sans se soucier des
+    différences d'espaces ni de ponctuation (ex. « respiratoire. Le » vs
+    « respiratoire.Le »)."""
+    return re.sub(r"[^0-9A-Za-zÀ-ÿ]", "", text).lower()
+
+
+def _trailing_notes_from_spans(doc_spans):
+    """Depuis la liste ordonnée des spans du document [(texte, couleur), …],
+    renvoie, DANS L'ORDRE DES QUESTIONS, la « note générale du jury » de chaque
+    question : la suite CONTIGUË de spans de couleur justification placée juste
+    après la dernière option (avant la question/section suivante), en ignorant le
+    pied de page. Une entrée vaut None quand il n'y a pas de note bleue en fin de
+    question. La liste est alignée 1:1 sur l'ordre plat des questions du PDF.
+
+    L'en-tête « Question N: (Type: … ) » est souvent éclaté sur plusieurs spans
+    (changements de style : « Question 1: », « (Type: QRP) », score coloré) : on
+    repère donc les débuts de question sur la CONCATÉNATION des spans, puis on
+    rattache chaque span à sa question via son décalage de caractères."""
+    import bisect
+    seg_re = re.compile(r"Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type", re.IGNORECASE)
+    sec_re = re.compile(r"Element\s+d'épreuve\s*:", re.IGNORECASE)
+
+    def is_noise(t):
+        tt = fix_ligatures(t).strip()
+        return any(rx.match(tt) for rx in NOISE_FIELD_RES)
+
+    texts = [t for t, _ in doc_spans]
+    colors = [c for _, c in doc_spans]
+    offsets, pos = [], 0
+    for t in texts:
+        offsets.append(pos)
+        pos += len(t)
+    concat = "".join(texts)
+    starts = [m.start() for m in seg_re.finditer(concat)]
+    if not starts:
+        return []
+
+    seg_of = [bisect.bisect_right(starts, o) - 1 for o in offsets]
+    notes = [None] * len(starts)
+    for seg in range(len(starts)):
+        idxs = [i for i in range(len(texts)) if seg_of[i] == seg]
+        run = []
+        for i in reversed(idxs):
+            t = texts[i]
+            if not t.strip() or is_noise(t) or sec_re.search(t):
+                continue  # pied de page / marqueur de section : ignorer, ne pas casser le run
+            if colors[i] in JUSTIF_COLORS:
+                run.append(t)
+            else:
+                break  # premier span non-bleu de contenu : fin de la note
+        if run:
+            notes[seg] = clean_span(fix_ligatures("".join(reversed(run)))) or None
+    return notes
+
+
+def strip_general_note(option_text, note):
+    """Si `option_text` (dernière option d'une question) se termine par `note`
+    (comparaison alphanumérique, insensible espaces/ponctuation, alignée sur les
+    mots), retire la note et renvoie (texte_option_nettoyé, note). Sinon renvoie
+    (None, None) — on ne modifie jamais l'option si le suffixe ne correspond pas
+    exactement (garde-fou : évite de sur-découper une option légitimement longue
+    ou dont la justification entre parenthèses a déjà été extraite)."""
+    if not note:
+        return None, None
+    a_note = _alnum(note)
+    if len(a_note) < 10:
+        return None, None
+    words = option_text.split()
+    for k in range(len(words) - 1, -1, -1):
+        acc = _alnum(" ".join(words[k:]))
+        if acc == a_note:
+            head = " ".join(words[:k]).strip()
+            return (head, note) if head else (None, None)
+        if len(acc) > len(a_note):
+            break
+    return None, None
+
+
 # ----------------------------------------------------------------------------
 # 2. Regex de structure
 # ----------------------------------------------------------------------------
@@ -186,10 +279,14 @@ OPTION_START_RE = re.compile(r"[☐☑◎◉]")
 # Regex de découpe par entrée d'option. La case (☐/☑/◎/◉) est optionnelle car
 # elle peut apparaître APRÈS le libellé "Valide X." en cas de saut de page dans
 # le PDF (la colonne des cases est lue séparément de la colonne de texte par
-# PyMuPDF). On gère aussi le label "Inacceptable" (4e label de certaines
-# plateformes, traité comme Faux côté validité).
+# PyMuPDF). On gère aussi les labels "Inacceptable" (item éliminatoire, traité
+# comme Faux côté validité) et "Neutraliser" (item neutralisé par le jury). Sans
+# "Neutraliser" dans cette alternative, l'entrée n'était pas reconnue comme un
+# début d'option : l'item disparaissait (fusionné dans l'option précédente,
+# lettres décalées) — bug confirmé sur l'annale UE7.1 mars 2024 (mDP1-Q2 items A
+# et D, SQI1-Q15 item E, tous "Neutraliser", absents ou fusionnés).
 _OPT_ENTRY_RE = re.compile(
-    r"([☐☑◎◉])?\s*(Faux|Valide|Indispensable|Inacceptable)\s+([A-Z])\.\s*"
+    r"([☐☑◎◉])?\s*(Faux|Valide|Indispensable|Inacceptable|Neutraliser)\s+([A-Z])\.\s*"
 )
 _STRAY_GLYPH_RE = re.compile(r"[☐☑◎◉]")
 # Marqueur de début de la liste des réponses valides d'une QROC. On ne capture
@@ -325,13 +422,17 @@ def parse_option_block(blob):
 
         opts.append({
             "letter":  letter,
-            "valid":   validity in ("Valide", "Indispensable"),
+            # Un item "Neutraliser" (annulé par le jury) est compté valide pour
+            # tout le monde : on le traite donc comme une réponse correcte, avec
+            # une mention "(item neutralisé)" dans la correction (cf. render_citems).
+            "valid":   validity in ("Valide", "Indispensable", "Neutraliser"),
             # Case cochée = réponse choisie par CET étudiant (indice pour resolve_qru).
             "checked": glyph in ("☑", "◉") if glyph else False,
             "expl":    expl,
             "text":    main_text,
             "mandatory":    validity == "Indispensable",
             "unacceptable": validity == "Inacceptable",
+            "neutral":      validity == "Neutraliser",
         })
     return opts
 
@@ -564,7 +665,14 @@ def render_citems(opts):
     for o in opts:
         verdict = "VRAI" if o["valid"] else "FAUX"
         cls = "v-vrai" if o["valid"] else "v-faux"
-        tail = f' — {esc(o["expl"])}' if o.get("expl") else ""
+        parts = []
+        if o.get("expl"):
+            parts.append(esc(o["expl"]))
+        if o.get("neutral"):
+            # Item annulé par le jury : compté valide, mais on le signale pour ne
+            # pas laisser croire qu'il s'agit d'une affirmation médicalement juste.
+            parts.append("item neutralisé par le jury (compté valide)")
+        tail = " — " + " · ".join(parts) if parts else ""
         rows.append(
             f'<div class="citem {cls}"><span class="cl">{o["letter"]}.</span> '
             f'<span class="cv">{verdict}</span>{tail}</div>'
@@ -657,6 +765,10 @@ def render_question(section_code, q, image_html="", is_d2=False):
 
     opts = q["options"]
     neutral_note = ' <div class="note">Question neutralisée : tous les items sont comptés valides.</div>' if q["neutralized"] else ""
+    # Note générale du jury détachée de la dernière option (cf. strip_general_note) :
+    # rendue en encart « rappel », avant les verdicts par item — jamais collée à
+    # l'intitulé d'une option (règle « justifications » du CLAUDE.md).
+    general_note = f'<div class="note"><div class="rappel">{esc(q["general_note"])}</div></div>' if q.get("general_note") else ""
 
     if q["type"] == "QRU" or q["type"] == "TCS":
         primary, extra = resolve_qru(opts)
@@ -672,11 +784,11 @@ def render_question(section_code, q, image_html="", is_d2=False):
             if extra:
                 extra_note = f'<div class="note">Réponse(s) {", ".join(extra)} également valorisée(s) par le jury.</div>'
             option_notes = build_option_notes(opts)
-            correction = f'<div class="ans">Réponse : {ans_text}</div>{extra_note}{option_notes}{neutral_note}'
+            correction = f'<div class="ans">Réponse : {ans_text}</div>{extra_note}{general_note}{option_notes}{neutral_note}'
         else:
             # QRU clinique classique : verdict VRAI/FAUX par option, au format D1.
             citems = render_citems(opts)
-            correction = f'<div class="ans">Réponse : {primary}</div>{neutral_note}\n{citems}'
+            correction = f'<div class="ans">Réponse : {primary}</div>{neutral_note}{general_note}\n{citems}'
 
         return f'''<div class="q" id="{qid}" data-correct="{primary}" data-type="QRU">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
@@ -716,7 +828,7 @@ def render_question(section_code, q, image_html="", is_d2=False):
 {opts_html}
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
-<div class="correction" hidden><div class="ans">Réponse : {ans_display}</div>{neutral_note}
+<div class="correction" hidden><div class="ans">Réponse : {ans_display}</div>{neutral_note}{general_note}
 {citems}
 </div>
 </div>'''
@@ -1167,6 +1279,8 @@ def run(pdf_path, debug=False, strict=False, force=False):
     image_events = []   # (page, y, ext, data) — pour l'assignation positionnelle
     q_page_y = []       # (page, y) de chaque bloc "Question N: (Type:" dans le PDF
     sec_page_y = []     # (page, y) de chaque marqueur "Element d'épreuve:" (frontière de section)
+    doc_spans = []      # (texte, couleur) de chaque span, en ordre de lecture — pour
+                        # détacher la note du jury de la dernière option (couleur)
     _Q_BLOCK_RE = re.compile(r'Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type', re.IGNORECASE)
     _SEC_BLOCK_RE = re.compile(r"Element\s+d'épreuve\s*:", re.IGNORECASE)
     for pno, page in enumerate(doc):
@@ -1212,6 +1326,10 @@ def run(pdf_path, debug=False, strict=False, force=False):
                     q_page_y.append((pno, block["bbox"][1]))
                 if _SEC_BLOCK_RE.search(bt):
                     sec_page_y.append((pno, block["bbox"][1]))
+                for ln in block["lines"]:
+                    for sp in ln["spans"]:
+                        if sp["text"]:
+                            doc_spans.append((sp["text"], sp["color"]))
     doc.close()
 
     raw_first_page = page_texts[0] if page_texts else ""
@@ -1227,6 +1345,28 @@ def run(pdf_path, debug=False, strict=False, force=False):
     full_text = fix_wrapped_section_codes(full_text)
 
     sections = parse_sections(full_text, warnings)
+
+    # Détacher la « note générale du jury » de la dernière option de chaque
+    # question (bug « justification collée à l'option » — cf. strip_general_note).
+    # On s'appuie sur la COULEUR des spans (note = bleu, option = noir), fiable, et
+    # on n'agit que si le suffixe correspond exactement (sinon on laisse tel quel :
+    # le contrôle « texte long » plus bas signalera un éventuel reliquat).
+    flat_qs = [q for s in sections for q in s["questions"]]
+    trailing_notes = _trailing_notes_from_spans(doc_spans)
+    if len(trailing_notes) == len(flat_qs):
+        for q, note in zip(flat_qs, trailing_notes):
+            if not note or q["type"] not in ("QRM", "QRP", "QRPL", "QRU", "TCS") or not q["options"]:
+                continue
+            head, gnote = strip_general_note(q["options"][-1]["text"], note)
+            if head is not None:
+                q["options"][-1]["text"] = head
+                q["general_note"] = gnote
+    else:
+        warnings.append(
+            f"[note jury] Décompte questions/spans divergent "
+            f"({len(flat_qs)} vs {len(trailing_notes)}) — détachement des notes de "
+            "fin d'option ignoré, relire les dernières options manuellement."
+        )
 
     # Identifiants et « texte d'attente d'image » à plat, calculés une seule fois
     # et INDÉPENDAMMENT de la présence d'images : le contrôle « image attendue mais
