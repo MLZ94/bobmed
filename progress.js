@@ -137,6 +137,17 @@
       return { pts: parseFloat(m[1].replace(',', '.')), max: parseInt(m[2], 10) };
     }
 
+    /* Mémorise le score de la passe si (et seulement si) le quiz est
+       entièrement complété à l'écran — partagé par la complétion auto et le
+       marquage manuel, pour que la note s'enregistre dans les deux cas. */
+    function captureScore(r) {
+      if (!fullDone()) return;
+      var sc = currentScore();
+      if (!sc) return;
+      r.lastScore = sc;
+      if (r.bestPts === undefined || sc.pts > r.bestPts) r.bestPts = sc.pts;
+    }
+
     var counted = false, skipAuto = false;
     function complete() {
       if (counted) return;
@@ -144,13 +155,7 @@
       var r = ensure();
       r.count = (r.count || 0) + 1;
       r.lastDone = today();
-      if (fullDone()) {                   /* score mémorisé si la passe est complète */
-        var sc = currentScore();
-        if (sc) {
-          r.lastScore = sc;
-          if (r.bestPts === undefined || sc.pts > r.bestPts) r.bestPts = sc.pts;
-        }
-      }
+      captureScore(r);                    /* score mémorisé si la passe est complète */
       saveData(data);
       refresh();
       pill.classList.add('bmp-flash');
@@ -164,7 +169,10 @@
       var n = parseInt(v, 10);
       if (isNaN(n) || n < 0) return;
       var r = ensure();
-      if (n > (r.count || 0)) r.lastDone = today();   /* on l'augmente = on vient de la faire */
+      if (n > (r.count || 0)) {           /* on l'augmente = on vient de la faire */
+        r.lastDone = today();
+        captureScore(r);                  /* si le quiz est fini à l'écran, on mémorise aussi la note */
+      }
       r.count = n;
       saveData(data);
       refresh();
