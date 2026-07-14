@@ -392,6 +392,36 @@ def _check_qrpl_engine(html_text: str) -> list[dict]:
     return []
 
 
+_GLOBAL_SCRIPTS = ("breadcrumb.js", "dynamic-header.js", "timer.js", "progress.js")
+
+
+def _check_global_scripts(html_text: str, path: Path) -> list[dict]:
+    """Une annale officielle doit charger les quatre scripts globaux.
+
+    Les annales officielles (`Quiz_UE*.html`, reconnaissables à leur
+    `header .scorebar`) chargent breadcrumb.js, dynamic-header.js, timer.js et
+    progress.js — inclus en externe, jamais copiés (cf. « Assets globaux »). Le
+    plus facile à oublier est `timer.js` (minuteur d'examen) : `pdf_to_quiz.py`
+    l'injecte désormais automatiquement, mais une annale éditée à la main peut
+    l'omettre. On signale (avertissement) tout script global manquant."""
+    if not path.name.startswith("Quiz_UE"):
+        return []
+    if 'class="scorebar"' not in html_text:
+        return []
+    missing = [s for s in _GLOBAL_SCRIPTS if s not in html_text]
+    if not missing:
+        return []
+    return [{
+        "level":   "warning",
+        "code":    "GLOBAL_SCRIPT_MISSING",
+        "message": (
+            "Annale officielle sans le(s) script(s) global(aux) : "
+            + ", ".join(missing)
+            + " — les inclure via <script src> juste avant </body> (cf. « Assets globaux »)."
+        ),
+    }]
+
+
 # ── Entrée principale ─────────────────────────────────────────────────────────
 
 def validate_file(path: Path) -> dict:
@@ -423,6 +453,7 @@ def validate_file(path: Path) -> dict:
         + _check_initlocks_call(html_text)
         + _check_qrp_engine(html_text)
         + _check_qrpl_engine(html_text)
+        + _check_global_scripts(html_text, path)
     )
 
     errors   = [f for f in findings if f["level"] == "error"]

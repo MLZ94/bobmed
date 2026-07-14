@@ -1403,11 +1403,17 @@ def run(pdf_path, debug=False, strict=False, force=False):
 
     out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html,
                           images_by_qid, favicon_href, is_d2=meta["is_d2_guess"])
-    # Injection automatique du fil d'Ariane + suivi de progression local
+    # Injection automatique des quatre scripts globaux, dans l'ordre standard des
+    # annales : fil d'Ariane, header dynamique, minuteur d'examen, suivi de
+    # progression local. Toute annale officielle (Quiz_UE*.html) doit charger les
+    # quatre (cf. « Assets globaux » dans CLAUDE.md) ; timer.js et dynamic-header.js
+    # sont inoffensifs sur une page sans « header .scorebar »/« header ».
     _bc_depth  = favicon_depth
     out_html   = out_html.replace(
         "</body>",
         f'<script src="{_bc_depth}breadcrumb.js"></script>\n'
+        f'<script src="{_bc_depth}dynamic-header.js"></script>\n'
+        f'<script src="{_bc_depth}timer.js"></script>\n'
         f'<script src="{_bc_depth}progress.js"></script>\n</body>',
         1,
     )

@@ -1,8 +1,9 @@
 /**
  * breadcrumb.js — Fil d'Ariane universel BobMed
  * Ajouter avant </body> :
- *   <script src="../breadcrumb.js"></script>   (annales/, microbiologie/, exercices/, numerique/)
- *   <script src="../../breadcrumb.js"></script> (d2/tN/)
+ *   <script src="../../breadcrumb.js"></script>  (annales à plat d1/tN/, d2/tN/)
+ *   <script src="../../../breadcrumb.js"></script> (sous-portails : d1/tN/{exercices,
+ *                                                   microbiologie,numerique}/, d2/tN/entrainement/)
  *
  * Sur les portails (index.html) qui ont déjà un fil statique,
  * le script injecte uniquement le CSS et ne crée pas de doublon.
@@ -36,14 +37,16 @@
   var inMicro   = path.includes('/microbiologie/');
   var inExo     = path.includes('/exercices/');
   var inNum     = path.includes('/numerique/');
+  var inEntr    = path.includes('/entrainement/');
 
   /* Profondeur vers la racine du site :
      - d1/tN/<sous-section>/ (microbiologie, exercices, numerique) : 3 niveaux
+     - d2/tN/entrainement/ : 3 niveaux
      - d1/tN/ (annale à plat) et d2/tN/ : 2 niveaux
      - autre : 1 niveau (repli) */
   var depth;
   if (inD1T) depth = (inMicro || inExo || inNum) ? 3 : 2;
-  else if (inD2T) depth = 2;
+  else if (inD2T) depth = inEntr ? 3 : 2;
   else depth = 1;
   var root = '';
   for (var d = 0; d < depth; d++) root += '../';
@@ -84,6 +87,10 @@
     var tNum = inD2T[1].toUpperCase();
     items.push({ href: root + 'index.html#d2', label: 'D2' });
     items.push({ href: root + 'd2/' + inD2T[1] + '/index.html', label: d2Labels[tNum] || tNum });
+    /* Sous-portail d'entraînement par item (d2/tN/entrainement/) */
+    if (inEntr) {
+      items.push({ href: root + 'd2/' + inD2T[1] + '/entrainement/index.html', label: 'Entraînement' });
+    }
   } else if (inD1T) {
     var tNumD1 = inD1T[1].toUpperCase();
     items.push({ href: root + 'index.html#d1', label: 'D1' });
