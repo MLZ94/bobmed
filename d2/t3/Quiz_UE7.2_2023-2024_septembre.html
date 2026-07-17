@@ -1,0 +1,747 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 7.2 — Médecine Interne · Session normale (septembre 2023)</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 7.2 — Médecine Interne · Session normale (septembre 2023)</h1>
+<div class="sub">25 questions : mDP1 (5, verrouillé) · mDP2 (5, verrouillé) · SQI(15) (15)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/25</b></span>
+<span class="pill">Score : <b id="s-ok">0/25</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">mDP1 — Fièvre au long cours et douleurs à la mastication chez une femme de 80 ans</div>
+
+<div class="q" id="mDP1-Q1" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une patient de 80 ans est hospitalisée pour une fièvre oscillant entre 38 et 38,5°C le soir, évoluant depuis 4 semaines. Elle signale un ATCD dhypercholestérolémie traitée par une statine et un diabète traité par antidiabétiques oraux. Elle a maigri de 5 Kg (poids actuel 54 Kg), qu'elle attribue à des douleurs mandibulaires au cours des repas, déclenchées par la mastication.Bilan biologique: leucocytes 11,2 G/l, (neutrophiles 72%, lymphocytes 28%), hémoglobine 9,8 g/dl, VS 112, CRP 80 mg/l, fibrinogène 7,2 g/l, transaminases normales, phosphatases alcalines 270 UI/l (N&lt;130), gammaGT 98 UI/l (N&lt;60), créatininémie 128 micromoles/l.La radiographie thoracique est normale. Les hémocultures sont négatives, ECBU normal.Vous évoquez l’hypothèse d’une artérite à cellules géantes (malade de Horton)</div>
+<div class="stem">Concernant le syndrome inflammatoire, quelle(s) est/sont la/les réponse(s) exacte(s)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L´élévation de la VS seule permet pas d´affirmer le syndrome inflammatoire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La CRP est un marqueur inflammatoire de cinétique rapide</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La CRP est une protéine synthétisée par le foie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Dans l’observation, l’élévation des gammaGT est un des éléments du syndrome inflammatoire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Dans l’observation, le taux de plaquette élevé est un des éléments du syndrome inflammatoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les éléments sémiologiques suivants lequel est le plus caractéristique de la maladie de Horton</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Amaigrissement significatif</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Syndrome inflammatoire biologique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Antécédents d´HTA</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Claudication mandibulaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cholestase biologique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La malade fait brutalement une cécité de l'oeil droit, on évoque une neuropathie optique ischémique antérieure aiguë (NOIAA). Quelle(s) est/sont la/les proposition(s) exacte(s) concernant cette complication (une ou plusieurs réponses)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">C’est une complication non définitive si le traitement est débuté à forte dose</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Cette complication a pu être précédée de signes visuels</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’atteinte peut être bilatérale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cette complication survient plutôt au début de l´évolution de la maladie de Horton</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Chez une patiente âgée, la NOIAA est spécifique de la maladie de Horton</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le traitement de la maladie de Horton repose sur la corticothérapie, quelle(s) est/sont la/les réponse(s) exacte(s)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">elle doit être débutée en urgence</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">la dose sera ajustée en fonction du résultat de la biopsie de l'artère temporale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">il faut attendre le résultat du test tuberculinique (ou équivalent) pour introduire la corticothérapie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">elle permet de faire régresser la neuropathie optique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">elle est contre-indiquée en raison du diabète</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après un an de traitement de la maladie de Horton, le sevrage de la corticothérapie a été obtenu, quelle(s) complications peut/peuvent apparaître (une ou plusieurs réponses) :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">une rechute de la maladie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">une tuberculose induite par le traitement corticoïde</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">un tassement vertébral ostéoporotique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">un anévrysme de l’aorte thoracique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">un cancer induit par le traitement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP2 — Altération de l'état général, hémoptysie et syndrome néphritique chez un homme de 70 ans</div>
+
+<div class="q" id="mDP2-Q1" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Un homme de 70 ans est hospitalisé pour une altération de l’état général. Il a présenté la veille de l’hospitalisation une toux avec un épisode d’hémoptysie de faible abondance. Depuis 4 mois il a perdu 5 kg, et il se plaint dexamen clinique note une dyspnée dauscultation cardiaque est normale, avec une tachycardie régulière à 100/minute sans souffle.On dispose des examens complémentaires suivants: NFS leucocytes 11,5 G/l (neutrophiles 8,5 G/l, éosinophiles 0,3 G/l, lymphocytes 0,4 G/l, Hémoglobine 9 g/dL, VGM 90 fL, Plaquettes 450 G/l. TCA 30/30 ; TP 100%. ASAT et ALAT normaux. VS 67 mm, CRP 150 mg/L. Haptoglobine 2,5 g/L. Gazométrie artérielle: PaO2 59 mmHg PaCO2 38 mmHg, pH 7,41. Créatinine 170 micromoles/L, notion d'une créatinine normale deux mois avant. Dans les urines : protéines +++ hématurie ++ (contrôlé deux fois à la bandelette). ECBU stérile. Ac antinucléaires négatifs. Les hémocultures restent négatives.</div>
+<div class="stem">Sur les éléments du dossier, on discute l’hypothèse d’un syndrome des antiphospholipides (SAPL). Quelle(s) est (sont) la(les) réponse(s) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’âge du malade (70 ans) est compatible avec un SAPL</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La normalité du TCA est en faveur d’un syndrome des antiphospholipides dans sa forme thrombotique artérielle</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Dans le SAPL, une atteinte rénale est possible même sans lupus systémique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les signes pulmonaires décrits dans l’observation excluent cette hypothèse de SAPL</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La présence d’anticorps anticardiolipine IgG à un titre élevé est suffisante pour retenir l’hypothèse d’un SAPL</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q2" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les suivants, quels sont les items compatibles avec la numération formule sanguine du dossier ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Anémie par saignement aigu</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Anémie inflammatoire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Anémie par érythroblastopénie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Anémie hémolytique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Thrombocytose liée à l´inflammation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">On évoque une hémorragie alvéolaire. On demande un TDM thoracique qui montre des infiltrats alvéolaires avec des zones de condensation. Quel(s) est/sont le(s) argument(s) en faveur de cette hypothèse? Donnez-la/ou les réponse(s) exacte(s).</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Episode d'hémoptysie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Taux d’hémoglobine bas</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’aspect des lésions au scanner</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L’hypoxémie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le bilan d’hémostase normal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q4" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP2 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">On précise que les ANCA sont positifs, de fluorescence cytoplasmique en IFI. Quel est le diagnostic le plus probable d’après les éléments du dossier (une seule réponse juste) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Pneumopathie infectieuse avec atteinte rénale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Endocardite infectieuse</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Lupus systémique avec hémorragie alvéolaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Granulomatose avec polyangéite/Maladie de Wegener avec hémorragie alvéolaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Artérite de Horton avec hémorragie alvéolaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="mDP2-Q5" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant la GPA (Granulomatose avec Polyangéite/maladie de Wegener laquelle (lesquelles) sont justes?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">elle touche surtout les artères de petit calibre</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">elle touche surtout les artères de moyen calibre</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">elle touche surtout les artères de gros calibre</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">elle touche surtout les artères de même calibre que la périartérite noueuse</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">elle touche surtout les artères de même calibre que la polyangéite microscopique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">SQI(15)</div>
+
+<div class="q" id="SQI(15)-Q1" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Au cours d’une maladie systémique, on décide de faire une ponction-biopsie rénale (PBR). Quelle(s) est/sont la/les réponse(s) exacte(s) à propos de la PBR:</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La PBR est contre-indiquée en présence d’un anticoagulant circulant lupique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La PBR est contre-indiquée quand il existe un TCA allongé sans explication</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La PBR peut être faite par voie transjugulaire en cas de prise d’aspirine</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La PBR est contre-indiquée en cas d’infection urinaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La PBR ne peut être faite qu´après une échographie rénale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q2" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans la granulomatose avec polyangéite (GPA), concernant l'atteinte ORL, quelle(s) est/sont la/les proposition(s) exacte(s)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L´atteinte ORL de la GPA peut être isolée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La rhinite crouteuse est l´atteinte la plus fréquente des localisations ORL</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La biopsie de la rhinite crouteuse a une bonne rentabilité diagnostique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Dans le GPA de localisation ORL, la surdité est une complication</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La chondrite nasale est spécifique de la GPA</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — plus de 50% de biopsies positives</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q3" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Au cours de la granulomatose avec polyangéite GPA, quelle(s) est/sont la/les localisation(s) possible(s) de la maladie?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">myocardite</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">uvéïte</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">sclérite</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">méningite aseptique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">purpura vasculaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q4" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient de 37 ans consulte pour des arthralgies et des lésions cutanées dans un contexte de fièvre (T 38°C le matin). Depuis plusieurs mois, il a reçu plusieurs lignes d'antibiotiques pour une rhinite croûteuse, sans effet, associée à une sinusite et des otites dont il garde des séquelles à type de surdité. Il a maigri de 6 Kg en 2 mois. Il apporte ses premiers résultats d'examen:NFS: leucocytes 8,5 G/L (neutrophiles 70%, éosinophile 4%, lymphocytes 20%), Hb 12,3 g/dL, VGM 78 fL. Plaquettes 480 G/L VS 82mm, CRP 140 mg/L, ALAT et ASAT normales. Créatininémie 160 micromoles/L, Calcémie 2,4 mmoles/L. Bandelette urinaire sang+++ protéines ++. Les lésions cutanées sont apparues quelques jours avant, et vous évoquent un purpura. Quelle(s) est (sont) la (les) réponse(s) exacte(s)?</div>
+<div class="extra"><img src="data:image/jpeg;base64,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" style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">il s'agit d'un purpura pétéchial car nécrotique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">il s'agit d'un purpura vasculaire car nécrotique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">le taux de plaquettes doit être contrôlé, car il peut s'agir d'un purpura thrombopénique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">l'aspect déclive évoque un purpura rhumatoïde</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">sur les éléments dont on dispose, ces lésions doivent être biopsiées</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q5" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI(15) Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel est le seul examen complémentaire permettant de confirmer indiscutablement le diagnostic de l’artérite à cellules géantes/maladie de Horton (une seule réponse)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">écho-doppler des artères temporales</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">TEP scanner au FDG</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">biopsie de l'artère temporale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">biopsie hépatique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">aucun examen ne permet de confirmer le diagnostic</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="SQI(15)-Q6" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) est (sont) la (les) proposition(s) exacte(s) concernant les résultats de la biopsie de l'artère temporale au cours de l’artérite à cellules géantes/maladie de Horton (une ou plusieurs réponses) :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La biopsie peut être normale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les lésions sont segmentaires</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">On peut observer un granulome nécrosant</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L’absence de destruction de la limitante élastique interne exclu le diagnostic</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">On peut observer des cellules géantes multinucléées</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q7" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les artères suivantes quelle est/sont la/les localisation(s) possible(s) de la maladie de Horton (une ou plusieurs réponses)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">aorte abdominale sous rénale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">artère mésentérique supérieure</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">artère coronaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">veine temporale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">artère iliaque primitive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q8" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez une malade âgée qui n’a jamais quitté la France métropolitaine, la corticothérapie à forte dose prolongée peut-être responsable de la (des) complication(s) suivante(s) (une ou plusieurs réponses):</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">réactivation d'une tuberculose pulmonaire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">anguillulose maligne</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">pneumocystose</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">toxocarose disséminée</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">histoplasmose médiastinale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q9" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez un malade adulte sous corticoïdes pour une maladie systémique, quelles sont les vaccinations recommandées ? (une ou plusieurs réponses):</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">tétanos</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">fièvre jaune si voyage en zone d’endémie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">grippe</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">coqueluche</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">pneumocoque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q10" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'anticoagulant circulant lupique au cours du syndrome des antiphospholipides, quelle(s) est(sont) la(les) réponse(s) exacte(s) :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il est suspecté devant un TCA spontanément allongé</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L’allongement du TCA ne se corrige pas par ajout du plasma témoin</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L’allongement du TCA est lié à un déficit en facteur VIII</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">l’allongement du TCA est corrélé au taux d’anticorps anti-nuléaires</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L’allongement du TCA est à risque hémorragique quand il est supérieur à 3</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q11" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une jeune femme traitée par hydroxychloroquine et prednisone 7,5 mg par jour pour un lupus cutanéo-articulaire, en rémission clinique vous amène les résultats suivants :Leucocytes 3,3 G/l, PN neutrophiles 2.2 G/l lymphocytes 0,8 G/l, hémoglobine 10 g/dl, VGM 95, Plaquettes 115 G/l. TCA allongé à 2N. Fibrinogène normalElle souhaite une contraception, que lui proposez-vous (une ou plusieurs réponses)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Pilule oestro-progestative</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Dispositif intra-utérin</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Pillule progestative microdosée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Implant progestatif</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Contraception mécanique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q12" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente est suivie pour un syndrome des antiphospholipides compliqué d’embolie pulmonaire pour lequel elle est traitée par anticoagulant de type anti-vitaminique K (coumadine). Elle nous pose la question du traitement anticoagulant si une grossesse est envisagée, quelle(s) est (sont) la (les) réponse(s) exacte(s)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">On arrête les anticoagulants le temps de la grossesse</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">On poursuit le traitement antivitaminique K pendant la grossesse</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">On ajoute de l’aspirine au traitement antivitaminique K</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">On arrête le traitement antivitaminique K pour un anticoagulant antiXa direct par voie orale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">On arrête les antivitaminique K pour une Héparine de bas poids moléculaire à dose curative</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q13" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les situations suivantes, la(les)quelle(s) doit(vent) être considérée(s) comme un déficit immunitaire :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Tuberculose pulmonaire chez un patient migrant, séropositif pour le VIH, contrôlé sous traitement antirétroviral</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Patient splénectomisé suite à une hémorragie en raison d’un accident de voiture</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Patient de 20 ans, allogreffé de cellules souches hématopoïétiques pour une leucémie aiguë depuis 1 an</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Enfant de 6 mois né à terme, diagnostic de pneumocystose</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Patient avec un taux de gammaglobulines à 6,9 g/L (Normales du laboratoire = entre 7,5 et 15 g/L) sans aucun signe ou antécédent infectieux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q14" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(15) Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le bilan de 1ère intention, de débrouillage d’un déficit immunitaire, quelle(s) est(sont) la(les) proposition(s) vraie(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il doit être effectué dans le cadre d’un retard de croissance staturopondéral chez l’enfant</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il peut être prescrit par tout médecin</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il comporte uniquement une NFS avec frottis sanguin et une électrophorèse des protéines sériques</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il comporte, entre autres, un phénotypage lymphocytaire sanguin et un contrôle des sérologies vaccinales</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">En cas de lymphopénie T, un déficit immunitaire commun variable (DICV) doit être suspecté</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — tétanos, pneumocoque…</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(15)-Q15" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI(15) Q15</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Au cours d’un lupus systémique, parmi les auto-anticorps suivant, quel est celui qui est directement pathogène sur le foetus? (Une seule réponse exacte).</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Anticorps anti-DNA natif</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Anticorps anti-Sm</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Anticorps anti-SSA (anti-Ro)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Anticorps anti-centromères</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Anticorps anti-RNP</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<a class="back" href="index.html">← T3 D2</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
