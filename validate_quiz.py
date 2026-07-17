@@ -189,6 +189,15 @@ def _check_data_correct(soup) -> list[dict]:
 
 
 _MERGE_HEADER_RE = re.compile(r"Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type\s*:", re.I)
+# Marqueur d'option (« Faux E. », « Neutraliser D. »…) apparaissant DANS le texte
+# d'une option : signe qu'une option a avalé la suivante — soit sa case ☐/☑ a été
+# séparée par un saut de page (l'entrée n'a pas été reconnue), soit son libellé de
+# validité n'était pas géré (« Neutraliser » avant correctif). Bug confirmé sur
+# l'annale UE7.1 mars 2024 (SQI1-Q6 : D avale « Faux E. Lupus… » ; SQI1-Q15 : D
+# avale « Neutraliser E. Une pleurésie »).
+_MERGED_OPTION_RE = re.compile(
+    r"\b(Faux|Valide|Indispensable|Inacceptable|Neutraliser)\s+[A-Z]\.\s", re.I
+)
 
 
 def _check_merged_questions(soup) -> list[dict]:
@@ -220,6 +229,21 @@ def _check_merged_questions(soup) -> list[dict]:
                     "Scinder à la main depuis le PDF source."
                 ),
             })
+
+        # 1bis. Marqueur d'option fondu dans le texte d'une option (option suivante
+        # avalée : case ☐/☑ orpheline sur saut de page, ou label de validité non géré).
+        for o in q.select(".opt"):
+            otext = o.select_one(".otext")
+            if otext and _MERGED_OPTION_RE.search(otext.get_text(" ", strip=True)):
+                findings.append({
+                    "level":   "error",
+                    "code":    "MERGED_OPTION",
+                    "message": (
+                        f"[{qid}] Le texte de l'option {o.get('data-l', '?')} contient un "
+                        "marqueur d'option (« Faux X. », « Neutraliser X. »…) — l'option "
+                        "suivante a été avalée. La scinder depuis le PDF source."
+                    ),
+                })
 
         # 2. Lettre d'option en double.
         letters = [o.get("data-l", "") for o in q.select(".opt") if o.get("data-l")]
@@ -356,14 +380,14 @@ def _check_qrp_engine(html_text: str) -> list[dict]:
     attendu — silencieusement. On bloque donc ce cas."""
     if 'data-type="QRP"' not in html_text:
         return []
-    if "isQRP" not in html_text:
+    if "isProp" not in html_text:
         return [{
             "level":   "error",
             "code":    "QRP_ENGINE_MISSING",
             "message": (
                 "Question data-type=\"QRP\" présente mais le moteur JS embarqué ne "
-                "gère pas les QRP (marqueur 'isQRP' absent) — la notation "
-                "proportionnelle et le plafond de sélection ne s'appliqueront pas."
+                "gère pas la notation proportionnelle (marqueur 'isProp' absent) — "
+                "la notation X/N et le plafond de sélection ne s'appliqueront pas."
             ),
         }]
     return []
@@ -372,23 +396,54 @@ def _check_qrp_engine(html_text: str) -> list[dict]:
 def _check_qrpl_engine(html_text: str) -> list[dict]:
     """Une question data-type="QRPL" exige un moteur qui plafonne la sélection.
 
-    QRPL = barème EDN (comme QRM) MAIS nombre d'items sélectionnables plafonné.
-    Le plafond est appliqué dans le click handler par la branche `||q.dataset.type
-    ==='QRPL'`. Un fichier contenant un QRPL sans cette branche laisserait cocher
-    autant d'items que voulu — on bloque donc ce cas."""
+    QRPL = « QRP longue » : notation R2C proportionnelle X/N (comme la QRP) +
+    plafond de sélection = N. Le moteur doit donc gérer les QRPL à la fois dans
+    grade() (drapeau `isProp`) et dans le click handler (comparaison 'QRPL'). Un
+    fichier contenant un QRPL sans ce support noterait la question au barème EDN
+    et laisserait cocher autant d'items que voulu — on bloque donc ce cas."""
     if 'data-type="QRPL"' not in html_text:
         return []
-    if "'QRPL'" not in html_text:  # marqueur de la comparaison de type dans le JS
+    if "isProp" not in html_text or "'QRPL'" not in html_text:
         return [{
             "level":   "error",
             "code":    "QRPL_ENGINE_MISSING",
             "message": (
                 "Question data-type=\"QRPL\" présente mais le moteur JS embarqué ne "
-                "plafonne pas la sélection des QRPL (comparaison 'QRPL' absente du "
-                "click handler)."
+                "gère pas les QRPL (notation proportionnelle 'isProp' ou plafond "
+                "'QRPL' absent du script)."
             ),
         }]
     return []
+
+
+_GLOBAL_SCRIPTS = ("breadcrumb.js", "dynamic-header.js", "timer.js", "progress.js")
+
+
+def _check_global_scripts(html_text: str, path: Path) -> list[dict]:
+    """Une annale officielle doit charger les quatre scripts globaux.
+
+    Les annales officielles (`Quiz_UE*.html`, reconnaissables à leur
+    `header .scorebar`) chargent breadcrumb.js, dynamic-header.js, timer.js et
+    progress.js — inclus en externe, jamais copiés (cf. « Assets globaux »). Le
+    plus facile à oublier est `timer.js` (minuteur d'examen) : `pdf_to_quiz.py`
+    l'injecte désormais automatiquement, mais une annale éditée à la main peut
+    l'omettre. On signale (avertissement) tout script global manquant."""
+    if not path.name.startswith("Quiz_UE"):
+        return []
+    if 'class="scorebar"' not in html_text:
+        return []
+    missing = [s for s in _GLOBAL_SCRIPTS if s not in html_text]
+    if not missing:
+        return []
+    return [{
+        "level":   "warning",
+        "code":    "GLOBAL_SCRIPT_MISSING",
+        "message": (
+            "Annale officielle sans le(s) script(s) global(aux) : "
+            + ", ".join(missing)
+            + " — les inclure via <script src> juste avant </body> (cf. « Assets globaux »)."
+        ),
+    }]
 
 
 # ── Entrée principale ─────────────────────────────────────────────────────────
@@ -422,6 +477,7 @@ def validate_file(path: Path) -> dict:
         + _check_initlocks_call(html_text)
         + _check_qrp_engine(html_text)
         + _check_qrpl_engine(html_text)
+        + _check_global_scripts(html_text, path)
     )
 
     errors   = [f for f in findings if f["level"] == "error"]
