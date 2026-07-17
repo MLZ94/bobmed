@@ -110,12 +110,21 @@ NOISE_FIELD_RES = [
     re.compile(r"Page\s*:\s*\d+\s*/\s*\d+\s*"),
     # Référence/Session : bornée à quelques tokens pour éviter de dévorer du
     # texte de question légitime si ces mots apparaissaient par ailleurs.
-    re.compile(r"Référence\s*:\s*[^\x00\s]+\s+Session\s*:\s*(?:Session\s+)?[^\x00\s]+\s*"),
+    # Le code d'épreuve peut porter un suffixe " Bis" (session BIS / rattrapage,
+    # ex. "DFA1-UE11.1-DECEMBRE2024 Bis") : l'espace avant "Bis" cassait la regex
+    # (le code s'arrêtait à l'espace, "Bis Session: …" restait collé à la dernière
+    # option — bug confirmé sur les annales ortho 2024-2025 et 2025-2026, ~30
+    # options polluées par " Bis Session: Session DFA1-UE11.1-…"). On absorbe donc
+    # un " Bis"/" BIS" optionnel entre le code et "Session:".
+    re.compile(r"Référence\s*:\s*[^\x00\s]+(?:\s+[Bb][Ii][Ss])?\s+Session\s*:\s*(?:Session\s+)?[^\x00\s]+\s*"),
     # Certains exports n'ont qu'un "Référence: <code>" isolé (sans "Session:") en
     # pied de page : sans ce nettoyage, il se colle au texte de la dernière
     # option de la dernière question de la page (bug confirmé sur DFA1-UE7.1-
     # NOVEMBRE2025, où "Référence: DFA1-UE7.1-NOVEMBRE2025" polluait plusieurs options).
-    re.compile(r"Référence\s*:\s*[^\x00\s]+\s*"),
+    re.compile(r"Référence\s*:\s*[^\x00\s]+(?:\s+[Bb][Ii][Ss])?\s*"),
+    # "Session: …" isolé (span détaché de son "Référence:", ou export sans
+    # Référence) : même risque de collage à la dernière option.
+    re.compile(r"Session\s*:\s*(?:Session\s+)?[^\x00\s]+\s*"),
 ]
 
 # Fragments de pied de page ISOLÉS (un span PyMuPDF par ligne). Quand la colonne
