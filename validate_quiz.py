@@ -360,6 +360,53 @@ def _check_image_placement(soup) -> list[dict]:
     return findings
 
 
+_PDF_REFERENCE_RE = re.compile(
+    r"non disponible dans cette version"
+    r"|voir le pdf(?:\s+original)?"
+    r"|version num[ée]rique"
+    r"|dans la version pdf"
+    r"|se r[ée]f[ée]rer au pdf",
+    re.I,
+)
+
+
+def _check_pdf_reference_leak(soup) -> list[dict]:
+    """Signale une question dont l'énoncé/le contexte renvoie l'utilisateur « au PDF »
+    (« image non disponible dans cette version numérique, voir le PDF original »…).
+
+    Ce motif est un PATCH MANUEL apposé quand une image n'a pas pu être extraite à
+    l'époque : il masque un contenu (le plus souvent une image bel et bien
+    extractible aujourd'hui) ET défait le contrôle IMAGE_MISSING (le texte réécrit
+    ne déclenche plus « voici … »). Cas confirmé : UE8.1 2023-2024 S1 (DP1-Q9,
+    DP1-Q7, mDP2-Q5) où le patch a en plus introduit une erreur de réponse (item A
+    faux au lieu de vrai). On le signale donc explicitement pour re-générer/embarquer
+    l'image et re-vérifier la correction."""
+    if soup is None:
+        return []
+    findings = []
+    for q in soup.select(".q"):
+        parts = []
+        for sel in (".stem", ".dpctx"):
+            el = q.select_one(sel)
+            if el:
+                parts.append(el.get_text(" ", strip=True))
+        text = " ".join(parts)
+        m = _PDF_REFERENCE_RE.search(text)
+        if m:
+            qid = q.get("id", "?")
+            findings.append({
+                "level":   "warning",
+                "code":    "PDF_REFERENCE_LEAK",
+                "message": (
+                    f"[{qid}] L'énoncé renvoie « au PDF » (\"{m.group(0)}\") — patch "
+                    "manuel masquant une image non extraite à l'époque : ré-extraire "
+                    "l'image (souvent disponible désormais) et RE-VÉRIFIER la réponse "
+                    "de cette question (risque d'erreur introduite lors du patch)."
+                ),
+            })
+    return findings
+
+
 def _check_initlocks_call(html_text: str) -> list[dict]:
     """Vérifie que initLocks() est appelé dans le script."""
     if "initLocks()" not in html_text:
@@ -474,6 +521,7 @@ def validate_file(path: Path) -> dict:
         + _check_section_titles(soup)
         + _check_broken_words(plain)
         + _check_image_placement(soup)
+        + _check_pdf_reference_leak(soup)
         + _check_initlocks_call(html_text)
         + _check_qrp_engine(html_text)
         + _check_qrpl_engine(html_text)
