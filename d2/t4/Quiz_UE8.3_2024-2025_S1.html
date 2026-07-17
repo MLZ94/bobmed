@@ -1,0 +1,916 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 8.3 — Endocrino / Nutrition · Session normale (juin 2025)</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+
+<style id="dk">
+html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8;--acc2:#22d3ee;--acc3:#a78bfa;--d1:#818cf8;--d2:#22d3ee}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark header{background:rgba(14,17,23,.95)!important}
+html.dark .dpctx{background:#1e1b4b!important;border-color:#312e81!important;color:#c7d2fe!important}
+html.dark .note{background:#1c1002!important;border-color:#78350f!important;color:#fde68a!important}
+html.dark .note .rappel{color:#fde68a}
+html.dark .qrocin{background:#1a1d27!important;border-color:var(--line)!important;color:var(--ink)!important}
+html.dark .opt.sel{background:#1e1b4b}
+html.dark .q.done{border-color:#374151}
+html.dark .opt:not(.sel):not(.correct):not(.wrong):not(.missed):hover{border-color:#3f4a5f;background:#20242f}
+html.dark .opt:not(.sel):not(.correct):not(.wrong):not(.missed) .box{border-color:#4b5563}
+html.dark button{background:#232734;border-color:var(--line);color:var(--ink)}
+html.dark button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+html.dark button.show:hover{background:#312e81}
+html.dark .qrocin:focus{box-shadow:0 0 0 3px #312e81}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 8.3 — Endocrino / Nutrition · Session normale (juin 2025)</h1>
+<div class="sub">32 questions : SQI1 (15) · TCS1 (3, verrouillé) · KFP1 (2, verrouillé) · mDP1 (6, verrouillé) · mDP2 (6, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/32</b></span>
+<span class="pill">Score : <b id="s-ok">0/32</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant les analogues du GLP1</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">leur voie d’administration est sous-cutanée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">ils augmentent la sécrétion d’insuline liée à l’hyperglycémie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ils sont souvent choisis en cas d’obésité</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">ils sont souvent choisis chez le sujet âgé</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">ils réduisent les événements cardiovasculaires chez les personnes à très haut risque cardiovasculaire et</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant les inhibiteurs des SGLT2</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Pris isolément, ils peuvent être responsables d’hypoglycémies</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ils sont associés à une perte de poids</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Ils ont un effet néphroprotecteur</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Ils ont un effet cardioprotecteur</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Ils sont utilisés dans l’insuffisance cardiaque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant les inhibiteurs des DPP4 (dipeptidyl peptidases 4)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ils peuvent être utilisés dans l’insuffisance rénale modérée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ils permettent de restaurer des taux physiologiques de GLP1 dans le cadre du diabète de type 2</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Pris isolément, ils peuvent être responsables d’hypoglycémies</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Ils sont associés à une prise de poids</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ils ont un mode d’action rénale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les troubles de l'érection, quelles sont les propositions vraies ? -</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'érection est provoquée par la contraction des cellules musculaires lisses</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La perte des érections nocturnes est possible dans une cause psychogène</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'association troubles de l'érection et baisse de la libido est en faveur d'un hypogonadisme</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La dysfonction érectile peut être le "symptôme sentinelle" d’une athérosclérose</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La chirurgie prostatique est un facteur de risque de troubles de l'érection</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient vivant avec un diabète de type 2 vous consulte pour la première fois depuis un an. Indiquez le bilan que vous réalisez de façon systématique</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Mesure de l’urémie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Fond d’œil</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ECG de repos</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Mesure d’une EAL</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Mesure du rapport albuminurie/créatininurie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente non enceinte présente les résultats suivants à la charge orale en glucose (réalisée en France) : glycémie à jeun 1,11 g/l et glycémie 2 heures 1,51 g/L.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle présente une hyperglycémie modérée à jeun</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pendant la grossesse (à 24 SA), vous auriez fait le diagnostic de diabète gestationnel</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Pendant la grossesse (à 24 SA), vous auriez fait le diagnostic de diabète avéré découvert pendant la grossesse</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il s’agit d’une charge de 100 g de glucose</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle présente une intolérance au glucose</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les pathologies suivantes, laquelle (ou lesquelles) est (ou sont) un (ou des) facteur(s) de risque de phéochromocytome ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">néoplasie endocrinienne multiple de type 1</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">néoplasie endocrinienne multiple de type 2</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">maladie de Von Hippel Lindau</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">neurofibromatose de type 1</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">syndrome de Lynch</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient présente une acidocétose diabétique inaugurale d’un diabète de type 1. Il n’y a pas d’événement ayant provoqué la révélation de ce diabète. Indiquez les principes du traitement curatif</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">insuline à forte dose tant que la glycémie est &gt; 1,2 g/l</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">insuline à forte dose tant que la cétose est présente</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">recharge volumique par glucosé à 5%</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">apports potassiques dès que la kaliémie est &lt; 3 mmol/l</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">bicarbonates en IV</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div><div class="note"><div class="rappel">la supplémentation potassique doit être débutée plus tôt, soit dès que la kalimié est normale (si elle avait été élevée initialement), soit &lt; 5 mmol/L, car il existe une hypokalicitie</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant les hypoglycémies dans le cadre du diabète</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une hypoglycémie sévère est définie par la nécessité de resucrage par un tiers</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">On recommande aux patients conscients de se resucrer avec 25 g de glucose par voie orale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vous administrerez du glucagon à un patient sous sulfamides hypoglycémiants inconscient pour hypoglycémie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elles sont consensuellement définies par un taux de glucose &lt; 70 mg/dl</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous administrerez du sucre per os à un patient sous insuline inconscient pour hypoglycémie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — équivalent de 5 sucres</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels éléments allez-vous surveiller pour juger de l’efficacité de la prise en charge nutritionnelle au bout d’une semaine ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">poids</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">albumine</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">préalbumine</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">tour de taille</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">ingesta</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comment procédez-vous à la gradation de la dénutrition (modérée ou sévère) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'albuminémie est un examen indispensable.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La CRP est un examen indispensable.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une perte de poids supérieure à 10 % est en faveur de la dénutrition sévère.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un IMC inférieur à 18,5 kg/m2 est en faveur de la dénutrition sévère.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'état général du patient détermine le degré de dénutrition.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les arguments suivants en cas de découverte de diabète, indiquez ceux en faveur d’un diabète de type 1?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Âge de 24 ans</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Syndrome polyuropolydipsique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Antécédent familial de diabète de type 2</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cétose</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Antécédent personnel de vitiligo</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles propositions sont vraies concernant les phénotypes de la dénutrition ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le marasme résulte d’une carence d’apport pure.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'hypercatabolisme protéique résulte d’une carence d’apport en plus du stress métabolique.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L’albuminémie est diminuée en cas de marasme.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L’indice de masse corporelle reste relativement stable en cas de marasme.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'hypercatabolisme protéique s’accompagne d’œdèmes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant la néphropathie diabétique</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est associée à une augmentation du risque cardiovasculaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle se dépiste par la mesure de la créatininémie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle se dépiste par la mesure du rapport albuminurie/créatininurie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle est favorisée par une hypertension artérielle</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle peut être responsable d’une hypertension artérielle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — calcul du débit de filtration glomérulaire</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comment diagnostiquez-vous la dénutrition ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L’albuminémie est un critère majeur pour le diagnostic.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il repose exclusivement sur des critères non biologiques.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La présence d’un critère phénotypique est indispensable.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La présence d’un critère étiologique est indispensable.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le diagnostic se repose uniquement sur la baisse de l’indice de masse corporelle.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">TCS1 — Obésité de grade 2 chez une femme de 50 ans</div>
+
+<div class="q" id="TCS1-Q1" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez en consultation une femme de 50 ans pour une prise en charge d’une obésité de grade 2, avec un IMC de 36 kg/m². Elle présente des douleurs articulaires et un essoufflement rapide. Elle est architecte et mère de trois enfants âgés de 8, 10 et 12 ans. Elle a un tabagisme estimé à 20 paquets-années. Elle est ménopausée depuis un an. Son activité physique est limitée par les douleurs articulaires. Un diagnostic de rhumatisme a été posé, nécessitant un traitement par corticothérapie depuis un an.</div>
+<div class="stem">Si vous pensez que la cause principale de sa prise de poids sont ces trois grossesses, la prise de poids à chaque grossesse était entre 5 à 10 kgs Votre hypothèse est plus ou moins certaine (de -2 à +2)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">-2</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">-1</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">0</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">+1</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">+2</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — -1</div><div class="note">Réponse(s) C, D, E également valorisée(s) par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Question annulée Si vous rechercher la cause principale de sa dyspnée, Elle fume avec une exposition estimée à 8 PA Vous pensez que le tabagisme est plus impliqué que l'obésité (de -2 à +2)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">-2</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">-1</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">0</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">+1</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">+2</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — -1</div><div class="note">Réponse(s) A, C, D, E également valorisée(s) par le jury.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous lui proposez une chirurgie bariatrique Elle s'interroge sur l'amélioration de ces symptômes Cette hypothèse (amélioration des symptômes) est plus ou moins certaine (de -2 à +2)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">-2</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">-1</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">0</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">+1</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">+2</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E — +2</div><div class="note">Réponse(s) C, D également valorisée(s) par le jury.</div></div>
+</div>
+
+<div class="sect">KFP1 — Prise en charge du poids chez Mme Y., 55 ans</div>
+
+<div class="q" id="KFP1-Q1" data-correct="ABCDEFGHIJ" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous voyez en consultation Mme Y., âgée de 55 ans, pour la prise en charge de son poids. Elle pèse 95 kg pour une taille de 160 cm, soit un indice de masse corporelle (IMC) de 37 kg/m². Il s’agit de son poids maximal.À l’âge de 20 ans, elle pesait 60 kg. Un an après la deuxième grossesse, à 30 ans, elle pesait 73 kg.Elle n’a pas repris d’activité physique après ses grossesses.Un an après l’arrêt du tabac, à 35 ans, son poids était de 80 kg.Malgré plusieurs régimes restrictifs entraînant un effet « yoyo », elle a continué à prendre du poids.À 45 ans, elle pesait 90 kg.Son divorce, survenu à l’âge de 50 ans, a été un événement particulièrement traumatisant pour elle.Elle prend trois repas par jour et une collation l’après-midi.Elle se plaint de fatigue dès le matin, de douleurs lombaires et de gonalgies, ainsi que de troubles du sommeil.À l’examen clinique, sa tension artérielle est de 120/90 mmHg. La glycémie à jeun est de 1,5 g/L et l’HbA1c à 8,3 %. Des vergetures foncées sont visibles au niveau abdominal.</div>
+<div class="stem">Qu’allez-vous chercher à l’interrogatoire de cette patiente ?( Nombre de réponse non limité, mais cotation négative possible)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Vécu de l’excès de poids</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Antécédents familiaux de surpoids ou obésité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Traumatisme crânien</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Utilisation de médicaments psychotropes</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Antécédent de dépression</span></li>
+<li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Rechercher une hyperphagie prandiale</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Évaluer le volume ingéré lors d’un repas</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Rechercher une consommation de boissons sucrées</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Rechercher les grignotages</span></li>
+<li class="opt" data-l="J" data-correct="1"><span class="box">J</span><span class="otext">Evaluer le niveau d'activité physique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E, F, G, H, I, J</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">J.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="ABCDFGHI" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles complications de l'obésité allez vous dépister chez cette patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hypertension artérielle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Diabète</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">dyslipidémie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">cancer du sein</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">ostéoporose</span></li>
+<li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">syndrome d'apnée du sommeil</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">arthrose</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">stéatose hépatique</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">cirrhose métabolique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, F, G, H, I</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">mDP1 — Nodule thyroïdien découvert à l’examen cervical</div>
+
+<div class="q" id="mDP1-Q1" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Hypertension artérielleChirurgie d'un syndrome du canal carpien gaucheSon traitement est : valsartan 80 mg 1 cp/ jour.Il pèse 95 kg pour 1m80. Sa tension artérielle est à 158/88 mmHg. A la palpation cervicale, vous notez en effet un nodule lobaire droit, supracentimétrique, mobile à la déglutition, sans adénopathie associée.</div>
+<div class="stem">Quels sont les facteurs de risque de cancer thyroïdien ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">ATCD de radiothérapie cervicale</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">tabagisme</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">alcool</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">lieu de vie en zone carencée en iode</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Histoire familiale de NEM 1</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — néoplasie multiple de type 1</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'échographie thyroïdienne qu'il apporte en consultation décrit un nodule de 12 x 10 mm de dimension, médiolobaire droit.Quels sont les arguments en faveur de la malignité ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">nodule plus haut que large</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">nodule isoéchogène</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">nodule modérément hypoéchogène</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">marges irrégulières</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">présence de microcalcifications l’hypoéchogenicité des nodules, la présence de microcalcifications, le caractère mal limité ou la forme non ovalaire ; les nodules purement kystiques sont bénins ;</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — forme non ovalaire</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'échographiste conclut en classant le nodule EU_TIRADS 4.Quelles sont les propositions vraies concernant cette information ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">le risque de cancer est faible</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">le risque de cancer est intermédiaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ce résultat suggère un carcinome papillaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">ce résultat suggère un carcinome médullaire de la thyroïde</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">vous conseillez une intervention chirurgicale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Mr Sunntharalingam a accepté l'intervention chirurgicale. Une lobectomie a été réalisé et le résultat anatomopathologique est : carcinome papillaire de 10x7x4 mm, intra thyroïdien, bien encapsulé, sans atteinte ganglionnaire, soit un stade PT1aN0M0.Aucune irathérapie n'est indiquée. Cependant, il revient inquiet car après l'intervention, l'anesthésiste l'a revu et signalé des difficultés à l' intubation à cause d'une macroglossie et lui a suggéré d'éliminer une acromégalie.Quels examens allez-vous lui prescrire à votre consultation en première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">dosage de GH à 8 h à jeun</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">dosage d' IGF-1 à 8 h à jeun</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">dosage d' IGF-2 à 8 h à jeun</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Dosages de GH après charge orale en glucose</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">IRM hypophysaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les résultats du bilan sont : GH : 5,6 mUI/L (8h), 18 mUI/L (8h20), 9 mUI/L (8h40) (0.4-5 mUI/L) et IGF-1 648 ng/ ml (170-325) soit très en faveur d'une acromégalie. Son médecin traitant qu'il a consulté dès réception des résultats lui a aussitôt prescrit l'IRM hypophysaire que voici : Quelles sont les propositions vraies pour la décrire ?</div>
+<div class="extra"><img src="data:image/jpeg;base64,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" style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">lésion effleurant le chiasma</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">extension dans le sinus caverneux droit</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">extension dans le sinus sphénoïdal</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">tige pituitaire fine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">hypersignal de la post-hypophyse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les complications à rechercher même s'il est guéri par la chirurgie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">hypertrophie ventriculaire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">bronchopneumopathie chronique obstructive</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">cirrhose hépatique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">diabète</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">cancer de la prostate</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP2 — Fatigue, polyurie et polydipsie chez M. BJ, 64 ans</div>
+
+<div class="q" id="mDP2-Q1" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Monsieur BJ âgé de 64 ans vous consulte, car depuis quelques semaines, ils se sent fatigué et n’arrête pas d’uriner, en même temps il a soif bien qu’il boive à peu près 5 litres d’eau par jour. Il ne présente aucun antécédent particulier hormis un surpoids avec un IMC 27 kg/2 et un épisode de colique néphrétique il y a 2 mois qui avait motivé son passage aux urgences. Il ne prend aucun traitement. A l'examen ce jour, il pèse 83 kg pour 1.75m, TA à 118/70. La palpation cervicale retrouve une thyroïdie de petite taille, sans nodule, pas d'autre anomalie.</div>
+<div class="stem">Parmi le(s) pathologie (s) ci-dessous, quelle (s) est ou sont celle (s) responsable (s) d’un syndrome polyuro- polydypsique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">hyperglycémie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">hypophospohrémie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">hypokaliémie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">hyperkaliémie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">hypercalcémie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q2" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le bilan que vous aviez demandé revient : Glycémie à jeun 1,1 g/l (5,5 mmol/L), Na+ 135 mmol/l, K+ 4,1 mmol/l, créatine 150 mmol/L, calcémie 3,1 mmol/l, albumine 35 g/l, phosphore 0,4 (N : 1 - 1,2), hémoglobine 12 g/dl, leucocytes 5 672/mm3, plaquettes 256 000 G/L. BU normale.A combien est la calcémie corrigée de Mr BJ</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">2,925 mmol/L</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">3,025 mmol/L</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">3,105 mmol/L</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">3,225 mmol/L</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">3,325 mmol/L calcémie corrigée : Cam + (40-albumine) x 0.025</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q3" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Monsieur BJ est hospitalisé en endocrinologie pour complément de prise en charge. Le complément du bilan que vous aviez demandé montre : PTH : 73 ng/ml (10 - 60), Vitamine D à 53 ng/ml, calcémie 3,1 mmol/l, albumine 35 g/l, phosphore 0,4 (N : 1 - 1,2), TSH 2,4 mUI (0,4 -5). Le reste des bilans est sans particularité. Quel (s) est ou sont le(s) diagnostique(s) probable(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Hyperparathyroïdie primaire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hyperparathyroïdie secondaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Immobilisation</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Myélome</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hyperthyroïdie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q4" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) examen(s) demanderiez-vous comme bilan(s) de retentissement de la pathologie suspectée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">ECG</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Echographie rénale ou scanner rénal</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Scanner cervico-thoracique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Ostéodensitométrie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">TEP-Scan</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div><div class="note"><div class="rappel">vérifier rang ? écho vs TDM - tendancieux</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — low dose</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q5" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Au cours de ces examens de retentissement, il a été découvert d’un incidentalome surrénalien droit de 14 mm, caractérisé au scanner comme un adénome avec une densité spontanée à 8 UH. Selon les antécédents de Monsieur BJ, quelle(s) est ou sont le (s) hypothèses diagnostique(s) à évoquer devant cet adénome surrénalien ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">nodule bénin</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">hypercorticisme ACTH-dépendant</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">hypercorticisme ACTH-indépendant</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">phéochromocytome</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hyperaldostéronisme primaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q6" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Selon vos hypothèses diagnostiques évoquées ci-dessus, quel(s) bilan(s) hormonal(ux) demanderiez vous à Monsieur Brun ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">dosage des dérivées méthoxylés plasmatiques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">cycle ACTH/cortisol sur 24 H</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">test au Synacthène</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">test de freinage minute</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">dosage de rénine et aldostérone plasmatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — item neutralisé par le jury (compté valide)</div>
+</div>
+</div>
+
+<a class="back" href="../../index.html">← T4 D2</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>

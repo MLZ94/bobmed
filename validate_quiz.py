@@ -51,7 +51,7 @@ PUA_RE = re.compile(r"[-]")
 _BROKEN_WORDS = [
     # fl disparu : réflexe → réexe, réexion ; inflammation → inammation
     (re.compile(r"\bréexe",        re.I), True),
-    (re.compile(r"\bréex",         re.I), True),
+    (re.compile(r"\bréex(?!p)",    re.I), True),   # fl disparu (réex→réfl) ; exclut réexpliquez etc.
     (re.compile(r"\binamm?ati",    re.I), True),   # inammation / inflammation
     (re.compile(r"\binamm?atoire", re.I), True),
     (re.compile(r"\buide\b",       re.I), True),   # fluide → uide

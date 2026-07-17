@@ -1,0 +1,1307 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 8.3 — Endocrino / Nutrition · Session normale (juin 2023)</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+
+<style id="dk">
+html.dark{--bg:#0e1117;--card:#1a1d27;--ink:#e2e8f0;--mut:#8a9baa;--line:#2d3748;--vrai:#4ade80;--vraibg:#052e16;--faux:#f87171;--fauxbg:#450a0a;--neu:#fbbf24;--neubg:#1c1002;--acc:#818cf8;--acc2:#22d3ee;--acc3:#a78bfa;--d1:#818cf8;--d2:#22d3ee}
+html.dark body{background:var(--bg);color:var(--ink)}
+html.dark header{background:rgba(14,17,23,.95)!important}
+html.dark .dpctx{background:#1e1b4b!important;border-color:#312e81!important;color:#c7d2fe!important}
+html.dark .note{background:#1c1002!important;border-color:#78350f!important;color:#fde68a!important}
+html.dark .note .rappel{color:#fde68a}
+html.dark .qrocin{background:#1a1d27!important;border-color:var(--line)!important;color:var(--ink)!important}
+html.dark .opt.sel{background:#1e1b4b}
+html.dark .q.done{border-color:#374151}
+html.dark .opt:not(.sel):not(.correct):not(.wrong):not(.missed):hover{border-color:#3f4a5f;background:#20242f}
+html.dark .opt:not(.sel):not(.correct):not(.wrong):not(.missed) .box{border-color:#4b5563}
+html.dark button{background:#232734;border-color:var(--line);color:var(--ink)}
+html.dark button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+html.dark button.show:hover{background:#312e81}
+html.dark .qrocin:focus{box-shadow:0 0 0 3px #312e81}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 8.3 — Endocrino / Nutrition · Session normale (juin 2023)</h1>
+<div class="sub">50 questions : SQI1 (20) · DP2 (15, verrouillé) · DP1 (15, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/50</b></span>
+<span class="pill">Score : <b id="s-ok">0/50</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-QA" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QA</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les signes cliniques d’une hypocalcémie aiguë ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">crise de tétanie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">paresthésies distales et péribuccales</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">allongement de QT sur l’ECG</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">troubles des phanères</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">cataracte</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QB" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QB</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles complications d'un goitre plurinodulaire devez-vous dépister au cours du suivi d'une patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">passage en hyperthyroidie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">passage en hypothyroïdie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">compression oesophagienne</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">compression trachéale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">cancer thyroïdien</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QC" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QC</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient présente un nodule thyroïdien unique. La cytoponction est très suspecte de cancer papillaire. Il vous interroge sur les modalités de prise en charge de ce cancer après la chirurgie. Quelles sont les propositions vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Traitement par L-Thyroxine, initialement à dose supra-physiologique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Traitement à l' iode 131</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Chimiothérapie adjuvante</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Surveillance annuelle de la thyrocalcitonine</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Surveillance annuelle de la thyroglobuline et Anticorps anti-thyroglobuline</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QD" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QD</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient sort du service d'endocrinologie avec le diagnostic de macroadénome hypophysaire non sécrétant. Il devrait être opéré. Anxieux, il s'inquiète des risques s'il refuse la chirurgie. Quels sont ces risques ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">compression de la carotide interne au niveau du siphon carotidien</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">compression chiasmatique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">apparition d'une hyperprolactinémie à plus de 10 fois la normale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">apparition d'un déficit thyréotrope</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">risque de transformation carcinomateuse après 10 ans</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div><div class="note"><div class="rappel">E cas exceptionnel de carcinome hypophysaire, le diagnostic est fait sur l'anatomopathologie- le risque de carcinome serait immédiat et non à 10 ans. Si l'adénome n'évolue pas sur le plan volumétrique les 1ères années, il n'y a pas de risque qu'il le fasse plus tard.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QE" data-correct="ABCHI" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QE</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les médicaments qui peuvent expliquer une hyperprolactinémie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">anti-histaminique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">anti-émétique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">contraception oestro-progestativee</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">contraception microprogestative</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">inhibiteur calcique</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Inhibiteur de l'enzyme de conversion</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Amiodarone</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">antidépresseur tricyclique</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Neuroleptique</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Thymorégulateur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, H, I</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QF" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QF</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suspectez une acromégalie. Quels dosages biologiques allez vous demandez?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un dosage de GH à 8H le matin</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un dosage de GH vers minuit</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un dosage d'IGF-1</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un dosage de GH-RH</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un dosage de GH urinaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div><div class="note"><div class="rappel">B / le dosage de GH à minuit n'a pas d'intéret spécifique et de plus il ne peut être fait qu'en hospitalisation, dont le coût n'est pas justifié pour du dépistage.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QG" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QG</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant le syndrome de Cushing :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">C’est l’ensemble des manifestations cliniques et biologiques engendrées par un excès chronique de minéralocorticoïdes</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les signes spécifiques sont les signes secondaires à l’effet catabolique et antianabolique des</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">les vergetures cutanées sont fines et orientées verticalement sur les flancs</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le dosage de la cortisolémie à 8 heures est un bon examen de dépistage</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Dans le test de freinage minute, la cortisolémie est mesurée le matin entre 6 et 8 h, après la prise orale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QH" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QH</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les examens suivants, le(s) quel(s) vous sont nécessaires pour avancer dans la démarche étiologique d'un syndrome de Cushing.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">ACTH</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Test de freinage minute</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Test de freinage fort</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Test au Synacthène</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cycle du cortisol plasmatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QI" data-correct="BCDFGHMN" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QI</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cocher parmi cette liste, les examens nécessaires dans le bilan d'une gynécomastie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Numération formule sanguine</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Testostérone totale et testostérone libre</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">FSH, LH</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Prolactine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cortisol libre urinaire des 24H</span></li>
+<li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">TSH</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Oestradiol</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">beta-hcg</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">17 OH progestérone</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">DHEA-Sulfate</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">ACE</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">CA19-9</span></li>
+<li class="opt" data-l="M" data-correct="1"><span class="box">M</span><span class="otext">Alfa-foetoprotéine</span></li>
+<li class="opt" data-l="N" data-correct="1"><span class="box">N</span><span class="otext">LDH</span></li>
+<li class="opt" data-l="O" data-correct="0"><span class="box">O</span><span class="otext">PSA totaux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, F, G, H, M, N</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">M.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">N.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">O.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QJ" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QJ</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les étiologies possibles de l'hirsutisme ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Obésité</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Syndrome des ovaires polykystiques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bloc en 21 hydroxylase</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Adénome de Conn</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Adénome cortisolique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QK" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QK</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les critères suivants le ou lesquels sont nécessaires pour affirmer le diagnostic de syndrome de ovaires polykystiques, à condition d'éliminer les diagnostics différentiels.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Oligo-aménorrhée ou cycles anovulatoires</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Oestradiol normal avec FSH et/ou LH élevées</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hyperandrogénie clinique et/ou biologique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Présence de plus de 10 follicules de 2-9 mm à l'échographie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Présence de plus de 20 follicules de 2-9 mm à l'échographie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QL" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QL</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant les HTA endocriniennes</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">l’hyperaldostéronisme primaire est la cause la plus fréquemment responsable d’HTA endocrinienne</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">les dosages d’aldostérone et de rénine peuvent être réalisés sans condition particulière</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">les phéochromocytomes sécrètent de l’aldostérone</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">le phéochromocytome doit bénéficier d’une enquête génétique systématique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">une des causes d’hyperaldostéronisme primaire est le syndrome de Cushing</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QM" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QM</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les propositions vraies concernant le test au Synacthène?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il permet d'affirmer une maladie de Cushing</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il confirme une insuffisance surrénalienne</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il permet de différentier une insuffisance surrénalienne périphérique d'une insuffisance corticotrope</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La réponse normale est un taux de cortisol supérieur à 200 nmol/L</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La réponse normale est un taux de cortisol supérieur à 500 nmol/L</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QN" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QN</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant l’insuffisance surrénale</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">la mélanodermie est caractéristique de l’insuffisance corticotrope</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">on observe une hyponatrémie de dilution en cas d’insuffisance surrénale primaire</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">l’hypotension est plus marquée en cas d’insuffisance surrénale primaire qu'en cas d’insuffisance corticotrope</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">le diagnostic d’une insuffisance surrénalienne aiguë repose sur la réalisation d’un test au synacthène à 8</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">la cause la plus fréquente d’insuffisance corticotrope est la tuberculose hypophysaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QO" data-correct="ABEGI" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QO</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous recevez aux urgences un patient suivi pour maladie d'addison. Il présente une insuffisance surrénale aigue, dans le cadre d'une bronchite. Parmi les propositions thérapeutiques suivantes- à mettre en place la 1ère heure, précisez lesquelles sont adaptées.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hydrocortisone 100 mg IV</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hydrocortisone 100 mg IM</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hydrocortisone 10 mg/h en IVSE</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Fludrocortisone 50 mg toutes les 4 H</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Réhydratation avec NaCl 9%°</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Réhydratation par G2,5%</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Apports en glucose</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Apports en potassium</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Apports de bicarbonates</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E, G, I</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QP" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QP</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies dans le cadre du dépistage du diabète sucré en France</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">une glycémie à jeun normale est &lt; 1.05 g/L en dehors de la grossesse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">le diagnostic du diabète gestationnel après 24 semaines d’aménorrhée repose sur la charge de 75g de</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">en dehors de la grossesse, une glycémie 2 heures après charge en glucose à 1.66 g/l pose le diagnostic</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">en dehors de la grossesse, la charge en glucose est recommandée en cas d’hyperglycémie modérée à jeun</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">une HbA1c ≥ 6,5% définit un diabète</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QQ" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QQ</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant le diabète de type 1</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">il existe une prédisposition génétique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">au moins un autoanticorps témoins circulants est détectable dans 97 % des cas au diagnostic</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">les anticorps sont responsables de la destruction des cellules bêta des ilots de Langerhans</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">le diagnostic de diabète de type 1 repose sur la mesure de deux glycémie à jeun ≥ 1,26 g/L</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">le diabète de type 1 lent, ou LADA (Latent Autoimmune Diabetes in the Adult) est un diabète cétosique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QR" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QR</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant le traitement des personnes vivant avec un diabète de type 1 :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">l’éducation thérapeutique, visant à l’autonomisation maximale du patient, est nécessaire</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">en cas d’intolérance gastrique, il faut arrêter l’insuline basale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">les analogues rapides de l’insuline sont classiquement utilisées après la prise des repas</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">l’objectif est une HbA1c &lt; 7% pour un sujet adulte</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">les inhibiteurs de SGLT2 constituent un complément à l’insuline privilégié</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — lente ou intermédiaire</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — hors grossesse</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QS" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QS</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les critères suivants, lesquels rentrent dans la définition de la dénutrition chez l'adulte?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">perte de poids &gt; 5 % en 6 mois</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">perte de poids &gt; 10 % en 6 mois</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">IMC &lt; 18,5</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">réduction de la prise alimentaire &gt; 50 % pendant 1 semaine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">pathologie chronique stable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-QT" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 QT</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comment explorer vous une carence en fer?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">la mesure du fer sérique est l'examen de référence</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">la mesure de la ferritinémie est l'examen de référence</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">la ferritinémie est augmentée dans les hépatopathies chroniques</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">la férritinémie est augmentée en cas d'insuffisance rénale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">les dosages de fer et transferrine sont indiqués en seconde intention dans les états inflammatoires</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">DP2 — Asthénie et arrêt du traitement chez un homme de 65 ans</div>
+
+<div class="q" id="DP2-QA" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QA</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous voyez aux urgences un homme de 65 Ans amené par les pompiers pour asthénie, inappétence depuis 3 joursIl a spontanément arrêté ses traitements anti HTA il y a un an et anti diabète il y a un moisTA 120/75, FC 120/min, Sat 97 %, glycémie HI, cétonémie à 2,2 mmol/lPoids 61 kgs, taille 1,74m, IMC 20Langue sèche, Pas de signe de chocBDC réguliers sans souffle, mollets souples et indolores, pas de signe doeil gauche dans lanomalie de lasymétrie de la face, mobilise les 4 membres à la demande.</div>
+<div class="stem">Voici les examens biologiques à disposition :NFS : Hématies 3,3 10exp12 (13-17), Hb 9,7 g/dl, Leucocytes 5,8 10exp9 (4,5-5,5), Plaquettes 104 10exp9 (150-400)Ionogramme : Glucose 55.1 mmol/L (4.1-5.9), Sodium 142 mmol/ L (136-145), Potassium 6.4 mmol/L (3.5-4.5), Chlorure 98 mmol/L (98-107), Bicarbonate 26 mmol/L(23-29), Uréé 29.7 mmol/L (2.5-7.5), Créatinine 231 µmol/L (59-104), CRP 1 mg/L Informations partielles des GDS veineux en AA : pH 7,34, pCO2 53,6mmHg, bicarbonates 29,1 mmol/L, Hb 14,9g/dl, lactates 1,7 mmol/L, glycémie 47 mmol/l</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">cétose diabétique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">acidose cétose diabétique compensée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">coma hyperosmolaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">acidose lactique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">hypernatrémie (corrigée)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div><div class="note"><div class="rappel">Coma hyperosmolaire : osmolalité &gt; 320 mOsmol/kg H2O ; calculée selon la formule : (Na+ 13) × 2 + Glycémie, où la concentration en sodium et la glycémie sont en mmol/l ; (142+13)x2 +55,1 = 365 Natrémie corrigée = Na + 0,3 (G -5) : 142 + 0,3x50 = 157 L'acidose lactique définie par un taux de lactates à plus de 5-6 mmol/L</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QB" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QB</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les facteurs de risques de ce diagnostic (en général) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">âge &gt; 50 ans</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">infection aiguë</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">arrêt du traitement anti-HT A</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">troubles cognitifs</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">corticothérapie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QC" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QC</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les principes thérapeutiques des premières 48 H ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Perfusion d'insuline IVSE à la vitesse de 8 UI/H</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Perfusion d'insuline IVSE à la vitesse de 6 UI/h</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Perfusion de NaCl dans les 1ères 24H</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Apport d'eau libre (eau en bouteille/du robinet/par Sonde Nasogastrique) en grande quantité</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ne pas débuter de supplémentation potassique avant un contrôle de Kaliémie bas</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QD" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QD</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant le contexte aiguë et l' HbA1c, un traitement insulinique à multiples injections seul en relais de l'IVSE a été instauré.Voici le tableau des surveillances glycémiques des 3 derniers jours :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">ne pas faire d'insuline rapide si la glycémie est inférieur à 1 g/L avant le repas</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">majorer la rapide du matin</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">majorer la dose de rapide du soir</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">conserver la dose de rapide du soir</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">majorer la dose de lente du soir</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QE" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QE</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">A 5 jours, il va mieux, les glycémies se sont normalisées avec diminution possible des doses d'insuline. Vous avez complété votre histoire du diabète : Diagnostic en 1980, toujours sous ADO, mauvaise observance avec déséquilibre chronique.Son traitement antérieur comportait :- Metformine 1000 mg x 3 par jour - Diamicron 60 mg x 2 par jour - Forxiga 10 mg par jour ( prescrit sur l'ordonnance mais jamais pris )- Irbésartan 150 mg - Simvastatine 10 mg par jour Son HbA1c est à 13.6 %, aucune antériorité à disposition. Commentez ce traitement?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">la metformine est contre-indiquée en cas d'insuffisance respiratoire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">le diamicron est un sulfamide hypoglycémiant</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">les sulfamides réduisent l'insulinorésistance</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">le Forxiga (Inhibiteur de SGLT2) réduit le risque d'insuffisance cardiaque</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">le Forxiga a un effet diurétique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div><div class="note"><div class="rappel">Le tableau des traitements est très important</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QF" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QF</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Au bout de quelques jours, les ADO avaient été repris en conservant uniquement l'injection d'insuline le soir. L'équilibre est bon. Vous renouvelez les conseils diététiques adaptés à la prise en charge de son diabète.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">le régime diabétique est hypocalorique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">les glucides sont répartis en 2 à 3 repas par jour</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">vous interdisez les produits sucrés : sucre, bonbons, miel, confiture</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">les produits laitiers doivent être limités</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">les apports protidiques et lipidiques conseillés sont identiques à ceux de la population générale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — 100 g, env 10 grains</div>
+</div>
+</div>
+
+<div class="q" id="DP2-QG" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QG</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Ce patient a perdu du poids, mais auparavant ( 5 ans avant), il était très sportif et souhaite se remettre à une activité physique.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">l'objectif est de 90 min par semaine</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">l'objectif est de 150 min par semaine</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">vous conseillez au moins 3 séances par semaine et pas plus de 2 jours sans activité</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">la rétinopathie proliférante est une contre-indication</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">un ATCD d' IDM est une contre-indication</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div><div class="note"><div class="rappel">Pensez-y, il faut vraiment le discuter précisément si on veut impacter un patient (entretien motivationnel) ?</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QH" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QH</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le fond d'oeil réalisé ne retrouve aucune anomalie. Il se plaint pourtant d'un flou visuel.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ce résultat normal vous surprend</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous contacter votre collègue ophtalmologiste pour dépister un oedème maculaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La rétinopathie s'explique par des occlusions de capillaires rétiniens</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'oedème maculaire peut provoquer une baisse d'acuité visuelle brutale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le risque de cataracte est identique à celui de la population générale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QI" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QI</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Voici son bilan rénal à distance : créatininémie 138 micromol/L, DFG ( CKD EPI) : 55 ml/min/1,73 m2, Rapport A/C 16 mg/mmol, Protéinurie 0,1 g/L</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">il présente une néphropathie incipiens</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">il présente une néphropathie protéinurique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">vous confirmer la néphropathie diabétique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">dans son traitement, l'irbesartan doit être remplacé par un ARAII</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">dans son traitement, vous réexpliquez l'importance du Forxiga qu'il ne prenait pas</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QJ" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QJ</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Il ne rapportait ni consommation d'alcool, ni tabagisme. Il se plaint de douleurs dans les pieds et jambes, à types de paresthésies, surtout nocturne. Cependant, lorsqu'il marche, il doit s'arrêter tous les 500 m à cause de douleurs de jambes, comme des crampes. Les pouls tibiaux postérieurs ne sont pas retrouvés. Il présente des erreurs au test au monofilament.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">vous évoquez une neuropathie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">vous évoquez une artériopathie des membres inférieurs</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">vous prescrivez un Electromyogramme</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">vous demandez une mesure d' IPS</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">vous prescrivez un Echodoppler artériel des membres inférieurs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div><div class="note"><div class="rappel">le diagnostic de polyneuropathie est clinique, l' EMG est rarement utile dans le contexte du diabète avec histoire/examen clinique typique</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QK" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QK</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le résultat du questionnaire DN4 est en faveur d'une neuropathie, l' IPS est à 0,8 et l'échodoppler a mis en évidence des sténoses étagées autour de 50% des artères fémorales superficielles, sténoses poplitées et à droite, l'artère tibiale est occluse, à gauche, très sténosée, mais bilatéralement, les flux distaux sont amoindris. Quel est le grade podologique pour ce patient?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">grade 0</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">grade 1</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">grade 2</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">grade 3</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">grade 4</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div><div class="note"><div class="rappel">Association neuropathie et artériopathie</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QL" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QL</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Il présente donc un diabète depuis plus de 20 ans, avec une néphropathie avec microalbuminurie (sous ARAII et ISGLT2), une neuropathie et AOMI sévère des membres inférieurs. Vous souhaitez dépistez l'ischémie myocardique silencieuse (IMS). Votre sénior vous propose de réaliser un CAC score ( score calcique coronaire). Le résultat est à 453. Quelles sont les propositions vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">l'ischémie myocardique peut s'expliquer par la neuropathie autonome cardiaque</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">ce dépistage comporte la réalisation d'un ECG annuel</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">la réalisation d'un test spécifique dépend du risque cardiovasculaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">la scintigraphie myocardique ou l' Epreuve d' effort sont d'autres examens de dépistage de l' IMS</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">il est prouvé que le dépistage de l'ischémie myocardique silencieuse réduit la mortalité cardiovasculaire des patients</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QM" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QM</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les affirmations vraies concernant le traitement anti aggrégant?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">il est recommandé en prévention primaire chez tout patient avec un diabète de type 1</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">il est recommandé en prévention primaire chez tout patient avec un diabète de type 2</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">vu le risque de ce patient, vous lui proposez ce traitement</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">ce traitement doit être réévalué en regard du risque hémorragique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">l' AOMI peut de plus faire discuter l'adjonction au traitement antiaggrégant un traitement antiplaquettaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QN" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QN</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après votre bilan, la reprise des thérapeutiques, la mise en place d'un passage à domicile d'une infirmière libérale, il est sorti avec le traitement suivant : - Metformine 1000 mg x 3 par jour - Diamicron 60 mg x 2 par jour - Forxiga 10 mg par jour - Tresiba 20 UI le soir - Irbésartan/Hydrochlorothiazide 300/12,5 mg - Atorvastatine 40 mg par jour Quels sont les objectifs de son traitement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">HbA1c &lt; 7%</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">HbA1c &lt; 8 %</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Tension artérielle &lt; 130/80</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">LDLc &lt; 0,7 g/L</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">LDLc &lt; 0,55 g/L</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-QO" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 QO</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous êtes appelé par votre collègue urgentiste 4 mois plus tard. Votre patient a été amené par les pompiers pour une hypoglycémie à 0,4 g/L, les voisins les avaient appelés, car il n'avait pas ouvert ses volets ce jour là. L'HbA1c est à 8 %, l' IDE ne passe plus depuis 1 mois, mais il a continué son traitement avec une surveillance en moyenne à 1,6 g/L le matin, et plutôt 1 g en fin de journée. Qu'en pensez-vous?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">une hypoglycémie est dite sévère si le patient a eu besoin de prendre plus de 15 g de sucre pour se resucrer</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">une hypoglycémie est dite sévère si le patient a eu besoin d'une tierce personne pour se resucrer</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vous proposez de diminuer la dose du Forxiga (ISGLT2)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vous proposez de diminuer la dose du Diamicron (Sulfamide)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous proposez de diminuer la dose de Tresiba</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — insuline lente</div>
+</div>
+</div>
+
+<div class="sect">DP1 — Prise en charge du poids chez Mme Y., 55 ans</div>
+
+<div class="q" id="DP1-QA" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QA</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous voyez en consultation Mme. Y âgé de 55 ans pour une prise en charge de son poids. Elle pèse 95kg et mesure 160cm. Son indice de masse corporelle est de 37kg/m2. C’est son poids maximal. Son poids à 20 ans était de 60kg. Un an après la première grossesse, à l’âge de 25 ans, elle pesait 65kg. Un an après la deuxième grossesse, à l’âge de 30 ans, elle pesait 73kg. Elle n’a pas repris l’activité sportive après les grossesses. Un an après l’arrêt de tabac, à l’âge de 35 ans, elle pesait 80kg. Malgré plusieurs régimes restrictifs avec un effet « yoyo » elle a continué à prendre du poids et à l’âge de 45 ans elle pesait 90kg. Le divorce à l’âge de 50 ans a été un évènement traumatisant pour elle. Elle prend trois repas et une collation dans l’après-midi. Elle consomme environ 2500 kcal par jour. Elle consomme beaucoup de produits laitiers, notamment du fromage à chaque repas. Elle ne consomme pas de légumes et uniquement un ou deux fruits par semaine. Elle dit être fatiguée dès le matin, avoir des douleurs lombaires et des genoux et du mal à dormir. Elle se plaint de constipation. A l’examen, la tension artérielle est de 130/90mmHg, glycémie à jeun est de 1,5g/l, HbA1c de 8,3%. Elle présente une obésité gynoïde. Vous remarquez quelques vergetures foncées sur le ventre.</div>
+<div class="stem">La patiente présente Réponse : C</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un surpoids</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une obésité de grade 1</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">Une obésité de grade 2</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une obésité de grade 3</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une obésité morbide</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QB" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QB</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels examens complémentaires allez-vous faire pour éliminer une obésité secondaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un bilan lipidique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">TSH</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Créatininémie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cortisol libre urinaire des 24 H</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Dosage de la vitamine B12</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div><div class="note"><div class="rappel">TSH car constipation et fatigue. Cortisol libre urinaire car vergetures abdominales. Les autres examens sont du registre du bilan des complications de l'obésité, mais pas du bilan étiologique</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QC" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QC</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles complications d’obésité présente la patiente très probablement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hypertension artérielle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Diabète</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Syndrome d'apnée du sommeil</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Arthrose</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hypertension intra-crânienne idiopathique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div><div class="note"><div class="rappel">Diabète car HbA1c &gt; 6,5% ; Syndrome d’apnée du sommeil très probable car trouble du sommeil et fatigue dès le matin ; Arthroses car les douleurs des genoux et lombaires.l' HTIC est plus fréquente en cas d'obésité, à évoquer devant des céphalées chroniques, plutôt chez des femmes en âge de procréer.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QD" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QD</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont d’autres complications potentielles de l’obésité de manière général ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Majoration de risque de certains cancers</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Stéatose hépatique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Coronaropathie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Perte de l’estime de soi</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Insuffisance veineuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QE" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QE</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels conseils nutritionnels donnez-vous à la patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Interdiction du fromage</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Augmenter la consommation des fruits et légumes</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Réduction des apports énergétiques totaux</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Conseil d’allonger le temps de mastication et d’ingestion</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Conseil de renforcer l’attention sur les sensations gustatives</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QF" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QF</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l’activité physique</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est primordiale pour le maintien de la perte de poids après amaigrissement</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L’objectif idéal pour une personne obèse est de 1 heure par jour d’activité physique d’intensité modérée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La recommandation pour la population générale est de 30 minutes par jour d’activité physique d’intensité modérée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La marche est une activité physique d'intensité légère</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">au cours d'une activité physique modérée, le patient transpire et a une accélération franche de la</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div><div class="note"><div class="rappel">E il s'agit d'une activité physique intense</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le plus souvent</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QG" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QG</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente souhaite une chirurgie bariatrique. Quelles sont les critères nécessaires pour pouvoir y avoir recours ( en suivant les recommandations de l' HAS)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">IMC ≥ 40kg/m2</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">IMC ≥ 30 kg/m2 avec au moins une comorbidité sévère susceptible de s’améliorer après la chirurgie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Echec d’un traitement nutritionnel pendant 6 à 12 mois</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Risque opératoire acceptable</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Absence de troubles du comportement alimentaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QH" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QH</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles techniques de chirurgie bariatrique connaissez-vous ? Bypass gastrique en YAnneau gastriqueGastrectomie longitudinale Gastrectomie totaleRéponses : A,B,C</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Bypass gastrique en Y</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Anneau gastrique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Gastrectomie longitudinale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Gastrectomie totale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Section d'une partie de l'intestin grêle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — exérèse d'environ 50 cm</div>
+</div>
+</div>
+
+<div class="q" id="DP1-QI" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QI</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les contre-indications de la chirurgie bariatrique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Impossibilité de suivi médical</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">IMC &lt; 40kg/m2</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Troubles psychiatriques non stabilisés</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Troubles sévères du comportement alimentaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Risque anesthésique majeur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QJ" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QJ</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après votre 1ère évaluation, vous avez conclu à une obésité sans endocrinopathie sous-jacente, compliqué de diabète de type 2 et d'un syndrome d'apnée du sommeil léger ne nécessitant pas d'appareillage. Elle a débuté un suivi régulier avec un diététicienne libérale, mais assez irrégulier. Elle n'a pas réussi à perdre du poids, et elle rapporte des épisodes de perte de contrôle alimentaire Elle décrit notamment des épisodes de consommation de grandes quantités d'aliments, en général le soir, pendant 1-2H après le repas devant la télévision. Elle peut arriver de vomir. Lors de ces épisodes, elle l'impression de ne plus rien contrôler et elle a l'impression que son corps enfle. Elle se sent très coupable de ne pas pouvoir maitriser ces conduites. Quelles sont les propositions exactes?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">il s'agit de compulsion alimentaire</span></li>
+<li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">il s'agit de crises de boulimies</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">avant de conclure à une boulimie, vous vérifier que ces épisodes ne surviennent pas plus qu'un fois par mois</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">il s'agit plutôt de craving</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">ce sont des épisodes d'accès hyperphagiques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QK" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QK</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le suivi diététique s'est accompagné d'un suivi psychothérapeutique avec un traitement anti dépresseur, et la situation s'est améliorée. Elle n'a plus reconsulté pendant 2 ans, et vous la voyez revenir car elle a bénéficié d'une sleeve gastrectomie en clinique. Avant la chirurgie, elle pesait 100 Kgs. Elle n'a plus de suivi avec le chirurgien et s'interroge sur la perte de poids après cette chirurgie. D'une façon générale, sur quels critères, allez vous affirmez un amaigrissement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">perte de 5 kgs en 15 jours</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">perte de 5 kgs en 1 mois</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">perte de 10 kgs en 6 mois</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">perte de 10 kgs en 12 mois</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">perte de plus de 15 kgs 2% en 1 semaine 5% en 1 mois 10% en 6 mois si &gt; à 5kg</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QL" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QL</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Elle a beaucoup de mal à manger à cause de la chirurgie (reflux gastrooesophagien, ballonements abdominaux). Elle revient à 3 mois, elle ne pèse plus de 85 kgs, soit une perte de 15 Kgs. Quelles sont les signes de gravité de la dénutrition qu'il faut rechercher?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">albumine &lt; 30 g/L</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">albumine &lt; 20 g/l</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">tension artérielle à 156/89</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">ralentissement psychomoteur</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">bradycardie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QM" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QM</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les carences vitaminiques les plus attendues dans ce contexte de dénutrition, par perte rapide de poids ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">vitamine C</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">vitamine D</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">vitamine B1</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">vitamine B9</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">vitamine B12</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div><div class="note"><div class="rappel">vit D, B9, B12, fer ++</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QN" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QN</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Son albumine est à 19 g/L, elle est fatiguée mais sans autre signe de gravité clinique. Elle a peur d'avoir des douleurs abdominales lorsqu'elle mange, mais accepte facilement une hospitalisation. Qu'allez-vous lui proposer?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">surveillance des apports alimentaires</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">des compléments hyperprotéinés</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">une perfusion de glucosé</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">une nutrition entérale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">une nutrition parentérale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-QO" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 QO</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Elle a été hospitalisée, mais mange moins d'un tiers des plateaux, vomit souvent et même avec les compléments hyperprotéinés. Vous proposez une sonde nasogastrique pour nutrition entérale. Quelles sont les propositions vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">la sonde nasogastrique ne peut pas être maintenue plus d'une semaine</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">le patient doit garder une position semi-assise lors du passage de l'alimentation</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">les premiers jours, les apports ne dépassent pas 250 à 500 ml</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">les apports sont isocaloriques</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">les apports sont hypercaloriques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<a class="back" href="../../index.html">← T4 D2</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
