@@ -118,6 +118,30 @@ NOISE_FIELD_RES = [
     re.compile(r"Référence\s*:\s*[^\x00\s]+\s*"),
 ]
 
+# Fragments de pied de page ISOLÉS (un span PyMuPDF par ligne). Quand la colonne
+# du pied de page est lue span par span, les champs se détachent de leur label
+# ("Session:" seul, la valeur timestamp "2023-08-28-16:21:55" sans son "Date de
+# création:", le "8/17" sans "Page:", le "1" sans "Version:"). NOISE_FIELD_RES,
+# qui exige label+valeur collés, ne les reconnaît alors PAS : dans la remontée
+# couleur de _trailing_notes_from_spans, un tel fragment (noir, non-bruit) casse
+# la collecte de la note bleue du jury qui le précède — la note n'est jamais
+# détachée et fuit dans la dernière option (bug confirmé : note bleue « majorer
+# la dose… L'explication de l'insulinothérapie… » de UE8.3 2022-2023, perdue car
+# suivie de « Session: … » en span isolé). Ces motifs, LOCAUX à la remontée de
+# note (jamais appliqués au texte des questions), permettent de sauter le pied de
+# page fragmenté et d'atteindre la note. Ne peut que RÉVÉLER une note à détacher —
+# le détachement lui-même reste protégé par le match exact de strip_general_note.
+_FOOTER_SPAN_RES = [
+    re.compile(r"^\s*Session\s*:"),
+    re.compile(r"^\s*Référence\s*:"),
+    re.compile(r"^\s*Date de création\s*:?\s*$"),
+    re.compile(r"^\s*\d{4}-\d{2}-\d{2}[-:\d]*\s*$"),
+    re.compile(r"^\s*Version\s*:?\s*$"),
+    re.compile(r"^\s*Page\s*:?\s*$"),
+    re.compile(r"^\s*\d+\s*/\s*\d+\s*$"),
+    re.compile(r"^\s*\d{1,3}\s*$"),
+]
+
 LIGATURES = {
     "ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl",
     "ﬃ": "ffi", "ﬄ": "ffl",
@@ -203,7 +227,8 @@ def _trailing_notes_from_spans(doc_spans):
 
     def is_noise(t):
         tt = fix_ligatures(t).strip()
-        return any(rx.match(tt) for rx in NOISE_FIELD_RES)
+        return (any(rx.match(tt) for rx in NOISE_FIELD_RES)
+                or any(rx.match(tt) for rx in _FOOTER_SPAN_RES))
 
     texts = [t for t, _ in doc_spans]
     colors = [c for _, c in doc_spans]
@@ -254,6 +279,27 @@ def strip_general_note(option_text, note):
             return (head, note) if head else (None, None)
         if len(acc) > len(a_note):
             break
+    # Repli tolérant : la note captée depuis les spans DÉBORDE parfois de ce qui a
+    # réellement fuité dans l'option (elle inclut la suite de la correction, absente
+    # du flux plat de l'option) — l'égalité exacte échoue alors, et la fuite reste
+    # collée (ex. UE8.3 2022-2023 DP2-QF « … population générale Apprendre en
+    # discutant… », note plus longue que la portion fuitée). On coupe donc au point
+    # où le suffixe de l'option devient un PRÉFIXE de la note : ce suffixe EST le
+    # début de la note bleue (= correction du jury), jamais du texte d'option.
+    # Ancrage ≥ 20 car. alnum partagés → collision accidentelle quasi impossible.
+    best_k = None
+    for k in range(len(words) - 1, -1, -1):
+        acc = _alnum(" ".join(words[k:]))
+        if len(acc) < 20:
+            continue
+        if a_note.startswith(acc):
+            best_k = k          # suffixe encore préfixe de la note : on peut agrandir
+        elif best_k is not None:
+            break               # on vient d'entrer dans le texte d'option : stop
+    if best_k is not None:
+        head = " ".join(words[:best_k]).strip()
+        if head:
+            return head, note
     return None, None
 
 
@@ -529,18 +575,13 @@ def parse_question(qtype_raw, neutralized, raw_block, warnings, section_code, qn
     if not q["options"]:
         warnings.append(f"{section_code} Q{qnum}: aucune option détectée — à vérifier manuellement.")
 
-    # La justification du jury est parfois collée à l'intitulé SANS parenthèses
-    # (donc invisible pour split_trailing_paren) : rencontré en pratique sur des
-    # options d'ordinaire courtes qui deviennent anormalement longues. On ne
-    # tente pas de deviner le point de coupure (risque de mal couper une phrase
-    # légitimement longue) — on signale juste pour relecture manuelle.
-    for o in q["options"]:
-        if o.get("expl") is None and len(o["text"]) > 100:
-            warnings.append(
-                f"{section_code} Q{qnum} option {o['letter']}: texte long ({len(o['text'])} car.) "
-                f"sans justification entre parenthèses détectée — vérifier qu'une explication du "
-                f"jury n'est pas collée sans séparateur à l'intitulé."
-            )
+    # Note : la détection d'une justification du jury collée à l'intitulé (option
+    # anormalement longue) est faite plus tard, dans run(), APRÈS le détachement
+    # par couleur — là seulement on sait si une note bleue a été détachée (option
+    # nettoyée, pas de faux positif) ou non (fuite réelle à signaler avec le point
+    # de coupe). L'ancien contrôle « len > 100 » ici se déclenchait sur toute
+    # option légitimement longue (≈ 25 faux positifs par annale) : supprimé au
+    # profit du contrôle précis, couleur-aware, de run() (cf. « fuite précise »).
 
     # Le tag "(Type: ...)" du PDF source est incohérent d'une plateforme à l'autre :
     # certains exports taguent ces questions "QRM" (avec "Sélectionnez (jusqu'à) N
@@ -1349,24 +1390,54 @@ def run(pdf_path, debug=False, strict=False, force=False):
     # Détacher la « note générale du jury » de la dernière option de chaque
     # question (bug « justification collée à l'option » — cf. strip_general_note).
     # On s'appuie sur la COULEUR des spans (note = bleu, option = noir), fiable, et
-    # on n'agit que si le suffixe correspond exactement (sinon on laisse tel quel :
-    # le contrôle « texte long » plus bas signalera un éventuel reliquat).
-    flat_qs = [q for s in sections for q in s["questions"]]
+    # on n'agit que si le suffixe correspond exactement (sinon on laisse tel quel).
+    # Puis on émet un avertissement de fuite PRÉCIS (couleur-aware) : seulement là
+    # où une vraie fuite subsiste, avec le point de coupe — pas sur les options
+    # légitimement longues (l'ancien contrôle « len > 100 » de parse_question en
+    # produisait ≈ 25 par annale, presque tous faux positifs).
+    flat = [(s["code"], q) for s in sections for q in s["questions"]]
     trailing_notes = _trailing_notes_from_spans(doc_spans)
-    if len(trailing_notes) == len(flat_qs):
-        for q, note in zip(flat_qs, trailing_notes):
-            if not note or q["type"] not in ("QRM", "QRP", "QRPL", "QRU", "TCS") or not q["options"]:
-                continue
-            head, gnote = strip_general_note(q["options"][-1]["text"], note)
-            if head is not None:
-                q["options"][-1]["text"] = head
-                q["general_note"] = gnote
-    else:
+    aligned = len(trailing_notes) == len(flat)
+    if not aligned:
         warnings.append(
             f"[note jury] Décompte questions/spans divergent "
-            f"({len(flat_qs)} vs {len(trailing_notes)}) — détachement des notes de "
-            "fin d'option ignoré, relire les dernières options manuellement."
+            f"({len(flat)} vs {len(trailing_notes)}) — détachement par couleur "
+            "désactivé ; contrôle de fuite par longueur ci-dessous (relire les "
+            "dernières options)."
         )
+    for idx, (code, q) in enumerate(flat):
+        if not q["options"]:
+            continue
+        last = q["options"][-1]
+        note = trailing_notes[idx] if aligned else None
+        # 1. Détachement de la note bleue (SÛR : ne coupe QUE si la note est le
+        #    suffixe alnum exact de l'option — cf. strip_general_note). Ne peut
+        #    jamais corrompre une option : au pire elle ne coupe pas.
+        if note and q["type"] in ("QRM", "QRP", "QRPL", "QRU", "TCS"):
+            head, gnote = strip_general_note(last["text"], note)
+            if head is not None:
+                last["text"] = head
+                q["general_note"] = gnote
+                note = None  # note consommée
+        # 2. Avertissement de fuite PRÉCIS — deux signatures réelles seulement :
+        L = len(last["text"])
+        if note and L > 100:
+            # (a) note bleue détectée mais NON détachée (le texte de l'option et
+            #     celui de la note divergent) : fuite quasi certaine → point de coupe.
+            warnings.append(
+                f"{code} Q{q['num']} option {last['letter']}: justification bleue du "
+                f"jury vraisemblablement collée à l'intitulé — couper avant "
+                f"« {note[:60].strip()}… » (vérifier sur le PDF)."
+            )
+        elif not note and L > 200:
+            # (b) pas de note bleue mais dernière option anormalement longue : puces
+            #     de correction NOIRES probables (non séparables par couleur, donc
+            #     jamais coupées automatiquement — on signale pour coupe manuelle).
+            warnings.append(
+                f"{code} Q{q['num']} option {last['letter']}: dernière option très "
+                f"longue ({L} car.) sans note bleue — vérifier une fuite de "
+                f"correction (liste de puces noires) en fin d'intitulé."
+            )
 
     # Identifiants et « texte d'attente d'image » à plat, calculés une seule fois
     # et INDÉPENDAMMENT de la présence d'images : le contrôle « image attendue mais
