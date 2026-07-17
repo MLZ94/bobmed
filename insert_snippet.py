@@ -39,11 +39,11 @@ UE_MAP = {
     "8.3":  ("Endocrino / Nutrition",                 "d2/t4"),
     "12.1": ("Anglais",                               "d2/t4"),
     "12.2": ("LCA",                                   "d2/t4"),
-    "1.1":  ("Biostatistiques (D1)",                  "annales"),
-    "9.2":  ("UE 9.2 (D1)",                           "annales"),
-    "9.3":  ("UE 9.3 (D1)",                           "annales"),
-    # UE 3 : ambiguïté D1 (annales/) vs D2-T2 (d2/t2/) — demande interactive
-    "3":    ("Psychiatrie / Addictologie",             "AMBIGU"),
+    "1.1":  ("Biostatistiques (D1)",                  "d1/t4"),
+    "9.2":  ("UE 9.2 (D1)",                           "d1/t4"),
+    "9.3":  ("UE 9.3 (D1)",                           "d1/t4"),
+    # UE 3 : ambiguïté D1 (d1/t4/) vs D2-T2 (d2/t2/) — demande interactive
+    "3":    ("Agents infectieux (D1) / Psy-Addicto (D2-T2)", "AMBIGU"),
 }
 
 # ── Couleurs terminal ─────────────────────────────────────────────────────────
@@ -90,42 +90,51 @@ def _sort_key(title: str) -> tuple:
 
 def _find_ue_section(portal_text: str, ue_num: str) -> tuple[int, int] | None:
     """
-    Retourne (start, end) de la plage de texte contenant les .qz de l'UE indiquée.
-    start = position juste après le titre .ue de cette UE
-    end   = position du prochain .ue (ou du footer/</div> de fermeture)
-    """
-    # Chercher class="ue" suivi du numéro UE (sous différentes formes)
-    # ex: "UE 7.3", "UE7.3", "7.3"
-    ue_escaped = re.escape(ue_num)
-    # Pattern : div.ue contenant "UE X.X" ou "UEx.x"
-    # Plusieurs blocs .ue peuvent exister pour la même UE (Entraînement + Annales)
-    # → on veut le bloc "Annales officielles" ou le seul bloc si unique.
-    pattern = re.compile(
-        r'<div\s+class="ue"[^>]*>[^<]*(?:UE\s*' + ue_escaped + r')[^<]*</div>',
-        re.IGNORECASE
-    )
-    matches = list(pattern.finditer(portal_text))
-    if not matches:
-        return None
+    Retourne (start, end) de la plage de texte contenant les .qz d'annales de l'UE.
 
-    # Préférer le match qui contient "Annales" si plusieurs
+    Structure cible (refonte 2026-07, cf. CLAUDE.md « Portails de trimestre ») :
+        <div class="ue-block">
+          <div class="ue-head">…<span class="n">7.3</span>…</div>
+          <div class="ue-items">…</div>
+          <div class="subcat">…<span class="t">Annales officielles</span>…</div>
+          <a class="qz">…</a>   ← plage retournée
+          …
+        </div>
+
+    start = juste après la sous-catégorie « Annales officielles » du bon .ue-block
+    end   = prochaine .subcat, sinon fin du .ue-block (prochain .ue-block / footer).
+    """
+    # 1. Localiser le .ue-block par le numéro d'UE de sa pastille .ue-code
+    #    (structure fixe : <span class="ue-code"><span class="k">UE</span><span class="n">X.X</span></span>)
     target_m = None
-    for m in matches:
-        if re.search(r"annales", m.group(0), re.I):
+    for m in re.finditer(
+        r'<span class="ue-code"><span class="k">UE</span>'
+        r'<span class="n">([^<]*)</span></span>', portal_text):
+        num = m.group(1).strip()
+        parts = [p.strip() for p in num.split("·")]
+        if ue_num == num or ue_num in parts:
             target_m = m
             break
     if target_m is None:
-        target_m = matches[-1]   # dernier bloc = le plus susceptible d'être les annales
+        return None
 
-    section_start = target_m.end()
+    # Fin du .ue-block = prochain .ue-block ou footer
+    block_end_m = re.compile(r'<div\s+class="ue-block"|<footer', re.IGNORECASE).search(
+        portal_text, target_m.end())
+    block_end = block_end_m.start() if block_end_m else len(portal_text)
 
-    # Fin de section = prochain div.ue OU footer OU </div> du wrap
-    end_pattern = re.compile(
-        r'(?:<div\s+class="ue"|<footer|</div>\s*\n?\s*<script)',
-        re.IGNORECASE
-    )
-    end_m = end_pattern.search(portal_text, section_start)
-    section_end = end_m.start() if end_m else len(portal_text)
+    # 2. Sous-catégorie « Annales officielles » à l'intérieur du bloc
+    ann_m = re.compile(
+        r'<div\s+class="subcat">.*?<span class="t">\s*Annales[^<]*</span>.*?</div>',
+        re.IGNORECASE | re.DOTALL,
+    ).search(portal_text, target_m.end(), block_end)
+    # Repli : pas de sous-catégorie Annales (bloc « à venir ») → tout le bloc
+    section_start = ann_m.end() if ann_m else target_m.end()
+
+    # 3. Fin de section = prochaine .subcat, sinon fin du bloc
+    next_sub_m = re.compile(r'<div\s+class="subcat"').search(
+        portal_text, section_start, block_end)
+    section_end = next_sub_m.start() if next_sub_m else block_end
 
     return (section_start, section_end)
 
@@ -198,13 +207,13 @@ def _update_footer(portal_text: str) -> str:
 
 def resolve_ue3_ambiguity(snippet_href: str) -> str:
     """Demande à l'utilisateur de résoudre l'ambiguïté UE 3 (D1 vs D2-T2)."""
-    print(amber("⚠ UE 3 ambiguë — existe en D1 (annales/) ET en D2-T2 (d2/t2/)."))
+    print(amber("⚠ UE 3 ambiguë — existe en D1 (d1/t4/) ET en D2-T2 (d2/t2/)."))
     print(f"  Fichier : {snippet_href}")
     print("  Indices : préfixe DFG → D1 · préfixe DFA → D2.")
     while True:
-        rep = input("  Portail cible [1=annales, 2=d2/t2] : ").strip()
+        rep = input("  Portail cible [1=d1/t4, 2=d2/t2] : ").strip()
         if rep == "1":
-            return "annales"
+            return "d1/t4"
         if rep == "2":
             return "d2/t2"
         print("  Répondre 1 ou 2.")

@@ -52,12 +52,13 @@ UE_MAP = {
     "8.3": ("Endocrino / Nutrition", "d2/t4"),
     "12.1": ("Anglais", "d2/t4"),
     "12.2": ("LCA", "d2/t4"),
-    "1.1": ("Biostatistiques (D1)", "annales"),
-    "9.2": ("UE 9.2 (D1)", "annales"),
-    "9.3": ("UE 9.3 (D1)", "annales"),
-    # UE 3 existe en D1 (Psy/Addicto, annales/) ET en D2-T2 (Psy/Addicto aussi) :
-    # ambiguïté réelle, laissée à vérifier manuellement (cf. avertissement console).
-    "3": ("Psychiatrie / Addictologie — VERIFIER D1 vs D2-T2", "annales OU d2/t2"),
+    "1.1": ("Biostatistiques (D1)", "d1/t4"),
+    "9.2": ("UE 9.2 (D1)", "d1/t4"),
+    "9.3": ("UE 9.3 (D1)", "d1/t4"),
+    # UE 3 existe en D1 (Agents infectieux et hygiène, d1/t4/) ET en D2-T2
+    # (Psy/Addicto, d2/t2/) : ambiguïté réelle, laissée à vérifier manuellement
+    # (cf. avertissement console ; préfixe DFG = D1, DFA = D2).
+    "3": ("Agents infectieux (D1) / Psy-Addicto (D2-T2) — VERIFIER", "d1/t4 OU d2/t2"),
 }
 
 MONTHS_FR = {
@@ -110,6 +111,11 @@ NOISE_FIELD_RES = [
     # Référence/Session : bornée à quelques tokens pour éviter de dévorer du
     # texte de question légitime si ces mots apparaissaient par ailleurs.
     re.compile(r"Référence\s*:\s*[^\x00\s]+\s+Session\s*:\s*(?:Session\s+)?[^\x00\s]+\s*"),
+    # Certains exports n'ont qu'un "Référence: <code>" isolé (sans "Session:") en
+    # pied de page : sans ce nettoyage, il se colle au texte de la dernière
+    # option de la dernière question de la page (bug confirmé sur DFA1-UE7.1-
+    # NOVEMBRE2025, où "Référence: DFA1-UE7.1-NOVEMBRE2025" polluait plusieurs options).
+    re.compile(r"Référence\s*:\s*[^\x00\s]+\s*"),
 ]
 
 LIGATURES = {
@@ -138,11 +144,117 @@ def strip_noise(text: str) -> str:
     return text
 
 
+# Un code de section long ("PARTIE2-RANG A/B-DP1") peut être coupé par un retour
+# à la ligne PDF au milieu du token (aucun espace réel dans le code source) :
+# sans ce recollage, SECTION_RE (qui capture \S+, un seul token) ne matche
+# plus rien et la section entière disparaît silencieusement.
+_WRAPPED_SECTION_RE = re.compile(r"(Element d'épreuve\s*:\s*)(.+?)\s+([\d.]+\s*/\s*\d+)", re.DOTALL)
+
+
+def fix_wrapped_section_codes(text: str) -> str:
+    def repl(m):
+        return m.group(1) + re.sub(r"\s+", "", m.group(2)) + " " + m.group(3)
+    return _WRAPPED_SECTION_RE.sub(repl, text)
+
+
 def clean_span(text: str) -> str:
     """Collapse whitespace within a captured stem/option snippet."""
     text = re.sub(r"\x00PAGE\d+\x00", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
+
+
+# Couleur des justifications/explications du jury dans l'export Uness (bleu). Le
+# texte des options, lui, est en noir (#000000). Cette distinction est FIABLE et
+# sert à détacher la « note générale du jury » (placée après la dernière option)
+# de cette dernière option, où le flux de texte PDF la colle sans séparateur —
+# cause des justifications mal découpées (ex. SQI1-Q8 « cyphoscolise <note> » et
+# DP1-Q1-E « La température <note> » de l'annale UE7.1 mars 2024). On raisonne sur
+# la couleur, jamais sur une heuristique de coupure du texte (trop risquée : une
+# note peut contenir mot pour mot le libellé d'une autre option, cf. « saturation
+# en oxygène »). Dégrade proprement : un PDF sans span de cette couleur ne produit
+# aucune note (comportement inchangé).
+JUSTIF_COLORS = {0x00A1FE}
+
+
+def _alnum(text: str) -> str:
+    """Réduit un texte à ses seuls caractères alphanumériques, en minuscules —
+    pour comparer deux extractions PDF d'un même passage sans se soucier des
+    différences d'espaces ni de ponctuation (ex. « respiratoire. Le » vs
+    « respiratoire.Le »)."""
+    return re.sub(r"[^0-9A-Za-zÀ-ÿ]", "", text).lower()
+
+
+def _trailing_notes_from_spans(doc_spans):
+    """Depuis la liste ordonnée des spans du document [(texte, couleur), …],
+    renvoie, DANS L'ORDRE DES QUESTIONS, la « note générale du jury » de chaque
+    question : la suite CONTIGUË de spans de couleur justification placée juste
+    après la dernière option (avant la question/section suivante), en ignorant le
+    pied de page. Une entrée vaut None quand il n'y a pas de note bleue en fin de
+    question. La liste est alignée 1:1 sur l'ordre plat des questions du PDF.
+
+    L'en-tête « Question N: (Type: … ) » est souvent éclaté sur plusieurs spans
+    (changements de style : « Question 1: », « (Type: QRP) », score coloré) : on
+    repère donc les débuts de question sur la CONCATÉNATION des spans, puis on
+    rattache chaque span à sa question via son décalage de caractères."""
+    import bisect
+    seg_re = re.compile(r"Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type", re.IGNORECASE)
+    sec_re = re.compile(r"Element\s+d'épreuve\s*:", re.IGNORECASE)
+
+    def is_noise(t):
+        tt = fix_ligatures(t).strip()
+        return any(rx.match(tt) for rx in NOISE_FIELD_RES)
+
+    texts = [t for t, _ in doc_spans]
+    colors = [c for _, c in doc_spans]
+    offsets, pos = [], 0
+    for t in texts:
+        offsets.append(pos)
+        pos += len(t)
+    concat = "".join(texts)
+    starts = [m.start() for m in seg_re.finditer(concat)]
+    if not starts:
+        return []
+
+    seg_of = [bisect.bisect_right(starts, o) - 1 for o in offsets]
+    notes = [None] * len(starts)
+    for seg in range(len(starts)):
+        idxs = [i for i in range(len(texts)) if seg_of[i] == seg]
+        run = []
+        for i in reversed(idxs):
+            t = texts[i]
+            if not t.strip() or is_noise(t) or sec_re.search(t):
+                continue  # pied de page / marqueur de section : ignorer, ne pas casser le run
+            if colors[i] in JUSTIF_COLORS:
+                run.append(t)
+            else:
+                break  # premier span non-bleu de contenu : fin de la note
+        if run:
+            notes[seg] = clean_span(fix_ligatures("".join(reversed(run)))) or None
+    return notes
+
+
+def strip_general_note(option_text, note):
+    """Si `option_text` (dernière option d'une question) se termine par `note`
+    (comparaison alphanumérique, insensible espaces/ponctuation, alignée sur les
+    mots), retire la note et renvoie (texte_option_nettoyé, note). Sinon renvoie
+    (None, None) — on ne modifie jamais l'option si le suffixe ne correspond pas
+    exactement (garde-fou : évite de sur-découper une option légitimement longue
+    ou dont la justification entre parenthèses a déjà été extraite)."""
+    if not note:
+        return None, None
+    a_note = _alnum(note)
+    if len(a_note) < 10:
+        return None, None
+    words = option_text.split()
+    for k in range(len(words) - 1, -1, -1):
+        acc = _alnum(" ".join(words[k:]))
+        if acc == a_note:
+            head = " ".join(words[:k]).strip()
+            return (head, note) if head else (None, None)
+        if len(acc) > len(a_note):
+            break
+    return None, None
 
 
 # ----------------------------------------------------------------------------
@@ -167,13 +279,28 @@ OPTION_START_RE = re.compile(r"[☐☑◎◉]")
 # Regex de découpe par entrée d'option. La case (☐/☑/◎/◉) est optionnelle car
 # elle peut apparaître APRÈS le libellé "Valide X." en cas de saut de page dans
 # le PDF (la colonne des cases est lue séparément de la colonne de texte par
-# PyMuPDF). On gère aussi le label "Inacceptable" (4e label de certaines
-# plateformes, traité comme Faux côté validité).
+# PyMuPDF). On gère aussi les labels "Inacceptable" (item éliminatoire, traité
+# comme Faux côté validité) et "Neutraliser" (item neutralisé par le jury). Sans
+# "Neutraliser" dans cette alternative, l'entrée n'était pas reconnue comme un
+# début d'option : l'item disparaissait (fusionné dans l'option précédente,
+# lettres décalées) — bug confirmé sur l'annale UE7.1 mars 2024 (mDP1-Q2 items A
+# et D, SQI1-Q15 item E, tous "Neutraliser", absents ou fusionnés).
 _OPT_ENTRY_RE = re.compile(
-    r"([☐☑◎◉])?\s*(Faux|Valide|Indispensable|Inacceptable)\s+([A-Z])\.\s*"
+    r"([☐☑◎◉])?\s*(Faux|Valide|Indispensable|Inacceptable|Neutraliser)\s+([A-Z])\.\s*"
 )
 _STRAY_GLYPH_RE = re.compile(r"[☐☑◎◉]")
-REPONSES_VALIDES_RE = re.compile(r"Réponses\s+valides\s*:\s*(.+?)\(\d+\)", re.DOTALL)
+# Marqueur de début de la liste des réponses valides d'une QROC. On ne capture
+# QUE le début : l'ancienne version bornait la capture au premier "(\d+)", ce qui
+# (a) ratait les pondérations décimales "(0.5)"/"(0.2)" et s'arrêtait donc au
+# premier "(1)" rencontré — fusionnant plusieurs réponses en une seule chaîne —
+# et (b) ne distinguait pas les réponses créditées des distracteurs "(0)".
+REPONSES_VALIDES_START_RE = re.compile(r"Réponses\s+valides\s*:\s*", re.IGNORECASE)
+# Chaque réponse valide est de la forme "<texte> (<points>)", une par ligne,
+# les points pouvant être entiers ou décimaux (0.2, 0.5, 1). On extrait chaque
+# couple (texte, points) indépendamment ; le texte est capturé en non-gourmand
+# jusqu'à sa propre pondération, ce qui segmente correctement une liste collée
+# sur une seule ligne à l'extraction PDF.
+QROC_ENTRY_RE = re.compile(r"(.+?)\s*\(\s*(\d+(?:[.,]\d+)?)\s*\)", re.DOTALL)
 SELECT_N_RE = re.compile(r"[Ss]électionnez\s*(jusqu.à\s*)?(\d+)\s*items?")
 REPONSES_ATTENDUES_RE = re.compile(r"\(\s*(\d+)\s*réponses?\s*attendues?\s*\)", re.IGNORECASE)
 MAX_N_RE = re.compile(r"\(\s*max\.?\s*(\d+)\s*\)", re.IGNORECASE)
@@ -185,7 +312,12 @@ EPREUVE_RE = re.compile(r"Epreuve\s*:\s*(\S+)")
 # suivante : » et « ci-dessous … <imagerie> » (ci-dessous AVANT l'imagerie) — elle
 # ratait « l'IRM … Diffusion, ci-dessous » (imagerie AVANT ci-dessous) et « cf
 # image … ». On rend la détection bidirectionnelle et on ajoute « cf image »,
-# « images jointes », « voici … ».
+# « images jointes », « voici … ». Ratait aussi « <imagerie> que voici » (voici
+# APRÈS l'imagerie, jamais couvert — seul le sens inverse l'était) et « <imagerie>
+# a été réalisée » (tournure au passé composé, sans « voici »/« ci-dessous » ni
+# « suivante ») : les deux repérées sur l'annale UE7.1 2023-2024 S1 (SQI1 Q4 et
+# Q10), où leur absence a empêché la correction de repositionnement de rattraper
+# le décalage d'image constaté (cf. commentaire sur owner_for_image plus bas).
 _IMAGING = (
     r"(radiographie|scanner|tdm|tep|irm|ecg|électrocardiogramme|angio"
     r"|coupe|cliché|iconographie|imagerie|image|figure|photo|schéma|fond d.?œil|rx\b)"
@@ -196,7 +328,9 @@ IMG_EXPECTED_RE = re.compile(
     rf"|{_IMAGING}[^.!?]{{0,90}}ci[- ]?(?:dessous|apr[èe]s|contre|joints?|jointe?s?)"
     rf"|cf\.?\s*(?:image|images|photo|figure|cliché|iconographie)"
     rf"|images?\s+jointes?"
-    rf"|voici[^.!?]{{0,40}}{_IMAGING}",
+    rf"|voici[^.!?]{{0,40}}{_IMAGING}"
+    rf"|{_IMAGING}[^.!?]{{0,40}}voici"
+    rf"|{_IMAGING}[^.!?]{{0,60}}a\s+(?:été|ete)\s+réalisée?s?",
     re.I,
 )
 
@@ -288,28 +422,51 @@ def parse_option_block(blob):
 
         opts.append({
             "letter":  letter,
-            "valid":   validity in ("Valide", "Indispensable"),
+            # Un item "Neutraliser" (annulé par le jury) est compté valide pour
+            # tout le monde : on le traite donc comme une réponse correcte, avec
+            # une mention "(item neutralisé)" dans la correction (cf. render_citems).
+            "valid":   validity in ("Valide", "Indispensable", "Neutraliser"),
             # Case cochée = réponse choisie par CET étudiant (indice pour resolve_qru).
             "checked": glyph in ("☑", "◉") if glyph else False,
             "expl":    expl,
             "text":    main_text,
             "mandatory":    validity == "Indispensable",
             "unacceptable": validity == "Inacceptable",
+            "neutral":      validity == "Neutraliser",
         })
     return opts
 
 
 def parse_qroc_block(blob):
-    m = REPONSES_VALIDES_RE.search(blob)
+    """Retourne (stem, answers) où answers est une liste de couples
+    (texte, points) — points = crédit accordé par le jury (1 = réponse exacte,
+    0.5/0.2 = réponse partielle acceptée, 0 = distracteur explicitement faux).
+    L'appelant filtre ensuite sur points > 0 pour l'auto-correction (un
+    distracteur "(0)" ne doit jamais être accepté)."""
+    m = REPONSES_VALIDES_START_RE.search(blob)
     if not m:
         return clean_span(blob), []
-    answers_blob = m.group(1)
     stem_and_junk = blob[: m.start()]
     idx = stem_and_junk.rfind("?")
     stem = stem_and_junk[: idx + 1] if idx != -1 else stem_and_junk
     stem = clean_span(stem)
-    answers = [clean_span(a) for a in answers_blob.split(",")]
-    answers = [a.rstrip(".").strip() for a in answers if a.strip()]
+
+    answers_blob = clean_span(blob[m.end():])
+    answers = []
+    for em in QROC_ENTRY_RE.finditer(answers_blob):
+        text = em.group(1).strip().rstrip(".").strip()
+        try:
+            pts = float(em.group(2).replace(",", "."))
+        except ValueError:
+            pts = 1.0
+        if text:
+            answers.append((text, pts))
+    if not answers:
+        # Repli : aucune paire "(points)" détectée — conserver le bloc brut comme
+        # réponse unique (à relire) plutôt que de perdre l'information.
+        raw = answers_blob.rstrip(".").strip()
+        if raw:
+            answers.append((raw, 1.0))
     return stem, answers
 
 
@@ -508,7 +665,14 @@ def render_citems(opts):
     for o in opts:
         verdict = "VRAI" if o["valid"] else "FAUX"
         cls = "v-vrai" if o["valid"] else "v-faux"
-        tail = f' — {esc(o["expl"])}' if o.get("expl") else ""
+        parts = []
+        if o.get("expl"):
+            parts.append(esc(o["expl"]))
+        if o.get("neutral"):
+            # Item annulé par le jury : compté valide, mais on le signale pour ne
+            # pas laisser croire qu'il s'agit d'une affirmation médicalement juste.
+            parts.append("item neutralisé par le jury (compté valide)")
+        tail = " — " + " · ".join(parts) if parts else ""
         rows.append(
             f'<div class="citem {cls}"><span class="cl">{o["letter"]}.</span> '
             f'<span class="cv">{verdict}</span>{tail}</div>'
@@ -528,22 +692,59 @@ def render_option_li(opt):
     )
 
 
-def render_question(section_code, q, image_html=""):
+def qroc_answer_data(answers):
+    """À partir de la liste (texte, points) d'une QROC, calcule :
+      - accepted : toutes les réponses créditées (points > 0), pour l'auto-
+        correction par mots-clés (data-answer, séparées par « | ») ;
+      - display  : les réponses exactes (points maximum) pour l'affichage
+        « Réponse attendue : … » (les partielles restent auto-acceptées mais on
+        met en avant la formulation attendue).
+    Un distracteur "(0)" n'est jamais accepté ni affiché.
+    Tolère l'ancien format (liste de chaînes) au cas où."""
+    norm = []
+    for a in answers:
+        if isinstance(a, (list, tuple)):
+            norm.append((a[0], float(a[1])))
+        else:
+            norm.append((a, 1.0))
+    credited = [(t, p) for t, p in norm if p > 0] or norm
+    accepted = [t for t, _ in credited]
+    max_pts = max((p for _, p in credited), default=1.0)
+    exact = [t for t, p in credited if p >= max_pts] or accepted
+    return accepted, exact
+
+
+def render_question(section_code, q, image_html="", is_d2=False):
     qid = f'{section_code}-Q{q["num"]}'
     qnum_label = f'{section_code} Q{q["num"]}'
     dpctx_html = ""
 
     if q["type"] == "QROC":
-        answers = q["qroc_answers"] or ["[A VERIFIER — réponse non détectée]"]
-        primary, *alt = answers
-        alt_html = f" ({', '.join(alt)})" if alt else ""
+        answers = q["qroc_answers"] or [("[A VERIFIER — réponse non détectée]", 1.0)]
+        accepted, exact = qroc_answer_data(answers)
+        display = " / ".join(exact)
+        data_answer = " | ".join(accepted)
+        if is_d2:
+            # D2 : auto-correction par mots-clés (data-answer) + bouton Valider,
+            # avec repli auto-évaluation « juste/faux » (cf. moteur QROC injecté).
+            return f'''<div class="q" id="{qid}" data-answer="{esc(data_answer)}" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+{dpctx_html}<div class="stem">{esc(q["stem"])}</div>
+{image_html}<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : {esc(display)}</div>
+</div>
+</div>'''
+        # D1 : auto-correction par l'étudiant à la lecture du modèle (pas de
+        # notation automatique ni d'auto-évaluation — choix délibéré, cf. CLAUDE.md).
         return f'''<div class="q" id="{qid}" data-correct="" data-type="QROC">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
 {dpctx_html}<div class="stem">{esc(q["stem"])}</div>
 {image_html}<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
 <div class="actions"><button class="show" type="button">Voir la réponse</button></div>
 <div class="correction" hidden>
-<div class="qrocans">Réponse attendue : {esc(primary)}{esc(alt_html)}</div>
+<div class="qrocans">Réponse attendue : {esc(display)}</div>
 </div>
 </div>'''
 
@@ -564,6 +765,10 @@ def render_question(section_code, q, image_html=""):
 
     opts = q["options"]
     neutral_note = ' <div class="note">Question neutralisée : tous les items sont comptés valides.</div>' if q["neutralized"] else ""
+    # Note générale du jury détachée de la dernière option (cf. strip_general_note) :
+    # rendue en encart « rappel », avant les verdicts par item — jamais collée à
+    # l'intitulé d'une option (règle « justifications » du CLAUDE.md).
+    general_note = f'<div class="note"><div class="rappel">{esc(q["general_note"])}</div></div>' if q.get("general_note") else ""
 
     if q["type"] == "QRU" or q["type"] == "TCS":
         primary, extra = resolve_qru(opts)
@@ -579,11 +784,11 @@ def render_question(section_code, q, image_html=""):
             if extra:
                 extra_note = f'<div class="note">Réponse(s) {", ".join(extra)} également valorisée(s) par le jury.</div>'
             option_notes = build_option_notes(opts)
-            correction = f'<div class="ans">Réponse : {ans_text}</div>{extra_note}{option_notes}{neutral_note}'
+            correction = f'<div class="ans">Réponse : {ans_text}</div>{extra_note}{general_note}{option_notes}{neutral_note}'
         else:
             # QRU clinique classique : verdict VRAI/FAUX par option, au format D1.
             citems = render_citems(opts)
-            correction = f'<div class="ans">Réponse : {primary}</div>{neutral_note}\n{citems}'
+            correction = f'<div class="ans">Réponse : {primary}</div>{neutral_note}{general_note}\n{citems}'
 
         return f'''<div class="q" id="{qid}" data-correct="{primary}" data-type="QRU">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
@@ -599,36 +804,31 @@ def render_question(section_code, q, image_html=""):
     correct_letters = "".join(o["letter"] for o in opts if o["valid"])
     data_type = "QRM"
     badge = "QRM"
-    extra_q_attrs = ""
     if q["type"] == "QRPL":
-        # Barème EDN (comme une QRM) + plafond de sélection côté JS. Le plafond
-        # vaut le nombre de bonnes réponses ; pour un « jusqu'à N » (select_max),
-        # on le relève à N via data-max pour autoriser la sur-sélection.
+        # QRPL = « QRP longue » : notation R2C proportionnelle X/N (identique à la
+        # QRP), plafond de sélection = N = nombre de bonnes réponses (cf. grade()
+        # et click handler). Se distingue de la QRP seulement par le nombre
+        # d'options (liste longue).
         data_type = "QRPL"
-        n = q["select_n"]
-        if n:
-            badge = f'QRPL · {n} réponse{"s" if n > 1 else ""}' + (" max" if q["select_max"] else "")
-        else:
-            badge = "QRPL"
-        if q["select_max"] and n:
-            extra_q_attrs = f' data-max="{n}"'
+        n = sum(1 for o in opts if o["valid"])
+        badge = f'QRPL · {n} réponse{"s" if n > 1 else ""}'
     elif q["type"] == "QRP":
-        # Notation proportionnelle : nb attendu = nb d'items vrais, qui plafonne
-        # aussi le nombre d'items sélectionnables côté JS (cf. click handler).
+        # Notation proportionnelle X/N : N = nb d'items vrais, qui plafonne aussi
+        # le nombre d'items sélectionnables côté JS (cf. click handler).
         data_type = "QRP"
         n = sum(1 for o in opts if o["valid"])
         badge = f'QRP · {n} réponse{"s" if n > 1 else ""}'
     opts_html = "\n".join(render_option_li(o) for o in opts)
     ans_display = ", ".join(correct_letters) if correct_letters else "[A VERIFIER]"
     citems = render_citems(opts)
-    return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}"{extra_q_attrs}>
+    return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
 {dpctx_html}<div class="stem">{esc(q["stem"])}</div>
 {image_html}<ul class="opts">
 {opts_html}
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
-<div class="correction" hidden><div class="ans">Réponse : {ans_display}</div>{neutral_note}
+<div class="correction" hidden><div class="ans">Réponse : {ans_display}</div>{neutral_note}{general_note}
 {citems}
 </div>
 </div>'''
@@ -636,11 +836,12 @@ def render_question(section_code, q, image_html=""):
 
 HTML_TEMPLATE = """<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/svg+xml" href="{favicon_href}">
+<link rel="stylesheet" href="{theme_href}">
 <title>Quiz — {title_plain}</title><style>
-:root{{--bg:#f5f6f4;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}}
+:root{{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}}
 *{{box-sizing:border-box}}
-body{{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}}
-header{{position:sticky;top:0;z-index:5;background:rgba(245,246,244,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}}
+body{{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}}
+header{{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}}
 .wrap{{max-width:820px;margin:0 auto;padding:0 16px 80px}}
 .hwrap{{max-width:820px;margin:0 auto}}
 h1{{font-size:20px;font-weight:600;margin:0}}
@@ -766,8 +967,8 @@ function grade(q){{
     if(m.textContent)o.appendChild(m);
   }});
   const isQRU=q.dataset.type==='QRU';
-  const isQRP=q.dataset.type==='QRP';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
-  let pts=isQRP?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
@@ -776,7 +977,7 @@ function grade(q){{
   markSpecial(q);
   const st=q.querySelector('.status');st.style.color='';
   st.textContent=fmtPts(pts)+' / 1';
-  if(isQRP)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
   else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
@@ -818,7 +1019,7 @@ document.addEventListener('click',e=>{{
     const q=li.closest('.q');
     if(!q.classList.contains('done')){{
       if(q.dataset.type==='QRU'){{q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}}
-      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){{const _c=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length,_mx=Math.max(_c,+q.dataset.max||0);if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){{const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}}
       else{{li.classList.toggle('sel');}}
     }}
     return;
@@ -859,10 +1060,74 @@ initLocks();updateScore();
 """
 
 
-def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, favicon_href="../favicon.svg"):
+# CSS des états d'auto-correction / auto-évaluation QROC (D2 uniquement).
+QROC_ENGINE_CSS = (
+    ".qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}\n"
+    ".qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}\n"
+    ".selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}\n"
+    ".selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}\n"
+    ".selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}\n"
+    ".selfassess .sa-no{color:var(--faux);border-color:var(--faux)}\n"
+    ".selfassess button:disabled{opacity:.55;cursor:default}\n"
+    ".selfassess .sa-yes.chosen{background:var(--vraibg)}\n"
+    ".selfassess .sa-no.chosen{background:var(--fauxbg)}\n"
+)
+
+# Moteur JS QROC (D2) : auto-correction par mots-clés (qrocAccept lit data-answer
+# ou le texte de .qrocans/.qrocmodel, normalise et compare) puis, si l'auto-
+# correction échoue, propose une auto-évaluation « juste/faux » (qrocSelfBox /
+# qrocSelf). Barème 1/0 volontaire (cf. CLAUDE.md § QROC). Repris à l'identique
+# du moteur des annales D2 rédigées à la main pour rester cohérent.
+QROC_ENGINE_JS = r'''function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+'''
+
+
+def upgrade_qroc_engine_d2(html):
+    """Greffe le moteur QROC D2 (auto-correction + auto-évaluation) sur le HTML
+    produit par le gabarit : CSS, fonctions JS, aiguillage de grade() vers
+    gradeQroc, comptage des QROC dans le score (grad = toutes les questions),
+    gestion du clic « J'avais juste/faux » et affichage de l'auto-évaluation à la
+    révélation. Remplacements ancrés sur des chaînes uniques du gabarit — sans
+    effet si le gabarit évolue (à re-vérifier dans ce cas)."""
+    html = html.replace("</style></head>", QROC_ENGINE_CSS + "</style></head>", 1)
+    html = html.replace(
+        "if(q.dataset.type==='QROC')return;",
+        "if(q.dataset.type==='QROC'){gradeQroc(q);return;}",
+        1,
+    )
+    html = html.replace(
+        "const grad=qs.filter(q=>q.dataset.type!=='QROC').length;",
+        "const grad=qs.length;",
+        1,
+    )
+    html = html.replace("function grade(q){", QROC_ENGINE_JS + "function grade(q){", 1)
+    html = html.replace(
+        "const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}",
+        "const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);"
+        "if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}\n"
+        "  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}\n"
+        "  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}",
+        1,
+    )
+    return html
+
+
+def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None,
+               favicon_href="../favicon.svg", is_d2=False):
     images_by_qid = images_by_qid or {}
     total_q = sum(len(s["questions"]) for s in sections)
-    graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
+    # En D2, les QROC sont notées (auto-correction + auto-évaluation « juste/faux »)
+    # et comptent donc dans le dénominateur du score ; en D1 elles en sont exclues
+    # (auto-correction seule à la lecture du modèle, cf. CLAUDE.md § QROC).
+    if is_d2:
+        graded_q = total_q
+    else:
+        graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
 
     body_parts = []
     for s in sections:
@@ -874,7 +1139,7 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, 
         for i, q in enumerate(s["questions"]):
             qid = f'{s["code"]}-Q{q["num"]}'
             img_html = images_by_qid.get(qid, "")
-            block = render_question(s["code"], q, image_html=img_html)
+            block = render_question(s["code"], q, image_html=img_html, is_d2=is_d2)
             if i == 0 and s["dpctx"]:
                 block = block.replace(
                     '<div class="stem">',
@@ -884,7 +1149,7 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, 
             body_parts.append(block)
 
     body_html = "\n\n".join(body_parts)
-    return HTML_TEMPLATE.format(
+    out = HTML_TEMPLATE.format(
         title_plain=esc(title_plain),
         title_html=esc(title_html),
         sub_html=sub_html,
@@ -892,7 +1157,11 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None, 
         graded_q=graded_q,
         body_html=body_html,
         favicon_href=favicon_href,
+        theme_href=favicon_href.replace("favicon.svg", "theme.css"),
     )
+    if is_d2:
+        out = upgrade_qroc_engine_d2(out)
+    return out
 
 
 # ----------------------------------------------------------------------------
@@ -1010,6 +1279,8 @@ def run(pdf_path, debug=False, strict=False, force=False):
     image_events = []   # (page, y, ext, data) — pour l'assignation positionnelle
     q_page_y = []       # (page, y) de chaque bloc "Question N: (Type:" dans le PDF
     sec_page_y = []     # (page, y) de chaque marqueur "Element d'épreuve:" (frontière de section)
+    doc_spans = []      # (texte, couleur) de chaque span, en ordre de lecture — pour
+                        # détacher la note du jury de la dernière option (couleur)
     _Q_BLOCK_RE = re.compile(r'Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type', re.IGNORECASE)
     _SEC_BLOCK_RE = re.compile(r"Element\s+d'épreuve\s*:", re.IGNORECASE)
     for pno, page in enumerate(doc):
@@ -1055,6 +1326,10 @@ def run(pdf_path, debug=False, strict=False, force=False):
                     q_page_y.append((pno, block["bbox"][1]))
                 if _SEC_BLOCK_RE.search(bt):
                     sec_page_y.append((pno, block["bbox"][1]))
+                for ln in block["lines"]:
+                    for sp in ln["spans"]:
+                        if sp["text"]:
+                            doc_spans.append((sp["text"], sp["color"]))
     doc.close()
 
     raw_first_page = page_texts[0] if page_texts else ""
@@ -1067,8 +1342,31 @@ def run(pdf_path, debug=False, strict=False, force=False):
         f"\x00PAGE{i}\x00{t}" for i, t in enumerate(page_texts)
     )
     full_text = strip_noise(full_text)
+    full_text = fix_wrapped_section_codes(full_text)
 
     sections = parse_sections(full_text, warnings)
+
+    # Détacher la « note générale du jury » de la dernière option de chaque
+    # question (bug « justification collée à l'option » — cf. strip_general_note).
+    # On s'appuie sur la COULEUR des spans (note = bleu, option = noir), fiable, et
+    # on n'agit que si le suffixe correspond exactement (sinon on laisse tel quel :
+    # le contrôle « texte long » plus bas signalera un éventuel reliquat).
+    flat_qs = [q for s in sections for q in s["questions"]]
+    trailing_notes = _trailing_notes_from_spans(doc_spans)
+    if len(trailing_notes) == len(flat_qs):
+        for q, note in zip(flat_qs, trailing_notes):
+            if not note or q["type"] not in ("QRM", "QRP", "QRPL", "QRU", "TCS") or not q["options"]:
+                continue
+            head, gnote = strip_general_note(q["options"][-1]["text"], note)
+            if head is not None:
+                q["options"][-1]["text"] = head
+                q["general_note"] = gnote
+    else:
+        warnings.append(
+            f"[note jury] Décompte questions/spans divergent "
+            f"({len(flat_qs)} vs {len(trailing_notes)}) — détachement des notes de "
+            "fin d'option ignoré, relire les dernières options manuellement."
+        )
 
     # Identifiants et « texte d'attente d'image » à plat, calculés une seule fois
     # et INDÉPENDAMMENT de la présence d'images : le contrôle « image attendue mais
@@ -1120,6 +1418,26 @@ def run(pdf_path, debug=False, strict=False, force=False):
             # « Question N: ». Sans cette correction, l'image d'une 1re question
             # (souvent une section verrouillée DP/KFP/mDP) atterrissait sur la
             # dernière question de la section d'avant.
+            #
+            # LIMITE CONNUE (décalage intra-section, sans frontière de section) :
+            # certains exports placent une image dans un emplacement de mise en
+            # page FIXE en haut de la page qui la suit (souvent y≈60, juste après
+            # un saut de page forcé pour lui faire de la place), AVANT le reliquat
+            # d'options de la question précédente qui déborde sur cette même page,
+            # alors que l'image illustre en réalité la question SUIVANTE (celle
+            # dont l'en-tête n'apparaît que plus bas sur cette page). Vu par
+            # (page, y), rien ne distingue ce cas d'une image qui appartient
+            # légitimement à la question encore active (même forme : image en
+            # haut de page suivie d'un reliquat d'options). Impossible à trancher
+            # de façon fiable par la seule position — voir IMG_EXPECTED_RE et la
+            # correction de repositionnement plus bas, qui rattrapent les cas où
+            # l'énoncé annonce explicitement une image, mais ne couvrent pas les
+            # questions qui montrent une image sans jamais la nommer dans le
+            # texte (ex. un simple tableau de gaz du sang introduit sans mot-clé
+            # « radio/scanner/… »). D'où l'obligation de relecture visuelle
+            # (point 6 et 10 de la checklist CLAUDE.md) : ne jamais publier un
+            # quiz généré sans vérifier chaque image à l'œil, en particulier
+            # toute question dont l'image se trouve juste après un saut de page.
             def owner_for_image(ipos):
                 active, active_pos = -1, (-1, -1)
                 for i in range(len(q_page_y)):
@@ -1203,7 +1521,11 @@ def run(pdf_path, debug=False, strict=False, force=False):
     meta = guess_metadata(epreuve_code, warnings)
 
     total_q = sum(len(s["questions"]) for s in sections)
-    graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
+    # D2 : QROC notées (comptées) ; D1 : QROC hors score (cf. build_html).
+    if meta["is_d2_guess"]:
+        graded_q = total_q
+    else:
+        graded_q = sum(1 for s in sections for q in s["questions"] if q["type"] != "QROC")
 
     sub_bits = []
     for s in sections:
@@ -1212,15 +1534,29 @@ def run(pdf_path, debug=False, strict=False, force=False):
         sub_bits.append(f'{esc(s["code"])} ({n}{", verrouillé" if locked else ""})')
     sub_html = f"{total_q} questions : " + " · ".join(sub_bits)
 
-    # Calcul du chemin relatif au favicon selon la profondeur du dossier
-    _bc_folder = meta.get("folder", "annales")
-    favicon_depth = "../../" if str(_bc_folder).startswith("d2/") else "../"
+    # Calcul du chemin relatif au favicon selon la profondeur du dossier.
+    # d1/tN/ et d2/tN/ sont à 2 niveaux de la racine (annale à plat dans le
+    # dossier de trimestre) ; tout autre dossier éventuel reste à 1 niveau.
+    _bc_folder = meta.get("folder", "d1/t4")
+    favicon_depth = "../../" if str(_bc_folder).startswith(("d1/", "d2/")) else "../"
     favicon_href = favicon_depth + "favicon.svg"
 
-    out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html, images_by_qid, favicon_href)
-    # Injection automatique du fil d'Ariane
+    out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html,
+                          images_by_qid, favicon_href, is_d2=meta["is_d2_guess"])
+    # Injection automatique des quatre scripts globaux, dans l'ordre standard des
+    # annales : fil d'Ariane, header dynamique, minuteur d'examen, suivi de
+    # progression local. Toute annale officielle (Quiz_UE*.html) doit charger les
+    # quatre (cf. « Assets globaux » dans CLAUDE.md) ; timer.js et dynamic-header.js
+    # sont inoffensifs sur une page sans « header .scorebar »/« header ».
     _bc_depth  = favicon_depth
-    out_html   = out_html.replace("</body>", f'<script src="{_bc_depth}breadcrumb.js"></script>\n</body>', 1)
+    out_html   = out_html.replace(
+        "</body>",
+        f'<script src="{_bc_depth}breadcrumb.js"></script>\n'
+        f'<script src="{_bc_depth}dynamic-header.js"></script>\n'
+        f'<script src="{_bc_depth}timer.js"></script>\n'
+        f'<script src="{_bc_depth}progress.js"></script>\n</body>',
+        1,
+    )
 
     base_dir = os.path.dirname(os.path.abspath(pdf_path))
     out_name = meta["filename"] if meta["ue"] else os.path.splitext(os.path.basename(pdf_path))[0] + ".html"
