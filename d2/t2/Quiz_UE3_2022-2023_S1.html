@@ -1,0 +1,960 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 3 — Psychiatrie-Addictologie · Session normale (mars 2023)</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 3 — Psychiatrie-Addictologie · Session normale (mars 2023)</h1>
+<div class="sub">35 questions : DP1 (15, verrouillé) · TCS1 (1, verrouillé) · KFP1 (3, verrouillé) · SQI (6) · DP2 (10, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/35</b></span>
+<span class="pill">Score : <b id="s-ok">0/35</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">DP1 — Retard de langage et pauvreté du contact chez un enfant de 3 ans</div>
+
+<div class="q" id="DP1(15)-Q1" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Interne en pédopsychiatrie dans un service hospitalo-universitaire non-sectorisé, vous accueillez Léo, 3 ans, accompagné par ses deux parents.Les parents vous consultent pour leur fils après avoir été orientés par leur médecin généraliste. Le courrier du médecin mentionne « un retard de développement du langage » et « des contacts visuels peu présents ». Par ailleurs, l’examen somatique est décrit comme normal.</div>
+<div class="stem">D’une façon générale, chez un enfant de trois ans, on peut s’attendre :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">qu'il s'habille sans aide</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">qu'il fasse du tricycle</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">qu'il mange seul</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">qu’il puisse dessiner un bonhomme complexe</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">qu’il comprenne les notions de « sur », « sous », « devant », « derrière »</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q2" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous interrogez les parents de Léo sur sa petite enfance et son fonctionnement au domicile. Ils vous apprennent qu’il a marché vers 1 an, qu’il a commencé à jargonner vers 9 mois mais qu’aujourd’hui il ne peut dire que quelques mots isolés, qu’il n’est toujours pas propre ni le jour ni la nuit. Son sommeil apparait perturbé avec des difficultés d’endormissement et des réveils nocturnes réguliers.Parmi les propositions suivantes, quelles sont les situations anormales dans le développement psychomoteur d’un enfant ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Propreté diurne non acquise à 30 mois</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Absence de périodicité jour/nuit à 6 mois</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Absence de marche sans appui nuit à 6 mois</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Absence du sourire-réponse à 3 mois</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ne peut dire « papa » et « maman » de manière dirigée à 6 mois</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — urines + selles</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q3" data-correct="ABDEFHIK" data-type="QRPL">
+<div class="qhead"><span class="qnum">DP1(15) Q3</span><span class="qtype">QRPL · 8 réponses</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après votre examen clinique, vous vous interrogez sur le diagnostic d’un trouble du spectre autistique (TSA) chez Léo.Parmi les signes cliniques suivants, quels sont ceux évocateurs du trouble du spectre de l’autisme ? (8 bonnes réponses attendues) :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">absence ou pauvreté de l’usage des gestes instrumentaux à valeur sociale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">une maladresse sociale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">le mutisme électif</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">un isolement relationnel</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">des stéréotypies verbales et/ou motrices</span></li>
+<li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">une hypo ou hyperréactivité a certaines stimulations sensorielles</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">la tendance à des vols et des fraudes</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">un attachement inhabituel à des objets insolites</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">une adhésion inflexible a des routines et une intolérance au changement</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">des accès hyperphagiques</span></li>
+<li class="opt" data-l="K" data-correct="1"><span class="box">K</span><span class="otext">des peurs inhabituelles</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">une tristesse de l’humeur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E, F, H, I, K</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">K.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q4" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans votre anamnèse auprès des parents, vous allez rechercher spécialement l’absence ou la pauvreté de l’utilisation du pointage chez Léo, et en particulier les pointages proto-impératif et proto-déclaratifParmi les propositions suivantes, choisissez les correctes :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">le pointage proto-déclaratif sert à l’enfant à prendre la parole</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">le pointage proto-impératif sert à l’enfant à montrer pour obtenir un objet</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">le pointage proto-impératif sert à l’enfant à se saisir d’un objet</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">le pointage proto-déclaratif sert à l’enfant à montrer pour attirer l’attention d’autrui sur un objet</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">le pointage proto-impératif sert à l’enfant à menacer son entourage</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q5" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Pour le trouble du spectre de l’autisme, quels sont les deux domaines cliniques dans lesquels on retrouve systématiquement des déficits persistants :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Anomalies de la communication et des interactions sociales</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Trouble du développement intellectuel</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Altération du langage</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Caractère restreint et répétitif des comportements, des intérêts et des activités</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Trouble de l’acquisition des coordinations motrices</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q6" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les parents de Léo vous interrogent sur l’autisme.Le trouble du spectre de l’autisme</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Est plus fréquent chez les filles que chez les garçons</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La mutation génétique ACR17B-1 est particulièrement impliquée dans la survenue de la maladie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le vaccin ROR augmente significativement le risque d'autisme mais de façon très faible</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La prévalence des TSA est de 1 %</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un TSA qui se déclenche à l’âge adulte est de moins bon pronostic que pendant l’enfance</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q7" data-correct="ABCI" data-type="QRPL">
+<div class="qhead"><span class="qnum">DP1(15) Q7</span><span class="qtype">QRPL · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le trouble du spectre autistique s’intègre dans les troubles neuro-développementaux comme cinq autres catégories diagnostiques suivantes. Lesquelles ? (5 bonnes réponses attendues) :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">le trouble du développement intellectuel</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">les troubles des acquisitions</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">les troubles des apprentissages</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">la schizophrénie précoce</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">le trouble déficit de l’attention avec ou sans hyperactivité (TDAH)</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">le trouble oppositionnel avec provocation</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">le trouble des conduites</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">l’épisode dépressif caractérisé chez l’enfant</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">les tics</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, I</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — langage et parole, coordinations motrices</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — langage écrit, calcul, graphisme</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q8" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Pour préciser le diagnostic de trouble du spectre de l’autisme, vous pouvez :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Effectuer un examen génétique à la recherche de la mutation ACR17B-1</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Effectuer un EEG à la recherche d’une amplification des ondes thêta</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Demander un IRM à la recherche d’une atrophie cortico-sous-corticale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Utiliser l’ADI–R qui examine à travers des entretiens semi-structurés avec les parents la symptomatologie actuelle ainsi que l’histoire développementale de l’enfant</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Utiliser l’échelle ADOS qui évalue la symptomatologie de l’enfant à travers une observation semi- structurée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q9" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En première intention, pour la suite de la prise en charge de son trouble autistique, vous prévoyez d’orienter Léo et sa famille vers :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">- le Centre Médico-Psychologiques (CMP) de leur secteur</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">le Centre Référent des Troubles du Langage et des Apprentissages (CRTLA)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">la Protection Maternelle Infantile (PMI)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">une maison de santé plurisdisciplinaire où exerce une pédiatre</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">le Centre de Ressource Autisme (CRA)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q10" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans le cadre du trouble du spectre de l’autisme, la reconnaissance du handicap auprès de la Maison départementale du handicap (MDPH) peut permettre :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">des aides financières : AEEH</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">des mesures de compensation du handicap</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">une orientation scolaire adaptée</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">la constitution d’un dossier MDPH nécessite uniquement la rédaction d’un certificat médical argumenté. Les parents n’ont pas de volets du dossier de demande à remplir</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">l’accès au SESSAD, permettant une prise en charge multidisciplinaire, ambulatoire et intégrée, qui peut se dérouler directement dans les lieux de vie de l’enfant</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — allocation enfant handicapé</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — ordinateur, AESH…</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — UEEA, ULIS, IME..</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — école, domicile</div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q11" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">4 ans plus tard, vous revoyez Léo et ses parents qui souhaitent avoir votre avis sur l’état médical et la prise en charge actuelle de leur enfant.Dans votre cabinet, Léo ne parvient pas à rester assis, se lève souvent, sans que cela lui ait été demandé ou que cela soit approprié, court beaucoup partout. Ses parents vous précisent que ces comportements sont constatés dans quasiment tous les domaines de sa vie. Ils s’en inquiètent relatant une expérience récente où Léo s’est échappé de leur surveillance a traversé rapidement une rue sans regarder.Face à ce tableau, à quelle comorbidité du TSA pensez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">un trouble anxieux</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">un trouble de l’attention avec hyperactivité</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">des symptômes obsessionnels compulsifs</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">un syndrome catatonique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">le trouble oppositionnel avec provocation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q12" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans ce contexte, ses parents vous demandent quel traitement médicamenteux pourrait éventuellement être proposé si les aménagements de l’environnement qui seront proposés apportent peu de résultats ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">mélatonine</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">antidépresseurs inhibiteurs de la recapture de la sérotonine</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">méthylphénidate</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">antipsychotiques de deuxième génération</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">anxiolytiques non-benzodiazépiniques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q13" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les parents vous demandent des précisions sur le méthylphénidate:</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le méthylphénidate :fait partie de la classe des « psychostimulants »</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le méthylphénidate :est un inhibiteur de la recapture de la dopamine</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le méthylphénidate :existe sous forme à libération immédiate et à libération prolongée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le méthylphénidate :est un dérivé des amphétamines</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le méthylphénidate :est un dérivé des amphétamines</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q14" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Par rapport au méthylphénidate, quel bilan pré-thérapeutique est indiqué ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">un ECG et éventuellement un bilan cardiologique pour éliminer toute cardiopathie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">une imagerie cérébrale pour éliminer une hypertension intracrânienne (HTIC)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">un bilan thyroïdien</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">un fond d’œil</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">un bilan métabolique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — insuffisance cardiaque, troubles du rythme cardiaque…</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1(15)-Q15" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1(15) Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans le cas de l’instauration du méthylphénidate, quelle surveillance et à quels effets indésirables devez-vous veillez ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">surveillance du poids et de la taille</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">surveillance de la fréquence cardiaque et de la tension artérielle</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">recherche de difficultés d’endormissement</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">des douleurs abdominales, nausées ou céphalées</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">un hirsutisme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">TCS1 — Agitation chez une femme bipolaire enceinte en rupture de traitement</div>
+
+<div class="q" id="TCS(1)-Q1" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS(1) Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une femme de 35 ans arrive dans un état d’agitation psychomotrice , elle a un trouble bipolaire de type 1 connu et est en rupture de traitement de son thymorégulateur téralithe</div>
+<div class="stem">Si Vous pensez prescrire lithium alors que son test de grossesse est positif Vous pensez que ce traitement est :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">complètement contre-indiqué</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">contre-indiqué</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins indiqué</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">indiqué</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">fortement indiqué</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — complètement contre-indiqué</div></div>
+</div>
+
+<div class="sect">KFP1 — Agitation psychomotrice chez un adolescent de 17 ans</div>
+
+<div class="q" id="KFP1(3)-Q1" data-answer="Recherche de toxique chez un jeune sans ATCD si l’examen somatique est normale le changement brutal de comportement doit faite éliminer une prise de toxique pas de pondération" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1(3) Q1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Un jeune de 17 ans Mr B. arrive aux urgences, amené par ses parents, car il présente au domicile depuis le début de la soirée une agitation psychomotrice, hétéro-agressivité et a des propos incohérents. Il est scolarisé en terminale et n’a jamais posé de problème de comportement d’après ses parents. Il n’a pas d’ATCD somatique et ne prend pas de traitement l’examen somatique et imagerie cérébral IRM sont normaux.</div>
+<div class="stem">Vous êtes l’interne en psychiatrie que recherchez-vous à votre interrogatoire ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Recherche de toxique chez un jeune sans ATCD si l’examen somatique est normale le changement brutal de comportement doit faite éliminer une prise de toxique pas de pondération</div>
+</div>
+</div>
+
+<div class="q" id="KFP1(3)-Q2" data-answer="Épisode aigu psychotique ou BDA Pas de pondération" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1(3) Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La recherche de toxique est positive au cannabis. Le patient exprime un délire à thématique de persécution à mécanismes hallucinatoires et interprétatifs. Quel est le diagnostic le plus probable Trouble psychotique aigu</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Épisode aigu psychotique ou BDA Pas de pondération</div>
+</div>
+</div>
+
+<div class="q" id="KFP1(3)-Q3" data-correct="DHI" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1(3) Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions quelles sont les 3 propositions que vous retenez dans votre conduite à tenir dans la prise en charge de ce jeune</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Retour à domicile</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">hospitalisation en SDRE</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Débuter un traitement par antidépresseur</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">traitement par antipsychotique à visée sédative</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">démarrer un traitement par subutex</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">IRM de contrôle</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Ponction lombaire</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">isolement en lieu calme</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Hospitalisation en SDT</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, H, I</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">SQI(6)</div>
+
+<div class="q" id="SQI(6)-Q1" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(6) Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cannabis cocher les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">le delta 9-tetra hydrocannabinoide agit sur le récepteur CB1 et CB2</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Sa présentation possible est sous formes possibles avec concentration de Delta-9THC décroissante :- Herbe ,résine ,huile</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Fumé sous forme de pipe, pipe à eau, ingéré (cake spice) vaporisé</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Substance illicite la plus consommée en France</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Consommation surtout féminine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(6)-Q2" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(6) Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les complications psychiatriques de la prise de cannabis:</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le trouble psychotique peut apparaitre jusqu’ 6 mois après la prise</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">la schizophrénie si la consommation est précoce, chez des personnes vulnérables</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">trouble dépressif après une prise aigu de cannabis</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">. Trouble anxieux est appelé « bad trip »</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le cannabis ne favorise jamais la décompensation d’un trouble bipolaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(6)-Q3" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(6) Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cocaïne préciser les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">elle existe sous forme de poudre blanche, ou de base (cailloux)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">. Elle a une action sédative</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il n’existe pas d’antidote en cas d’overdose à la cocaïne</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">il existe un traitement préventif en cas de mésusage</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Âge moyen de consommation en Europe est de 35 ans</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(6)-Q4" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(6) Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cocaïne: Les symptômes de l’intoxication aiguë lors de la première phase sont :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Euphorie, bien être , tachypsychie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">désinhibition sexuelle</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">. Boulimie, sédation, hypersomnie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">perte de l’intérêt sexuelle</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hypotension, bradycardie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(6)-Q5" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(6) Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Amphétamines, cocher les réponses vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Amphétamine , méthamphétamine, NMDA( poudre ), Ecstasy ( comprimé) sont des drogues de synthèse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les amphétamines donnent des symptômes stimulants</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hyperthermie est la complication sévère de la prise d’amphétamine</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Leur risque addictif est important</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les amphétamines peuvent être consommées par voie orale, injecter ou intranasale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI(6)-Q6" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI(6) Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Intoxication aiguë aux amphétamines:</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Début des effets en fonction du type d’administration et de la dose et de l’individu</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Intoxication aiguë euphorie , bien être, augmentation de l’attention et concentration.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Augmentation du désir sexuel</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Baisse de la pression artérielle et du rythme cardiaque</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">.Baisse de la fréquence respiratoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">DP2 — Troubles du comportement chez une femme de 65 ans</div>
+
+<div class="q" id="DP(10)-Q1" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Durant votre garde aux urgences, vous recevez Madame L., 65 ans qui est amenée par sa fille pour des troubles du comportement au domicile.Dans la salle d’attente, Madame L. interpelle les autres patients à haute voix les invitant à chanter avec elle pour « célébrer la vie ».En entretien, la patiente est de très bonne humeur voulant vous enlacer d’emblée.Elle ne tient pas en place et tient un discours intarissable avec une gestuelle démonstrative. Elle vous rapporte un excès d’énergie malgré un sommeil nettement réduit, et ce depuis 8 jours.Sa fille vous apprend que sa mère passe ses soirées à errer dehors et qu’elle dérange le voisinage en écoutant la musique tard dans la nuit.</div>
+<div class="stem">Quel est votre diagnostic à ce stade ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Trouble de la personnalité histrionique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Confusion mentale</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Épisode maniaque</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Maladie d’Alzheimer</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Trouble psychotique bref</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant quels symptômes l’évoquez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Familiarité</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Logorrhée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Insomnie sans fatigue</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Désinhibition</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Désorientation temporo-spatiale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q3" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Durant votre entretien, vous apprenez que Madame L. a démarré un traitement par corticoïdes à forte dose depuis une quinzaine de jours pour une pseudo-polyarthrite rhizomélique.Quelle est votre conduite à tenir ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Introduire un traitement anti maniaque en ambulatoire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Mettre en place une psychothérapie intensive</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Prescrire un somnifère</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hospitalisation en psychiatrie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Baisser la posologie des corticoïdes après concertation avec le rhumatologue</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q4" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous proposez à Madame Z. une hospitalisation en psychiatrie. Elle s’énerve et vous dit qu’elle refuse catégoriquement votre proposition car « elle n’est pas malade ». Malgré toutes vos explications, la patiente maintient son refus et vous dit qu’elle veut rentrer chez elle.Que faites-vous devant cette situation ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Consultation ambulatoire avec le psychiatre du centre médico-psychologique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hospitalisation en psychiatrie sous le mode « soins psychiatriques libres »</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Rendez-vous de contrôle en rhumatologie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hospitalisation en psychiatrie sous le mode « soins psychiatriques à la demande d’un tiers »</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Retour au domicile</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q5" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Question 5 : Pendant cette hospitalisation et après consultation de son dossier médical, vous apprenez que la patiente souffrait depuis l’âge de 20 ans d’une alternance d’épisodes similaires avec des épisodes de dépression sévère. Elle était bien stabilisée sous un traitement thymorégulateur qu’elle a arrêté depuis plusieurs mois.Quel est votre diagnostic ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Trouble bipolaire type I</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Trouble bipolaire type II</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Trouble schizo-affectif</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Épisode maniaque induit par les corticoïdes</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Trouble dépressif récurrent</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q6" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel est le traitement de référence de cette pathologie psychiatrique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Valproate de sodium</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Antidépresseurs</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Psychothérapie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Corticoïdes à faibles doses</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Lithium</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q7" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les examens obligatoires à réaliser lors du bilan pré thérapeutique de ce traitement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Électroencéphalogramme (EEG)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">NFS-Plaquettes</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bilan thyroïdien</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Bilan rénal</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Électrocardiogramme (ECG)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q8" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les contre-indications absolues de ce traitement ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Insuffisance rénale sévère</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Coronaropathie sévère</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Femme en âge de procréer</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Régime pauvre en sel</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Insuffisance cardiaque instable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q9" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Étant encore sous corticoïdes, Madame L. est dans l’obligation de suivre un régime pauvre en sel. Quelles alternatives thérapeutiques allez-vous lui proposer pour le traitement de son trouble bipolaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Carbamazépine</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Aripiprazole</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Olanzapine</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Paroxétine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Diazépam</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP(10)-Q10" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">DP(10) Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Sa fille vous apprend, qu’en dépit de ses ressources limitées, Madame L. a dépensé des sommes d’argent importantes pour offrir des cadeaux à tous ses amis et qu’elle a acheté une nouvelle montre de luxe il y a 3 jours. Elle vous signale par ailleurs que la patiente gère très bien ses dépenses habituellement.Quelle mesure de protection allez-vous mettre en place en urgence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Curatelle simple</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Sauvegarde de justice</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Tutelle</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Injonction de soins</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Curatelle renforcée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← T2 D2</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
