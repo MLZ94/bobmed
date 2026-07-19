@@ -1,0 +1,363 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 108 — Démences · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(247,248,249,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.q.done{border-color:#e2e8f0}
+.qrocin{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px;font-family:inherit}
+.qrocmodel p{margin:6px 0}.qrocmodel ul{margin:4px 0;padding-left:20px}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 108 — Démences · Entraînement par item</h1>
+<div class="sub">10 questions — QRM · QRU · QROC. 9 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/10</b></span>
+  <span class="pill">Score : <b id="s-ok">0/9</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<div class="sect">Questions d'entraînement — Item 108</div>
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les critères suivants, lesquels sont nécessaires au diagnostic de démence selon le DSM-5 (trouble neurocognitif majeur) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Déclin cognitif significatif par rapport au niveau antérieur, dans un ou plusieurs domaines cognitifs</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le déficit cognitif interfère avec l'autonomie dans les activités quotidiennes</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le trouble survient exclusivement dans un contexte de delirium</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le déficit n'est pas mieux expliqué par un trouble mental (dépression, schizophrénie)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Présence obligatoire de troubles de la mémoire épisodique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Un déclin objectivable dans ≥ 1 domaine cognitif (mémoire, langage, fonctions exécutives, attention, cognition sociale, perception) est requis.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le retentissement fonctionnel sur l'autonomie (incapacité à gérer ses finances, médicaments, conduite…) distingue la démence du trouble neurocognitif léger (MCI).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Si le trouble survient uniquement dans un contexte de delirium (confusion aiguë), on ne pose pas le diagnostic de démence. La démence doit être présente en dehors de tout delirium.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La dépression sévère (pseudodémence), la schizophrénie ou d'autres troubles psychiatriques peuvent mimer une démence ; ils doivent être exclus.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les troubles de la mémoire ne sont pas obligatoires ; certaines démences (DCL, DCF) touchent d'abord les fonctions exécutives, le comportement ou le langage avant la mémoire.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qtype">QRU</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelle est la cause de démence dégénérative la plus fréquente dans les pays développés ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Maladie d'Alzheimer</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Démence à corps de Lewy (DCL)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Démence vasculaire</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Démence fronto-temporale (DFT)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A</div>
+    <div class="note">Fréquences relatives des démences : Alzheimer ~ 60-70 % · Vasculaire ~ 15-20 % · DCL ~ 10-15 % · DFT ~ 5-10 %. En pratique, les formes mixtes (Alzheimer + vasculaire) sont fréquentes.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La maladie d'Alzheimer représente ~ 2/3 des démences. Caractérisée par des dépôts de plaques amyloïdes (Aβ) et des dégénérescences neurofibrillaires (protéine tau).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La DCL est la 2e cause de démence dégénérative (après Alzheimer), mais représente 10-15 % des cas.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La démence vasculaire est la 2e cause de démence au total (~ 15-20 %), mais ce n'est pas une démence dégénérative.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La DFT est rare (5-10 %) ; chez les sujets de moins de 65 ans, elle peut être aussi fréquente qu'Alzheimer.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Lors du bilan étiologique d'une démence, quels examens sont recommandés en première intention pour éliminer une cause curable ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">IRM cérébrale (ou TDM si IRM impossible)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">PET-scan à la fluoro-désoxyglucose (FDG) systématique</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bilan biologique standard (NFS, TSH, glycémie, ionogramme, vitamine B12, folates, sérologie syphilis/VIH selon contexte)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">EEG systématique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Tests neuropsychologiques (MMS/MMSE, MoCA, bilan approfondi)</span></div></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'IRM cérébrale élimine les causes structurales curables (hématome sous-dural chronique, hydrocéphalie à pression normale, tumeur, AVC) et oriente (atrophie hippocampique pour Alzheimer, hypersignaux de la substance blanche pour démence vasculaire).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le PET-scan FDG ou amyloïde n'est pas un examen de 1re intention ; il est réservé aux cas difficiles ou dans le cadre d'une demande d'ALD, en 2e intention.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le bilan biologique recherche des causes potentiellement curables : hypothyroïdie (TSH), carences B12/folates, hyponatrémie, hypercalcémie, neurosyphilis, encéphalite VIH.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'EEG n'est pas systématique dans le bilan de démence ; il est indiqué si suspicion de maladie de Creutzfeldt-Jakob (complexes périodiques) ou d'épilepsie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'évaluation neuropsychologique (MMSE = dépistage, MoCA = plus sensible, bilan approfondi) objective le type et la sévérité du déficit cognitif, essentielle au diagnostic.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les signes suivants, lesquels sont caractéristiques de la démence à corps de Lewy (DCL) et permettent de la distinguer de la maladie d'Alzheimer ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Atrophie hippocampique prédominante à l'IRM</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hallucinations visuelles récurrentes et détaillées</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Aphase de Wernicke isolée</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Fluctuations cognitives (variations de l'attention et de l'éveil)</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Syndrome parkinsonien associé</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="note">Critères diagnostiques de la DCL (McKeith 2017) : caractéristiques centrales (déclin cognitif) + critères cardinaux (fluctuations, hallucinations visuelles, syndrome parkinsonien, RBD) + critères biomarqueurs. ≥ 2 cardinaux = DCL probable.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'atrophie hippocampique est caractéristique de la maladie d'Alzheimer ; dans la DCL, les hippocampes sont souvent relativement préservés.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les hallucinations visuelles récurrentes, complexes et détaillées (personnages, animaux) sont l'un des 4 critères cardinaux de la DCL.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'aphasie de Wernicke isolée est plus caractéristique de la démence fronto-temporale variante sémantique (APP sémantique).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les fluctuations de l'attention et de l'éveil (confusion intermittente, somnolence diurne) sont un critère cardinal de la DCL.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le syndrome parkinsonien (bradykinésie, rigidité, tremblement) est l'un des 4 critères cardinaux de la DCL. La règle est : démence ≥ 1 an avant le parkinsonisme (sinon = maladie de Parkinson avec démence).</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qtype">QRU</span><span class="qrank rang-b">Rang B</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un homme de 65 ans présente une démence avec désinhibition comportementale, apathie, conduite alimentaire compulsive et troubles du langage. Ce tableau oriente vers quelle étiologie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Maladie d'Alzheimer</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Démence vasculaire</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Démence fronto-temporale (DFT) variante comportementale</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Démence à corps de Lewy</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Alzheimer débute typiquement par des troubles mnésiques (mémoire épisodique) avant les troubles comportementaux.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La démence vasculaire présente des déficits cognitifs en rapport avec la localisation des lésions et un début souvent brutal/par paliers.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La DFT variante comportementale (bvFTD) se caractérise par une atteinte précoce du lobe frontal : désinhibition, apathie, comportements stéréotypés, hyperoralité/hyperphagie, troubles pragmatiques du langage. Plus fréquente avant 65 ans.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La DCL débute par des fluctuations cognitives, des hallucinations visuelles et un syndrome parkinsonien, pas par une désinhibition frontale.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les médicaments suivants, lesquels ont une AMM dans la maladie d'Alzheimer ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Rispéridone (antipsychotique)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Donépézil (inhibiteur de l'acétylcholinestérase)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Rivastigmine (inhibiteur de l'acétylcholinestérase)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Sélégiline (IMAO-B)</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Mémantine (antagoniste NMDA)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="note">Les médicaments anti-Alzheimer n'ont qu'un effet symptomatique modeste (ralentissement de la déclin) ; ils ne guérissent pas la maladie. En France (2024) : IChE = donépézil (Aricept®), rivastigmine (Exelon®), galantamine (Réminyl®). Mémantine (Ebixa®) = stades modérés à sévères. Les IChE sont déremboursés en France depuis 2018 (rapport HAS) mais restent prescrits.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La rispéridone peut être utilisée ponctuellement dans les SPCD (symptômes psycho-comportementaux des démences) avec agitation sévère, mais n'a pas d'AMM dans la MA ; elle est à éviter (effets EPS, AVC). Contre-indiquée dans la DCL.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le donépézil (IChE) est indiqué dans les stades légers à sévères de la MA.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La rivastigmine (IChE) a une AMM dans la MA (et aussi dans la démence de la maladie de Parkinson).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La sélégiline (IMAO-B) est utilisée dans la maladie de Parkinson, pas dans la MA.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La mémantine (antagoniste des récepteurs NMDA) est indiquée dans les stades modérés à sévères de la MA ; peut être associée aux IChE.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les causes suivantes, lesquelles peuvent être responsables d'une démence potentiellement réversible ou curable ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hypothyroïdie sévère</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Maladie d'Alzheimer</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hydrocéphalie à pression normale (HPN)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hématome sous-dural chronique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Démence fronto-temporale</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'hypothyroïdie peut causer un syndrome démentiel réversible après traitement par lévothyroxine ; d'où l'importance du dosage TSH dans tout bilan de démence.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La maladie d'Alzheimer est une dégénérescence non réversible (pas de traitement curatif à ce jour).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'HPN (triade de Hakim-Adams : démence + troubles de la marche à petit pas + incontinence urinaire) peut s'améliorer après dérivation ventriculo-péritonéale ou lombaire.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'hématome sous-dural chronique peut causer un syndrome démentiel par compression corticale, réversible après évacuation neurochirurgicale.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La DFT est une dégénérescence non réversible (tauopathie ou TDP-43opathie).</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qtype">QRU</span><span class="qrank rang-b">Rang B</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelle est la triade clinique de l'hydrocéphalie à pression normale (HPN) ou syndrome de Hakim-Adams ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Céphalées + vomissements + diplopie</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Troubles de la marche (apraxique) + troubles cognitifs + incontinence urinaire</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Tremblement + rigidité + akinésie</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hallucinations + fluctuations + parkinsonisme</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Céphalées + vomissements + diplopie = HTIC (hypertension intracrânienne).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La triade de Hakim-Adams : (1) marche à petit pas, magnétique, élargissement du polygone de sustentation ; (2) démence sous-corticale ; (3) incontinence urinaire par urgenturie. IRM : hydrocéphalie sans atrophie corticale proportionnée.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Triade parkinsonienne (Parkinson).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Critères de la démence à corps de Lewy.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ADE">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles mesures sont recommandées dans la prise en charge non médicamenteuse des patients atteints de maladie d'Alzheimer ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Stimulation cognitive (ateliers mémoire, activités de réminiscence)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Isolement du patient pour réduire les stimulations</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Contention physique systématique en cas d'agitation</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Soutien des aidants (psycho-éducation, groupes de parole, répit)</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Mesures de sécurisation du domicile et aménagement de l'environnement</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La stimulation cognitive (ateliers mémoire, musicothérapie, art-thérapie, réminiscence) peut ralentir le déclin fonctionnel et améliorer la qualité de vie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'isolement aggrave l'état cognitif (stimulation insuffisante) et les SPCD (anxiété, dépression). Il faut maintenir les liens sociaux et les activités adaptées.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La contention physique est une mesure de dernier recours, strictement encadrée (risque de chutes, escarres, déclin fonctionnel). L'agitation se gère d'abord par des approches non médicamenteuses (validation, détournement d'attention).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les aidants présentent un risque élevé d'épuisement (burnout, dépression) ; leur soutien (associations, accueil de jour, hébergement temporaire) fait partie intégrante de la prise en charge.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Sécurisation du domicile : rangement des médicaments et produits toxiques, signalétique, éclairage, tapis antidérapants, signalement à la préfecture pour la conduite automobile.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QROC" data-correct="">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qtype">QROC</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelle est la triade clinique de l'hydrocéphalie à pression normale (syndrome de Hakim-Adams) ? Nommez ses trois éléments.</div>
+  <textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+  <div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocmodel"><p><strong>1. Troubles de la marche</strong> : marche à petit pas, magnétique, apraxique, polygone de sustentation élargi.</p><p><strong>2. Troubles cognitifs</strong> (démence sous-corticale, lenteur idéomotrice, apathie).</p><p><strong>3. Incontinence urinaire</strong> (urgenturie, impériosités).</p></div>
+  </div>
+</div>
+
+<footer>10 questions · 9 notées · Item 108 — Démences · D2 T2 UE 4.1 Neurologie · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';
+  const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&!isProp&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+qs.length;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+</body></html>

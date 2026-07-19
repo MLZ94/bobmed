@@ -1,0 +1,436 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 355 — Hémorragie digestive · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(247,248,249,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.q.done{border-color:#e2e8f0}
+.qrocin{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px;font-family:inherit}
+.qrocmodel p{margin:6px 0}.qrocmodel ul{margin:4px 0;padding-left:20px}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 355 — Hémorragie digestive · Entraînement par item</h1>
+<div class="sub">10 questions — QRM · QRU · QROC. 9 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/10</b></span>
+  <span class="pill">Score : <b id="s-ok">0/9</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<div class="sect">Questions d'entraînement — Item 355</div>
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q1</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant les sémiologies des hémorragies digestives, quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'hématémèse (vomissement de sang rouge ou en marc de café) signe une hémorragie digestive haute (en amont du ligament de Treitz)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le méléna (selles noires goudronneuses) est toujours lié à une hémorragie digestive basse</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La rectorragie (sang rouge par l'anus) oriente vers une hémorragie digestive basse, mais une HDH massive peut également provoquer une rectorragie</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'hémodynamique (PA, FC) et les signes d'anémie aiguë permettent d'évaluer la gravité initiale</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La présence de sang occulte dans les selles est équivalente en gravité à une hématémèse</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'hématémèse signe une hémorragie en amont du ligament de Treitz (angle de Treitz = jonction duodéno-jéjunale). En marc de café = sang digéré par l'acide gastrique.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le méléna peut être d'origine haute (le plus souvent) ou de l'intestin grêle proximal ; le sang digéré et noirci par les bactéries coliques peut provenir de n'importe quel segment en amont du côlon droit.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La rectorragie oriente vers le côlon, le rectum ou l'anus ; mais une HDH très abondante (> 1 L) peut transiter trop vite pour être digérée et se présenter sous forme de sang rouge rectal.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La gravité initiale est évaluée par les constantes vitales : tachycardie > 100 bpm, hypotension, marbrures, pâleur, sueurs signent un choc hémorragique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le sang occulte représente une hémorragie chronique de faible débit (détectée par le test FIT) ; une hématémèse est une hémorragie aiguë à risque vital immédiat.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ACE">
+  <div class="qhead">
+    <span class="qnum">Q2</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant les étiologies des hémorragies digestives hautes (HDH), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'ulcère gastro-duodénal est la cause la plus fréquente de HDH (environ 50 % des cas)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les varices œsophagiennes sont la cause la plus fréquente de HDH dans la population générale</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le syndrome de Mallory-Weiss est une déchirure longitudinale de la jonction œso-gastrique après vomissements répétés</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'œsophagite peptique ne saigne jamais abondamment</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les varices œsophagiennes représentent environ 20 % des HDH mais ont une mortalité plus élevée que les ulcères</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'ulcère gastro-duodénal (surtout ulcère duodénal) est la 1re cause de HDH (50 %), suivi des varices œsophagiennes (20 %), de l'œsophagite (10 %) et du Mallory-Weiss (5-10 %).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les varices œsophagiennes sont la 2e cause (20 %), mais la plus fréquente dans la population cirrhotique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le syndrome de Mallory-Weiss est une déchirure muqueuse longitudinale de la jonction œso-gastrique, souvent après vomissements forcés (alcoolisme, grossesse). Le saignement est généralement modéré et cède spontanément.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'œsophagite peptique sévère peut provoquer une hémorragie digestive (peu abondante en général), visible à l'endoscopie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les varices œsophagiennes, bien que moins fréquentes, ont une mortalité per-épisode de 15-20 % (vs 5-10 % pour les ulcères) car elles surviennent sur un terrain de cirrhose décompensée avec insuffisance hépatique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="ABDE">
+  <div class="qhead">
+    <span class="qnum">Q3</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient de 67 ans arrive aux urgences pour hématémèse avec instabilité hémodynamique (PA 85/60, FC 115). Quelles mesures de prise en charge initiale sont correctes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Pose de 2 voies veineuses périphériques de gros calibre (14-16 G)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Remplissage vasculaire par cristalloïdes en urgence</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Réaliser immédiatement une endoscopie avant toute stabilisation hémodynamique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Débuter un IPP IV (bolus 80 mg puis 8 mg/h)</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Réaliser une FOGD dans les 12-24 h après stabilisation hémodynamique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="note">En cas de choc hémorragique, transfusion de culots globulaires si Hb &lt; 7 g/dL (ou &lt; 8 g/dL si cardiopathie). Objectif transfusionnel : Hb ≥ 8 g/dL. Correction des troubles de l'hémostase si anticoagulés (vit K, CCP).</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Deux VVP de gros calibre permettent un remplissage rapide et des prélèvements biologiques urgents (NFS, plaquettes, TP/TCA, groupage, RAI).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le remplissage par cristalloïdes (NaCl 0,9 % ou Ringer lactate, 500-1000 mL en bolus) est la première étape de la réanimation du choc hémorragique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'endoscopie doit être réalisée après stabilisation hémodynamique minimale ; une endoscopie en urgence immédiate sur patient instable est dangereuse et de moins bonne qualité.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'IPP IV (oméprazole 80 mg bolus + 8 mg/h IVSE) est administré empiriquement avant l'endoscopie pour stabiliser le caillot (pH gastrique alcalinisé).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La FOGD doit être réalisée dans les 12-24 h (idéalement dans les 12 h pour les formes graves) après stabilisation hémodynamique pour identifier la source et réaliser l'hémostase.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRU" data-correct="C">
+  <div class="qhead">
+    <span class="qnum">Q4</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Le score de Rockall pré-endoscopique évalue le risque de décès et de récidive hémorragique dans l'hémorragie digestive haute. Lequel de ces paramètres N'EN fait PAS partie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Âge</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Choc hémodynamique (PA systolique, fréquence cardiaque)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Taux d'hémoglobine initial</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Comorbidités (insuffisance cardiaque, rénale, cirrhose, cancer)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">Le score de Rockall pré-endoscopique comprend : âge, signes de choc (PA sys, FC), comorbidités. Le score complet (post-endoscopique) ajoute le diagnostic endoscopique et les stigmates hémorragiques (classification de Forrest). Le taux d'Hb n'est pas dans le Rockall mais dans d'autres scores (Glasgow-Blatchford).</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'âge est un des 3 critères du Rockall pré-endoscopique (0 point &lt; 60 ans, 1 point 60-79 ans, 2 points ≥ 80 ans).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'état hémodynamique (choc) est un critère majeur (PA sys &lt; 100 mmHg = 2 pts).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le taux d'hémoglobine initial n'entre pas dans le score de Rockall ; il est intégré dans le score de Glasgow-Blatchford (utilisé pour décider de l'endoscopie en urgence).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les comorbidités sévères (insuffisance cardiaque, rénale, cirrhose hépatique, cancer) constituent le 3e critère du Rockall pré-endoscopique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="BCE">
+  <div class="qhead">
+    <span class="qnum">Q5</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant l'hémostase endoscopique d'un ulcère à saignement actif (Forrest Ia), quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'injection d'adrénaline seule est suffisante comme traitement définitif</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La combinaison injection d'adrénaline + clip mécanique est plus efficace qu'une technique seule</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">En cas d'échec endoscopique, une artériographie avec embolisation ou une chirurgie hémostatique est indiquée</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un ulcère Forrest III (fond propre) nécessite une hémostase endoscopique préventive</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une 2e endoscopie de contrôle à 24 h (« second look ») est recommandée en cas de saignement à haut risque ou de doute sur la qualité de l'hémostase</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'injection d'adrénaline seule présente un taux de récidive hémorragique élevé (20-30 %) ; elle est toujours combinée à une technique mécanique (clip) ou thermique (électrocoagulation).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La biothérapie endoscopique combinée (injection + clip ou + thermocoagulation) réduit significativement le taux de récidive hémorragique par rapport à la monothérapie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — En cas d'échec endoscopique (récidive malgré 2 tentatives), l'artériographie-embolisation est préférée à la chirurgie chez les patients fragiles ; la chirurgie hémostatique (suture + pyloroplastie) reste une option.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Forrest III (ulcère à fond propre, sans stigmate hémorragique) a un risque de récidive très faible (&lt; 5 %) et ne nécessite pas d'hémostase endoscopique.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Une endoscopie de contrôle à 24 h est indiquée en cas de saignement grave (Forrest Ia/Ib) ou lorsque la qualité de l'hémostase initiale est incertaine.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q6</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient de 72 ans présente des rectorragies de sang rouge vif, sans douleur, avec instabilité hémodynamique. Quelles étiologies de l'hémorragie digestive basse devez-vous évoquer en priorité ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Diverticulose colique (60-70 % des hémorragies digestives basses sévères chez le sujet âgé)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hémorroïdes internes de grade 4</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Angiodysplasie colique (ectasies vasculaires muqueuses)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cancer colorectal</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Fissure anale chronique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note">En cas de rectorragie sévère du sujet âgé, la coloscopie après préparation est l'examen clé ; si instabilité persistante, une angioscanner peut localiser le saignement actif (&gt; 0,5 mL/min) pour guider l'embolisation.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La diverticulose est la cause la plus fréquente de rectorragie abondante chez le sujet âgé (60-70 %) ; le saignement est souvent indolore, de sang rouge vif, et cède spontanément dans 80 % des cas.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les hémorroïdes provoquent des saignements de faible abondance (gouttes de sang rouge vif en fin de selle) ; elles ne causent pas une instabilité hémodynamique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les angiodysplasies (ectasies vasculaires acquises du côlon droit, fréquentes chez le sujet âgé) peuvent saigner abondamment et sont une cause importante de rectorragie chez le sujet âgé.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Un cancer colorectal peut provoquer des rectorragies, souvent associées à une altération de l'état général, une modification du transit ou une anémie ferriprive chronique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La fissure anale entraîne des douleurs anales intenses et quelques gouttes de sang après la défécation ; elle ne provoque pas d'instabilité hémodynamique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="BCD">
+  <div class="qhead">
+    <span class="qnum">Q7</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient de 65 ans présente une rectorragie avec douleur colique gauche, fièvre à 38,5 °C et un terrain athéromateux (AOMI, cardiopathie ischémique). Quelle étiologie est la plus probable et quelles affirmations la concernant sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La diverticulite aiguë est le diagnostic le plus probable</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une colite ischémique doit être évoquée chez ce patient athéromateux</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La localisation préférentielle de la colite ischémique est l'angle colique gauche (zone de « watershed »)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le scanner abdominal avec injection est l'examen clé pour le diagnostic de colite ischémique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La colite ischémique se traite systématiquement par chirurgie d'emblée</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La diverticulite aiguë provoque une douleur de la fosse iliaque gauche avec fièvre mais sans rectorragie franche ; la rectorragie associée à la triade douleur + fièvre + terrain ischémique oriente vers une colite ischémique.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La colite ischémique (triade : rectorragie + douleur abdominale + fièvre) est à évoquer chez tout patient athéromateux, en particulier après chirurgie aortique ou lors de bas débit cardiaque.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'angle colique gauche (angle splénique) est la zone la plus vulnérable à l'ischémie (zone de « watershed » entre l'artère mésentérique supérieure et inférieure).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le scanner abdominal avec injection montre un épaississement pariétal segmentaire du côlon, parfois une pneumatose, et peut éliminer d'autres diagnostics (diverticulite, cancer). La coloscopie confirme les lésions muqueuses ischémiques.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La colite ischémique est traitée médicalement dans 85 % des cas (aspiration, antibiotiques, remplissage, correction de la cause) ; la chirurgie (colectomie segmentaire) est réservée aux formes transmurales avec nécrose, péritonite ou choc réfractaire.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ACE">
+  <div class="qhead">
+    <span class="qnum">Q8</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant les indications à la chirurgie hémostatique dans les hémorragies digestives, quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Échec de deux tentatives d'hémostase endoscopique</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Récidive hémorragique unique après un premier épisode contrôlé endoscopiquement</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hémorragie en jet sur gros vaisseau (artère gastro-duodénale) non accessible à l'hémostase endoscopique</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Toute hémorragie digestive haute de l'ulcère gastrique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Instabilité hémodynamique persistante malgré la réanimation et l'échec de l'embolisation artérielle</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'échec de deux tentatives d'hémostase endoscopique (ou d'une seconde endoscopie de sauvetage) est une indication à la chirurgie ou à l'embolisation artérielle.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une seule récidive hémorragique peut encore être contrôlée par une nouvelle hémostase endoscopique ou une embolisation artérielle avant d'envisager la chirurgie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Certaines lésions hémorragiques (artère gastro-duodénale, pseudo-anévrisme) ne sont pas accessibles à l'hémostase endoscopique ; une embolisation ou une chirurgie est indiquée d'emblée.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La chirurgie n'est pas indiquée systématiquement pour tout ulcère gastrique hémorragique ; l'hémostase endoscopique est la première ligne.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'instabilité hémodynamique réfractaire malgré réanimation optimale et après échec de l'embolisation artérielle impose une chirurgie hémostatique d'urgence.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q9</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant les étiologies des rectorragies chez un adulte de 45 ans sans comorbidité, quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les hémorroïdes sont la cause la plus fréquente de rectorragies dans cette tranche d'âge</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un cancer colorectal doit toujours être éliminé par une coloscopie, même si des hémorroïdes sont visibles</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La présence d'hémorroïdes à l'anuscopie élimine un cancer associé</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une coloscopie est indiquée en cas de signes d'alarme (AEG, anémie, modification du transit, âge > 45 ans)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une rectoscopie seule suffit à éliminer un cancer colorectal</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les hémorroïdes internes (saignement de sang rouge vif en jet pendant ou après la selle, sans douleur) sont la cause la plus fréquente de rectorragie chez l'adulte jeune.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La présence d'hémorroïdes n'exclut pas un cancer colorectal coexistant ; une coloscopie totale est indiquée en cas de rectorragie avec signes d'alarme ou chez un patient de plus de 45 ans.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les hémorroïdes sont très fréquentes dans la population générale et leur présence ne peut pas exclure un cancer colorectal associé situé plus haut dans le côlon.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les signes d'alarme (AEG, anémie ferriprive, modification du transit, rectorragie chez un patient de plus de 45 ans ou avec ATCD familiaux de cancer) imposent une coloscopie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La rectoscopie n'explore que le rectum et le bas sigmoïde ; une coloscopie totale est nécessaire pour éliminer un cancer plus haut situé dans le côlon.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q10</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Décrivez la prise en charge initiale d'une hémorragie digestive haute avec état de choc hémorragique (PA 80/55, FC 120).</div>
+  <textarea class="qrocin" rows="5" placeholder="Votre réponse…"></textarea>
+  <div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Prise en charge immédiate (20 premières minutes) :</strong></p>
+      <ul>
+        <li>Appel du réanimateur et du gastroentérologue ; hospitalisation en soins intensifs</li>
+        <li>2 VVP de gros calibre (14-16 G) + prélèvements : NFS, plaquettes, TP/TCA/fibrinogène, ionogramme, créatinine, groupage-RAI, bilan hépatique</li>
+        <li>Remplissage vasculaire par cristalloïdes (NaCl 0,9 % ou Ringer) en bolus</li>
+        <li>Transfusion de culots globulaires si Hb &lt; 7 g/dL (ou 8 g/dL si cardiopathie)</li>
+        <li>Correction des troubles de l'hémostase (anticoagulants : vit K, CCP ; plaquettes si &lt; 50 000)</li>
+        <li>O2 nasale, monitoring (PA, FC, SpO2, diurèse)</li>
+        <li>IPP IV : bolus 80 mg + perfusion continue 8 mg/h</li>
+        <li>Si cirrhose suspectée : terlipressine IV + antibioprophylaxie</li>
+      </ul>
+      <p><strong>Dans les 12-24 h (après stabilisation) :</strong></p>
+      <ul>
+        <li>FOGD diagnostique et thérapeutique (hémostase endoscopique)</li>
+        <li>Score de Rockall post-endoscopique pour stratifier le risque</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<footer>10 questions · 9 notées · Item 355 — Hémorragie digestive · D2 T2 UE 8.1 Hépato-Gastro · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+</body></html>
