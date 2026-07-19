@@ -581,6 +581,69 @@ Depuis la refonte 2026-07, les portails de trimestre sont structurés **par UE**
 
 ---
 
+## Quiz d'entraînement par item (hors-annales)
+
+Les portails `d2/tN/entrainement/` hébergent des quiz créés **hors session d'examen**, organisés par item R2C/EDN plutôt que par annale officielle. Ils complètent les annales en couvrant les connaissances item par item, en rang A et B.
+
+### Structure du portail multi-UE
+
+Quand un trimestre comprend plusieurs UE avec des quiz d'entraînement, le portail `entrainement/index.html` regroupe toutes les UE dans une page unique avec navigation par ancres :
+
+```html
+<nav class="secnav">
+  <a href="#cardio">🫀 Cardiologie</a>
+  <a href="#pneumo">🫁 Pneumologie</a>
+  <a href="#infectio">🦠 Maladies transmissibles</a>
+</nav>
+<div class="ue" id="cardio">UE 8.2 — Cardiologie · Quiz par item</div>
+...
+```
+
+Le footer du portail liste le total et la répartition par UE (ex. `34 quiz d'entraînement par item · UE 8.2 (9) · UE 7.1 (13) · UE 6 (12) · D2 T1`). Le portail `d2/tN/index.html` pointe vers le bon ancre (`entrainement/index.html#cardio`, `#pneumo`, `#infectio`…) dans la sous-catégorie « Entraînement par item » de chaque `.ue-block`.
+
+Si un trimestre n'a qu'une seule UE avec des quiz d'entraînement, une page simple sans ancre convient — n'ajouter la nav multi-UE que si deux UE ou plus sont présentes.
+
+### Nommage des fichiers
+
+Convention : `Quiz_itemNNN_slug.html` (ex. `Quiz_item339_sca.html`, `Quiz_item234_insuffisance_cardiaque.html`). Le slug est le nom court de l'item, en minuscules avec underscores. Le numéro d'item suit la numérotation EDN/R2C officielle.
+
+### Badges de rang (rang A / rang B / rang A+B)
+
+Chaque question peut porter un badge de rang dans son `<div class="qhead">`, intégré au `.qtype` :
+
+```html
+<span class="qtype rang-a">Rang A · QRM</span>   <!-- rang A uniquement -->
+<span class="qtype rang-b">Rang B · QRU</span>   <!-- rang B uniquement -->
+<span class="qtype rang-mixte">Rang A/B · QRM</span>  <!-- question intégrative mêlant rang A et B -->
+```
+
+CSS des badges (inclus dans le `<style>` de chaque quiz concerné — ne pas ajouter dans `theme.css`, propre aux quiz par item) :
+
+```css
+.rang-a    { background:#dcfce7; color:#166534; border-color:#86efac }
+.rang-b    { background:#dbeafe; color:#1e40af; border-color:#93c5fd }
+.rang-mixte{ background:#ede9fe; color:#6d28d9; border-color:#c4b5fd }
+```
+
+- **Rang A** (vert) : connaissance fondamentale, exigible à l'EDN.
+- **Rang B** (bleu) : connaissance approfondie, différenciante.
+- **Rang A/B mixte** (violet) : question intégrative mêlant des objectifs des deux rangs.
+- **Sans badge** : rang inconnu ou non renseigné — **ne jamais inventer un rang**.
+
+### Déduplication entre UE
+
+Certains items couvrent des thèmes partagés entre plusieurs UE d'un même trimestre (ex. item 159 Tuberculose relève à la fois de Pneumologie UE 7.1 et de Maladies transmissibles UE 6). Dans ce cas, **ne pas dupliquer le quiz** : le rattacher à l'UE la plus naturelle (en général celle qui en fait le plus grand usage dans les annales) et y faire référence depuis l'autre UE si nécessaire.
+
+### Rattachement au portail principal
+
+Toute création ou modification d'un quiz d'entraînement doit se répercuter simultanément sur :
+1. `d2/tN/entrainement/index.html` — ajouter la carte `.qz` dans la bonne section UE.
+2. `d2/tN/index.html` — mettre à jour le compteur `cnt` du `.ue-block` concerné.
+
+Ne jamais laisser de quiz d'entraînement orphelin sans navigation.
+
+---
+
 ## Outillage Python (scripts du dépôt)
 
 Cinq scripts Python vivent **à la racine du dépôt** (`pdf_to_quiz.py` y compris — ce n'est pas un outil externe à l'utilisateur, il est versionné comme le reste). Tous s'exécutent en local avec `python3 script.py ...` ; aucun n'est un service réseau. Un `Makefile` enchaîne les plus utilisés en pipeline (cf. « Pipeline Makefile » plus bas). Il n'existe pas de `requirements.txt` : installer les dépendances au besoin via `pip install <paquet>` — chaque script tolère l'absence d'une dépendance optionnelle et l'indique par un message explicite plutôt qu'un crash.
