@@ -1,0 +1,468 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 234 — Insuffisance cardiaque · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(247,248,249,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.qrocmodel{font-size:14px}.qrocmodel p{margin:4px 0 8px}.qrocmodel ul{margin:4px 0 8px;padding-left:20px}.qrocmodel li{margin:2px 0}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q.done{border-color:#e2e8f0}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 234 — Insuffisance cardiaque · Entraînement par item</h1>
+<div class="sub">11 questions — QRU · QRM · QROC. 10 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/11</b></span>
+  <span class="pill">Score : <b id="s-ok">0/10</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<div class="sect">Questions d'entraînement — Item 234</div>
+
+<div class="q" id="Q1" data-type="QRU" data-correct="A">
+  <div class="qhead">
+    <span class="qnum">Q1</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelle proposition définit le mieux l'insuffisance cardiaque ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Incapacité du cœur à assurer un débit adapté aux besoins de l'organisme, ou au prix de pressions de remplissage élevées</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Toute élévation de la pression artérielle au repos</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une fibrillation atriale chronique</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un rétrécissement d'une artère coronaire</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'IC est un syndrome : défaut de débit adapté aux besoins et/ou pressions de remplissage élevées, avec signes/symptômes.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — C'est la définition de l'HTA.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La FA est un trouble du rythme, cause possible d'IC mais non sa définition.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — C'est une sténose coronaire (cardiopathie ischémique).</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ABCD">
+  <div class="qhead">
+    <span class="qnum">Q2</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels signes cliniques peuvent traduire une insuffisance cardiaque ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Dyspnée d'effort et orthopnée (insuffisance cardiaque gauche)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Râles crépitants des bases pulmonaires (congestion)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Œdèmes des membres inférieurs, turgescence jugulaire, reflux hépato-jugulaire (insuffisance cardiaque droite)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hépatomégalie douloureuse (foie cardiaque)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Souffle systolique éjectionnel irradiant aux carotides comme signe spécifique d'IC</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Dyspnée d'effort, orthopnée, dyspnée paroxystique nocturne : congestion pulmonaire gauche.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Râles crépitants des bases = œdème pulmonaire.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — OMI, turgescence jugulaire, reflux hépato-jugulaire : signes droits.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'hépatomégalie douloureuse (foie cardiaque) traduit la congestion droite.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Ce souffle est celui d'un rétrécissement aortique, pas un signe d'IC.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRU" data-correct="C">
+  <div class="qhead">
+    <span class="qnum">Q3</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient est essoufflé pour des efforts de la vie courante (s'habiller, marche lente à plat) mais pas au repos. Quelle est sa classe NYHA ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">NYHA I</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">NYHA II</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">NYHA III</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">NYHA IV</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">NYHA I : aucune limitation. II : dyspnée pour des efforts importants. III : dyspnée pour des efforts modestes de la vie courante. IV : dyspnée au moindre effort ou au repos.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — NYHA I = asymptomatique.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — NYHA II = gêne pour des efforts importants seulement.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Gêne pour les activités courantes sans gêne au repos = NYHA III.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — NYHA IV = dyspnée au repos ou au moindre effort.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABC">
+  <div class="qhead">
+    <span class="qnum">Q4</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant les peptides natriurétiques (BNP / NT-proBNP), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un taux normal a une bonne valeur prédictive négative (aide à éliminer une IC devant une dyspnée)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le taux s'élève en cas d'insuffisance cardiaque (étirement myocardique)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le taux peut être augmenté par l'âge, l'insuffisance rénale, la fibrillation atriale</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un taux élevé est spécifique de la seule insuffisance cardiaque systolique gauche</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Un BNP/NT-proBNP normal rend l'IC très improbable (forte VPN).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'élévation traduit l'augmentation des pressions/étirement des parois.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Nombreux facteurs confondants : âge, insuffisance rénale, FA, embolie pulmonaire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le BNP s'élève aussi dans l'IC à FEVG préservée, l'IC droite, l'EP, etc.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q5</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quel examen est indispensable pour confirmer l'insuffisance cardiaque et mesurer la fraction d'éjection du ventricule gauche (FEVG) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Radiographie thoracique</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Échocardiographie transthoracique (ETT)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Électrocardiogramme</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Coronarographie</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La radiographie montre la cardiomégalie/congestion mais ne mesure pas la FEVG.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'ETT est l'examen clé : FEVG, cinétique, valves, pressions de remplissage, étiologie.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'ECG oriente (séquelle, HVG, FA) mais ne mesure pas la FEVG.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La coronarographie recherche une cause ischémique, elle ne définit pas l'IC.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ABCD">
+  <div class="qhead">
+    <span class="qnum">Q6</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels traitements composent les « piliers » du traitement de fond de l'insuffisance cardiaque à FEVG réduite (≤ 40 %) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">IEC, ou association sacubitril/valsartan (ARNI)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Bêtabloquant</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Antagoniste des récepteurs aux minéralocorticoïdes (spironolactone/éplérénone)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Inhibiteur de SGLT2 (dapagliflozine/empagliflozine)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Inhibiteur calcique bradycardisant (vérapamil) en 1re intention</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="note">Les 4 familles (IEC/ARNI, bêtabloquant, ARM, iSGLT2) améliorent la survie dans l'IC à FEVG réduite. Les diurétiques de l'anse traitent la congestion (symptômes) mais n'améliorent pas la survie.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — IEC (ou ARNI) : pilier n°1, bénéfice de survie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Bêtabloquant de l'IC : bénéfice de survie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Antialdostérone : bénéfice de survie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les iSGLT2 sont désormais un des 4 piliers de l'ICFEr.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le vérapamil (inotrope négatif) est plutôt contre-indiqué dans l'ICFEr.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="ABCE">
+  <div class="qhead">
+    <span class="qnum">Q7</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelle est la prise en charge en urgence d'un œdème aigu du poumon (OAP) cardiogénique ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Position demi-assise et oxygénothérapie</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Diurétique de l'anse par voie intraveineuse (furosémide)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Dérivés nitrés IV si pression artérielle conservée</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Remplissage vasculaire par cristalloïdes en 1re intention</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Ventilation non invasive (CPAP) en cas de détresse respiratoire</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Position demi-assise + O₂ pour améliorer l'hématose.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Diurétique de l'anse IV pour réduire la congestion.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Dérivés nitrés (vasodilatateurs) si PAS conservée : baissent la précharge.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le remplissage aggraverait la congestion pulmonaire.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La CPAP/VNI améliore l'hématose et réduit le recours à l'intubation.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q8</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Citez au moins quatre facteurs déclenchants d'une décompensation d'insuffisance cardiaque.</div>
+  <textarea class="qrocin" rows="3" placeholder="Votre réponse…" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel"><ul><li>Écart de régime (excès de sel), mauvaise observance thérapeutique</li><li>Infection (notamment pneumopathie)</li><li>Trouble du rythme (fibrillation atriale)</li><li>Syndrome coronarien aigu / ischémie myocardique</li><li>Poussée hypertensive</li><li>Anémie, insuffisance rénale, dysthyroïdie</li><li>Médicaments (AINS, inotropes négatifs), embolie pulmonaire</li></ul></div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ABCD">
+  <div class="qhead">
+    <span class="qnum">Q9</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelles sont des étiologies fréquentes d'insuffisance cardiaque ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Cardiopathie ischémique (cause la plus fréquente d'IC à FEVG réduite)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Cardiopathie hypertensive</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Valvulopathies</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cardiomyopathies (dilatée, hypertrophique, toxiques : alcool, chimiothérapie)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hypothyroïdie fruste isolée comme cause habituelle</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La cardiopathie ischémique est la 1re cause d'IC à FEVG réduite.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'HTA chronique conduit à l'HVG puis à l'IC.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les valvulopathies (RA, IM) sont une cause classique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Cardiomyopathies dilatée, hypertrophique, toxiques (alcool, anthracyclines).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Une hypothyroïdie fruste isolée n'est pas une cause habituelle d'IC.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q10</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Insuffisance cardiaque à FEVG réduite symptomatique (NYHA II-III) malgré un traitement médical optimal, FEVG ≤ 35 %, avec QRS large &gt; 150 ms et bloc de branche gauche. Quelle option est indiquée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Défibrillateur implantable seul</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Resynchronisation cardiaque (stimulation biventriculaire), le plus souvent couplée à un défibrillateur</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Transplantation cardiaque en urgence</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Ablation de fibrillation atriale</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le défibrillateur seul ne corrige pas l'asynchronisme lié au BBG.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — BBG avec QRS large et FEVG basse symptomatique : indication de resynchronisation (CRT), souvent CRT-D.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La transplantation est réservée aux IC réfractaires très avancées.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Rien n'indique ici une FA ; l'ablation n'est pas la réponse.</div>
+  </div>
+</div>
+
+<div class="q" id="Q11" data-type="QRM" data-correct="ABCD">
+  <div class="qhead">
+    <span class="qnum">Q11</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelles mesures d'éducation et hygiéno-diététiques sont recommandées chez l'insuffisant cardiaque ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Régime peu salé</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Surveillance régulière du poids (dépister une prise de poids = congestion)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vaccination antigrippale et antipneumococcique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Activité physique adaptée / réadaptation cardiaque</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Arrêt de toute activité physique</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Réduction des apports sodés.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Auto-surveillance du poids : une prise rapide signale la congestion.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Vaccinations grippe et pneumocoque recommandées.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La réadaptation cardiaque améliore les symptômes et le pronostic.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le repos strict est délétère : on recommande une activité adaptée.</div>
+  </div>
+</div>
+
+<footer>11 questions · 10 notées · Item 234 — Insuffisance cardiaque · D2 T1 Cardiologie · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+</body></html>
