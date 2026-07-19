@@ -1,0 +1,399 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 105 — Épilepsie · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(247,248,249,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.q.done{border-color:#e2e8f0}
+.qrocin{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px;font-family:inherit}
+.qrocmodel p{margin:6px 0}.qrocmodel ul{margin:4px 0;padding-left:20px}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 105 — Épilepsie · Entraînement par item</h1>
+<div class="sub">11 questions — QRM · QRU · QROC. 10 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/11</b></span>
+  <span class="pill">Score : <b id="s-ok">0/10</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<div class="sect">Questions d'entraînement — Item 105</div>
+
+<div class="q" id="Q1" data-type="QRM" data-correct="AC">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Selon la définition de l'épilepsie (ILAE 2014), quels critères permettent de retenir ce diagnostic ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Au moins 2 crises épileptiques non provoquées survenant à plus de 24 heures d'intervalle</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une seule crise provoquée par une hypoglycémie sévère</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une seule crise non provoquée avec un risque de récidive > 60 % à 10 ans</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Deux crises provoquées par un sevrage alcoolique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un EEG intercritique anormal sans antécédent de crise</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Deux crises non provoquées à > 24h d'intervalle suffisent à définir l'épilepsie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une crise provoquée (hypoglycémie, fièvre, sevrage alcoolique, anomalie électrolytique aiguë) ne permet pas de retenir le diagnostic d'épilepsie par définition.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Depuis 2014, une seule crise non provoquée avec risque de récidive > 60% (lésion épileptogène, anomalie EEG spécifique) suffit à poser le diagnostic.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les crises de sevrage alcoolique sont des crises provoquées (aiguës symptomatiques) ; elles ne définissent pas l'épilepsie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Un EEG anormal seul, sans crise clinique, ne suffit pas à diagnostiquer une épilepsie.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qtype">QRU</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un patient de 22 ans présente depuis l'adolescence des myoclonies matinales des membres supérieurs et des crises tonico-cloniques généralisées survenant au réveil. L'EEG montre des pointes-ondes généralisées à 4-6 Hz. Quel syndrome épileptique évoquez-vous ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Épilepsie absence de l'enfant (EAE)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Épilepsie myoclonique juvénile (EMJ, syndrome de Janz)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Épilepsie focale temporale mésiale</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Syndrome de Lennox-Gastaut</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Épilepsie rolandique bénigne</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'EAE débute entre 4-10 ans, avec des absences brèves et des pointes-ondes à 3 Hz, sans myoclonies.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'EMJ (syndrome de Janz) débute à l'adolescence, associe myoclonies matinales, CTCG au réveil ± absences, EEG avec PO à 4-6 Hz. Traitement : valproate (homme) ou lévétiracétam (femme). Évolution chronique nécessitant un traitement au long cours.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'épilepsie temporale mésiale donne des crises focales avec conscience altérée, pas de myoclonies matinales généralisées.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le Lennox-Gastaut débute dans la petite enfance, associe crises atoniques, toniques et absences atypiques, avec un EEG à PO lentes à 2,5 Hz et une déficience intellectuelle.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'épilepsie rolandique est une épilepsie focale bénigne de l'enfant (4-13 ans), avec des crises hémi-faciales nocturnes, de pronostic excellent.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="BCD">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Devant une première crise épileptique non provoquée chez un adulte de 30 ans, quels examens complémentaires sont indispensables en urgence ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">PET-scan cérébral</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Glycémie capillaire immédiate</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Ionogramme sanguin (natrémie, calcémie)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">IRM cérébrale (ou scanner en urgence si IRM impossible)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Biopsie cérébrale stéréotaxique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D</div>
+    <div class="note">Le bilan d'une première crise comprend également : EEG (à réaliser dans les 24-48h, idéalement avec privation de sommeil), NFS, bilan rénal et hépatique, dosage de toxiques (si contexte), ECG (éliminer une arythmie). L'EEG et l'IRM orientent la décision de traiter ou non.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le PET-scan n'est pas un examen de première intention pour une crise inaugurale.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'hypoglycémie est une cause fréquente et facilement corrigible de crise épileptique ; elle doit être éliminée en priorité.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les dysélectrolytémies (hyponatrémie, hypocalcémie) peuvent provoquer des crises ; l'ionogramme est indispensable.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'IRM cérébrale (séquences FLAIR, T2, T1 gado) recherche une cause structurelle (tumeur, cavernome, dysplasie corticale, sclérose hippocampique).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La biopsie cérébrale n'est pas un examen de première intention dans l'évaluation d'une première crise.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABE">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les médicaments antiépileptiques (MAE) de première ligne, quelles associations médicament-indication sont correctes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Valproate de sodium — épilepsie généralisée idiopathique (EGI)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Carbamazépine — épilepsie focale (temporale ou frontale)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Phénobarbital — traitement de 1re intention dans toutes les épilepsies de l'adulte</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Carbamazépine — épilepsie généralisée idiopathique avec absences</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Lévétiracétam — épilepsie focale et généralisée (large spectre)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le valproate est le MAE de référence dans les EGI (EMJ, EAE, épilepsie avec CTCG). Contre-indiqué chez la femme en âge de procréer (tératogène, risque de troubles du développement de l'enfant).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La carbamazépine est le traitement de 1re ligne des épilepsies focales, notamment temporales. Elle est contra-indiquée dans les épilepsies généralisées idiopathiques (risque d'aggravation des absences et des myoclonies).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le phénobarbital n'est plus un traitement de 1re intention en France chez l'adulte (effets secondaires cognitifs et sédatifs importants). Il reste utilisé dans certaines situations pédiatriques et dans les pays à ressources limitées.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La carbamazépine est contre-indiquée dans les EGI : elle aggrave les absences et les myoclonies. Elle est réservée aux épilepsies focales.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le lévétiracétam est un MAE à large spectre, efficace sur les crises focales et généralisées. Il est souvent choisi chez la femme en âge de procréer (meilleures données de sécurité que le valproate).</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">L'état de mal épileptique (EME) tonico-clonique généralisé est une urgence vitale. Quelles mesures font partie de la prise en charge initiale (dans les 5 premières minutes) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Position latérale de sécurité (PLS), protection des voies aériennes</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Administration de phénytoïne IV en première intention</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Benzodiazépine (diazépam IV ou clonazépam IV) en premier traitement</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Glycémie capillaire, voie veineuse périphérique, oxymétrie de pouls</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Intubation oro-trachéale systématique dès le début de l'EME</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note">Protocole EME : Phase 1 (0-5 min) : BZD IV (diazépam 10 mg IV ou clonazépam 1 mg IV). Phase 2 (5-20 min, échec BZD) : phénytoïne 18 mg/kg IV ou valproate 30 mg/kg IV ou lévétiracétam 60 mg/kg IV. Phase 3 (> 20 min, EME réfractaire) : sédation-intubation en réanimation (propofol, midazolam ou barbiturique).</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La PLS protège les voies aériennes et prévient l'inhalation. L'oxygénation est également prioritaire.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La phénytoïne n'est pas le traitement de 1re ligne : les BZD sont administrées en première intention. La phénytoïne (ou fosphénytoïne) vient en 2e ligne après échec des BZD.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les BZD IV (diazépam, clonazépam) ou IM/intranasal (midazolam) sont le traitement de 1re ligne de l'EME.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La VVP permet l'administration des médicaments ; la glycémie élimine une hypoglycémie (traitement immédiat par G30% si nécessaire) ; l'oxymétrie surveille la saturation.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'intubation n'est pas systématique d'emblée. Elle est réservée à l'EME réfractaire (> 20-30 min malgré le traitement) ou en cas de détresse respiratoire.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ADE">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'épilepsie et la conduite automobile, quelles propositions sont conformes à la réglementation française actuelle ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Après une première crise, le patient doit cesser de conduire pendant une durée déterminée</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le médecin a l'obligation légale de signaler directement le patient aux autorités</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La conduite peut reprendre immédiatement après l'instauration d'un traitement antiépileptique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le médecin doit informer le patient de son inaptitude à conduire et lui délivrer un certificat</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La reprise de la conduite peut être autorisée après une période sans crise (3 à 12 mois selon le type d'épilepsie)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Toute crise épileptique entraîne une contre-indication temporaire à la conduite. La durée dépend du contexte (3 à 12 mois selon le type de crise et la réglementation).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — En France, le médecin n'a pas l'obligation de signaler directement le patient aux autorités. Le secret médical s'applique. Le médecin informe le patient, qui est responsable de déclarer son état à la préfecture. Un certificat de contre-indication peut être remis au patient.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'instauration d'un traitement ne permet pas la reprise immédiate de la conduite. La période sans crise doit être respectée.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le médecin a l'obligation d'informer le patient de son inaptitude et peut lui remettre un certificat médical d'inaptitude à la conduite.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Selon les recommandations européennes (directive 2009/113/CE) et françaises, une période de 3 à 12 mois sans crise est requise avant reprise, selon le type de crise et le permis (A/B ou permis poids lourd/transports en commun, plus restrictif).</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'EEG dans l'épilepsie, quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un EEG normal élimine formellement le diagnostic d'épilepsie</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les pointes-ondes à 3 Hz sont caractéristiques des absences typiques</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La privation de sommeil augmente le rendement diagnostique de l'EEG</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'EEG permet de mesurer le débit sanguin cérébral</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un EEG normal entre les crises n'exclut pas une épilepsie focale</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un EEG normal n'élimine pas l'épilepsie : jusqu'à 50% des EEG intercritiques de routine sont normaux chez des épileptiques connus. Le diagnostic reste clinique.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les pointes-ondes généralisées à 3 Hz (ou 2,5-3,5 Hz) sont la signature EEG des absences typiques (épilepsie absence de l'enfant).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La privation de sommeil est une technique d'activation qui augmente le rendement de l'EEG en favorisant l'émergence d'anomalies épileptiformes intercritiques.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'EEG mesure l'activité électrique cérébrale, pas le débit sanguin (qui est évalué par le Doppler transcranien ou l'IRM de perfusion).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Dans les épilepsies focales, les anomalies intercritiques peuvent être absentes sur un EEG court ou ne survenir que lors du sommeil. Un EEG de 24h (holter-EEG) peut améliorer la sensibilité.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qtype">QRM</span><span class="qrank rang-b">Rang B</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les interactions médicamenteuses des antiépileptiques inducteurs enzymatiques (carbamazépine, phénytoïne, phénobarbital), quels médicaments peuvent voir leur efficacité diminuée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Contraceptifs oraux combinés (risque de grossesse non désirée)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ibuprofène</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Anticoagulants oraux (AVK et certains NACO)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Immunosuppresseurs (ciclosporine, tacrolimus)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Paracétamol</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note">Les inducteurs enzymatiques (carbamazépine, phénytoïne, phénobarbital, oxcarbazépine, rifampicine) accélèrent le métabolisme hépatique (CYP3A4, CYP2C9++) de nombreux médicaments, réduisant leurs concentrations plasmatiques.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'induction enzymatique accélère le métabolisme des estrogènes et de la progestérone, diminuant l'efficacité des contraceptifs hormonaux. Une contraception non hormonale (DIU au cuivre) ou une pilule à forte dose est recommandée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'ibuprofène (AINS) n'est pas concerné par cette interaction enzymatique significative.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'induction enzymatique accélère le métabolisme des AVK (warfarine), nécessitant une augmentation des doses et une surveillance accrue de l'INR.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les immunosuppresseurs (ciclosporine, tacrolimus, sirolimus) métabolisés par le CYP3A4 sont significativement affectés, avec risque de rejet de greffe.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le paracétamol n'est pas significativement affecté par l'induction enzymatique à doses thérapeutiques.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRU</span><span class="qrank rang-b">Rang B</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le syndrome de Lennox-Gastaut est une encéphalopathie épileptique sévère de l'enfant. Quel type de crise est caractéristique de ce syndrome ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Crises tonico-cloniques généralisées survenant exclusivement au réveil</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Absences typiques répétées à EEG à 3 Hz</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Crises toniques axiales nocturnes et crises atoniques (chutes brusques)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Crises hémicorporelles avec marche jacksonienne</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Ce tableau évoque l'EMJ (épilepsie myoclonique juvénile), pas Lennox-Gastaut.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les absences à 3 Hz caractérisent l'épilepsie absence de l'enfant, pas Lennox-Gastaut (qui a des PO lentes à 2-2,5 Hz).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le syndrome de Lennox-Gastaut (2-8 ans, souvent post-encéphalite ou malformation cérébrale) associe des crises toniques nocturnes, des crises atoniques (drop attacks, chutes brutales avec traumatismes), des absences atypiques, un EEG à PO lentes 2-2,5 Hz, et une déficience intellectuelle progressive. Pharmaco-résistant ++.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La marche jacksonienne est caractéristique des crises motrices focales d'origine prérolandique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la phase post-critique après une crise tonico-clonique généralisée, quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une confusion post-critique est habituelle et dure de quelques minutes à quelques heures</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L'absence de phase post-critique est en faveur d'une crise épileptique</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une paralysie de Todd (déficit moteur focal transitoire) peut survenir après une crise focale</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La phase post-critique dure toujours moins de 5 minutes</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La morsure latérale de la langue est un signe évocateur de crise épileptique tonico-clonique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La confusion post-critique (15 min à plusieurs heures) est un élément sémiologique important qui aide à distinguer une crise épileptique d'une syncope (récupération quasi-immédiate après la syncope).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — C'est l'inverse : l'absence de phase post-critique oriente plutôt vers une syncope. La présence d'une phase confusionnelle post-critique plaide en faveur d'une crise épileptique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La paralysie de Todd est un déficit moteur focal transitoire (minutes à heures) survenant après une crise focale motrice. Elle indique la localisation corticale de la décharge et peut simuler un AVC.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La durée de la phase post-critique est variable (de quelques minutes à plusieurs heures) et ne peut pas être définie par une limite fixe de 5 minutes.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La morsure latérale de langue (signe de Bravais) est très spécifique d'une crise épileptique tonico-clonique généralisée. Elle s'oppose à la morsure de la pointe de la langue, moins spécifique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q11" data-type="QROC" data-correct="">
+  <div class="qhead"><span class="qnum">Q11</span><span class="qtype">QROC</span><span class="qrank rang-a">Rang A</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un patient de 45 ans est admis aux urgences en état de mal épileptique tonico-clonique généralisé évoluant depuis 10 minutes. Décrivez la prise en charge thérapeutique étape par étape.</div>
+  <textarea class="qrocin" rows="5" placeholder="Votre réponse…"></textarea>
+  <div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Protocole de prise en charge de l'EME :</strong></p>
+      <ul>
+        <li><strong>Mesures immédiates :</strong> PLS, libération des voies aériennes, O₂, monitorage (SpO₂, PA, FC, ECG), VVP, glycémie capillaire</li>
+        <li><strong>Phase 1 (0-20 min) — BZD en 1re ligne :</strong> Diazépam 10 mg IV (ou clonazépam 1 mg IV) ; peut être répété 1 fois après 5 min si échec. Si pas de VVP : midazolam 10 mg IM/buccal/intranasal ou diazépam 10 mg intra-rectal</li>
+        <li><strong>Phase 2 (20-40 min) — 2e ligne si échec des BZD :</strong> Valproate IV 30 mg/kg sur 10 min, OU lévétiracétam IV 60 mg/kg sur 10 min, OU phénytoïne/fosphénytoïne IV 20 mg/kg sur 20 min (surveillance ECG)</li>
+        <li><strong>Phase 3 (> 40 min, EME réfractaire) :</strong> Intubation oro-trachéale + sédation en réanimation (midazolam, propofol ou thiopental IV) ; EEG en continu (objectif : suppression burst ou tracé plat selon la molécule)</li>
+        <li><strong>Bilan étiologique en parallèle :</strong> Ionogramme, glycémie, NFS, dosage d'antiépileptiques si épileptique connu, hémocultures et PL si fièvre (méningite), scanner cérébral ou IRM après stabilisation</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<footer>11 questions · 10 notées · Item 105 — Épilepsie · D2 T2 UE 4.1 Neurologie · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+</body></html>

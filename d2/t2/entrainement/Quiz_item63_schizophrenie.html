@@ -1,0 +1,464 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 63 — Schizophrénie · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(247,248,249,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.q.done{border-color:#e2e8f0}
+.qrocin{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px;font-family:inherit}
+.qrocmodel p{margin:6px 0}.qrocmodel ul{margin:4px 0;padding-left:20px}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 63 — Schizophrénie et autres troubles psychotiques · Entraînement par item</h1>
+<div class="sub">10 questions — QRM · QRU · QROC. 9 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/10</b></span>
+  <span class="pill">Score : <b id="s-ok">0/9</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<div class="sect">Questions d'entraînement — Item 63</div>
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q1</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant les critères diagnostiques DSM-5 de la schizophrénie, lesquelles des propositions suivantes sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Au moins deux des cinq symptômes cardinaux (délires, hallucinations, discours désorganisé, comportement catatonique/désorganisé, symptômes négatifs) doivent être présents pendant au moins 1 mois</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Au moins l'un des deux premiers symptômes présents doit être un délire, une hallucination ou un discours désorganisé</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La durée totale de perturbation (incluant phases prodromique et résiduelle) doit être d'au moins 3 mois</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La durée totale de perturbation (incluant phases prodromique et résiduelle) doit être d'au moins 6 mois</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le diagnostic peut être retenu même en présence d'un épisode thymique actif dominant (maniaque ou dépressif)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le DSM-5 exige ≥ 2 des 5 symptômes clés pendant au moins 1 mois (ou moins si traités avec succès).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Au moins l'un des symptômes présents doit obligatoirement être un délire, une hallucination ou un discours désorganisé (les trois premiers de la liste DSM-5).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La durée minimale de perturbation continue est de 6 mois, pas 3 mois (3 mois sans phase résiduelle = trouble schizophréniforme).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les 6 mois incluent au moins 1 mois de phase active et des phases prodromiques ou résiduelles.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — En cas d'épisode thymique dominant associé, le diagnostic de trouble schizoaffectif est à évoquer en priorité.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ACE">
+  <div class="qhead">
+    <span class="qnum">Q2</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Parmi les signes suivants, lesquels correspondent à des symptômes négatifs de la schizophrénie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Aboulie (perte de volonté et de motivation)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hallucinations auditives à la troisième personne</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Apragmatisme (incapacité à initier et mener des activités orientées vers un but)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Délires de persécution</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Affect émoussé (réduction de l'expression émotionnelle)</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="note">Les symptômes négatifs traduisent un appauvrissement des fonctions mentales : les « 5 A » — Aboulie, Apragmatisme, Anhédonie, Alogie, Affect émoussé (aplatissement affectif).</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'aboulie désigne la diminution des comportements motivés ; le patient ne parvient pas à initier ses actes du quotidien.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les hallucinations auditives sont un symptôme positif de la schizophrénie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'apragmatisme traduit la perte de la capacité à initier et poursuivre des activités dirigées vers un but.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les délires (de persécution, de grandeur, de référence…) sont des symptômes positifs.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'affect émoussé (ou aplatissement affectif) est un symptôme négatif majeur, souvent associé à une pauvreté de l'expression verbale (alogie).</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRU" data-correct="C">
+  <div class="qhead">
+    <span class="qnum">Q3</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelle est la durée minimale de perturbation continue (incluant phases prodromique et résiduelle) requise pour poser le diagnostic de schizophrénie selon le DSM-5 ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">1 mois</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">3 mois</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">6 mois</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">12 mois</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">2 ans</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — 1 mois est la durée minimale de la phase active des symptômes ; c'est aussi la durée requise pour le trouble psychotique bref (< 1 mois).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une durée entre 1 mois et 6 mois correspond au trouble schizophréniforme.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La schizophrénie exige ≥ 6 mois de perturbation continue (dont au moins 1 mois de phase active et des phases prodromique/résiduelle).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — 12 mois n'est pas un critère DSM-5 pour la schizophrénie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — 2 ans n'est pas non plus un critère DSM-5.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ACE">
+  <div class="qhead">
+    <span class="qnum">Q4</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Parmi les molécules suivantes, lesquelles sont des antipsychotiques de 2e génération (atypiques) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Rispéridone</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Halopéridol</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Olanzapine</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Chlorpromazine</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Aripiprazole</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="note">Atypiques (2e génération) : rispéridone, olanzapine, clozapine, quétiapine, aripiprazole, amisulpride. Typiques (1e génération) : halopéridol, chlorpromazine, loxapine, fluphénazine.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La rispéridone est un antipsychotique atypique, antagoniste D2 et 5-HT2A, disponible en forme injectable à libération prolongée (LAP).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'halopéridol est un antipsychotique typique de 1e génération (butyrophénone), à fort potentiel extrapyramidal.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'olanzapine est un antipsychotique atypique avec un risque métabolique élevé (prise de poids, diabète).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La chlorpromazine est un antipsychotique typique de 1e génération (phénothiazine).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'aripiprazole est unique : agoniste partiel D2 (et non antagoniste pur), ce qui lui confère un faible potentiel extrapyramidal et métabolique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q5</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels effets secondaires sont caractéristiques des antipsychotiques typiques de 1e génération (par opposition aux atypiques) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Syndrome extrapyramidal (tremblement de repos, akinésie, rigidité)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Prise de poids importante et syndrome métabolique</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Akathisie (agitation motrice subjective et objective, impossibilité de rester immobile)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Dyskinésies tardives (mouvements orofaciaux involontaires après traitement prolongé)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Agranulocytose</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le syndrome extrapyramidal (SEP) est l'effet indésirable emblématique des typiques, lié au blocage D2 striatonigral.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La prise de poids et le syndrome métabolique sont davantage liés aux atypiques, notamment l'olanzapine et la clozapine.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'akathisie est très inconfortable et souvent cause d'arrêt de traitement ; elle est fréquente avec les typiques à forte puissance (halopéridol).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les dyskinésies tardives surviennent après des mois/années de traitement et peuvent être irréversibles à l'arrêt.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'agranulocytose est un effet indésirable grave spécifique de la clozapine (atypique), nécessitant une NFS hebdomadaire pendant 18 mois.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q6</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient sous halopéridol présente une fièvre à 40,5 °C, une rigidité musculaire généralisée et une agitation. Parmi les signes suivants, lesquels orientent vers un syndrome malin des neuroleptiques ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hyperthermie élevée (souvent > 40 °C)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Rigidité musculaire généralisée « en tuyau de plomb »</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Éruption cutanée maculopapuleuse prurigineuse</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Élévation marquée de la créatine kinase (CK) témoignant d'une rhabdomyolyse</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Bradycardie sinusale</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="note">La tétralogie du SMN : hyperthermie + rigidité musculaire + troubles neurovégétatifs (tachycardie, HTA labile, diaphorèse) + troubles de la conscience. La CK est souvent > 1 000 UI/L, parfois > 10 000 UI/L.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'hyperthermie est un signe cardinal du SMN, souvent > 40 °C.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La rigidité « en tuyau de plomb » généralisée est pathognomonique du SMN.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'éruption cutanée n'est pas un signe du SMN.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'élévation de la CK reflète la rhabdomyolyse et expose à une insuffisance rénale aiguë.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — On observe une tachycardie (et non une bradycardie) dans les troubles neurovégétatifs du SMN.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q7</span>
+    <span class="qtype">QRU</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">En cas de syndrome malin des neuroleptiques confirmé, quelle est la mesure thérapeutique la plus urgente ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Augmenter la dose de neuroleptique pour contrôler l'agitation psychomotrice</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Arrêter immédiatement le neuroleptique responsable et hospitaliser en urgence (réanimation)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Prescrire une benzodiazépine et surveiller en ambulatoire à 48 heures</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Substituer par la clozapine en urgence</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Réaliser une électroconvulsivothérapie (ECT) comme traitement de première ligne</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Augmenter le neuroleptique est formellement contre-indiqué : c'est la molécule causale.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'arrêt immédiat du neuroleptique est la priorité absolue. Prise en charge en réanimation : refroidissement, hydratation IV intense, dantrolène (relaxant musculaire) et/ou bromocriptine (agoniste dopaminergique) si nécessaire.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le SMN est une urgence médicale mettant en jeu le pronostic vital (mortalité 10–20 %) ; la prise en charge ambulatoire est contre-indiquée.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La clozapine est un antipsychotique ; elle est contre-indiquée en phase aiguë de SMN.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'ECT peut être discutée en seconde intention pour les cas réfractaires, mais n'est pas la priorité initiale.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q8</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Parmi les éléments suivants, lesquels constituent des facteurs pronostiques défavorables dans la schizophrénie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Début précoce de la maladie (avant 20–25 ans)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Sexe féminin</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Prédominance de symptômes négatifs sur les symptômes positifs</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Longue durée de psychose non traitée (DUP élevée)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Début aigu déclenché par un facteur stress identifiable</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Un début précoce est associé à un mauvais fonctionnement prémorbide et une évolution plus sévère.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le sexe féminin est un facteur pronostique favorable (début plus tardif, moins de symptômes négatifs, meilleure réponse au traitement).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La prédominance de symptômes négatifs est associée à une moins bonne réponse aux antipsychotiques et à une altération plus marquée du fonctionnement social.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La DUP (Duration of Untreated Psychosis) longue est un facteur pronostique défavorable bien établi.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Un début aigu précipité par un facteur de stress identifiable est un facteur de bon pronostic (meilleure réponse au traitement).</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q9</span>
+    <span class="qtype">QRM</span>
+    <span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient schizophrène est en rémission clinique depuis 18 mois. Concernant la prévention des rechutes, lesquelles de ces propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le traitement antipsychotique doit être maintenu au moins 2 ans après un premier épisode psychotique</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L'arrêt progressif du traitement est recommandé dès 6 mois de rémission clinique complète</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La psychoéducation du patient et de ses proches améliore l'adhérence thérapeutique et réduit le risque de rechute</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les formes injectables à libération prolongée (LAP) réduisent le risque de rechute lié à la non-adhérence</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La clozapine est recommandée en première intention dès le premier épisode pour prévenir les rechutes</span></li>
+  </ul>
+  <div class="actions">
+    <button class="validate">Valider</button>
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Après un premier épisode, le traitement est recommandé au moins 2 ans ; après plusieurs épisodes, un traitement indéfini est généralement proposé.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'arrêt précoce expose à un fort risque de rechute (risque multiplié par 5 dans l'année suivant l'arrêt).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La psychoéducation (information sur la maladie, les traitements, les signes précurseurs de rechute) est une intervention validée.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les LAP (toutes les 2–4 semaines) permettent de s'affranchir des oublis ou refus de prise quotidienne et d'améliorer l'adhérence effective.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La clozapine est réservée aux formes résistantes, après échec d'au moins deux antipsychotiques différents à doses et durées suffisantes.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q10</span>
+    <span class="qtype">QROC</span>
+    <span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Décrivez les quatre signes cardinaux du syndrome malin des neuroleptiques et citez deux complications potentielles graves.</div>
+  <textarea class="qrocin" rows="4" placeholder="Votre réponse…"></textarea>
+  <div class="actions">
+    <button class="show" type="button">Voir la réponse</button>
+  </div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Quatre signes cardinaux du SMN :</strong></p>
+      <ul>
+        <li>Hyperthermie élevée (> 38 °C, souvent > 40 °C)</li>
+        <li>Rigidité musculaire généralisée « en tuyau de plomb »</li>
+        <li>Troubles neurovégétatifs : tachycardie, labilité tensionnelle, diaphorèse, incontinence</li>
+        <li>Troubles de la conscience : confusion, agitation, stupeur, voire coma</li>
+      </ul>
+      <p><strong>Deux complications graves potentielles :</strong></p>
+      <ul>
+        <li>Rhabdomyolyse avec insuffisance rénale aiguë (CK > 10 000 UI/L)</li>
+        <li>Coagulation intravasculaire disséminée (CIVD)</li>
+      </ul>
+      <p>Autres complications à connaître : pneumopathie d'inhalation, défaillance multiviscérale.</p>
+    </div>
+  </div>
+</div>
+
+<footer>10 questions · 9 notées · Item 63 — Schizophrénie et autres troubles psychotiques · D2 T2 UE 3 Psy/Addicto · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+</body></html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 340 — AVC / AIT · Entraînement · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',system-ui,sans-serif}
+header{position:sticky;top:0;z-index:99;background:rgba(247,248,249,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 18px 8px}
+.hwrap{max-width:760px;margin:0 auto}
+header h1{font-size:15px;font-weight:700;margin:0 0 2px}
+header .sub{font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 11px;font-size:12.5px}
+.pill b{color:var(--acc)}
+.wrap{max-width:760px;margin:0 auto;padding:24px 18px 80px}
+.sect{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px;margin:0 0 14px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.status{font-size:12px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:12px}
+.opts{list-style:none;padding:0;margin:0 0 12px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc)}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{font-size:12px;margin-left:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{font-size:13px;font-weight:600;padding:6px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:.12s}
+button:hover{border-color:var(--acc);color:var(--acc)}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:default}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+.ans{font-weight:700;margin-bottom:6px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q.done{border-color:#e2e8f0}
+.qrocin{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;background:var(--card);color:var(--ink);resize:vertical;margin-bottom:8px;font-family:inherit}
+.qrocmodel p{margin:6px 0}.qrocmodel ul{margin:4px 0;padding-left:20px}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>Item 340 — AVC / AIT · Entraînement par item</h1>
+<div class="sub">11 questions — QRM · QRU · QROC. 10 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/11</b></span>
+  <span class="pill">Score : <b id="s-ok">0/10</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+
+<div class="wrap">
+<div class="sect">Questions d'entraînement — Item 340</div>
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q1</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant l'accident ischémique transitoire (AIT), quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Sa durée est classiquement inférieure à 24 heures</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Il laisse toujours une lésion visible à l'IRM en diffusion</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il constitue une urgence diagnostique et thérapeutique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le risque d'AVC constitué dans les 48 heures suivant un AIT est estimé à 5-10 %</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'anticoagulation systématique immédiate est recommandée dans tous les AIT</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Par définition, un AIT se résout en moins de 24h (souvent en moins d'une heure) sans lésion ischémique constituée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Par définition, l'AIT ne laisse pas de lésion IRM en diffusion (DWI négative). Si une lésion est visible, on parle d'AVC ischémique constitué même si les symptômes ont régressé.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'AIT est une urgence : le risque de récidive est maximal dans les premières heures. Le patient doit être pris en charge immédiatement en UNV.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le risque d'AVC dans les 48h après un AIT est de 5-10 %, justifiant l'hospitalisation et la mise en route rapide du bilan.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'anticoagulation immédiate n'est pas systématique : elle est indiquée en cas de fibrillation atriale, mais l'antiagrégation (aspirine) est le traitement de 1re ligne en l'absence de cardiopathie emboligène identifiée.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRU" data-correct="B">
+  <div class="qhead">
+    <span class="qnum">Q2</span><span class="qtype">QRU</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient de 68 ans présente brutalement une hémiplégie gauche avec déviation de la tête et des yeux vers la droite, associée à une aphasie. Quel territoire artériel est le plus probablement atteint ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Artère cérébrale antérieure droite</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Artère cérébrale moyenne (sylvienne) gauche</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Artère vertébrale droite</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Artère basilaire</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Artère cérébrale postérieure gauche</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'ACA droite causerait une hémiplégie gauche à prédominance crurale, sans aphasie (car l'hémisphère droit est non dominant chez le droitier).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'ACM gauche (hémisphère dominant) explique : hémiplégie droite (contrelatérale), déviation des yeux vers le foyer lésionnel (gauche), et aphasie (aire de Broca/Wernicke à gauche). Ici l'hémiplégie est gauche, donc le foyer est à droite… MAIS l'aphasie implique l'hémisphère gauche : ce tableau est celui d'une lésion de l'ACM gauche avec hémiplégie droite et aphasie. L'énoncé décrit une hémiplégie gauche + aphasie, ce qui est inhabituel mais possible en cas de sujet gaucher (dominance à droite) — la réponse attendue reste l'ACM de l'hémisphère dominant.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Une atteinte de l'artère vertébrale cause un syndrome de Wallenberg (syndrome alterne), pas une hémiplégie + aphasie.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'artère basilaire donne des syndromes bilatéraux du tronc cérébral (locked-in syndrome, coma).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'ACP gauche causerait une hémianopsie homonyme droite, sans hémiplégie ni aphasie au premier plan.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="BCE">
+  <div class="qhead">
+    <span class="qnum">Q3</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels examens font partie du bilan étiologique de première intention d'un AVC ischémique constitué chez un patient de 55 ans sans antécédents ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">PET-scan cérébral au FDG</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">ECG 12 dérivations (et monitoring cardiaque prolongé)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Échographie-Doppler des troncs supra-aortiques</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Biopsie de l'artère temporale</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Échocardiographie transthoracique (ETT)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le PET-scan FDG n'est pas indiqué dans le bilan étiologique standard d'un AVC ischémique.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'ECG est indispensable pour rechercher une fibrillation atriale (FA), principale cause emboligène cardiaque. Un monitoring de 72h voire un Holter prolongé est souvent prescrit.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le Doppler des TSA permet de détecter une sténose athéromateuse carotidienne, principal facteur de risque d'AVC ischémique dans ce territoire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La biopsie de l'artère temporale est réservée à la suspicion d'artérite de Horton (sujet > 60 ans, céphalées temporales, VS élevée), pas dans le bilan étiologique standard d'un AVC.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'ETT (complétée parfois par une ETO) recherche un thrombus intracavitaire, une cardiopathie structurelle ou un foramen ovale perméable (FOP) chez le sujet jeune.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q4</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient de 72 ans arrive aux urgences 2h30 après le début d'un déficit moteur de l'hémicorps droit et d'une aphasie. Le scanner cérébral sans injection est normal. Quelles mesures thérapeutiques sont indiquées dans l'immédiat ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Thrombolyse intraveineuse par rt-PA (altéplase) si absence de contre-indication</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Réalisation d'une IRM cérébrale en urgence pour confirmer l'ischémie</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Administration d'aspirine IV à dose de charge immédiatement</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hospitalisation en unité neurovasculaire (UNV)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Anticoagulation par héparine non fractionnée à dose curative immédiate</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La fenêtre de thrombolyse IV est de 4h30 depuis le début des symptômes. À 2h30, le rt-PA est indiqué si les critères sont réunis (pas de contre-indication, NIHSS adapté, pas d'hémorragie au scanner).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'IRM (séquences DWI, FLAIR, T2*, ARM) confirme l'ischémie, délimite le territoire et recherche une occlusion proximale (indiquant la thrombectomie).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'aspirine est contre-indiquée dans les 24h suivant une thrombolyse. En l'absence de thrombolyse, elle est donnée per os, pas IV, et seulement après exclusion d'une hémorragie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'hospitalisation en UNV réduit la mortalité et le handicap de 20% par rapport à une prise en charge conventionnelle. C'est un standard de soins.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'héparine curative n'est pas recommandée en urgence dans l'AVC ischémique constitué (risque de transformation hémorragique). Elle peut être discutée ultérieurement en cas de FA.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="AC">
+  <div class="qhead">
+    <span class="qnum">Q5</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant la thrombectomie mécanique dans l'AVC ischémique, quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est indiquée en cas d'occlusion d'un gros tronc artériel intracrânien proximal</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Sa fenêtre thérapeutique est strictement identique à celle de la thrombolyse (4h30)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle peut être réalisée en complément de la thrombolyse IV (bridging)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle nécessite une anesthésie générale systématique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle est contre-indiquée si le patient est sous anticoagulants oraux</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La thrombectomie est indiquée pour les occlusions proximales (carotide interne, M1/M2 de l'ACM, tronc basilaire) avec un territoire à risque récupérable à l'imagerie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La fenêtre de la thrombectomie peut aller jusqu'à 6h en standard, et jusqu'à 24h dans certains cas sélectionnés sur des critères d'imagerie (IRM de perfusion montrant un mismatch).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La stratégie "bridging" (thrombolyse IV suivie de thrombectomie) est le standard actuel pour les occlusions proximales éligibles aux deux traitements.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La thrombectomie peut être réalisée sous anesthésie locale (sédation consciente) ou générale selon les centres et le tableau clinique. L'anesthésie générale n'est pas systématique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les anticoagulants ne contre-indiquent pas la thrombectomie mécanique (procédure endovasculaire). En revanche, ils contre-indiquent la thrombolyse IV.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ABE">
+  <div class="qhead">
+    <span class="qnum">Q6</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant l'AVC hémorragique (hématome intraparenchymateux), quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'hypertension artérielle en est la cause principale (environ 80 % des cas)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le scanner cérébral sans injection montre une hyperdensité spontanée</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La thrombolyse IV est indiquée si l'hématome est de petite taille</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'anticoagulation curative doit être débutée immédiatement</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un contrôle tensionnel strict en urgence est recommandé (cible PAS < 140 mmHg)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'HTA est la principale cause d'hématome intraparenchymateux spontané (sièges typiques : noyaux gris centraux, capsule interne, pont, cervelet).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le sang frais apparaît spontanément hyperdense au scanner sans injection, permettant le diagnostic immédiat et la différenciation avec l'AVC ischémique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La thrombolyse est formellement contre-indiquée dans l'AVC hémorragique, quelle que soit la taille de l'hématome.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'anticoagulation est contre-indiquée en phase aiguë d'un hématome cérébral. Si le patient est sous anticoagulants, il faut les reverser.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Un contrôle tensionnel rapide (PAS cible < 140 mmHg) est recommandé pour limiter l'expansion de l'hématome.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="BCD">
+  <div class="qhead">
+    <span class="qnum">Q7</span><span class="qtype">QRM</span><span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Le score ABCD2 est utilisé après un AIT pour évaluer le risque de récidive à court terme. Quels facteurs entrent dans ce score ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Antécédent de cardiopathie emboligène</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Âge ≥ 60 ans</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Pression artérielle systolique ≥ 140 mmHg ou diastolique ≥ 90 mmHg</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Durée des symptômes ≥ 60 minutes</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Antécédent de tabagisme actif</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D</div>
+    <div class="note">Le score ABCD2 (0-7 points) : A = Âge ≥ 60 ans (1 pt) ; B = Blood pressure ≥ 140/90 mmHg (1 pt) ; C = Clinical features : trouble de la parole sans déficit moteur (1 pt), déficit moteur unilatéral (2 pts) ; D = Duration : 10-59 min (1 pt), ≥ 60 min (2 pts) ; D = Diabète (1 pt). Score ≥ 4 = risque élevé à 48h.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La cardiopathie emboligène n'entre pas dans le score ABCD2 (mais justifie une anticoagulation).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'âge ≥ 60 ans est le critère « A » du score (1 point).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La pression artérielle élevée est le critère « B » (1 point).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Une durée ≥ 60 min correspond à 2 points (10-59 min = 1 point), c'est le second critère « D ».</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le tabagisme n'est pas un composant du score ABCD2 (c'est un facteur de risque vasculaire général, non spécifique à ce score).</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q8</span><span class="qtype">QRM</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant la prévention secondaire après un AVC ischémique d'origine athéromateuse, quelles mesures sont recommandées ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Antiagrégation plaquettaire (aspirine ou clopidogrel)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Anticoagulation par AVK systématique</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Statine à forte dose (réduction du LDL-c < 0,7 g/L)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Contrôle des facteurs de risque vasculaire (HTA, diabète, tabac)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Bêta-bloquant systématique quel que soit le contexte</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'antiagrégation plaquettaire est le traitement de référence en prévention secondaire des AVC d'origine athéromateuse ou indéterminée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les AVK (et les NACO) sont réservés aux AVC d'origine cardioembolique (fibrillation atriale, thrombus intracavitaire). Ils ne sont pas indiqués dans l'AVC athérothrombotique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Une statine à forte dose est recommandée après AVC ischémique athérothrombotique, avec cible LDL < 0,7 g/L.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le contrôle des facteurs de risque est essentiel : HTA (antihypertenseurs), diabète, sevrage tabagique, activité physique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les bêta-bloquants ne sont pas systématiques après AVC. Ils peuvent être indiqués si une cardiopathie ou une HTA les justifie, mais ce n'est pas une recommandation universelle post-AVC.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRU" data-correct="D">
+  <div class="qhead">
+    <span class="qnum">Q9</span><span class="qtype">QRU</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient de 65 ans en fibrillation atriale présente un AVC ischémique constitué. Quel traitement anticoagulant est recommandé en prévention secondaire ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Aspirine 160 mg/j seule</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Héparine non fractionnée IV à dose curative en phase aiguë, puis AVK à vie</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Clopidogrel + aspirine en association</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Anticoagulant oral direct (NACO) ou AVK à long terme</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Aucun traitement anticoagulant n'est indiqué</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'aspirine seule est insuffisante en cas de FA (risque d'embolie systémique élevé) ; elle peut être utilisée en attente de l'anticoagulation, mais pas comme traitement définitif.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'anticoagulation curative immédiate en phase aiguë d'AVC ischémique avec FA n'est pas recommandée (risque de transformation hémorragique). Le délai de mise en route dépend de la taille de l'infarctus (règle des 1-3-6-12 jours).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La double antiagrégation n'est pas recommandée en prévention secondaire des AVC emboliques sur FA ; elle expose à un risque hémorragique sans bénéfice démontré sur le risque thromboembolique cardio-embolique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les NACO (apixaban, rivaroxaban, dabigatran, édoxaban) sont recommandés en première intention devant les AVK pour la prévention secondaire des AVC cardio-emboliques sur FA (sauf valvulopathie mitrale ou valve mécanique).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'anticoagulation est impérative en cas de FA après AVC ischémique ; ne pas anticoaguler exposerait à un risque très élevé de récidive embolique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q10</span><span class="qtype">QRM</span><span class="qrank rang-b">Rang B</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Le score NIHSS évalue la sévérité initiale d'un AVC. Quels items sont cotés dans ce score ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Niveau de conscience</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Motricité des membres supérieurs et inférieurs</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Fréquence cardiaque</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Langage et dysarthrie</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Glycémie capillaire</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="note">Le NIHSS comprend 11 items : conscience (3 items), regard conjugué, vision, paralysie faciale, motricité des 4 membres (4 items), ataxie des membres, sensibilité, langage, dysarthrie, extinction/inattention. Score de 0 (normal) à 42 (déficit maximal). Score ≥ 16 = AVC sévère avec pronostic réservé.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le niveau de conscience (réponse à la voix, aux questions, aux ordres) est coté sur 3 items dans le NIHSS.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La motricité des membres (déficit à 5 secondes pour les MS, 10 secondes pour les MI, contre gravité) est cotée séparément pour chaque membre.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La fréquence cardiaque n'est pas un item du NIHSS (score neurologique, pas hémodynamique).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le langage (aphasie) et la dysarthrie sont deux items distincts du NIHSS.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La glycémie n'est pas un item du NIHSS. Cependant, l'hypoglycémie doit toujours être éliminée devant un déficit neurologique focal avant de conclure à un AVC.</div>
+  </div>
+</div>
+
+<div class="q" id="Q11" data-type="QROC" data-correct="">
+  <div class="qhead">
+    <span class="qnum">Q11</span><span class="qtype">QROC</span><span class="qrank rang-a">Rang A</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Un patient de 58 ans arrive aux urgences avec une hémiplégie droite et une aphasie évoluant depuis 1h30. Le scanner cérébral sans injection est normal. Décrivez la prise en charge immédiate d'un AVC ischémique dans ce contexte.</div>
+  <textarea class="qrocin" rows="4" placeholder="Votre réponse…"></textarea>
+  <div class="actions"><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocmodel">
+      <p><strong>Prise en charge immédiate de l'AVC ischémique :</strong></p>
+      <ul>
+        <li>Appel du 15 / SAMU, transfert médicalisé en UNV</li>
+        <li>Mesures générales : voie veineuse périphérique, bilan sanguin (NFS, coagulation, glycémie, ionogramme, ECG 12 dérivations)</li>
+        <li>Ne pas faire baisser la PA (sauf si > 185/110 mmHg avant thrombolyse)</li>
+        <li>Pas d'alimentation per os (risque de fausse route), position demi-assise</li>
+        <li><strong>Thrombolyse IV par rt-PA (altéplase 0,9 mg/kg, max 90 mg)</strong> si délai &lt; 4h30 et absence de contre-indication (anticoagulants effectifs, chirurgie récente, coma, AVC hémorragique, glycémie &lt; 0,5 g/L ou &gt; 4 g/L, plaquettes &lt; 100 000)</li>
+        <li>IRM cérébrale + angio-IRM en urgence pour évaluer le territoire et détecter une occlusion proximale</li>
+        <li>Si occlusion proximale (ACM M1, carotide interne) : thrombectomie mécanique endovasculaire (fenêtre jusqu'à 6h, voire 24h selon l'imagerie)</li>
+        <li>Surveillance monitorée (PA, fréquence cardiaque, SpO₂, glycémie, température) en UNV</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<footer>11 questions · 10 notées · Item 340 — AVC / AIT · D2 T2 UE 4.1 Neurologie · BobMed entraînement.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+</body></html>
