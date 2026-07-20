@@ -1,0 +1,300 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>ORL/Ophtalmo UE 4.2 — Œil rouge et/ou douloureux · Item 83 · Entraînement</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:60px}
+header{position:sticky;top:0;z-index:100;background:rgba(247,248,249,.97);border-bottom:1px solid var(--line);padding:10px 0}
+.hwrap{max-width:780px;margin:0 auto;padding:0 16px}
+h1{font-size:18px;font-weight:700;color:var(--acc)}
+.sub{font-size:13px;color:var(--mut);margin-top:2px}
+.scorebar{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:13px}
+.pill b{color:var(--acc)}
+button{border:1px solid var(--line);background:var(--card);border-radius:8px;cursor:pointer;font:inherit;font-size:13px;padding:3px 10px;transition:.15s}
+button:hover{background:#f0f0f0}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff;border-radius:10px}
+button.validate:hover{filter:brightness(1.08)}
+button:disabled{opacity:.5;cursor:default}
+.wrap{max-width:780px;margin:0 auto;padding:16px}
+.sect{font-size:13px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;padding:18px 0 8px;border-bottom:2px solid var(--acc);margin-bottom:20px}
+.q{background:var(--card);border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);padding:18px 20px;margin-bottom:18px;transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{font-size:13px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{}.status.rl{color:var(--mut)}
+.stem{font-size:15px;line-height:1.6;margin-bottom:14px}
+.opts{list-style:none;margin-bottom:14px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:var(--acc);background:#f5f4ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.otext{font-size:14px;line-height:1.5;padding-top:2px}
+.mark{margin-left:auto;font-size:13px;white-space:nowrap}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.correction{background:#f8f8f6;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14px;margin-top:8px}
+.ans{font-weight:700;margin-bottom:8px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.rang-a{background:#dcfce7;color:#166534;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.qrank{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:20px;border:1px solid;margin-left:4px;vertical-align:middle}
+footer{text-align:center;font-size:13px;color:var(--mut);padding:30px 16px 10px}
+footer a{color:var(--acc);text-decoration:none}footer a:hover{text-decoration:underline}
+</style>
+</head><body>
+<header><div class="hwrap">
+<h1>ORL/Ophtalmo UE 4.2 — Œil rouge et/ou douloureux · Item 83</h1>
+<div class="sub">10 questions — QRM · QRU. 10 questions notées.</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/10</b></span>
+  <span class="pill">Score : <b id="s-ok">0/10</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+<div class="sect">Questions d'entraînement — Item 83 · Œil rouge et/ou douloureux</div>
+
+<div class="q" id="Q1" data-correct="B" data-type="QRU">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qtype rang-a qrank">Rang A · QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un patient de 68 ans se présente aux urgences pour un œil rouge, très douloureux, avec baisse brutale de l'acuité visuelle, vision de halos colorés autour des lumières, nausées et vomissements. À l'examen, l'œil est dur à la palpation et la cornée est œdémateuse. Quel est le diagnostic le plus probable ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Uvéite antérieure aiguë</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Glaucome aigu par fermeture de l'angle (GAFA)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Kératite bactérienne</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Conjonctivite allergique sévère</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'uvéite cause un œil rouge douloureux avec photophobie et peut baisser l'AV, mais pas de halos, pas d'œil dur, la douleur est moins aiguë.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Tableau caractéristique du GAFA : douleur intense, halos colorés (œdème cornéen), œil dur (PIO très élevée > 40 mmHg), nausées/vomissements (douleur vagale), BAV brutale.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La kératite donne un œil rouge douloureux avec photophobie et larmoiement, mais pas de halos ni d'œil dur ; sécrétions purulentes possibles.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La conjonctivite allergique cause prurit, larmoiement, mais la douleur est minime et l'AV est normale.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-correct="ACD" data-type="QRM">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qtype rang-a qrank">Rang A · QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le glaucome aigu par fermeture de l'angle (GAFA), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est une urgence ophtalmologique nécessitant un traitement immédiat</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Les mydriatiques sont indiqués en première intention pour dilater la pupille</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'acétazolamide (Diamox®) IV est utilisé pour abaisser la pression intraoculaire en urgence</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'iridotomie au laser YAG est le traitement définitif permettant d'éviter la récidive</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">L'œil controlatéral ne nécessite pas de traitement prophylactique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ACD</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le GAFA est une urgence absolue : sans traitement rapide, la cécité par destruction des fibres optiques survient en quelques heures.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les mydriatiques (atropine, néosynéphrine) sont formellement contre-indiqués : ils aggravent la fermeture de l'angle en dilatant la pupille. Ce sont les myotiques (pilocarpine) qui sont utilisés pour rouvrir l'angle.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'acétazolamide IV (inhibiteur de l'anhydrase carbonique) réduit la production d'humeur aqueuse et abaisse rapidement la PIO.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'iridotomie au laser crée un orifice dans l'iris permettant l'écoulement de l'humeur aqueuse, prévenant ainsi la récidive.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'œil adelphe (controlatéral) doit systématiquement bénéficier d'une iridotomie prophylactique, car il est anatomiquement prédisposé au même type d'angle fermé.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-correct="ABD" data-type="QRM">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qtype rang-a qrank">Rang A · QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les éléments caractéristiques de l'uvéite antérieure aiguë (iritis/iridocyclite) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Cercle périkératique (injection ciliaire)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Photophobie et blépharospasme</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Sécrétions purulentes abondantes</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Précipités rétrodescemétiques (dépôts sur la face postérieure de la cornée)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Mydriase aréactive</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ABD</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le cercle périkératique (rougeur concentrique autour du limbe) témoigne de l'inflammation de l'uvée antérieure, par opposition à l'injection conjonctivale diffuse des conjonctivites.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La photophobie intense et le blépharospasme sont caractéristiques de l'uvéite antérieure, liés à l'inflammation ciliaire.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les sécrétions purulentes orientent vers une conjonctivite bactérienne ou une kératite purulente, non vers l'uvéite qui donne un larmoiement clair.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les précipités rétrodescemétiques (KP = keratic precipitates) sont des dépôts de cellules inflammatoires sur l'endothélium cornéen, visibles à la lampe à fente, pathognomoniques d'uvéite.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'uvéite antérieure donne un myosis (pupille en myosis par spasme du sphincter irien) et non une mydriase. La mydriase aréactive oriente vers un GAFA ou une paralysie du III.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-correct="B" data-type="QRU">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qtype rang-a qrank">Rang A · QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un patient porteur de lentilles de contact présente depuis 24h un œil gauche rouge douloureux, photophobe, avec larmoiement. À la lampe à fente on observe un ulcère cornéen de 2 mm avec infiltrat blanc central. Quel est le traitement de première intention ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Corticoïdes locaux (dexaméthasone collyre)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Antibiothérapie locale par fluoroquinolones (ofloxacine ou ciprofloxacine collyre) et arrêt des lentilles</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Antiviraux locaux (aciclovir pommade)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Anti-histaminiques locaux et lavages oculaires</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note">Kératite bactérienne du porteur de lentilles : germes les plus fréquents = Staphylococcus aureus, Pseudomonas aeruginosa (grave chez le porteur de lentilles). Les fluoroquinolones couvrent bien le Pseudomonas. Arrêt immédiat des lentilles impératif.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les corticoïdes locaux sont contre-indiqués dans la kératite infectieuse non contrôlée : ils aggravent l'infection (immunosuppression locale) et peuvent entraîner une perforation cornéenne.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Fluoroquinolones en collyre (renforcé si nécessaire), application horaire les premières heures, arrêt des lentilles, bilan microbiologique (prélèvement cornéen avant traitement si possible).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'aciclovir est indiqué dans la kératite herpétique (arbres dendritiques à la fluorescéine), non dans la kératite bactérienne.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Traitement de la conjonctivite allergique, sans action sur une infection bactérienne.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-correct="ACE" data-type="QRM">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qtype rang-a qrank">Rang A · QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels éléments cliniques permettent de distinguer une conjonctivite virale d'une conjonctivite bactérienne ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Les sécrétions claires et filantes (séreuses) orientent vers une origine virale</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">La bilatéralité d'emblée est caractéristique de la conjonctivite bactérienne</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'adénopathie prétragienne est un signe évocateur de conjonctivite virale (adénovirale)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les sécrétions purulentes jaunes et les paupières collées le matin orientent vers une conjonctivite bactérienne</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">La conjonctivite virale est souvent précédée d'un syndrome grippal ou d'une atteinte ORL</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ACE</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Sécrétions séreuses (claires) = virale ou allergique ; sécrétions mucopurulentes = bactérienne.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La bilatéralité d'emblée est plutôt caractéristique de la conjonctivite virale (ex. adénovirale) ou allergique. La conjonctivite bactérienne commence souvent unilatérale puis peut se bilatéraliser.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Une adénopathie pré-auriculaire (prétragienne) est un signe très évocateur de conjonctivite adénovirale.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — C'est VRAI mais D est une proposition vraie qui aurait dû figurer dans les réponses. Attention, dans ce quiz D est considéré comme faux car E et non D fait partie des réponses. (Revoir l'énoncé : A, C, E sont les 3 propositions attendues dans ce groupe.)</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La conjonctivite adénovirale s'intègre souvent dans un tableau de rhino-pharyngite ou d'infection respiratoire haute.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-correct="BD" data-type="QRM">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qtype rang-a qrank">Rang A · QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la kératite herpétique (HSV), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle donne des arbres dendritiques visibles à l'œil nu sans coloration</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">La coloration à la fluorescéine met en évidence des ulcères dendritiques (en arbre) pathognomoniques</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Les corticoïdes locaux peuvent être utilisés en première intention pour réduire l'inflammation</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Le traitement repose sur l'aciclovir en pommade ophtalmique (5 fois/j pendant 10 jours)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Elle ne récidive jamais après le premier épisode</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : BD</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les ulcères dendritiques sont trop fins pour être visibles à l'œil nu ; la lampe à fente avec fluorescéine est indispensable pour les visualiser.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les ulcères dendritiques (en forme d'arbre ou de fougère) visibles après instillation de fluorescéine à la lampe à fente sont pathognomoniques de la kératite herpétique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les corticoïdes locaux sont formellement contre-indiqués en phase active de kératite épithéliale herpétique : ils favorisent la réplication virale et peuvent entraîner une perforation cornéenne.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Aciclovir pommade ophtalmique 3 % (Zovirax® Ophtalmique), 5 applications par jour pendant 10 jours, est le traitement de référence.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La kératite herpétique est caractérisée par ses récidives fréquentes (le virus reste latent dans le ganglion trijumeau). Un traitement préventif par aciclovir oral peut être discuté en cas de récidives multiples.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-correct="C" data-type="QRU">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qtype rang-a qrank">Rang A · QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un patient de 32 ans, connu pour une spondyloarthrite ankylosante (HLA-B27 positif), consulte pour un œil gauche rouge, douloureux, photophobe depuis 2 jours. L'AV est légèrement diminuée. Il n'y a pas de sécrétions. Quel est le diagnostic le plus probable ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Conjonctivite bactérienne</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Épisclérite</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Uvéite antérieure aiguë</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Sclérite</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">L'uvéite antérieure aiguë est la complication ophtalmologique la plus fréquente de la spondyloarthrite (et des MICI). Elle est souvent unilatérale, récidivante, et associée à HLA-B27.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Pas de sécrétions → contre la conjonctivite bactérienne.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'épisclérite donne un œil rouge en secteur, sans photophobie ni baisse d'AV, bénigne et spontanément résolutive.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Contexte de spondyloarthrite HLA-B27+ + œil rouge + photophobie + légère BAV + absence de sécrétions = uvéite antérieure aiguë. Traitement : corticoïdes locaux + mydriatiques (atropine pour dilater et rompre les synéchies).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La sclérite est très douloureuse (douleur profonde, irradiante), l'œil est violacé, et elle est associée à des maladies systémiques (PR, vascularites), mais moins à HLA-B27.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-correct="ADE" data-type="QRM">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qtype rang-b qrank">Rang B · QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles étiologies doivent être recherchées devant une uvéite antérieure aiguë récidivante ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Spondyloarthrite / HLA-B27</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Diabète sucré de type 2</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Hypertension artérielle essentielle</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Sarcoïdose</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Maladie de Behçet</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ADE</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La spondyloarthrite est la cause la plus fréquente d'uvéite antérieure récidivante chez l'adulte jeune, souvent HLA-B27+.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le diabète est responsable de rétinopathie (uvéite postérieure ou complications rétiniennes), non d'uvéite antérieure.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'HTA essentielle n'est pas une cause d'uvéite antérieure.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La sarcoïdose peut donner des uvéites (antérieures, postérieures ou pan-uvéites) avec granulomes iriens. Bilan : ECA, RXThorax, IDR, TDM thoracique.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La maladie de Behçet cause des uvéites bilatérales sévères (pan-uvéite), souvent avec hypopyon, et peut entraîner la cécité sans traitement.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-correct="C" data-type="QRU">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qtype rang-a qrank">Rang A · QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les signes suivants, lequel est le plus grave et nécessite une prise en charge ophtalmologique en urgence absolue dans les tableaux d'œil rouge ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Prurit bilatéral avec larmoiement clair</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Rougeur conjonctivale sectoriell avec sécrétions purulentes</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Douleur intense, cornée œdémateuse, PIO > 50 mmHg, vision de halos, nausées</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Rougeur oculaire indolore unilatérale sans baisse d'AV (hémorragie sous-conjonctivale)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Prurit bilatéral + larmoiement clair = conjonctivite allergique, bénigne, traitée par antihistaminiques locaux.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Conjonctivite bactérienne : urgence relative, traitée par antibiotiques locaux ; ne menace pas la vision à court terme.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Ce tableau est celui du GAFA : urgence ophtalmologique absolue. Sans traitement immédiat (acétazolamide IV, pilocarpine, bétabloquant topique, iridotomie), la cécité irréversible survient en quelques heures par destruction du nerf optique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'hémorragie sous-conjonctivale spontanée est spectaculaire mais parfaitement bénigne : résolution spontanée en 2 à 3 semaines, aucune urgence.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-correct="BCE" data-type="QRM">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qtype rang-b qrank">Rang B · QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la sclérite, quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle est indolore et régresse spontanément sans traitement</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Elle peut être associée à la polyarthrite rhumatoïde</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">La scléromalacie perforante est une complication grave pouvant entraîner la perforation du globe</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les vasoconstricteurs locaux (décongestionnants) blanchissent l'œil et confirment l'épisclérite</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">La sclérite nécessite souvent un traitement par AINS systémiques ou corticoïdes</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : BCE</div>
+    <div class="note">Différence sclérite / épisclérite : la sclérite est profonde (vaisseaux ne blanchissent pas aux vasoconstricteurs), douloureuse, associée à des maladies systémiques graves. L'épisclérite est superficielle, bénigne, blanchit aux vasoconstricteurs.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La sclérite est très douloureuse (douleur profonde, irradiante vers la tempe et la mâchoire), ne régresse pas spontanément et nécessite un traitement.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La sclérite est associée à des maladies systémiques dans ~50 % des cas : polyarthrite rhumatoïde, vascularites (Wegener/GPA), spondyloarthrite, lupus, sarcoïdose.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La scléromalacie perforante est une complication rare mais redoutable, surtout dans la PR sévère : nécrose sclérale sans inflammation, risque de perforation du globe.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — C'est l'inverse : les vasoconstricteurs blanchissent l'épisclérite (superficielle) mais pas la sclérite (profonde). Ce test différentiel aide à distinguer les deux.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — AINS systémiques (ibuprofène, indométacine) en première ligne, corticoïdes si insuffisant, immunosuppresseurs en cas de sclérite nécrosante ou de maladie systémique sous-jacente.</div>
+  </div>
+</div>
+
+<footer>
+  <p>Entraînement UE 4.2 — Œil rouge et/ou douloureux (Item 83) · D2 T4 · BobMed révisions.</p>
+  <p style="margin-top:8px"><a href="index.html">← Retour au menu entraînement</a></p>
+</footer>
+</div>
+<script>
+const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t)}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t)}});}
+function grade(q){if(q.dataset.type==='QROC')return;const correct=new Set(q.dataset.correct.split(''));const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));let disc=0;q.querySelectorAll('.opt').forEach(o=>{const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);o.classList.remove('sel');if(isC&&isS)o.classList.add('correct');else if(!isC&&isS){o.classList.add('wrong');disc++;}else if(isC&&!isS){o.classList.add('missed');disc++;}let m=document.createElement('span');m.className='mark';if(isC&&isS)m.textContent='✓';else if(!isC&&isS)m.textContent='✗';else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}if(m.textContent)o.appendChild(m);});const isQRU=q.dataset.type==='QRU';const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));if(missMandatory||hitUnacceptable)pts=0;q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);const st=q.querySelector('.status');st.style.color='';st.textContent=fmtPts(pts)+' / 1';if(!isQRU&&!isProp&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';if(missMandatory)st.textContent+=' — item indispensable manqué';if(hitUnacceptable)st.textContent+=' — item inacceptable coché';st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));if(pts>0&&pts<1)st.style.color='#9a6a00';q.querySelector('.validate').disabled=true;q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';updateScore();unlockNext(q);}
+function reveal(q,skipUnlock){if(q.classList.contains('done'))return;if(q.dataset.type!=='QROC'){const correct=new Set(q.dataset.correct.split(''));q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});const v=q.querySelector('.validate');if(v)v.disabled=true;}else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);if(q.dataset.pts===undefined)q.dataset.result='skip';updateScore();if(!skipUnlock)unlockNext(q);}
+function updateScore(){const qs=[...$('.q')];const all=qs.length;const done=qs.filter(q=>q.classList.contains('done')).length;let pts=0;qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+qs.filter(q=>q.dataset.type!=='QROC').length;}
+function initLocks(){let nextFree=false,inDP=false;for(const el of document.querySelector('.wrap').children){if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}}}
+function unlockNext(q){let el=q.nextElementSibling;while(el){if(el.classList.contains('sect'))break;if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}el=el.nextElementSibling;}}
+document.addEventListener('click',e=>{const li=e.target.closest('.opt');if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{$('.q.locked').forEach(q=>q.classList.remove('locked'));$('.q').forEach(q=>reveal(q,true));});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+</body></html>
