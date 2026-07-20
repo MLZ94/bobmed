@@ -46,6 +46,8 @@ d2/tN/entrainement/Quiz_itemNNN_*.html ← quiz d'entraînement par item (ex. `Q
 
 **IMPORTANT — D1 comme D2 est désormais subdivisé par trimestre.** À ce jour, toutes les ressources D1 relèvent du **T4** et vivent sous `d1/t4/` (les annales à plat, les sous-portails `exercices/`, `microbiologie/`, `numerique/` en sous-dossiers) — miroir de la structure `d2/tN/`. Les dossiers historiques `annales/`, `exercices/`, `microbiologie/`, `numerique/` à la racine **n'existent plus** (migrés sous `d1/t4/`). Les autres trimestres D1 (`d1/t1/`, `d1/t2/`, `d1/t3/`) n'existent pas encore : ne les créer que si l'utilisateur ajoute des ressources d'un autre trimestre de D1.
 
+> ⚠️ **D1 est obsolète — ne plus intervenir sur d1/**.** Les ressources D1 (sous `d1/t4/`) sont conservées en l'état mais ne font plus l'objet de développement actif. Toute demande de menu d'entraînement, de nouveau quiz ou d'évolution de structure concerne **D2 uniquement**. Ne jamais créer de nouveaux fichiers sous `d1/` sans instruction explicite de l'utilisateur.
+
 ### Assets globaux (`breadcrumb.js`, `dynamic-header.js`, `timer.js`, `progress.js`, `theme.css`)
 
 Cinq fichiers partagés (racine du dépôt), inclus en externe sur toute page qui en a besoin — **jamais copiés/collés dans le fichier**. Les scripts JS s'incluent via `<script src="...">` juste avant `</body>` ; `theme.css` via `<link rel="stylesheet" href="...">` dans le `<head>` (par convention, juste après le lien `favicon.svg`, dont il reprend exactement le préfixe relatif). Le chemin relatif dépend de la profondeur du fichier :

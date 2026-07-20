@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UE 8.3 — Endocrinologie/Nutrition · Item 250 — Dénutrition · Quiz d'entraînement</title>
+<link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../../theme.css">
+<style>
+:root{
+  --bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;
+  --line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;
+  --faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;
+  --acc:#4f46e5;--acc2:#06b6d4;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding-bottom:60px}
+header{background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100;padding:10px 0}
+.hwrap{max-width:820px;margin:0 auto;padding:0 16px}
+h1{font-size:17px;font-weight:700;color:var(--ink);line-height:1.3}
+.sub{font-size:13px;color:var(--mut);margin-top:2px}
+.scorebar{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:13px}
+.pill b{color:var(--acc)}
+button{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:4px 14px;font-size:13px;font-family:inherit}
+button:hover{background:#f0f0f0}
+.wrap{max-width:820px;margin:28px auto;padding:0 16px;display:flex;flex-direction:column;gap:20px}
+.q{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.rang-a{background:#dcfce7;color:#166534;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.status{font-size:13px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;line-height:1.55;margin-bottom:14px}
+.opts{list-style:none;display:flex;flex-direction:column;gap:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:5px 0;cursor:pointer;transition:background .12s,border-color .12s}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;transition:background .12s,border-color .12s}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600}
+.actions{display:flex;gap:10px;margin-top:14px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff;border-radius:10px;padding:6px 18px}
+button.validate:hover{filter:brightness(1.08)}
+button.validate:disabled{opacity:.5;cursor:default}
+.correction{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:0}
+.ans{font-weight:700;font-size:15px;margin-bottom:8px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.back{display:block;text-align:center;margin:30px auto 0;color:var(--acc);font-size:14px;text-decoration:none}
+.back:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<header>
+<div class="hwrap">
+<h1>UE 8.3 — Endocrinologie/Nutrition · Item 250 — Dénutrition</h1>
+<div class="sub">10 questions · QRM, QRU · Rang A &amp; B · Critères · Renutrition · Syndrome de renutrition</div>
+<div class="scorebar">
+  <span class="pill">Validées : <b id="s-done">0/10</b></span>
+  <span class="pill">Score : <b id="s-ok">0/10</b></span>
+  <span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+  <span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div>
+</header>
+<div class="wrap">
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q1</span>
+    <span class="qtype rang-a">Rang A · QRM</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Selon les critères HAS 2021, quels éléments permettent de diagnostiquer une dénutrition chez l'adulte ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Perte de poids ≥ 5 % en 1 mois ou ≥ 10 % en 6 mois (ou par rapport au poids habituel)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">IMC < 18,5 kg/m² chez l'adulte < 70 ans (ou IMC < 22 kg/m² chez le sujet âgé ≥ 70 ans)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Albuminémie < 35 g/L seule (sans autre critère)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Réduction de la masse et/ou de la fonction musculaire (mesurée par force de préhension ou DEXA)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ABD</div>
+    <div class="note">Critères HAS/ESPEN 2021 : le diagnostic de dénutrition requiert au moins 1 critère phénotypique + 1 critère étiologique. Critères phénotypiques : perte de poids ≥ 5 %/1 mois ou ≥ 10 %/6 mois, IMC bas (< 18,5 avant 70 ans, < 22 après), réduction masse/force musculaire. Critères étiologiques : réduction des apports, malabsorption, augmentation des besoins (pathologie). L'albuminémie seule (sans critère phénotypique) ne suffit pas au diagnostic ; elle reflète l'inflammation plus que la dénutrition et est un marqueur pronostique.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Critère phénotypique : perte de poids ≥ 5 % en 1 mois ou ≥ 10 % en 6 mois.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Critère phénotypique : IMC bas selon l'âge.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'albuminémie seule n'est plus un critère diagnostic suffisant (HAS 2021) ; elle est abaissée par l'inflammation (syndrome de réponse inflammatoire), indépendamment de l'état nutritionnel.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Critère phénotypique : réduction de la masse musculaire (DEXA) ou de la force musculaire (dynamomètre, force de préhension).</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q2</span>
+    <span class="qtype rang-a">Rang A · QRM</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels marqueurs biologiques sont utiles dans l'évaluation nutritionnelle, malgré leurs limites ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Albuminémie (demi-vie 21 jours) — reflet de la dénutrition chronique et marqueur pronostique, abaissé par l'inflammation</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">CRP (protéine C-réactive) — marqueur de dénutrition protéino-calorique</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Préalbumine (transthyrétine, demi-vie 2–3 jours) — reflet de la dénutrition récente et de l'évolution sous renutrition</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">NRI (Nutritional Risk Index) ou MNA (Mini Nutritional Assessment) — scores de dépistage de la dénutrition</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ACD</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'albuminémie est un marqueur pronostique majeur mais sa demi-vie longue (21 j) et son abaissement par l'inflammation limitent sa valeur diagnostique en phase aiguë.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La CRP est un marqueur d'inflammation, pas de dénutrition ; elle est utile pour interpréter l'albuminémie (si CRP↑, albuminémie basse = inflammation, pas forcément dénutrition).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La préalbumine (transthyrétine) a une demi-vie de 2–3 jours, ce qui en fait un meilleur reflet de la dénutrition récente et de la réponse à la renutrition ; aussi abaissée par l'inflammation.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le MNA est le score de référence chez le sujet âgé ; le NRI est utilisé en pré-opératoire chirurgical pour stratifier le risque.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRU" data-correct="A">
+  <div class="qhead">
+    <span class="qnum">Q3</span>
+    <span class="qtype rang-a">Rang A · QRU</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quelle est la voie de renutrition à privilégier en première intention chez un patient dénutri pouvant s'alimenter par voie orale ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Compléments nutritionnels oraux (CNO) et enrichissement de l'alimentation</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Nutrition entérale par sonde naso-gastrique d'emblée</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Nutrition parentérale totale par voie centrale</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Perfusions de macronutriments IV en première intention</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A</div>
+    <div class="note">Principe de préférence de la voie digestive : orale > entérale > parentérale. Si la voie orale est fonctionnelle, les CNO (apports caloriques et protéiques supplémentaires) associés à l'enrichissement des repas (poudre de lait, fromage, œufs) sont la première étape. La nutrition entérale par sonde est indiquée si les apports oraux restent insuffisants (< 60 % des besoins) malgré les CNO et l'alimentation enrichie. La parentérale est réservée aux situations où la voie digestive est non fonctionnelle ou insuffisante.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Compléments nutritionnels oraux + alimentation enrichie = première étape si le patient peut s'alimenter.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La nutrition entérale par sonde n'est pas indiquée en première intention si le patient peut s'alimenter par voie orale.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La parentérale est la dernière option (risques infectieux liés au cathéter, atrophie muqueuse intestinale).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les perfusions IV ne remplacent pas la nutrition orale fonctionnelle.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q4</span>
+    <span class="qtype rang-a">Rang A · QRM</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant le syndrome de renutrition inappropriée (SRI), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Il survient lors de la réintroduction des glucides chez un patient sévèrement dénutri</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">L'hypophosphorémie est le mécanisme central et la cause principale des complications</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">La renutrition doit être initiée à plein régime d'emblée pour combler les déficits rapidement</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les complications incluent : insuffisance cardiaque, arythmies, insuffisance respiratoire, encéphalopathie de Gayet-Wernicke</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ABD</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'apport de glucides stimule la sécrétion d'insuline → captation cellulaire massive de phosphore, potassium, magnésium → effondrements brutaux de ces électrolytes plasmatiques (SRI).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'hypophosphorémie sévère (< 0,5 mmol/L) est le mécanisme central ; elle compromet la production d'ATP dans toutes les cellules (ATP = adénine + ribose + 3 phosphates).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La renutrition doit être débutée progressivement (50 % des besoins les 2–3 premiers jours, puis augmentation sur 5–7 jours) avec surveillance étroite des phosphorémie, kaliémie, magnésémie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Complications du SRI : IC (hypophosphorémie → myocarde atone), arythmies (hypophosphorémie + hypokaliémie), détresse respiratoire (muscles respiratoires atones), encéphalopathie de Gayet-Wernicke (carence B1 révélée par l'apport de glucose sans B1).</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="ABC">
+  <div class="qhead">
+    <span class="qnum">Q5</span>
+    <span class="qtype rang-a">Rang A · QRM</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Quels patients sont à risque élevé de syndrome de renutrition inappropriée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Anorexiques chroniques (anorexie mentale) ou grand jeûneurs (> 5–7 jours)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Alcooliques chroniques dénutris</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Patients en phase de récupération après une chirurgie digestive lourde avec jeûne prolongé</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Patients obèses ayant un IMC > 35 sans perte de poids récente</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ABC</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'anorexique ou le grand jeûneur a des réserves de phosphore intracellulaire épuisées → réintroduction des glucides = captation massive du peu de phosphore restant → SRI.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'alcoolique chronique est souvent dénutri et carencé en vitamines du groupe B (B1 notamment) → double risque de SRI et d'encéphalopathie de Gayet-Wernicke.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Tout patient avec jeûne prolongé péri-opératoire ou en soins intensifs est à risque.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Un patient obèse sans dénutrition récente ni jeûne prolongé n'est pas à risque de SRI (réserves énergétiques et phosphate intracellulaire préservés).</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q6</span>
+    <span class="qtype rang-b">Rang B · QRM</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant la nutrition entérale (NE), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle est préférée à la nutrition parentérale car elle maintient l'intégrité de la muqueuse intestinale</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">La sonde naso-gastrique est utilisée pour les renutritions de courte durée (< 4–6 semaines)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">La gastrostomie percutanée endoscopique (GPE) est indiquée dans la nutrition entérale de longue durée</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">La diarrhée est la complication la plus fréquente de la nutrition entérale</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ABD</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La nutrition entérale maintient le trophisme de la muqueuse intestinale (effet sur les entérocytes), prévient la translocation bactérienne et est associée à moins de complications infectieuses que la parentérale.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La SNG est pour les courtes durées (< 4–6 semaines) ; au-delà, une GPE est préférable pour le confort.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La GPE (ou gastrostomie radiologique) est la voie de référence pour les nutritons entérales de longue durée (AVC avec dysphagie, SLA, cancers ORL, etc.).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La diarrhée est la complication la plus fréquente de la NE (débit trop rapide, hyperosmolarité, contamination bactérienne) ; gérer par réduction du débit et réchauffement de la solution.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="ACD">
+  <div class="qhead">
+    <span class="qnum">Q7</span>
+    <span class="qtype rang-b">Rang B · QRM</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant les besoins nutritionnels chez l'adulte dénutri hospitalisé, quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Les besoins protéiques sont augmentés (1,2–1,5 g/kg/j) en cas de dénutrition sévère ou de stress métabolique</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Les besoins caloriques sont calculés à 40–50 kcal/kg/j pour tous les patients hospitalisés</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'activité physique adaptée (marche, kinésithérapie) est complémentaire de la nutrition pour préserver la masse musculaire</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">La supplémentation systématique en vitamines (B1, D, zinc) est recommandée en cas de dénutrition sévère ou de renutrition</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ACD</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les besoins protéiques standard chez l'adulte sain sont ≈ 0,8 g/kg/j ; en situation de dénutrition ou de stress (sepsis, chirurgie, brûlures), 1,2–1,5 g/kg/j est recommandé.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les besoins caloriques standards sont de 25–30 kcal/kg/j pour la plupart des patients hospitalisés (pas 40–50) ; surestimer les besoins augmente le risque de SRI et de complications métaboliques.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La nutrition seule ne maintient pas la masse musculaire sans activité physique ; la kinésithérapie, même passive, est indispensable en association.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Supplémentation systématique en vitamines B1 (prévention encéphalopathie de Gayet-Wernicke lors de la renutrition), D, zinc, magnésium, phosphore (prévention SRI) dès le début de la renutrition d'un patient sévèrement dénutri.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRU" data-correct="C">
+  <div class="qhead">
+    <span class="qnum">Q8</span>
+    <span class="qtype rang-a">Rang A · QRU</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Une patiente de 76 ans, hospitalisée pour pneumonie, a perdu 8 % de son poids en 3 mois. Son IMC est à 20 kg/m², l'albuminémie à 28 g/L (CRP à 85 mg/L). Le MNA-SF est à 8/14. Quel est le diagnostic le plus approprié ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Pas de dénutrition (albuminémie basse due à l'inflammation uniquement)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Dénutrition légère à modérée</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Dénutrition sévère</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Obésité sarcopénique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">Critères HAS 2021 : dénutrition sévère chez le sujet ≥ 70 ans si : IMC < 20 kg/m², ou perte de poids ≥ 10 % en 6 mois, ou albuminémie < 30 g/L (marqueur pronostique, pas diagnostic). Ici : perte de poids 8 % en 3 mois + IMC = 20 kg/m² (seuil borderline à 70 ans) + albuminémie < 30 g/L → dénutrition sévère. La CRP élevée explique en partie la baisse d'albumine mais n'invalide pas le diagnostic (critères phénotypiques présents). MNA-SF ≤ 11 = risque de dénutrition ; ≤ 7 = dénutrition avérée.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La perte de poids (8 % en 3 mois) est un critère phénotypique indépendant de l'inflammation.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Perte de poids ≥ 5 % en 1 mois ou ≥ 10 % en 6 mois = critère de dénutrition sévère chez le sujet âgé (ici : 8 % en 3 mois = sévère).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Dénutrition sévère : critères phénotypiques (perte ≥ 5 %/1 mois, IMC < 20 chez le sujet âgé) + critère étiologique (pneumonie = augmentation des besoins).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'obésité sarcopénique concerne des patients avec IMC élevé (> 30) et masse musculaire basse.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ABC">
+  <div class="qhead">
+    <span class="qnum">Q9</span>
+    <span class="qtype rang-b">Rang B · QRM</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant la nutrition parentérale totale (NPT), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle est indiquée si la voie digestive est non fonctionnelle (occlusion, grêle court) ou si la voie entérale est impossible ou insuffisante</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Le risque d'infections sur cathéter veineux central (sepsis à S. aureus ou candida) est la principale complication</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Elle peut provoquer une cholestase hépatique lors de son utilisation prolongée</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Elle est toujours supérieure à la nutrition entérale en termes de mortalité et de complications infectieuses</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ABC</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Indications : grêle court post-chirurgical, fistule digestive à haut débit, occlusion persistante, malabsorption sévère, voie entérale impossible ou insuffisante.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le sepsis sur KTC est la complication principale ; S. aureus et candida sont les germes les plus fréquents → soins rigoureux du cathéter, retrait et remplacement en cas de sepsis.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La cholestase d'alimentation parentérale (stase biliaire, accumulation de phytostérols des lipides IV) peut évoluer vers la cirrhose lors de NPT prolongée.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La NPT est associée à plus de complications infectieuses et une mortalité égale ou supérieure vs entérale dans de nombreuses études → la voie digestive est toujours à privilégier dès qu'elle est fonctionnelle.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ABD">
+  <div class="qhead">
+    <span class="qnum">Q10</span>
+    <span class="qtype rang-a">Rang A · QRM</span>
+    <span class="status" aria-live="polite"></span>
+  </div>
+  <div class="stem">Concernant la dénutrition du sujet âgé (sarcopénie et dénutrition), quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">La sarcopénie est définie par une réduction de la masse et de la force/fonction musculaires, indépendamment du poids</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">La dénutrition du sujet âgé est associée à une augmentation du risque de chutes, d'infections et de mortalité</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Un apport protéique de 0,8 g/kg/j est suffisant chez le sujet âgé dénutri</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'enrichissement des repas (densité nutritionnelle augmentée) et les CNO sont des premières mesures adaptées à cette population</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : ABD</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Définition EWGSOP2 : sarcopénie = réduction de la masse musculaire + réduction de la force de préhension et/ou de la performance physique (vitesse de marche, test lever de chaise).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La dénutrition du sujet âgé est un facteur de risque indépendant de chutes (faiblesse musculaire), d'infections (immunodépression), de complications post-opératoires et de mortalité.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le sujet âgé dénutri a des besoins protéiques augmentés (1,2–1,5 g/kg/j) en raison de l'anabolisme résistance (la synthèse protéique musculaire est moins efficace avec l'âge, nécessitant des apports plus élevés pour atteindre la même réponse).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Enrichissement des plats + CNO (2 unités/j ≥ 400 kcal et 30 g protéines) sont les premières mesures recommandées avant d'envisager la nutrition entérale.</div>
+  </div>
+</div>
+
+<a class="back" href="index.html">← Retour au portail d'entraînement</a>
+</div>
+
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script>
+const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';
+  const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&!isProp&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){
+        const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;
+        if(li.classList.contains('sel'))li.classList.remove('sel');
+        else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');
+      }
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+</body>
+</html>
