@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Item 193 — Vascularites systémiques · Entraînement</title>
+<link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../../theme.css">
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:60px}
+header{position:sticky;top:0;z-index:100;background:rgba(247,248,249,.97);border-bottom:1px solid var(--line);padding:10px 16px}
+.hwrap{max-width:780px;margin:0 auto}
+h1{font-size:17px;font-weight:700;margin-bottom:2px}
+.sub{font-size:13px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:13px}
+.pill button{border:none;background:none;cursor:pointer;font:inherit;font-size:13px;color:var(--acc);padding:0}
+button#revealall,button#reset{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:2px 10px;cursor:pointer;font:inherit;font-size:13px}
+.wrap{max-width:780px;margin:24px auto;padding:0 16px;display:flex;flex-direction:column;gap:18px}
+.q{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qrank{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;border:1px solid}
+.rang-a{background:#dcfce7;color:#166534;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{font-size:13px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:14px;line-height:1.5}
+.opts{list-style:none;display:flex;flex-direction:column;gap:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:4px 0;cursor:pointer;transition:.12s}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.otext{font-size:14.5px;line-height:1.45;padding-top:2px}
+.mark{margin-left:6px;font-size:13px}
+.actions{display:flex;gap:8px;margin-top:14px}
+button.validate{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:6px 18px;font:inherit;font-size:14px;cursor:pointer}
+button.validate:hover{filter:brightness(1.08)}
+button.validate:disabled{opacity:.5;cursor:default}
+button.show{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer;color:var(--mut)}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.ans{font-weight:700;font-size:14.5px;margin-bottom:8px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.tag-mandatory,.tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.tag-mandatory{color:var(--neu);background:var(--neubg);border:1px solid var(--neu)}
+.tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <h1>Item 193 — Vascularites systémiques</h1>
+  <div class="sub">UE 7.2 — Médecine Interne · D2 T3 · Entraînement par item</div>
+  <div class="scorebar">
+    <span class="pill">Validées : <b id="s-done">0/10</b></span>
+    <span class="pill">Score : <b id="s-ok">0/10</b></span>
+    <span class="pill"><button id="revealall">Tout révéler</button></span>
+    <span class="pill"><button id="reset">Recommencer</button></span>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ABCD">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Selon la classification de Chapel Hill (2012), quelles vascularites font partie des vascularites des petits vaisseaux associées aux ANCA ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Granulomatose avec polyangéite (GPA, anciennement Wegener)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Polyangéite microscopique (PAM)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Granulomatose éosinophilique avec polyangéite (GEPA, anciennement Churg-Strauss)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Vascularite ANCA-positive limitée au rein (glomérulonéphrite extra-capillaire pauci-immune)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Polyartérite noueuse (PAN)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La GPA est la vascularite ANCA la plus fréquente ; associée aux ANCA anti-PR3 (PR3-ANCA / c-ANCA) dans 75–90% des cas.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La PAM est associée aux ANCA anti-MPO (MPO-ANCA / p-ANCA) dans 50–70% des cas.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La GEPA est associée aux MPO-ANCA dans 30–40% des cas (formes avec atteinte rénale préférentiellement).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La glomérulonéphrite extra-capillaire pauci-immune (sans granulome ni dépôts immuns) ANCA-positive est incluse dans les vascularites ANCA dans la classification de Chapel Hill 2012.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La PAN est une vascularite des artères de moyen calibre (pas des petits vaisseaux), typiquement ANCA-négative. Elle n'appartient pas au groupe des vascularites ANCA.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les manifestations ORL et pulmonaires caractéristiques de la granulomatose avec polyangéite (GPA) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Sinusite chronique, rhinite croûteuse et épistaxis</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Perforation de la cloison nasale et destruction cartilagineuse (nez en selle)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Nodules pulmonaires excavés bilatéraux</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Asthme sévère et éosinophilie pulmonaire</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Hémorragie alvéolaire (tableau de pneumopathie infiltrante diffuse avec hémoptysies)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les manifestations ORL sont présentes dans 90% des GPA : sinusite chronique, rhinite croûteuse, épistaxis, otites séreuses.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La destruction cartilagineuse nasale aboutit à un « nez en selle » (effondrement de la pyramide nasale) : signe très évocateur de GPA ou de sarcoïdose.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les nodules pulmonaires à centre nécrotique excavé bilatéraux sont caractéristiques de la GPA (granulomes nécrosants).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'asthme sévère et l'hyperéosinophilie sont caractéristiques de la GEPA (Churg-Strauss), pas de la GPA (Wegener).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'hémorragie alvéolaire (capillarite pulmonaire) peut compliquer la GPA et la PAM ; elle se manifeste par des hémoptysies, une PaO2 basse et un syndrome alvéolaire radiologique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la granulomatose éosinophilique avec polyangéite (GEPA, ex-Churg-Strauss), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle survient chez des patients asthmatiques, souvent après des années d'asthme corticodépendant</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Une hyperéosinophilie sanguine importante (&gt; 1500/mm³ ou &gt; 10%) est un critère majeur</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">La neuropathie périphérique (multinévrite) est une manifestation très fréquente</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les MPO-ANCA sont positifs dans 100% des cas</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">L'atteinte cardiaque (myocardite éosinophilique) est la principale cause de décès</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La GEPA évolue classiquement en 3 phases : asthme (phase 1), hyperéosinophilie tissulaire (phase 2), vascularite systémique (phase 3).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'hyperéosinophilie est le marqueur biologique cardinal de la GEPA : éosinophiles &gt; 1500/mm³ ou &gt; 10% dans la NFS.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La multinévrite (mononévrite multiple asymétrique) est présente dans 70–80% des cas de GEPA : pied tombant, atteinte motrice et sensitive des membres.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les MPO-ANCA ne sont positifs que dans 30–40% des GEPA (surtout dans les formes avec atteinte rénale). Les formes ANCA-négatives sont plus fréquentes dans la GEPA que dans la GPA ou la PAM.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La myocardite éosinophilique (infiltration du myocarde par les éosinophiles) est la complication la plus grave et la principale cause de décès dans la GEPA.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABCD">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la polyartérite noueuse (PAN), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est une vascularite nécrosante des artères de moyen calibre (sans atteinte des capillaires ni des glomérules)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Les ANCA sont négatifs dans la PAN classique</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'infection par le virus de l'hépatite B (VHB) est un facteur étiologique reconnu</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les manifestations cliniques incluent : livedo, myalgies, neuropathie périphérique, manifestations rénales vasculaires (HTA, infarctus rénal)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">La glomérulonéphrite proliférative avec hématurie microscopique est typique de la PAN</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La PAN touche les artères musculaires de moyen calibre (artères rénales, mésentériques, coronaires, cérébrales) mais épargne les capillaires et les veinules (pas de glomérulonéphrite primitive).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La PAN classique est ANCA-négative (point clé pour la différencier de la PAM, qui peut présenter une atteinte rénale similaire).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le VHB était responsable de 30–40% des PAN avant la vaccination généralisée ; le traitement doit alors inclure des antiviraux.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Manifestations vasculaires ischémiques/infarctus des organes cibles (infarctus rénaux, mésentériques, orchite ischémique), livedo reticularis, multinévrite, myalgies.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La glomérulonéphrite primitive (hématurie microscopique, protéinurie glomérulaire) n'est PAS une manifestation de la PAN (par définition, elle épargne les capillaires glomérulaires). Son présence doit faire remettre en question le diagnostic de PAN et évoquer une PAM ou vascularite ANCA.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les examens clés du bilan initial d'une vascularite systémique suspectée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">ANCA (PR3-ANCA et MPO-ANCA) par technique ELISA</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Biopsie de l'organe atteint (rein, nerf, poumon) pour confirmation histologique</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Dosage de l'enzyme de conversion de l'angiotensine (ECA) pour confirmer le diagnostic</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Créatinémie, sédiment urinaire (hématurie, cylindres) et protéinurie pour évaluer l'atteinte rénale</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Sérologies VHB et VHC (vascularites associées aux virus des hépatites)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les ANCA par technique ELISA (PR3-ANCA et MPO-ANCA) sont indispensables pour diagnostiquer les vascularites ANCA et orienter vers GPA, PAM ou GEPA.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La biopsie est recommandée pour confirmer le diagnostic histologique (granulomes nécrosants dans la GPA, capillarite pauci-immune dans la PAM, infiltration éosinophilique dans la GEPA).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'enzyme de conversion de l'angiotensine (ECA) est un marqueur d'activité de la sarcoïdose, pas des vascularites systémiques.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Évaluation de la fonction rénale et du sédiment urinaire en urgence : une glomérulonéphrite nécrosante rapidement progressive peut conduire à l'insuffisance rénale terminale en quelques semaines sans traitement.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — VHB (PAN associée à VHB) et VHC (cryoglobulinémie secondaire avec vascularite) doivent être recherchés car le traitement est différent (antiviraux ± échanges plasmatiques plutôt que cyclophosphamide).</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel est le traitement d'induction d'une vascularite ANCA sévère (avec atteinte rénale ou pulmonaire) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Corticothérapie systémique à hautes doses (bolus de méthylprednisolone + prednisone 1 mg/kg/j)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Rituximab IV (anti-CD20) ou cyclophosphamide IV en association aux corticoïdes</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Methotrexate seul en première intention pour les formes sévères</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Échanges plasmatiques en cas d'hémorragie alvéolaire menaçant le pronostic vital ou de défaillance rénale très sévère</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">L'azathioprine est le traitement d'induction recommandé</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="note">En entretien (après 3–6 mois d'induction), le rituximab, l'azathioprine ou le méthotrexate sont utilisés pour maintenir la rémission et réduire la corticothérapie.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Bolus IV de méthylprednisolone (3 × 250–500 mg IV) puis prednisone 1 mg/kg/j pour contrôler rapidement l'inflammation.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le rituximab (essai RAVE) et le cyclophosphamide IV (essai CYCLOPS) ont des efficacités équivalentes en induction ; le rituximab est préféré en cas de GPA et de contre-indication au cyclophosphamide.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le méthotrexate n'est pas indiqué en induction des formes sévères avec atteinte rénale ou pulmonaire ; il est réservé aux formes localisées non sévères (GPA limitée).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les échanges plasmatiques (EP) sont discutés en complément dans les formes avec hémorragie alvéolaire et/ou glomérulonéphrite rapidement progressive sévère (creatinine &gt; 500 µmol/L).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'azathioprine est utilisé en traitement d'entretien (après induction), pas en induction des formes sévères.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le purpura rhumatoïde (vascularite à IgA, maladie de Schönlein-Henoch), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est la vascularite la plus fréquente chez l'enfant (pic entre 4 et 7 ans)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">La triade classique associe purpura infiltré déclive, arthralgies et douleurs abdominales</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">L'atteinte rénale (néphrite à IgA) détermine le pronostic à long terme</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les ANCA sont constamment positifs dans ce type de vascularite</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">La biopsie cutanée montre des dépôts d'IgA dans les vaisseaux de la peau</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le purpura rhumatoïde (PR) est la vascularite la plus fréquente chez l'enfant ; il peut survenir chez l'adulte où les formes sévères sont plus fréquentes.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Purpura palpable (vasculaire, non thrombopénique) des membres inférieurs et des fesses + arthralgies (membres inférieurs) + douleurs abdominales (invagination possible chez l'enfant).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La néphropathie à IgA (glomérulonéphrite mésangiale à IgA) peut évoluer vers l'insuffisance rénale chronique, surtout chez l'adulte ; surveillance de la protéinurie et de la créatinine.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le purpura rhumatoïde est une vascularite à dépôts d'IgA, ANCA-négatif. Les ANCA ne sont pas impliqués dans ce type de vascularite.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'immunofluorescence directe (IFD) sur biopsie cutanée montrant des dépôts d'IgA dans les parois vasculaires est le marqueur diagnostique du purpura rhumatoïde (critère EULAR/PRES/PRINTO).</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ABCD">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qrank rang-b">Rang B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la vascularite cryoglobulinémique (vascularite liée à la cryoglobulinémie), quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle est le plus souvent associée à une infection chronique par le virus de l'hépatite C (VHC)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">La triade de Meltzer associe purpura vasculaire, arthralgies et asthénie</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">La cryoglobuline précipite au froid et se redissout au réchauffement</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Les cryoglobulinémies mixtes (type II et III) sont les plus fréquemment associées à une vascularite</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Le diagnostic est porté par la sérologie ANCA positive et la biopsie rénale</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le VHC est responsable de 90% des cryoglobulinémies mixtes essentielles ; la vascularite cryoglobulinémique est donc souvent associée au VHC.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Triade de Meltzer : purpura vasculaire (surtout membres inférieurs) + arthralgies + asthénie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Définition : la cryoglobuline est une immunoglobuline qui précipite à basse température (&lt;37°C) et se redissout au réchauffement (propriété physique fondamentale).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les cryoglobulinémies mixtes (type II : IgM monoclonale + IgG polyclonale, et type III : IgM + IgG polyclonales) contiennent des complexes immuns activateurs du complément et sont les plus associées à une vascularite.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le diagnostic repose sur le dosage de la cryoglobuline sérique (prélèvement et acheminement à 37°C), le facteur rhumatoïde (souvent positif), le complément bas (C4 typiquement effondré), et la sérologie VHC. Les ANCA sont négatifs dans la cryoglobulinémie.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels éléments orientent vers une vascularite des petits vaisseaux devant un tableau clinique évocateur ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Purpura vasculaire palpable (purpura non thrombopénique, infiltré)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Hématurie microscopique + protéinurie glomérulaire + insuffisance rénale aiguë (syndrome glomérulonéphrite rapidement progressive)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Hémorragie alvéolaire (opacités bilatérales, hémoptysies, anémie)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Anévrysmes des artères mésentériques à l'artériographie</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Neuropathie périphérique (multinévrite) associée à un syndrome inflammatoire</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le purpura vasculaire (non thrombopénique) infiltré, prédominant aux membres inférieurs, est la manifestation cutanée typique des vascularites des petits vaisseaux (purpura rhumatoïde, cryoglobulinémie, vascularites ANCA).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La glomérulonéphrite rapidement progressive (GNRP) est une urgence médicale caractéristique des vascularites des petits vaisseaux (PAM, GPA) ; la biopsie rénale montre une glomérulonéphrite extra-capillaire pauci-immune.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'hémorragie alvéolaire (capillarite pulmonaire) est une manifestation classique des vascularites ANCA (GPA, PAM) ; urgence diagnostique et thérapeutique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les anévrysmes des artères mésentériques (et rénales) à l'artériographie sont caractéristiques de la PAN (artères de moyen calibre), pas des vascularites des petits vaisseaux.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La multinévrite dans un contexte de syndrome inflammatoire évoque une vascularite systémique touchant les vasa nervorum.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ABCD">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les vascularites des gros vaisseaux (artérite à cellules géantes, maladie de Takayasu), quelle(s) affirmation(s) s'applique(nt) à la maladie de Takayasu ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Elle touche principalement les femmes jeunes (&lt; 40 ans), à prédominance asiatique</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Elle atteint l'aorte et ses branches principales (sous-clavières, carotides, artères rénales)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Elle peut se manifester par une asymétrie tensionnelle ou une abolition de pouls</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'angioscan ou l'angio-IRM aortique est l'examen d'imagerie de référence</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">La biopsie de l'artère temporale est l'examen diagnostique de référence</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La maladie de Takayasu est la vascularite des gros vaisseaux de la femme jeune (&lt;40 ans), très rare en Europe mais fréquente en Asie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle touche principalement l'aorte (thoracique et abdominale) et ses branches (artères sous-clavières, carotides, vertébrales, artères rénales, coronaires).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Asymétrie tensionnelle entre les deux bras, abolition des pouls radial ou huméral, souffles vasculaires, HTA rénovasculaire.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'angio-IRM ou l'angioscan permettent de visualiser l'épaississement pariétal inflammatoire et les sténoses/occlusions artérielles. Le TEP-scan peut évaluer l'activité inflammatoire.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La biopsie de l'artère temporale est l'examen de référence pour l'artérite à cellules géantes (Horton), pas pour la maladie de Takayasu (où les artères atteintes sont profondes et inaccessibles à la biopsie).</div>
+  </div>
+</div>
+
+</div><!-- .wrap -->
+
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script>
+const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')],cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}
+  });
+}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    const m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  let pts=qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');
+  st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  let pts=0;qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+qs.length;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+(qs.filter(q=>q.dataset.type!=='QROC').length);
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{$('.q.locked').forEach(q=>q.classList.remove('locked'));$('.q').forEach(q=>reveal(q,true));});
+initLocks();updateScore();
+</script>
+</body>
+</html>

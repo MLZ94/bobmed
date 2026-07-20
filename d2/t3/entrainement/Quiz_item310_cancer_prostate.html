@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Item 310 — Cancer de la prostate · Entraînement</title>
+<link rel="icon" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:60px}
+header{position:sticky;top:0;z-index:100;background:rgba(247,248,249,.97);border-bottom:1px solid var(--line);padding:10px 0 6px}
+.hwrap{max-width:860px;margin:0 auto;padding:0 16px}
+h1{font-size:17px;font-weight:700;color:var(--acc)}
+.sub{font-size:13px;color:var(--mut);margin:1px 0 6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2px 10px}
+.pill b{color:var(--acc)}
+.pill button{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:2px 10px;cursor:pointer;font-size:13px}
+.pill button:hover{filter:brightness(1.08)}
+.wrap{max-width:860px;margin:24px auto;padding:0 16px;display:flex;flex-direction:column;gap:20px}
+.q{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qrank{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;border:1px solid}
+.rang-a{background:#dcfce7;color:#166534;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{font-size:13px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:14px}
+.opts{list-style:none;display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;cursor:pointer}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px}
+.actions{display:flex;gap:8px;margin-top:14px}
+button.validate{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:6px 18px;cursor:pointer;font-size:14px;font-weight:600}
+button.validate:hover{filter:brightness(1.08)}
+button.validate:disabled{opacity:.5;cursor:default}
+button.show{background:none;border:1px solid var(--line);border-radius:10px;padding:6px 14px;cursor:pointer;font-size:14px;color:var(--mut)}
+button.show:hover{border-color:var(--acc);color:var(--acc)}
+.correction{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.ans{font-weight:700;font-size:14px;margin-bottom:8px;color:var(--ink)}
+.note{background:#fef8ec;border:1px solid #f0dfa0;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+</style>
+</head>
+<body>
+<header>
+<div class="hwrap">
+  <h1>Item 310 — Cancer de la prostate</h1>
+  <div class="sub">UE 8.4 — Néphro/Uro · D2 T3 · Entraînement par item</div>
+  <div class="scorebar">
+    <span class="pill">Validées : <b id="s-done">0/10</b></span>
+    <span class="pill">Score : <b id="s-ok">0/10</b></span>
+    <span class="pill"><button id="revealall">Tout révéler</button></span>
+    <span class="pill"><button id="reset">Recommencer</button></span>
+  </div>
+</div>
+</header>
+<div class="wrap">
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les facteurs de risque reconnus du cancer de la prostate ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Âge supérieur à 50 ans</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Tabagisme actif</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Origine africaine ou afro-antillaise</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Antécédents familiaux de cancer de la prostate au 1er degré</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Hypertrophie bénigne de la prostate (HBP)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'incidence augmente fortement après 50 ans ; la grande majorité des cancers surviennent après 65 ans.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le tabagisme n'est pas un facteur de risque établi du cancer de la prostate.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'origine africaine ou afro-antillaise est associée à une incidence plus élevée et à des formes plus agressives ; le dépistage est recommandé dès 45 ans dans cette population.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — un antécédent familial de cancer de la prostate au 1er degré (père, frère) double le risque ; le dépistage est recommandé dès 45 ans.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'HBP et le cancer de la prostate sont deux entités distinctes ; l'HBP n'est pas un facteur de risque de cancer.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le PSA (antigène spécifique prostatique), quelles affirmations sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Le PSA est une sérine protéase produite par les cellules épithéliales prostatiques</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Un PSA élevé peut être dû à une HBP, une prostatite ou un cancer</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Un PSA total < 4 ng/mL exclut formellement un cancer de la prostate</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Le rapport PSA libre/PSA total est utile pour améliorer la spécificité du dépistage</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">La vélocité du PSA (variation annuelle) n'a aucune valeur diagnostique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le PSA est une kallikréine (sérine protéase) produite par les cellules épithéliales prostatiques, organe-spécifique mais non tumeur-spécifique.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'HBP, les prostatites, le massage prostatique, les biopsies et le cancer élèvent le PSA.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — environ 15–25% des cancers surviennent avec un PSA < 4 ng/mL (faux négatifs) ; le PSA n'est pas suffisant seul pour exclure un cancer.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — un rapport PSA libre/PSA total < 15–25% (selon les seuils) est plus évocateur d'un cancer (PSA lié aux protéines plasmatiques ↑ dans le cancer).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la vélocité du PSA (augmentation > 0,75 ng/mL/an) est un facteur de suspicion complémentaire, même si elle est moins utilisée isolément.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel examen permet d'établir le diagnostic de certitude de cancer de la prostate ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">IRM multiparamétrique de la prostate</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Dosage du PSA total sérique</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Biopsies prostatiques avec examen anatomopathologique</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Toucher rectal</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Echographie transrectale</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">Depuis 2019, l'IRM multiparamétrique est réalisée AVANT les biopsies (score PI-RADS 1–5) pour cibler les zones suspectes et augmenter le rendement diagnostique. Les biopsies sont guidées par fusion IRM/échographie ou ciblage cognitif.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — l'IRM est un examen d'imagerie, non histologique ; elle oriente les biopsies et classe les lésions (PI-RADS) mais ne fait pas le diagnostic de certitude.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le PSA est un marqueur d'orientation, non spécifique du cancer.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — seul l'examen anatomopathologique des biopsies (score de Gleason → grade ISUP 1–5) établit le diagnostic de certitude et le pronostic histologique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le toucher rectal peut suspecter un cancer (nodule dur, induration) mais ne suffit pas pour établir le diagnostic.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'échographie transrectale est un outil de guidage des biopsies, pas un examen diagnostique de certitude.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les caractéristiques du score de Gleason / grade ISUP ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Le score de Gleason va de 2 à 10 (somme des deux grades architecturaux les plus représentés)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Un grade ISUP 1 (Gleason ≤ 6) correspond à un cancer de bas risque</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Un grade ISUP 5 (Gleason 9–10) est de très mauvais pronostic</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Le grade ISUP est établi sur la pièce de prostatectomie, jamais sur les biopsies</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Le grade ISUP est le principal facteur pronostique histologique du cancer de la prostate</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le score de Gleason = grade dominant + grade secondaire (chacun de 1 à 5), soit un total de 2 à 10. En pratique, les cancers de grade 1+1=2 sont rares ; le minimum clinique est souvent 3+3=6.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Gleason ≤ 6 = ISUP 1 = bas grade, évolution lente, souvent éligible à la surveillance active.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Gleason 9–10 = ISUP 5 = cancer agressif, mauvais pronostic, traitement curatif multimodal.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le grade ISUP peut et doit être établi sur les biopsies (pour décider du traitement) ; il est aussi évalué sur la pièce de prostatectomie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — avec le stade TNM et le PSA initial, le grade ISUP constitue la triade pronostique de référence (classification de D'Amico).</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Selon la classification de D'Amico, quels critères définissent un cancer de la prostate à haut risque ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">PSA initial > 20 ng/mL</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">PSA entre 10 et 20 ng/mL</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Score de Gleason ≥ 8 (ISUP 4–5)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Stade clinique ≥ T3 au toucher rectal</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Score de Gleason = 7 (ISUP 2–3)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note">Classification de D'Amico : Bas risque = PSA ≤ 10 + Gleason ≤ 6 + T1c-T2a. Risque intermédiaire = PSA 10–20 OU Gleason 7 OU T2b. Haut risque = PSA > 20 OU Gleason ≥ 8 OU T3-T4 (au moins un critère).</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — PSA > 20 ng/mL = critère de haut risque.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — PSA 10–20 ng/mL = risque intermédiaire.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Gleason ≥ 8 (ISUP 4–5) = haut risque.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — stade T3 (extension extraprostatique) ou T4 (envahissement organes adjacents) = haut risque.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Gleason 7 (ISUP 2–3) = risque intermédiaire.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les options thérapeutiques à visée curative pour un cancer de prostate localisé de haut risque ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Prostatectomie totale (prostatectomie radicale)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Radiothérapie externe avec hormonothérapie longue durée (> 2 ans)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Surveillance active seule (sans traitement immédiat)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Curiethérapie (brachythérapie) à haut débit de dose</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Prostatectomie + radiothérapie adjuvante en cas de critères péjoratifs</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la prostatectomie totale est un traitement curatif de référence, avec ou sans curage ganglionnaire étendu selon le risque.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la radiothérapie externe associée à une hormonothérapie longue durée (androgénoprivation 2–3 ans) est le traitement standard des cancers localisés de haut risque en cas de contre-indication chirurgicale ou choix du patient.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la surveillance active est réservée aux cancers de bas risque (PSA ≤ 10, Gleason ≤ 6, stade ≤ T2a, < 2 biopsies positives) ; elle est contre-indiquée dans le haut risque.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la curiethérapie HDR (haut débit de dose) peut être proposée en association avec la radiothérapie externe dans le haut risque (boost).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — en cas de marges positives, d'extension extraprostatique ou d'envahissement des vésicules séminales (pT3), une radiothérapie adjuvante peut être proposée.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les effets indésirables principaux de l'hormonothérapie (castration androgénique) dans le cancer de la prostate ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Ostéoporose et risque fracturaire accru</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Hypertension artérielle sévère</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Syndrome métabolique (prise de poids, dyslipidémie, résistance à l'insuline)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Bouffées de chaleur et troubles de la libido</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Augmentation du PSA (rebond)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note">L'hormonothérapie (agonistes/antagonistes LHRH ou castration chirurgicale) réduit la testostéronémie à < 50 ng/dL. Un DEXA osseux de base et une supplémentation Ca/vitamine D sont systématiques ; l'acide zolédronique ou le dénosumab prévient la perte osseuse.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la carence androgénique entraîne une ostéoporose et majore le risque de fractures (vertèbres, col fémoral).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — l'hormonothérapie n'est pas une cause directe d'HTA sévère, bien qu'un syndrome métabolique puisse exister. Ce n'est pas un effet principal attendu.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la carence androgénique favorise la prise de masse grasse, la dyslipidémie et la résistance à l'insuline (risque cardiovasculaire majoré).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les bouffées de chaleur, la perte de libido et la dysfonction érectile sont constants.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'hormonothérapie diminue le PSA ; une remontée du PSA sous traitement (échappement hormonal, résistance à la castration) est au contraire un signe d'évolution défavorable.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel(s) signe(s) clinique(s) peut/peuvent révéler un cancer de la prostate métastatique ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Douleurs osseuses lombaires ou du bassin (métastases osseuses)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Compression médullaire avec paraplégie ou rétention urinaire</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Insuffisance rénale obstructive bilatérale</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Hémoptysies (métastases pulmonaires)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Altération de l'état général, anorexie, amaigrissement</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les métastases osseuses (surtout rachis, bassin, fémur) sont les plus fréquentes (> 80% des métastases), responsables de douleurs osseuses. Les métastases du cancer prostatique sont ostéocondensantes.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la compression médullaire par métastase vertébrale est une urgence neurologique oncologique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'envahissement locorégional ou les adénopathies pelviennes peuvent comprimer les deux uretères.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — les métastases pulmonaires du cancer de la prostate sont rares et généralement asymptomatiques ; elles ne donnent pas typiquement d'hémoptysies.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — l'altération de l'état général avec amaigrissement est fréquente dans les stades métastatiques avancés.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qrank rang-b">Rang B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les complications possibles de la prostatectomie totale ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Incontinence urinaire d'effort (transitoire ou permanente)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Hyperplasie compensatrice des glandes périurétrales résiduelles</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Dysfonction érectile (lésion des bandelettes neurovasculaires)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Sténose anastomotique vésico-urétrale</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Augmentation paradoxale du PSA post-opératoire</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'incontinence urinaire d'effort est la principale morbidité fonctionnelle ; elle régresse souvent en quelques semaines à mois avec rééducation périnéale, mais peut être permanente.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la prostatectomie totale ablate toute la prostate ; il n'y a pas de glandes résiduelles susceptibles d'hyperplasier.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la lésion des bandelettes neurovasculaires érectiles (latérales à la prostate) entraîne une dysfonction érectile ; la préservation bilatérale des bandelettes est possible pour les tumeurs de bas/moyen risque.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la sténose de l'anastomose vésico-urétrale est une complication tardive (cicatrisation) pouvant nécessiter une dilatation endoscopique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — après prostatectomie totale complète, le PSA doit devenir indétectable (< 0,1–0,2 ng/mL) ; une élévation post-opératoire signe une récidive biologique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels examens sont utilisés dans le bilan d'extension d'un cancer de la prostate à haut risque ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Scintigraphie osseuse (ou TEP-choline/PSMA)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">IRM pelvienne (extension locale, ganglions pelviens)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Scanner thoraco-abdomino-pelvien</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Biopsie ostéo-médullaire systématique</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">TEP au PSMA (prostate-specific membrane antigen) en cas de récidive biologique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la scintigraphie osseuse recherche les métastases osseuses dans les cancers à haut risque (PSA > 20 ou Gleason ≥ 8) ; la TEP-choline ou TEP-PSMA est plus sensible et tend à la remplacer.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'IRM pelvienne précise l'extension locale (T), les marges, les vésicules séminales, les ganglions pelviens.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le scanner TAP recherche les adénopathies à distance et les métastases viscérales (poumons, foie) dans les formes à haut risque.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la biopsie ostéo-médullaire n'est pas un examen du bilan d'extension standard du cancer de la prostate.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — la TEP au PSMA est très sensible pour détecter une récidive biologique (PSA ≥ 0,2 après chirurgie ou ≥ nadir +2 après radiothérapie) et guider le traitement de rattrapage.</div>
+  </div>
+</div>
+
+</div>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script>
+const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}
+  });
+}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';
+  const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){
+        const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;
+        if(li.classList.contains('sel'))li.classList.remove('sel');
+        else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');
+      }
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{$('.q.locked').forEach(q=>q.classList.remove('locked'));$('.q').forEach(q=>reveal(q,true));});
+initLocks();updateScore();
+</script>
+</body>
+</html>
