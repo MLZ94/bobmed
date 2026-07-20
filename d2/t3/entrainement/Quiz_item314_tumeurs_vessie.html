@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Item 314 — Tumeurs de la vessie · Entraînement</title>
+<link rel="icon" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:60px}
+header{position:sticky;top:0;z-index:100;background:rgba(247,248,249,.97);border-bottom:1px solid var(--line);padding:10px 0 6px}
+.hwrap{max-width:860px;margin:0 auto;padding:0 16px}
+h1{font-size:17px;font-weight:700;color:var(--acc)}
+.sub{font-size:13px;color:var(--mut);margin:1px 0 6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2px 10px}
+.pill b{color:var(--acc)}
+.pill button{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:2px 10px;cursor:pointer;font-size:13px}
+.pill button:hover{filter:brightness(1.08)}
+.wrap{max-width:860px;margin:24px auto;padding:0 16px;display:flex;flex-direction:column;gap:20px}
+.q{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qrank{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;border:1px solid}
+.rang-a{background:#dcfce7;color:#166534;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{font-size:13px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:14px}
+.opts{list-style:none;display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;cursor:pointer}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px}
+.actions{display:flex;gap:8px;margin-top:14px}
+button.validate{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:6px 18px;cursor:pointer;font-size:14px;font-weight:600}
+button.validate:hover{filter:brightness(1.08)}
+button.validate:disabled{opacity:.5;cursor:default}
+button.show{background:none;border:1px solid var(--line);border-radius:10px;padding:6px 14px;cursor:pointer;font-size:14px;color:var(--mut)}
+button.show:hover{border-color:var(--acc);color:var(--acc)}
+.correction{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.ans{font-weight:700;font-size:14px;margin-bottom:8px;color:var(--ink)}
+.note{background:#fef8ec;border:1px solid #f0dfa0;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+</style>
+</head>
+<body>
+<header>
+<div class="hwrap">
+  <h1>Item 314 — Tumeurs de la vessie</h1>
+  <div class="sub">UE 8.4 — Néphro/Uro · D2 T3 · Entraînement par item</div>
+  <div class="scorebar">
+    <span class="pill">Validées : <b id="s-done">0/10</b></span>
+    <span class="pill">Score : <b id="s-ok">0/10</b></span>
+    <span class="pill"><button id="revealall">Tout révéler</button></span>
+    <span class="pill"><button id="reset">Recommencer</button></span>
+  </div>
+</div>
+</header>
+<div class="wrap">
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les facteurs de risque reconnus de tumeur de la vessie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Tabagisme actif ou ancien (principal facteur de risque en France)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Exposition professionnelle aux amines aromatiques (aniline, caoutchouc, colorants)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Consommation chronique d'alcool</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Prise de cyclophosphamide (alkylant — acroléine urotoxique)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Radiothérapie pelvienne antérieure</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le tabagisme est le principal facteur de risque (risque × 4–6), dose-dépendant, persistant des années après le sevrage.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — exposition professionnelle aux amines aromatiques (industrie du caoutchouc, teintures, peinture) : maladie professionnelle reconnue (tableau 15bis).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'alcool n'est pas un facteur de risque reconnu de tumeur de la vessie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le cyclophosphamide produit de l'acroléine (métabolite urothéliotoxique) ; la mésna est utilisée en prophylaxie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — la radiothérapie pelvienne (cancer du col, rectum, prostate) augmente le risque de tumeur de la vessie après un délai de plusieurs années.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel est le type histologique représentant environ 90–95 % des tumeurs de la vessie en France ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Adénocarcinome vésical</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Carcinome épidermoïde</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Carcinome urothélial (anciennement transitional cell carcinoma)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Lymphome vésical primitif</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Sarcome vésical</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">En zone d'endémie schistosomose (Afrique subsaharienne), le carcinome épidermoïde est prédominant (lié à Schistosoma haematobium). En France, le carcinome urothélial est prédominant dans les voies urinaires supérieures et la vessie.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — l'adénocarcinome vésical est rare (< 2%), parfois associé à un uraque persistant.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le carcinome épidermoïde est rare en France (< 5%), associé aux cystites chroniques ou bilharziose.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le carcinome urothélial représente 90–95% des tumeurs vésicales malignes en France.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel examen assure à la fois le diagnostic ET le traitement initial d'une tumeur de la vessie non infiltrant le muscle (TVNIM) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Cystoscopie diagnostique souple sous AL en consultation</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Biopsie vésicale échoguidée transpariétale</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Résection transurétrale de la vessie (RTUV) sous anesthésie</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Cystectomie totale laparoscopique</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Instillation endovésicale de BCG</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">La RTUV est l'examen clé : elle réalise à la fois le diagnostic histologique (grade, profondeur d'invasion, présence de muscle dans les copeaux) ET l'exénèse de la tumeur visible. Une 2e RTUV (re-RTUV) est recommandée pour les T1 et les tumeurs volumineuses ou multifocales.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la cystoscopie souple permet de visualiser une lésion suspecte mais ne réalise pas de biopsie ni de résection ; elle oriente vers la RTUV.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la biopsie transpariétale est contre-indiquée pour les tumeurs vésicales (risque de dissémination).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la RTUV, réalisée sous anesthésie (générale ou locorégionale), enlève la tumeur et permet l'analyse anatomopathologique complète (grade, stade T, marges).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la cystectomie totale est réservée aux TVIM (T2-T4) ou aux TVNIM BCG-réfractaires.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le BCG est un traitement adjuvant après RTUV pour réduire le risque de récidive ; il n'est pas un traitement de la tumeur en elle-même.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel critère histologique définit le passage d'une tumeur de la vessie non infiltrante (TVNIM) à une tumeur infiltrant le muscle (TVIM) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Présence de cellules de haut grade (grade 3)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Envahissement du chorion sous-épithélial (T1)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Envahissement de la musculeuse (détrusor — T2 ou plus)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Présence d'un carcinome in situ (Tis)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Taille tumorale supérieure à 3 cm</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">Classification TNM simplifiée : Tis = CIS (in situ, épithélial) ; Ta = papillaire non infiltrant ; T1 = invasion du chorion (TVNIM) ; T2 = invasion de la musculeuse (TVIM, stade pivot) ; T3 = graisse périvésicale ; T4 = organes adjacents.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — le grade (bas ou haut) caractérise la différenciation cellulaire, mais une tumeur Ta de haut grade reste une TVNIM.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — T1 (invasion du chorion) est toujours une TVNIM, bien que de haut risque.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'invasion de la musculeuse (T2) définit la TVIM et modifie radicalement la prise en charge (cystectomie totale vs RTUV).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le CIS (Tis) est une TVNIM de très haut risque (épithélium uniquement) mais reste non infiltrant.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la taille n'est pas le critère de distinction entre TVNIM et TVIM.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les indications des instillations endovésicales de BCG (Bacille de Calmette-Guérin) dans les tumeurs de la vessie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">TVNIM T1 de haut grade (après RTUV complète)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Carcinome in situ (CIS/Tis)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">TVNIM Ta haut grade multifocale ou récidivante après mitomycine</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">TVIM T2 après RTUV complète</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">TVNIM Ta bas grade à très haut risque (multifocales, nombreuses récidives)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="note">Le BCG est un immunostimulant intravésical. Protocole : 6 instillations hebdomadaires (induction) puis 3 instillations à 3, 6, 12, 18, 24, 30, 36 mois (entretien 1–3 ans selon le protocole). Contre-indiqué en cas d'immunodépression sévère, hématurie macroscopique active ou RAU récente.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les T1 haut grade sont à haut risque de récidive (50–70%) et de progression ; le BCG est recommandé en première intention.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le CIS (Tis) est une indication majeure du BCG ; en cas d'échec (BCG-réfractaire), la cystectomie s'impose.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — en cas d'échec de la mitomycine C pour les Ta haut grade, le BCG est la 2e ligne endovésicale.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une TVIM T2 ne se traite pas par BCG ; la RTUV seule ne suffit pas : la cystectomie totale (± chimiothérapie néoadjuvante) est le traitement standard.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — les TVNIM Ta bas grade à risque très élevé de récidive (> 8 tumeurs, récidives multiples) peuvent bénéficier du BCG (recommandations EAU).</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel est le traitement de référence d'une tumeur de la vessie infiltrant le muscle (TVIM T2N0M0) chez un patient opérable ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">RTUV élarg ie suivie d'instillations de BCG</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Radiothérapie vésicale exclusive (64 Gy)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Chimiothérapie néoadjuvante (cisplatine) suivie de cystectomie totale</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Immunothérapie par anti-PD-L1 (atézolizumab) en première intention</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">RTUV de résection complète sans traitement adjuvant</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">La cystectomie totale (avec curage ganglionnaire ilio-obturateur bilatéral) reste le gold standard pour les TVIM localisées. Une chimiothérapie néoadjuvante à base de cisplatine (protocole MVAC ou GC) améliore la survie globale d'environ 5% à 5 ans et est recommandée chez les patients pouvant recevoir du cisplatine.</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — le BCG est réservé aux TVNIM ; une TVIM T2 nécessite une cystectomie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la radio-chimiothérapie concomitante est une alternative pour les patients inopérables ou refusant la chirurgie, mais la survie à 5 ans est inférieure à la cystectomie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — chimiothérapie néoadjuvante (cisplatine) + cystectomie totale = traitement de référence des TVIM localisées.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'immunothérapie anti-PD-L1/PD-1 est indiquée dans les TVIM métastatiques ou localement avancées inopérables, pas en première ligne curative.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la RTUV seule ne suffit pas pour une TVIM (risque de sous-stadification et de métastases occultes).</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels signes cliniques peuvent révéler une tumeur de la vessie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Hématurie macroscopique totale indolore (signe le plus fréquent)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Cystite persistante malgré antibiothérapie adaptée</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Polyurie-polydipsie</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Syndrome irritatif vésical isolé (pollakiurie, brûlures mictionnelles, urgenturie)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Douleurs pelviennes ou lombalgies (tumeur avancée ou obstruction urétérale)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'hématurie macroscopique totale, intermittente, indolore est le mode de révélation dans > 80% des cas.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — une cystite récidivante ou résistante doit faire évoquer une tumeur sous-jacente surinfectée ou un CIS.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la polyurie-polydipsie n'est pas liée aux tumeurs vésicales.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le carcinome in situ (CIS) se manifeste souvent par un syndrome irritatif vésical sévère (pollakiurie, brûlures, urgenturie) sans hématurie visible, simulant une cystite.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — les douleurs pelviennes évoquent une extension locorégionale ; une lombalgie unilatérale peut traduire une obstruction urétérale par la tumeur.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après RTUV d'une TVNIM de haut risque (T1 haut grade), quelle est la modalité de surveillance recommandée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Cystoscopie à 3 mois (puis tous les 3 mois pendant 2 ans)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Dosage du PSA tous les 6 mois</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Cytologie urinaire à chaque consultation de surveillance</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Uro-TDM des voies urinaires supérieures (risque de tumeur urothéliale synchrone ou métachrone)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Arrêt de la surveillance après 5 ans sans récidive</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note">La surveillance des TVNIM est prolongée à vie pour les haut risque (récidives fréquentes, risque de progression). Les TVNIM bas risque : cystoscopie à 3 mois puis à 1 an puis annuelle pendant 5 ans. Haut risque : cystoscopie tous les 3 mois pendant 2 ans, puis tous les 6 mois pendant 3 ans, puis annuelle à vie.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la 1re cystoscopie à 3 mois est essentielle pour vérifier la complétude de la résection et dépister une récidive précoce.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le PSA n'a aucune valeur dans la surveillance des tumeurs de la vessie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la cytologie urinaire est complémentaire de la cystoscopie pour dépister une récidive ou un CIS (sensible pour le haut grade).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le risque de carcinome urothélial synchrone ou métachrone des voies supérieures justifie une imagerie initiale et une surveillance annuelle (uro-TDM ou uro-IRM).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la surveillance des TVNIM de haut risque est recommandée à vie (cystoscopie annuelle après les 5 premières années).</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qrank rang-b">Rang B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après cystectomie totale, quels types de dérivations urinaires peuvent être proposés au patient ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Conduit iléal de Bricker (dérivation non continente, appareillage externe)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Néovessie orthotopique iléale (continente, anastomosée à l'urètre natif)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Dialyse péritonéale comme dérivation urinaire temporaire</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Urétérostomie cutanée bilatérale directe (patients fragiles)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Réimplantation urétérale dans l'urètre natif sans réservoir</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le conduit iléal de Bricker (stomie) est la dérivation non continente de référence, la plus simple ; le patient porte une poche externe.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la néovessie orthotopique (réservoir iléal anastomosé à l'urètre) permet une miction per urethram mais nécessite une urètre indemne ; contre-indiquée si envahissement du col ou de l'urètre.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la dialyse péritonéale est un traitement de l'insuffisance rénale, pas une dérivation urinaire.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'urétérostomie cutanée directe est la dérivation la plus simple (pas d'anastomose digestive) ; réservée aux patients fragiles ou espérance de vie limitée.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une réimplantation urétérale directe dans l'urètre sans réservoir intermédiaire n'est pas réalisable anatomiquement (incompatibilité des pressions).</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels examens sont réalisés dans le bilan d'extension d'une tumeur de la vessie infiltrant le muscle (TVIM) avant traitement curatif ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Uro-TDM thoraco-abdomino-pelvien avec injection</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">IRM pelvienne (pour préciser l'extension locale au pelvis)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Scintigraphie osseuse (si symptômes osseux ou phosphatases alcalines élevées)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Biopsie de prostate systématique</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Bilan préopératoire classique (NFS, ionogramme, créatinine, bilan hépatique, ECG)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'uro-TDM TAP est l'examen de référence pour le bilan d'extension ganglionnaire, viscérale et des voies urinaires supérieures.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'IRM pelvienne est plus précise que le TDM pour évaluer l'extension locale (tissu périvésical T3, organes adjacents T4, ganglions).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la scintigraphie osseuse (ou TEP-FDG) est indiquée en cas de suspicion de métastases osseuses (douleurs, élévation des PAL).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la biopsie de prostate n'est pas systématique dans le bilan d'une TVIM, sauf si un cancer de prostate synchrone est suspecté (PSA élevé, nodule au TR).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — le bilan préopératoire standard est indispensable avant cystectomie (évaluation de la fonction rénale notamment, car la dérivation urinaire est choisie en partie selon la créatinine).</div>
+  </div>
+</div>
+
+</div>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script>
+const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}
+  });
+}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';
+  const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){
+        const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;
+        if(li.classList.contains('sel'))li.classList.remove('sel');
+        else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');
+      }
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{$('.q.locked').forEach(q=>q.classList.remove('locked'));$('.q').forEach(q=>reveal(q,true));});
+initLocks();updateScore();
+</script>
+</body>
+</html>

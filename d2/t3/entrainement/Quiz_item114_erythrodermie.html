@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Item 114 — Érythrodermie · Entraînement</title>
+<link rel="icon" href="../../../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../../theme.css">
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:60px}
+header{position:sticky;top:0;z-index:100;background:rgba(247,248,249,.97);border-bottom:1px solid var(--line);padding:10px 16px}
+.hwrap{max-width:780px;margin:0 auto}
+h1{font-size:17px;font-weight:700;margin-bottom:2px}
+.sub{font-size:13px;color:var(--mut);margin-bottom:6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:13px}
+.pill button{border:none;background:none;cursor:pointer;font:inherit;font-size:13px;color:var(--acc);padding:0}
+button#revealall,button#reset{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:2px 10px;cursor:pointer;font:inherit;font-size:13px}
+.wrap{max-width:780px;margin:24px auto;padding:0 16px;display:flex;flex-direction:column;gap:18px}
+.q{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qrank{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;border:1px solid}
+.rang-a{background:#dcfce7;color:#166534;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{font-size:13px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:14px;line-height:1.5}
+.opts{list-style:none;display:flex;flex-direction:column;gap:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin:4px 0;cursor:pointer;transition:.12s}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.otext{font-size:14.5px;line-height:1.45;padding-top:2px}
+.mark{margin-left:6px;font-size:13px}
+.actions{display:flex;gap:8px;margin-top:14px}
+button.validate{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:6px 18px;font:inherit;font-size:14px;cursor:pointer}
+button.validate:hover{filter:brightness(1.08)}
+button.validate:disabled{opacity:.5;cursor:default}
+button.show{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer;color:var(--mut)}
+.correction{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.ans{font-weight:700;font-size:14.5px;margin-bottom:8px;color:var(--ink)}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.tag-mandatory,.tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.tag-mandatory{color:var(--neu);background:var(--neubg);border:1px solid var(--neu)}
+.tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <h1>Item 114 — Érythrodermie</h1>
+  <div class="sub">UE 4.3 — Dermatologie · D2 T3 · Entraînement par item</div>
+  <div class="scorebar">
+    <span class="pill">Validées : <b id="s-done">0/10</b></span>
+    <span class="pill">Score : <b id="s-ok">0/10</b></span>
+    <span class="pill"><button id="revealall">Tout révéler</button></span>
+    <span class="pill"><button id="reset">Recommencer</button></span>
+  </div>
+</div></header>
+
+<div class="wrap">
+
+<div class="q" id="Q1" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelle définition correspond à l'érythrodermie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Érythème diffus touchant plus de 50% de la surface corporelle, sans desquamation</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Érythème et desquamation touchant plus de 50% de la surface corporelle</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Érythème et desquamation touchant plus de 90% de la surface corporelle</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Érythème localisé aux membres inférieurs avec peau tendue et luisante</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Érythème + œdème touchant le visage et les muqueuses</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le seuil est 90% (pas 50%) et la desquamation est caractéristique de l'érythrodermie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le seuil de 50% n'est pas retenu pour définir l'érythrodermie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Définition consensuelle : érythème diffus (rougeur) + desquamation touchant ≥90% de la surface corporelle. C'est une urgence dermatologique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Description d'une stase veineuse ou d'une cellulite, non d'une érythrodermie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Description d'un angioœdème (Quincke), non d'une érythrodermie.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ABCD">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les principales étiologies de l'érythrodermie de l'adulte ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Psoriasis érythrodermique</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Dermatite atopique érythrodermique (eczéma généralisé)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Toxidermie médicamenteuse (DRESS ou toxidermie bulleux généralisé)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Lymphome T cutané (syndrome de Sézary)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Hypothyroïdie sévère</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="note">Les 4 grandes étiologies de l'érythrodermie : psoriasis (30%), eczéma/DA (25%), toxidermie (15%), lymphome T cutané (15%). Dans 10–20% des cas, l'étiologie reste idiopathique après bilan complet.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le psoriasis érythrodermique est la cause la plus fréquente (30%) ; souvent déclenché par un arrêt brutal des corticoïdes systémiques.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La DA sévère peut se compliquer d'érythrodermie, surtout chez les adultes jeunes avec DA depuis l'enfance.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le DRESS (rash avec éosinophilie et symptômes systémiques) peut se présenter sous forme érythrodermique. Penser aussi à la scarlatine et aux érythèmes toxiques.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le syndrome de Sézary (leucémie/lymphome T épidermotrope) se présente classiquement par la triade : érythrodermie prurigineuse + cellules de Sézary circulantes + adénopathies.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'hypothyroïdie ne provoque pas d'érythrodermie ; elle peut donner une peau sèche, froide, xérotique, mais pas un érythème diffus avec desquamation.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les complications potentielles d'une érythrodermie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Hypothermie par déperdition thermique (thermorégulation cutanée altérée)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Déshydratation et troubles hydro-électrolytiques (pertes hydriques transcutanées augmentées)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Dénutrition (hypercatabolisme, pertes protéiques cutanées)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Insuffisance rénale systématique (glomérulonéphrite associée)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Infections cutanées et septicémies (altération de la barrière cutanée)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Vasodilatation généralisée → perte de chaleur → hypothermie ou hyperthermie selon l'environnement ; désordres thermiques graves.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les pertes insensibles transcutanées peuvent atteindre 3–4 L/j → déshydratation, hyponatrémie, tachycardie, risque d'insuffisance rénale pré-rénale.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Desquamation intense → pertes protéiques massives + hypercatabolisme → dénutrition rapide (hypoalbuminémie).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'insuffisance rénale n'est pas une complication directe systématique de l'érythrodermie ; elle peut survenir secondairement (déshydratation, sepsis) mais n'est pas due à une glomérulonéphrite associée à l'érythrodermie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Rupture de la barrière cutanée → colonisation bactérienne (staphylocoque, streptocoque) → infections locales et septicémies.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABCD">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel bilan initial est systématiquement recommandé devant une érythrodermie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">NFS avec frottis sanguin (recherche de cellules de Sézary, hyperéosinophilie)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Ionogramme sanguin, urée, créatinine, albuminémie, protidémie</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Biopsies cutanées multiples (au moins 2–3) pour examen anatomopathologique</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Bilan hépatique (ALAT, ASAT, GGT, PAL, bilirubine) et bilan d'hémostase</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Scanner thoraco-abdomino-pelvien systématique en première intention</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La NFS avec frottis sanguin recherche des cellules de Sézary (lymphocytes T atypiques à noyau cérébriforme, > 1000/mm³ = diagnostic de Sézary) et une hyperéosinophilie (évocatrice de DRESS ou d'atopie).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Évaluation du retentissement : natrémie, kaliémie, urée/créatinine (IRA pré-rénale), albuminémie/protidémie (dénutrition).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les biopsies cutanées multiples sont indispensables pour le diagnostic étiologique : une seule biopsie peut être non contributive. Elles orientent vers le psoriasis, l'eczéma, le lymphome T ou la toxidermie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le bilan hépatique est important car une atteinte hépatique peut orienter vers un DRESS (cytolyse hépatique) ou un lymphome (cholestase).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le scanner TAP n'est pas systématique en première intention ; il est demandé si la suspicion de lymphome T est élevée (adénopathies, frottis anormal, biopsie cutanée évocatrice).</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels éléments orientent vers un psoriasis érythrodermique comme cause de l'érythrodermie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Début brutal, fièvre élevée et prise de médicament dans les 4 semaines précédentes</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Antécédent de psoriasis chronique connu</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Survenue après arrêt brutal de corticoïdes systémiques chez un psoriasique</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Présence de cellules de Sézary circulantes (>1000/mm³) au frottis sanguin</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Persistance de quelques plaques bien délimitées squameuses et antécédent familial de psoriasis</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Ce tableau (début brutal, fièvre, médicament récent) est évocateur d'une toxidermie, notamment d'un DRESS.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Un antécédent de psoriasis est l'argument le plus fort en faveur d'un psoriasis érythrodermique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — C'est un déclencheur classique : l'arrêt brutal de corticoïdes systémiques chez un psoriasique peut induire une poussée érythrodermique (rebond).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les cellules de Sézary circulantes sont pathognomoniques du syndrome de Sézary (lymphome T cutané), non du psoriasis.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Des îlots de peau saine ou des plaques résiduelles bien délimitées et un antécédent familial orientent vers le psoriasis.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le syndrome de Sézary, quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">C'est un lymphome T cutané épidermotrope (T4 helper) de mauvais pronostic</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">La triade clinique associe érythrodermie prurigineuse intense, adénopathies et cellules de Sézary circulantes</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Le prurit est souvent intense et invalidant</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Le traitement de première intention est la corticothérapie systémique à fortes doses</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">La biopsie cutanée montre un infiltrat lymphocytaire épidermotrope avec des cellules cérébriformes</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le syndrome de Sézary est la forme leucémique du mycosis fongoïde ; il est considéré comme de mauvais pronostic (survie médiane 2–4 ans).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La triade est : érythrodermie + adénopathies + cellules de Sézary circulantes ≥ 1000/mm³ (ou rapport CD4/CD8 &gt;10).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le prurit est souvent très sévère, réfractaire aux antihistaminiques habituels, et représente une cause majeure d'altération de la qualité de vie.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La corticothérapie systémique n'est pas le traitement de référence du syndrome de Sézary ; elle peut même être délétère à long terme (immunosuppression favorisant la progression du lymphome). Les traitements incluent : photophérèse extracorporelle, méthotrexate, bexarotène, alemtuzumab, allogreffe de moelle.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'épidermotropisme (migration des lymphocytes T atypiques dans l'épiderme avec formation de microabcès de Pautrier) est la caractéristique histologique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles mesures symptomatiques sont indiquées lors de la prise en charge hospitalière d'une érythrodermie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Réhydratation et correction des troubles électrolytiques</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Maintien d'une température ambiante élevée (20–22°C minimum) pour prévenir l'hypothermie</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Corticothérapie systémique d'emblée à fortes doses (prednisone 1 mg/kg/j), quelle que soit l'étiologie</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Soins locaux émollients et bains quotidiens (lutte contre la desquamation et surinfection)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Soutien nutritionnel adapté (alimentation hyperprotidique, supplémentation)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Compensation des pertes hydriques transcutanées (perfusions IV si nécessaire) et correction des ionogrammes.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La thermorégulation est altérée ; la chambre doit être réchauffée et le patient doit être couvert pour éviter l'hypothermie.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La corticothérapie systémique n'est PAS indiquée d'emblée et peut être contre-productive, voire dangereuse selon l'étiologie : elle est contre-indiquée dans le psoriasis (risque de rebond pustuleux à l'arrêt) et n'est pas le traitement du lymphome T. Elle peut être envisagée après identification étiologique (eczéma réfractaire).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Bains tièdes quotidiens + application d'émollients (vaseline, cold cream) pour réduire la desquamation et restaurer la barrière ; antiseptiques si surinfection.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Apport calorico-protidique augmenté pour compenser l'hypercatabolisme et les pertes protéiques par la peau.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qrank rang-b">Rang B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels éléments cliniques orientent vers une érythrodermie due à une toxidermie médicamenteuse (DRESS) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Introduction d'un médicament (anticonvulsivant, sulfamide, allopurinol) dans les 2 à 8 semaines précédentes</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Présence d'une hyperéosinophilie et de lymphocytes atypiques à la NFS</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Atteinte systémique associée : hépatite cytolytique, atteinte rénale, pneumopathie</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Présence de plaques psoriasiformes bien délimitées avec signe d'Auspitz</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Adénopathies superficielles réactionnelles</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Délai caractéristique de 2–8 semaines après l'introduction du médicament culprit (beaucoup plus long que pour les toxidermies bénignes).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Hyperéosinophilie (> 700/mm³) présente dans 95% des DRESS, ainsi que des lymphocytes atypiques activés.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le DRESS est défini par l'association cutanée + systémique : hépatite (90%), atteinte rénale, pneumopathie ou atteinte myocardique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les plaques psoriasiformes avec signe d'Auspitz sont caractéristiques du psoriasis, non du DRESS. Le rash du DRESS est typiquement un érythème maculopapuleux ou un rash morbilliforme.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Des adénopathies superficielles multiples sont présentes dans la majorité des DRESS (réaction lymphocytaire systémique).</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le traitement étiologique du psoriasis érythrodermique, quelles propositions sont exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">La corticothérapie systémique est formellement contre-indiquée (risque de rebond pustuleux grave à l'arrêt)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">La cyclosporine à fortes doses (10 mg/kg/j) est le traitement de première intention</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Le méthotrexate, la cyclosporine ou les biothérapies (anti-TNF, anti-IL17, anti-IL23) peuvent être utilisés</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">L'acitrétine (rétinoïde) peut être efficace, en particulier dans les formes pustuleuses</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Les dermocorticoïdes locaux sont le traitement de première intention du psoriasis érythrodermique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La corticothérapie systémique est contre-indiquée dans le psoriasis (toutes formes) : elle stabilise momentanément mais le rebond à l'arrêt peut être catastrophique (psoriasis pustuleux généralisé).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La cyclosporine est efficace mais s'utilise aux doses thérapeutiques (2,5–5 mg/kg/j), pas à 10 mg/kg/j (dose toxique).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les traitements systémiques disponibles incluent MTX, ciclosporine, et biothérapies (adalimumab, infliximab, sécukinumab, ixékizumab, guselkumab). Le choix dépend des comorbidités et de la sévérité.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'acitrétine (rétinoïde systémique) est particulièrement efficace dans les formes pustuleuses généralisées du psoriasis.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les dermocorticoïdes locaux ne peuvent pas être appliqués sur 90% du corps ; ils ne sont pas le traitement de première intention de l'érythrodermie psoriasique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ABCD">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels éléments définissent le caractère d'urgence dermatologique de l'érythrodermie et justifient l'hospitalisation ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Risque vital par troubles de la thermorégulation et défaillances hémodynamiques</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Nécessité d'un bilan étiologique approfondi (biopsies, bilans biologiques)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Risque infectieux majeur (sepsis) lié à la rupture de la barrière cutanée</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Troubles hydro-électrolytiques sévères nécessitant une correction urgente</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Le traitement ambulatoire est souvent suffisant si la cause est identifiée rapidement</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La vasodilatation cutanée massive entraîne une redistribution du débit cardiaque, pouvant conduire à une insuffisance cardiaque à haut débit, et des désordres thermiques graves.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le bilan étiologique (biopsies multiples, immunomarquage, frottis sanguin, scanner…) est complexe et nécessite des conditions hospitalières.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La rupture de barrière cutanée sur 90% du corps est une porte d'entrée massive pour les bactéries ; le sepsis est une complication fréquente et grave.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La correction des troubles hydro-électrolytiques et de la déshydratation nécessite souvent une voie veineuse et une surveillance en milieu hospitalier.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Toute érythrodermie est une urgence dermatologique nécessitant une hospitalisation, quelle que soit l'étiologie suspectée. Le traitement ambulatoire n'est jamais une option en phase aiguë.</div>
+  </div>
+</div>
+
+</div><!-- .wrap -->
+
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script>
+const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')],cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}
+  });
+}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    const m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  let pts=qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');
+  st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';}
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  let pts=0;qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+qs.length;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+(qs.filter(q=>q.dataset.type!=='QROC').length);
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){const q=li.closest('.q');if(!q.classList.contains('done')){if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}else{li.classList.toggle('sel');}}return;}
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{$('.q.locked').forEach(q=>q.classList.remove('locked'));$('.q').forEach(q=>reveal(q,true));});
+initLocks();updateScore();
+</script>
+</body>
+</html>

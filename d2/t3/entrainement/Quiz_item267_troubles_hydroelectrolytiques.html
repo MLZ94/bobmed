@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Item 267 — Troubles hydro-électrolytiques · Entraînement</title>
+<link rel="icon" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--neubg:#fdf3e7;--acc:#4f46e5;--acc2:#06b6d4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:60px}
+header{position:sticky;top:0;z-index:100;background:rgba(247,248,249,.97);border-bottom:1px solid var(--line);padding:10px 0 6px}
+.hwrap{max-width:860px;margin:0 auto;padding:0 16px}
+h1{font-size:17px;font-weight:700;color:var(--acc)}
+.sub{font-size:13px;color:var(--mut);margin:1px 0 6px}
+.scorebar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:2px 10px}
+.pill b{color:var(--acc)}
+.pill button{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:2px 10px;cursor:pointer;font-size:13px}
+.pill button:hover{filter:brightness(1.08)}
+.wrap{max-width:860px;margin:24px auto;padding:0 16px;display:flex;flex-direction:column;gap:20px}
+.q{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);transition:opacity .35s ease,filter .35s ease}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:7px;padding:2px 8px}
+.qrank{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;border:1px solid}
+.rang-a{background:#dcfce7;color:#166534;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{font-size:13px;font-weight:600;margin-left:auto}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.part{color:var(--neu)}.status.rl{color:var(--mut)}
+.stem{font-size:15px;margin-bottom:14px}
+.opts{list-style:none;display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:9px 11px;cursor:pointer}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px}
+.actions{display:flex;gap:8px;margin-top:14px}
+button.validate{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:6px 18px;cursor:pointer;font-size:14px;font-weight:600}
+button.validate:hover{filter:brightness(1.08)}
+button.validate:disabled{opacity:.5;cursor:default}
+button.show{background:none;border:1px solid var(--line);border-radius:10px;padding:6px 14px;cursor:pointer;font-size:14px;color:var(--mut)}
+button.show:hover{border-color:var(--acc);color:var(--acc)}
+.correction{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.ans{font-weight:700;font-size:14px;margin-bottom:8px;color:var(--ink)}
+.note{background:#fef8ec;border:1px solid #f0dfa0;border-left:3px solid var(--neu);border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+</style>
+</head>
+<body>
+<header>
+<div class="hwrap">
+  <h1>Item 267 — Troubles hydro-électrolytiques et acido-basiques</h1>
+  <div class="sub">UE 8.4 — Néphro/Uro · D2 T3 · Entraînement par item</div>
+  <div class="scorebar">
+    <span class="pill">Validées : <b id="s-done">0/10</b></span>
+    <span class="pill">Score : <b id="s-ok">0/10</b></span>
+    <span class="pill"><button id="revealall">Tout révéler</button></span>
+    <span class="pill"><button id="reset">Recommencer</button></span>
+  </div>
+</div>
+</header>
+<div class="wrap">
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les éléments suivants, lesquels constituent des signes de gravité d'une hyponatrémie justifiant une prise en charge urgente ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Convulsions</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Coma (score de Glasgow ≤ 8)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Natrémie entre 130 et 134 mEq/L</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Arrêt cardiorespiratoire</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Nausées isolées sans vomissements</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les convulsions témoignent d'un œdème cérébral et constituent une urgence thérapeutique absolue.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — un coma profond impose le traitement hyperosmolaire immédiat par NaCl 3%.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — une natrémie entre 130 et 134 mEq/L représente une hyponatrémie légère, sans signe de gravité isolément.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'arrêt cardiorespiratoire est le stade ultime des formes graves, justifiant une correction immédiate.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — les nausées isolées sont un signe peu spécifique et non un critère de gravité ; leur association à des vomissements en jet et céphalées serait plus préoccupante.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les critères diagnostiques du SIADH (syndrome d'antidiurèse inappropriée) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Hyponatrémie hypotonique (osmolalité plasmatique basse)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Signes cliniques d'hypervolémie (œdèmes, ascite)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Natriurèse > 20–30 mEq/L malgré l'hyponatrémie</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Euvolémie clinique</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Osmolalité urinaire inadaptément élevée (> osmolalité plasmatique)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le SIADH produit une hyponatrémie hypotonique (hypo-osmolalité vraie).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le SIADH est caractérisé par l'euvolémie ; des signes d'hypervolémie orientent vers une insuffisance cardiaque, hépatique ou rénale.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la natriurèse est paradoxalement élevée malgré l'hyponatrémie (rétention d'eau sans rétention sodée).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'euvolémie clinique (absence d'œdèmes et de signes de déshydratation) est un critère fondamental.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — l'ADH inappropriée concentre les urines (osmU > 100 mOsm/kg, souvent > osmolalité plasmatique).</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">En présence de convulsions liées à une hyponatrémie sévère (Na⁺ = 112 mEq/L), quel traitement administrer en urgence immédiate ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Restriction hydrique seule (< 750 mL/j)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Sérum physiologique isotonique (NaCl 0,9%) en perfusion lente</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Sérum salé hypertonique (NaCl 3%) en bolus de 150 mL IV sur 20 min</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Tolvaptan (antagoniste des récepteurs V2 de l'ADH)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Furosémide IV seul</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note">La correction ne doit pas dépasser +8 à +10 mEq/L par 24h pour éviter la myélinolyse centropontine (complication de correction trop rapide).</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la restriction hydrique est le traitement de fond du SIADH chronique, insuffisante en urgence convulsive.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le sérum iso peut aggraver la dilution en contexte de SIADH si l'osmolalité urinaire est supérieure à 308 mOsm/kg.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le NaCl 3% à 150 mL IV sur 20 min est le traitement de choix des convulsions hyponatrémiques, à répéter jusqu'à sédation si nécessaire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le tolvaptan est contre-indiqué en phase aiguë sévère (risque de correction trop rapide) et dans la cirrhose.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le furosémide seul sans apport sodé peut aggraver l'hyponatrémie.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les manifestations électrocardiographiques de l'hypokaliémie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Onde U proéminente (> 1 mm, après l'onde T)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Aplatissement ou inversion de l'onde T</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Allongement de l'intervalle QT (QTc)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Sus-décalage du segment ST</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Extrasystoles ventriculaires, risque de torsades de pointes</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'onde U proéminente est le signe ECG le plus caractéristique de l'hypokaliémie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'aplatissement puis l'inversion de l'onde T sont précoces.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'allongement du QTc favorise les arythmies ventriculaires.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le sus-décalage du ST est un signe d'ischémie ou de péricardite, non d'hypokaliémie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — l'hypokaliémie est arythmogène ; les torsades de pointes peuvent survenir et dégénérer en fibrillation ventriculaire.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un patient présente une hyperkaliémie à 7,2 mEq/L avec des modifications ECG (ondes T pointues, élargissement QRS). Quels traitements de l'urgence hyperkaliémique sont indiqués ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Gluconate de calcium 10% IV (stabilisation membranaire)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Bicarbonate de sodium en cas d'acidose associée</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Glucose hypertonique + insuline IV (transfert K⁺ intracellulaire)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Résine échangeuse d'ions per os (kayexalate) en urgence immédiate</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Hémodialyse en urgence si hyperkaliémie réfractaire</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le gluconate de calcium est le premier geste : il stabilise la membrane cardiaque en quelques minutes sans modifier la kaliémie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le bicarbonate de sodium favorise le transfert de K⁺ en intracellulaire, surtout si acidose associée.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'insuline (avec glucose pour prévenir l'hypoglycémie) entraîne le K⁺ en intracellulaire en 30 min.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le kayexalate agit en plusieurs heures et est inadapté à l'urgence immédiate avec signes ECG ; il est utilisé en relais.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — l'hémodialyse est le traitement de référence des hyperkaliémies réfractaires ou avec insuffisance rénale sévère.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les causes suivantes, lesquelles sont responsables d'une acidose métabolique à trou anionique élevé (> 12 mEq/L) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Acidocétose diabétique</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Acidose lactique de type A (choc)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Diarrhée profuse</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Insuffisance rénale avancée (stade G4–G5)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Intoxication au méthanol ou à l'éthylène glycol</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="note">Mémo GOLDMARK (causes d'acidose à TA élevé) : Glycols, Oxoproline, L-Lactate, D-Lactate, Méthanol, Aspirine, Rein (IR), Kétones.</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les corps cétoniques (acétoacétate, β-hydroxybutyrate) sont des acides forts qui élèvent le TA.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le lactate s'accumule et élève le TA.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la diarrhée profuse entraîne une acidose métabolique hyperchlorémique à trou anionique NORMAL (perte de bicarbonates intestinaux compensée par une rétention de chlore).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'IR accumule des acides organiques (sulfates, phosphates, urate) qui élèvent le TA.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — le méthanol (→ formiate) et l'éthylène glycol (→ oxalate, glycolate) génèrent des acides organiques avec élévation majeure du TA.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelle est la formule du trou anionique plasmatique et sa valeur normale ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">TA = [Na⁺] − [Cl⁻] ; normale : 4–8 mEq/L</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">TA = [Na⁺] − ([Cl⁻] + [HCO₃⁻]) ; normale : 8–12 mEq/L</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">TA = [Na⁺] + [K⁺] − ([Cl⁻] + [HCO₃⁻]) ; normale : 12–18 mEq/L</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">TA = [HCO₃⁻] − [Cl⁻] ; normale : 16–22 mEq/L</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">TA = [Na⁺] − ([Cl⁻] + [HCO₃⁻]) ; normale : 20–25 mEq/L</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note">Certains auteurs incluent le K⁺ (formule C), mais la formule Na⁺ − (Cl⁻ + HCO₃⁻) est celle retenue en pratique clinique. Avec albumine normale, le TA est 8–12 mEq/L. Si l'albumine est basse, corriger : TA corrigé = TA mesuré + 2,5 × (4 − albuminémie en g/dL).</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — formule incomplète.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — formule standard et normale 8–12 mEq/L.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — formule avec K⁺ et normale différente ; non standard en France.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — formule incorrecte.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — formule correcte mais valeur normale erronée (20–25 correspond à un TA élevé pathologique).</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles causes peuvent être responsables d'une hypernatrémie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Diabète insipide central (déficit en ADH)</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Diabète insipide néphrogénique (résistance à l'ADH)</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Vomissements profus sans compensation hydrique</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Apport excessif de soluté hypertonique (NaCl 3%, NaHCO₃ 8,4%)</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Hypodipsie primaire (défaut de soif, altération conscience)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le diabète insipide central entraîne une perte d'eau pure massive (diurèse > 3 L/j, urines hypotoniques), d'où hypernatrémie si l'apport hydrique est insuffisant.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — même mécanisme (perte d'eau libre) mais résistance rénale à l'ADH endogène (lithium, hypercalcémie…).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — les vomissements entraînent une perte de HCl avec alcalose métabolique et, si déshydratation, plutôt une hypernatrémie dans les cas sévères sans compensation ; mais c'est une cause moins classique que les DI. Surtout, les vomissements causent plutôt une hyponatrémie de dilution en cas de compensation à l'eau pure. Ce n'est pas une cause directe d'hypernatrémie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'administration iatrogène de solutés hypertoniques sodés élève directement la natrémie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — l'hypodipsie (trouble de la soif, altération de conscience, immobilisation) empêche la compensation hydrique normale des pertes insensibles.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qrank rang-b">Rang B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles causes sont responsables d'une alcalose métabolique ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Vomissements profus ou aspiration gastrique prolongée</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Diurétiques de l'anse ou thiazidiques</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Hyperaldostéronisme primaire (syndrome de Conn)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Diarrhée chronique profuse</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Hypokaliémie chronique sévère</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la perte de HCl gastrique entraîne une alcalose métabolique hypochlorémique, maintenue par la contraction volémique (alcalose chloro-sensible).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les diurétiques causent une perte de K⁺ et de Cl⁻ avec rétention de HCO₃⁻ (alcalose de contraction).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'hyperaldostéronisme stimule la réabsorption de Na⁺ et l'excrétion de H⁺ et K⁺ : alcalose hypokaliémique chloro-résistante.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la diarrhée chronique entraîne une perte de bicarbonates intestinaux → acidose métabolique hyperchlorémique.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — l'hypokaliémie favorise la sortie de H⁺ des cellules et leur excrétion rénale, entretenant une alcalose métabolique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les causes d'hypokaliémie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A"><span class="box">A</span><span class="otext">Vomissements répétés</span></li>
+    <li class="opt" data-l="B"><span class="box">B</span><span class="otext">Diurétiques thiazidiques ou de l'anse</span></li>
+    <li class="opt" data-l="C"><span class="box">C</span><span class="otext">Hyperaldostéronisme primaire (syndrome de Conn)</span></li>
+    <li class="opt" data-l="D"><span class="box">D</span><span class="otext">Acidose métabolique sévère</span></li>
+    <li class="opt" data-l="E"><span class="box">E</span><span class="otext">Abus de laxatifs (perte digestive basse)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="note">Mémo des causes d'hypokaliémie : pertes digestives hautes (vomissements, aspiration), pertes digestives basses (diarrhée, laxatifs), pertes rénales (diurétiques, hyperaldostéronisme, amphotéricine B), carence d'apport, transfert intracellulaire (alcalose, insuline, β2-agonistes).</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les vomissements entraînent une perte directe de KCl gastrique + alcalose → hypokaliurie paradoxale mais l'hypokaliémie est fréquente.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les diurétiques kaliurétiques entraînent une perte rénale de K⁺.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'aldostérone stimule la réabsorption de Na⁺ en échange de K⁺ et H⁺.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'acidose métabolique entraîne une HYPERKALIÉMIE (sortie de K⁺ des cellules en échange de H⁺) ; l'alcalose cause l'hypokaliémie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — les laxatifs entraînent une perte digestive basse de K⁺ (les sécrétions intestinales basses sont riches en K⁺).</div>
+  </div>
+</div>
+
+</div>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script>
+const $=s=>document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}
+  });
+}
+function grade(q){
+  if(q.dataset.type==='QROC')return;
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';
+  const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.filter(q=>q.dataset.type!=='QROC').length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){el.classList.remove('locked');setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);break;}
+    el=el.nextElementSibling;
+  }
+}
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){
+        const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;
+        if(li.classList.contains('sel'))li.classList.remove('sel');
+        else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');
+      }
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){reveal(s.closest('.q'));return;}
+});
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{$('.q.locked').forEach(q=>q.classList.remove('locked'));$('.q').forEach(q=>reveal(q,true));});
+initLocks();updateScore();
+</script>
+</body>
+</html>
