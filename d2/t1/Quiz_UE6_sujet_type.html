@@ -1,0 +1,827 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 6 — Maladies transmissibles · Sujet type</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 6 — Maladies transmissibles · Sujet type (synthèse des annales 2021-2024)</h1>
+<div class="sub">33 questions : DP1 fièvre au retour d'un voyage tropical (8, verrouillé) · KFP1 fièvre et frissons sur cathéter (4, verrouillé) · mDP1 consultation après rapport à risque (6, verrouillé) · SQI1 (15). 33 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/33</b></span>
+<span class="pill">Score : <b id="s-ok">0/33</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap"><div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n'est pas une annale réelle. C'est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d'UE 6 (2021-2024, cf. section « Annales officielles » du portail). Objectif : réviser en priorité le contenu à plus fort rendement avant l'examen — paludisme et fièvre au retour de voyage, bactériémie/sepsis, IST et VIH, angines, gale/poux, grippe, méningites, infections urinaires, vaccinations, parasitoses.
+</div>
+
+<div class="sect">DP1 — Fièvre au retour d'un voyage en zone tropicale</div>
+
+<div class="q" id="DP1-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. K., 35 ans, consulte pour une fièvre à 39 °C avec frissons et céphalées, apparue il y a 3 jours. Il rentre d'un séjour de deux semaines au Sénégal, dont il est revenu il y a 8 jours. Il reconnaît avoir mal suivi sa chimioprophylaxie.</div>
+<div class="stem">Concernant la démarche devant cette fièvre au retour de zone tropicale, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un paludisme à Plasmodium falciparum doit être évoqué et recherché en priorité</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le paludisme à P. falciparum est une urgence diagnostique et thérapeutique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'accès à P. falciparum survient le plus souvent dans les 3 mois suivant le retour</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une chimioprophylaxie déclarée « bien suivie » permet d'éliminer formellement le diagnostic</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le parasite est transmis par la piqûre de l'anophèle femelle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — devant toute fièvre au retour de zone d'endémie, le paludisme à P. falciparum est le diagnostic à évoquer en priorité.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'accès à falciparum peut évoluer rapidement vers un accès grave : c'est une urgence.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'accès à P. falciparum survient le plus souvent dans les 3 mois (souvent 7 à 15 jours) suivant le retour.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une chimioprophylaxie, même bien suivie, n'élimine jamais le diagnostic : il faut le rechercher dans tous les cas.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — le Plasmodium est transmis par la piqûre de l'anophèle femelle (qui pique surtout la nuit).</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-answer="frottis sanguin et goutte épaisse | frottis et goutte épaisse | frottis-goutte épaisse | frottis goutte épaisse | frottis sanguin | goutte épaisse | frottis" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen biologique réalisez-vous en urgence pour confirmer ou infirmer le diagnostic de paludisme ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : un frottis sanguin et une goutte épaisse (recherche de Plasmodium), en urgence</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le frottis confirme un accès à P. falciparum. Parmi les éléments suivants, lesquels sont des critères de gravité (accès palustre grave) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des troubles de la conscience (neuropaludisme)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une défaillance hémodynamique (état de choc)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une hyperparasitémie élevée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une insuffisance rénale, une acidose ou une hypoglycémie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une thrombopénie isolée, qui définit à elle seule un accès grave</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le neuropaludisme (troubles de conscience, convulsions) est un critère de gravité majeur.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le collapsus/état de choc est un critère de gravité.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — une parasitémie élevée est un critère de gravité.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — insuffisance rénale, acidose, hypoglycémie, détresse respiratoire, ictère, anémie profonde… font partie des critères de gravité.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la thrombopénie est fréquente au cours du paludisme mais ne constitue pas à elle seule un critère de gravité.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Il s'agit d'un accès palustre grave à P. falciparum. Quel est le traitement de première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'artésunate par voie intraveineuse</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La chloroquine par voie orale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'atovaquone-proguanil per os à domicile</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une simple surveillance sans traitement antiparasitaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — l'artésunate IV</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'accès grave se traite par artésunate IV en première intention, en hospitalisation (réanimation/USI).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la chloroquine est inefficace sur P. falciparum (résistances) et n'a pas sa place dans l'accès grave.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'atovaquone-proguanil per os relève de l'accès simple, non de l'accès grave (qui impose un traitement IV hospitalier).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'absence de traitement expose à une évolution rapidement mortelle.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient guérit. Il prévoit un nouveau voyage et vous interroge sur la prévention du paludisme. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La protection anti-vectorielle (répulsifs, moustiquaire imprégnée, vêtements couvrants) est essentielle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une chimioprophylaxie adaptée à la zone visitée doit être prescrite</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La chimioprophylaxie doit être poursuivie un certain temps après le retour, selon la molécule</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La chimioprophylaxie dispense de toute protection contre les piqûres de moustiques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la protection anti-vectorielle (répulsifs cutanés, moustiquaire imprégnée, vêtements longs) est la mesure de base.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — une chimioprophylaxie adaptée à la zone (résistances) et au voyageur est prescrite.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la chimioprophylaxie se poursuit après le retour (durée variable selon la molécule).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — aucune chimioprophylaxie n'est efficace à 100 % : elle ne dispense jamais de la protection anti-vectorielle.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Pour ce séjour en Afrique subsaharienne, quelle vaccination — qui ne fait pas partie du calendrier vaccinal français de routine — peut être exigée à l'entrée de certains pays ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La vaccination contre la grippe saisonnière</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La vaccination contre la fièvre jaune (vaccin amaril)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La vaccination contre le paludisme</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La vaccination contre le tétanos</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — la vaccination contre la fièvre jaune</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la grippe saisonnière n'est pas une exigence d'entrée dans ces pays.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la vaccination contre la fièvre jaune est obligatoire pour l'entrée dans de nombreux pays d'Afrique intertropicale et d'Amérique du Sud (et recommandée dès la zone d'endémie).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — il n'existe pas de vaccin antipaludique utilisé en routine chez le voyageur : la prévention repose sur la chimioprophylaxie et la protection anti-vectorielle.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le tétanos fait partie du calendrier vaccinal de routine (à mettre à jour), il n'est pas spécifique du voyage.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous abordez la prévention de la diarrhée du voyageur (turista). Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'hygiène des mains est la mesure la plus efficace</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il faut privilégier une eau encapsulée/embouteillée et éviter les glaçons</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il faut consommer des aliments bien cuits et éviter les crudités et aliments à risque</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une antibioprophylaxie systématique est recommandée pour tous les voyageurs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'hygiène des mains est la mesure de prévention la plus efficace.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — boire de l'eau capsulée/traitée, éviter les glaçons (eau non contrôlée).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — « cuire, peler ou s'abstenir » : aliments bien cuits, éviter crudités et aliments à risque.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'antibioprophylaxie n'est pas recommandée en routine (résistances, effets indésirables) : elle reste réservée à des situations particulières.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">De façon plus générale, devant une fièvre au retour d'un voyage tropical, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une arbovirose (dengue) peut être en cause</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une fièvre typhoïde doit être évoquée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une amœbose (dont l'abcès amibien du foie) fait partie des diagnostics à considérer</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un premier frottis sanguin négatif permet d'éliminer définitivement le paludisme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la dengue (et d'autres arboviroses) est un diagnostic fréquent de fièvre au retour.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la fièvre typhoïde doit être évoquée (notamment en cas de troubles digestifs).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'amœbose (abcès amibien hépatique) fait partie des diagnostics différentiels.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — un frottis négatif n'élimine pas le paludisme : il faut le répéter en cas de forte suspicion.</div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Fièvre et frissons chez un patient porteur d'un cathéter</div>
+
+<div class="q" id="KFP1-Q1" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. R., 65 ans, hospitalisé, porteur d'un cathéter veineux périphérique, présente une fièvre à 39,5 °C avec frissons intenses. Le point de ponction du cathéter est inflammatoire (veinite).</div>
+<div class="stem">Parmi les signes suivants, lesquels entrent dans le calcul du score quickSOFA (qSOFA) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une fréquence respiratoire ≥ 22/min</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une pression artérielle systolique ≤ 100 mmHg</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une altération de la conscience (Glasgow &lt; 15)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une température &gt; 38,5 °C</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une fréquence cardiaque &gt; 90/min</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — fréquence respiratoire ≥ 22/min : un des 3 items du qSOFA.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — PAS ≤ 100 mmHg : un des 3 items du qSOFA.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — altération de la conscience (Glasgow &lt; 15) : un des 3 items du qSOFA.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la température ne fait pas partie du qSOFA.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la fréquence cardiaque ne fait pas partie du qSOFA (elle figure dans les critères SIRS).</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suspectez une bactériémie à point de départ sur le cathéter. Quelle est votre conduite initiale ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Réaliser des hémocultures avant toute antibiothérapie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Rechercher et traiter la porte d'entrée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Retirer le cathéter suspect et l'adresser en culture</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Attendre 48 heures avant de réaliser des hémocultures</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les hémocultures doivent être prélevées avant l'antibiothérapie (sans la retarder inutilement).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la recherche et le traitement de la porte d'entrée sont indispensables.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le cathéter suspect doit être retiré et mis en culture.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — devant un sepsis, il ne faut pas attendre : hémocultures immédiates puis antibiothérapie précoce.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'hémoculture est positive à Staphylococcus aureus sensible à la méticilline (SASM), sans allergie connue. Quelle antibiothérapie de référence instaurez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une pénicilline M (oxacilline / cloxacilline)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La vancomycine</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'amoxicilline seule</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une abstention d'antibiotique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — une pénicilline M</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — pour un SASM, le traitement de référence est une pénicilline M (oxacilline/cloxacilline).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la vancomycine est réservée au SARM (résistant à la méticilline) ou à l'allergie aux bêtalactamines.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — S. aureus produit une pénicillinase : l'amoxicilline seule est inefficace.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une bactériémie à S. aureus impose une antibiothérapie adaptée.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q4" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant une bactériémie à Staphylococcus aureus, quelle est votre conduite à tenir ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Rechercher une endocardite infectieuse (échographie cardiaque)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Rechercher des localisations secondaires (spondylodiscite, arthrite…)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Réaliser des hémocultures de contrôle sous traitement</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une antibiothérapie de 3 jours est suffisante</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — toute bactériémie à S. aureus impose de rechercher une endocardite (ETT, voire ETO).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — S. aureus donne volontiers des localisations secondaires (ostéo-articulaires, etc.) à rechercher.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — des hémocultures de contrôle vérifient la négativation sous traitement.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la durée d'antibiothérapie est prolongée (jamais 3 jours), adaptée au foyer et à l'existence de complications.</div>
+</div>
+</div>
+
+<div class="sect">mDP1 — Consultation après un rapport sexuel à risque</div>
+
+<div class="q" id="mDP1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme T., 24 ans, consulte car elle a eu il y a quelques jours un rapport sexuel non protégé avec un partenaire occasionnel dont elle ne connaît pas le statut sérologique. Elle est asymptomatique mais inquiète.</div>
+<div class="stem">Quel bilan de dépistage des infections sexuellement transmissibles lui proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une sérologie VIH</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une sérologie de la syphilis (TPHA-VDRL)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une sérologie de l'hépatite B (Ag HBs, Ac anti-HBs, anti-HBc)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une PCR Chlamydia trachomatis et gonocoque</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un ECBU, qui suffit au dépistage de toutes les IST</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la sérologie VIH fait partie du bilan IST.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la sérologie syphilis (TPHA-VDRL) est incluse.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le statut vis-à-vis de l'hépatite B est recherché (et vaccination si non immunisée).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la PCR Chlamydia trachomatis et gonocoque dépiste ces deux IST fréquentes.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un ECBU ne dépiste pas les IST : il explore une infection urinaire.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Elle vous demande dans quel délai après le rapport la sérologie VIH pourra affirmer l'absence d'infection. Que lui répondez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une sérologie (test combiné Ag p24/anticorps) négative à 6 semaines du dernier rapport permet d'exclure l'infection</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une sérologie négative dès le lendemain du rapport exclut l'infection</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une sérologie négative à 5 jours exclut l'infection</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il faut attendre au moins 1 an</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — à 6 semaines</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — avec les tests combinés de 4e génération (Ag p24 + anticorps), une sérologie négative à 6 semaines du dernier rapport à risque exclut l'infection.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le lendemain, on est en pleine fenêtre sérologique : un test négatif ne conclut rien.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — à 5 jours, la fenêtre sérologique n'est pas passée.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — il n'est pas nécessaire d'attendre un an : 6 semaines suffisent avec un test combiné.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans quel délai un traitement post-exposition (TPE) au VIH doit-il être débuté pour être efficace ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le plus tôt possible, idéalement dans les 4 heures et au plus tard dans les 48 heures</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Dans les 7 jours</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Dans le mois suivant l'exposition</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le délai n'a aucune importance</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — dans les 48 heures (idéalement &lt; 4 h)</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le TPE se débute le plus tôt possible, idéalement dans les 4 heures, et au plus tard dans les 48 heures.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — au-delà de 48 heures, le TPE n'est plus indiqué.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un mois est bien trop tardif.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le délai est déterminant : plus il est court, plus le TPE est efficace.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La PCR revient positive à Chlamydia trachomatis. Quelle est votre conduite à tenir ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Prescrire une antibiothérapie adaptée (doxycycline ou azithromycine)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Proposer le dépistage et le traitement du/des partenaire(s)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Dépister les autres IST</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Recommander des rapports protégés jusqu'à guérison</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ne pas traiter car la patiente est asymptomatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'infection à C. trachomatis se traite par doxycycline (ou azithromycine).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le dépistage et le traitement du/des partenaire(s) sont indispensables pour éviter la ré-infestation.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la découverte d'une IST impose de dépister les autres IST.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les rapports protégés sont recommandés jusqu'à guérison.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une infection à Chlamydia, même asymptomatique, doit être traitée (risque de complications : salpingite, stérilité).</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles présentations cliniques sont compatibles avec une primo-infection par le VIH ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un syndrome pseudo-grippal fébrile</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des polyadénopathies</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une éruption cutanée, une pharyngite ou des ulcérations muqueuses</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La primo-infection est toujours symptomatique et bruyante</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la primo-infection VIH réalise volontiers un syndrome pseudo-grippal fébrile.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les polyadénopathies sont fréquentes.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — éruption cutanée, pharyngite, ulcérations muqueuses sont évocatrices.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la primo-infection peut être asymptomatique ou paucisymptomatique, d'où l'importance du dépistage.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous abordez la prévention et la vaccination anti-papillomavirus (HPV). Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La vaccination anti-HPV est recommandée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle contribue à prévenir le cancer du col de l'utérus</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'utilisation du préservatif reste recommandée en prévention des IST</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La vaccination anti-HPV traite une infection à HPV déjà installée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la vaccination anti-HPV est recommandée (et proposée aussi en rattrapage jusqu'à un certain âge).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — elle prévient les lésions et cancers liés à l'HPV, dont le cancer du col.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le préservatif reste recommandé (protection contre les autres IST).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la vaccination est préventive : elle ne traite pas une infection ou des lésions déjà installées (d'où l'intérêt du dépistage du col).</div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les angines et leur prise en charge, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La majorité des angines érythémateuses/érythémato-pultacées sont d'origine virale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le test rapide d'orientation diagnostique (streptotest) aide à identifier le streptocoque du groupe A</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Toute angine justifie une antibiothérapie systématique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">En cas d'angine à streptocoque A, l'amoxicilline est l'antibiotique de première intention</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la plupart des angines sont virales (surtout chez l'adulte).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le TDR (streptotest) recherche le streptocoque du groupe A et guide la prescription d'antibiotique.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'antibiothérapie n'est indiquée qu'en cas d'angine à streptocoque A (TDR positif / indication ciblée), pas systématiquement.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'amoxicilline est l'antibiotique de première intention de l'angine à streptocoque A.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant la gale, lesquelles sont vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le prurit est à recrudescence nocturne</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle est contagieuse et se transmet par contact cutané (direct ou indirect)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le traitement du seul patient suffit, sans traiter l'entourage ni le linge</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement peut être local (perméthrine, benzoate de benzyle) et/ou oral (ivermectine)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le prurit de la gale est typiquement à recrudescence nocturne.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la gale est très contagieuse (contact direct « peau à peau » ou indirect par le linge).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — il faut traiter simultanément le patient, l'entourage/contacts et décontaminer le linge et la literie.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le traitement repose sur un scabicide local (perméthrine, benzoate de benzyle) et/ou l'ivermectine orale.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes sur les poux (pédiculose du cuir chevelu), lesquelles sont vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La pédiculose du cuir chevelu se manifeste surtout par un prurit</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les poux de tête transmettent fréquemment des maladies graves</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le traitement local (dont la diméticone) et le traitement des contacts sont recommandés</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La présence de lentes vivantes n'a aucune valeur pour le diagnostic</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le prurit du cuir chevelu est le maître symptôme.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le pou de tête ne transmet pas de maladie grave (à la différence du pou de corps, vecteur du typhus, de la fièvre des tranchées…).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le traitement local (diméticone, pyréthrines…) et l'examen/traitement de l'entourage sont recommandés.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la présence de lentes vivantes/poux vivants a une valeur diagnostique.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les complications redoutées de la grippe, quelles propositions sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une pneumonie grippale primaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une surinfection bactérienne (pneumocoque, S. aureus…)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La décompensation d'une comorbidité (BPCO, insuffisance cardiaque…)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La grippe ne présente aucun risque particulier chez la femme enceinte</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la pneumonie grippale primaire est une complication grave.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la surinfection bactérienne (pneumocoque, S. aureus, H. influenzae) est classique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la grippe peut décompenser une pathologie chronique sous-jacente.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la femme enceinte est au contraire une population à risque de forme grave (indication vaccinale).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le traitement et la prévention de la grippe, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'oseltamivir (inhibiteur de la neuraminidase) peut être utilisé, surtout chez les sujets à risque ou les formes graves</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le traitement antiviral est d'autant plus utile qu'il est débuté précocement (dans les 48 h)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La vaccination antigrippale annuelle est recommandée chez les personnes à risque</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une antibiothérapie est systématiquement indiquée dans la grippe non compliquée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'oseltamivir est indiqué en priorité chez les sujets à risque et dans les formes graves.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'antiviral est d'autant plus efficace qu'il est débuté tôt (idéalement &lt; 48 h).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la vaccination antigrippale annuelle est recommandée pour les personnes à risque (âgés, comorbidités, femmes enceintes, soignants…).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la grippe est virale : pas d'antibiotique en l'absence de surinfection bactérienne.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'analyse du liquide céphalo-rachidien (LCR) au cours d'une méningite bactérienne, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le liquide est souvent trouble</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il existe une hyperprotéinorachie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La glycorachie est abaissée (hypoglycorachie)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La cytologie montre une prédominance de lymphocytes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le LCR est typiquement trouble (« eau de riz »).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'hyperprotéinorachie est franche.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'hypoglycorachie (consommation du glucose) est caractéristique des méningites bactériennes.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la méningite bactérienne montre une prédominance de polynucléaires neutrophiles (les lymphocytes prédominent dans les méningites virales/à liquide clair).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles situations doivent faire réaliser une imagerie cérébrale avant la ponction lombaire (ou différer celle-ci) devant une suspicion de méningite ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des signes de localisation neurologique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des troubles de la conscience (signes d'engagement/hypertension intracrânienne)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une simple céphalée fébrile sans autre anomalie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des troubles de l'hémostase / une anticoagulation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="note"><div class="rappel"><b>Rappel</b> : devant un purpura fulminans, l'antibiothérapie doit être administrée en urgence <b>avant</b> la ponction lombaire et sans l'attendre.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — des signes de localisation imposent une imagerie avant la PL (risque d'engagement).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — des troubles de conscience/signes d'HTIC contre-indiquent la PL immédiate (imagerie d'abord).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — une céphalée fébrile isolée sans signe de gravité n'impose pas d'imagerie préalable : la PL peut être réalisée.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les troubles de l'hémostase/l'anticoagulation contre-indiquent (ou font différer/corriger avant) la PL.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la bandelette urinaire (BU) et le diagnostic d'infection urinaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La présence de nitrites oriente vers une entérobactérie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Chez la femme, une BU négative (leucocytes et nitrites) a une bonne valeur prédictive négative</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'ECBU permet la confirmation microbiologique et l'antibiogramme</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une BU positive suffit toujours à elle seule pour affirmer une pyélonéphrite</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les nitrites témoignent de la réduction des nitrates par des entérobactéries (ex. E. coli).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — chez la femme, une BU négative a une bonne VPN et rend l'IU peu probable.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'ECBU confirme l'infection (leucocyturie, bactériurie) et fournit l'antibiogramme.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la BU oriente mais ne suffit pas à affirmer une pyélonéphrite : le diagnostic repose sur la clinique et l'ECBU.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les facteurs suivants, lesquels sont des facteurs de risque de complication d'une infection urinaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La grossesse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le sexe masculin</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une anomalie organique ou fonctionnelle de l'arbre urinaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une immunodépression grave</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une femme jeune sans antécédent, non enceinte</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la grossesse est un facteur de risque de complication.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — toute infection urinaire de l'homme est considérée à risque de complication.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — une uropathie (anomalie de l'arbre urinaire) est un facteur de risque de complication.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'immunodépression grave est un facteur de risque de complication.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une femme jeune sans antécédent et non enceinte correspond à une cystite simple (sans facteur de risque de complication).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel est aujourd'hui l'agent infectieux le plus fréquemment en cause dans les endocardites infectieuses ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Staphylococcus aureus</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Escherichia coli</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Pseudomonas aeruginosa</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Neisseria meningitidis</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — Staphylococcus aureus</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — S. aureus est devenu l'agent le plus fréquent des endocardites infectieuses (les streptocoques restant très fréquents).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — E. coli est un agent classique d'infection urinaire, pas des endocardites.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — P. aeruginosa n'est pas l'agent principal (endocardites rares, contextes particuliers).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le méningocoque est responsable de méningites/méningococcémies, non des endocardites usuelles.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En cas d'exposition au sang (accident d'exposition, AES) chez un soignant, avec un patient source de statut sérologique inconnu, quel examen faut-il réaliser en urgence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une charge virale VIH du soignant exposé</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un génotypage de résistance</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une simple surveillance clinique sans examen</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une sérologie VIH du patient source (avec son accord)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — la sérologie VIH du patient source</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la charge virale du soignant n'est pas l'examen à réaliser en urgence dans ce contexte.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le génotypage de résistance n'a pas sa place en urgence.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'AES est une urgence : il faut déterminer le statut de la source pour décider d'un éventuel TPE.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — on réalise en urgence la sérologie VIH du patient source (avec son accord) pour guider l'indication de traitement post-exposition.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les infections suivantes, lesquelles peuvent être prévenues par une vaccination ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'hépatite B</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les infections invasives à pneumocoque</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La grippe saisonnière</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le paludisme, par un vaccin utilisé en routine chez le voyageur</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'infection par le VIH</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — il existe un vaccin contre l'hépatite B (inscrit au calendrier vaccinal).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les infections invasives à pneumocoque sont prévenues par la vaccination antipneumococcique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la grippe saisonnière est prévenue par la vaccination annuelle.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — il n'existe pas de vaccin antipaludique utilisé en routine chez le voyageur : la prévention repose sur la chimioprophylaxie et la protection anti-vectorielle.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — il n'existe pas de vaccin contre le VIH.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'oxyurose, quelles propositions sont vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle se manifeste typiquement par un prurit anal à recrudescence nocturne</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le diagnostic peut se faire par le test de la cellophane adhésive (scotch-test anal)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il faut traiter le patient et son entourage, et respecter des mesures d'hygiène</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">C'est une parasitose strictement tropicale, absente en France</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le prurit anal à recrudescence nocturne est le signe cardinal.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le scotch-test anal (test de Graham) met en évidence les œufs.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — on traite le patient et l'entourage (auto-infestation fréquente) avec des mesures d'hygiène (ongles, linge).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'oxyurose est cosmopolite et fréquente en France, notamment chez l'enfant.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-answer="IGRA | test IGRA | Quantiféron | QuantiFERON | test de libération de l'interféron gamma | dosage de l'interféron gamma | interféron gamma" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel test sanguin est le plus pertinent pour étayer le diagnostic d'une infection tuberculeuse latente ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : un test de libération de l'interféron gamma (test IGRA, type QuantiFERON) — l'intradermoréaction à la tuberculine (IDR) étant une alternative</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la pneumonie aiguë communautaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Streptococcus pneumoniae (pneumocoque) est l'agent bactérien le plus fréquent</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'amoxicilline est l'antibiotique de première intention en cas de pneumonie présumée à pneumocoque</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Des scores (dont le CRB-65) aident à décider de l'hospitalisation</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Toute pneumonie communautaire nécessite systématiquement une hospitalisation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le pneumocoque est l'agent bactérien le plus fréquent (et le plus à craindre).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'amoxicilline est le traitement de première intention de la pneumonie présumée à pneumocoque.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le score CRB-65 (confusion, FR, PA, âge ≥ 65 ans) aide à l'orientation (ambulatoire/hospitalisation).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une pneumonie sans signe de gravité ni facteur de risque peut être prise en charge en ambulatoire.</div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour au portail D2 · T1</a>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’‘`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+ if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+ var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+ var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>

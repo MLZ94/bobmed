@@ -124,7 +124,7 @@ La police primaire **DM Sans** n'est PAS déclarée ici mais dans `theme.css` (c
 </header>
 ```
 
-M = nombre de questions notées (hors QROC).
+M = nombre de questions notées. **Toutes les questions comptent désormais dans le score — QROC comprises** (le moteur QROC est noté via auto-correction + auto-évaluation « juste/faux », cf. section « QROC » plus bas). Concrètement `M = N` : le dénominateur de `#s-ok` est `qs.length` (`const grad = qs.length;` dans `updateScore()`), **sans** filtre `type!=='QROC'`. Ne jamais réintroduire un dénominateur qui exclut les QROC : c'est un standard **obligatoire pour tous les quiz du site**.
 
 ### Structure d'une question
 
@@ -277,12 +277,13 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 - Barème binaire : bonne réponse = 1 pt, mauvaise = 0 pt
 
 ### QROC (Question à Réponse Ouverte et Courte)
-- Zone de texte libre, auto-correction par l'étudiant
-- `data-type="QROC"` — `data-correct=""` (toujours vide)
-- Non notée dans le score (exclue du compteur M)
-- Bouton "Voir la réponse" uniquement (pas de "Valider")
-- Correction dans `<div class="qrocmodel"><p>…</p></div>`
-- **Conformité R2C (écart assumé)** : le barème officiel R2C prévoit **3 catégories** — 1 pt (réponse exacte, cat. 1) · 0,5 pt (réponse acceptable mais non exacte, cat. 2) · 0 pt (fausse, cat. 3). La catégorie 0,5 est déterminée par le jury à partir d'une liste fournie avec le sujet : elle **n'est pas calculable automatiquement** à partir des annales. Le site s'en tient donc volontairement à **1/0** (auto-correction par mots-clés + auto-évaluation « juste/faux » en D2 ; auto-correction seule en D1). Choix délibéré de ne pas exposer le 0,5 en auto-évaluation. Tous les autres types (QRM, QRU, QRP, QRPL, QZONE) sont conformes au barème R2C.
+- Zone de texte libre, **notée 1/0** et **comptée dans le score au même titre que les autres questions** (plus jamais exclue du compteur M — cf. « Header sticky » : `grad = qs.length`). **Standard obligatoire pour tous les quiz du site** : toute nouvelle QROC doit utiliser le moteur noté ci-dessous.
+- `data-type="QROC"` — `data-correct=""` (toujours vide) — **`data-answer="variante 1 | variante 2 | …"`** : liste des formulations acceptées pour l'auto-correction, séparées par `|` (ou `/`, ou « ou »). Le moteur (`qrocNorm`) normalise la saisie (minuscules, accents et ponctuation retirés) puis exige une **correspondance exacte** avec l'une des variantes. Prévoir plusieurs variantes courantes (synonymes, forme abrégée/développée).
+- **Deux boutons** : `Valider` (auto-correction sur `data-answer`) et `Voir la réponse`. Placeholder du textarea : `Réponds, puis « Valider »`.
+- **Auto-évaluation « juste/faux » (filet de sécurité)** : après `Valider`, si la saisie ne correspond à aucune variante (ou après `Voir la réponse`), un encart `.selfassess` apparaît avec deux boutons — « J'avais juste » (= 1 pt) / « J'avais faux » (= 0 pt) — laissant l'étudiant trancher lui-même. Cela garantit qu'une bonne réponse formulée autrement que dans `data-answer` peut quand même être comptée juste. Une auto-correction réussie (`Valider` reconnaît la saisie) attribue directement 1 pt sans afficher l'encart. **« Tout révéler » ne compte pas** (révélation en masse, `result='skip'`).
+- Correction dans `<div class="qrocans">Réponse attendue : …</div>` (ou `<div class="qrocmodel"><p>…</p></div>`).
+- Moteur JS requis : fonctions `qrocNorm` / `qrocAccept` / `qrocStatus` / `qrocSelfBox` / `qrocSelf` / `gradeQroc`, dispatch `if(q.dataset.type==='QROC'){gradeQroc(q);return;}` en tête de `grade()`, gestion des clics `.sa-yes`/`.sa-no`, et `grad = qs.length` dans `updateScore()` (cf. « JS complet de référence »). CSS requis : `.qrocin.good/.bad` + `.selfassess`.
+- **Conformité R2C (écart assumé)** : le barème officiel R2C prévoit **3 catégories** — 1 pt (réponse exacte, cat. 1) · 0,5 pt (réponse acceptable mais non exacte, cat. 2) · 0 pt (fausse, cat. 3). La catégorie 0,5 est déterminée par le jury à partir d'une liste fournie avec le sujet : elle **n'est pas calculable automatiquement** à partir des annales. Le site s'en tient donc volontairement à **1/0** (auto-correction par mots-clés + auto-évaluation « juste/faux »). Choix délibéré de ne pas exposer le 0,5 en auto-évaluation. Tous les autres types (QRM, QRU, QRP, QRPL, QZONE) sont conformes au barème R2C.
 
 ### QRP (Question à nombre de Réponses Précisé)
 - `data-type="QRP"` — `data-correct="ABC"` (lettres concaténées des items vrais, même convention que QRM).
@@ -420,8 +421,52 @@ function markSpecial(q) {
   });
 }
 
+// --- QROC : notée 1/0 (auto-correction sur data-answer + auto-évaluation juste/faux) ---
+function qrocNorm(s) {                        // normalise la saisie pour comparaison
+  return (s || '').toString().toLowerCase().normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')          // retire les accents
+    .replace(/['’‘`]/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+}
+function qrocAccept(q) {                       // variantes acceptées (data-answer), séparées par | / ou « ou »
+  let raw = q.dataset.answer || '';
+  if (!raw) { const a = q.querySelector('.qrocans') || q.querySelector('.qrocmodel'); raw = a ? a.textContent.replace(/^[^:]*:\s*/, '') : ''; }
+  return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);
+}
+function qrocStatus(q, pts) {
+  const st = q.querySelector('.status'); if (!st) return;
+  st.textContent = (pts >= 1 ? '1' : '0') + ' / 1'; st.className = 'status ' + (pts >= 1 ? 'ok' : 'ko');
+}
+function qrocSelfBox(q) {                       // encart « J'avais juste / J'avais faux »
+  if (q.dataset.result === '1') return;
+  const c = q.querySelector('.correction'); if (!c || c.querySelector('.selfassess')) return;
+  const d = document.createElement('div'); d.className = 'selfassess';
+  const s = document.createElement('span'); s.textContent = 'Votre réponse comptait-elle juste ?';
+  const y = document.createElement('button'); y.type = 'button'; y.className = 'sa-yes'; y.textContent = "J'avais juste";
+  const n = document.createElement('button'); n.type = 'button'; n.className = 'sa-no'; n.textContent = "J'avais faux";
+  d.appendChild(s); d.appendChild(y); d.appendChild(n); c.appendChild(d);
+}
+function qrocSelf(q, val) {                     // l'étudiant tranche : 1 ou 0 pt
+  const inp = q.querySelector('.qrocin'); if (inp) { inp.classList.remove('good', 'bad'); inp.classList.add(val ? 'good' : 'bad'); }
+  q.dataset.pts = val ? 1 : 0; q.dataset.result = val ? '1' : '0'; qrocStatus(q, val ? 1 : 0);
+  const box = q.querySelector('.selfassess');
+  if (box) { box.querySelectorAll('button').forEach(b => b.disabled = true); const ch = box.querySelector(val ? '.sa-yes' : '.sa-no'); if (ch) ch.classList.add('chosen'); }
+  updateScore();
+}
+function gradeQroc(q) {                         // « Valider » d'une QROC
+  if (q.classList.contains('done')) return;
+  const inp = q.querySelector('.qrocin'); const typed = qrocNorm(inp ? inp.value : ''); const acc = qrocAccept(q);
+  const ok = typed.length > 0 && acc.indexOf(typed) >= 0;
+  if (inp) { inp.readOnly = true; inp.classList.add(ok ? 'good' : 'bad'); }
+  q.classList.add('done'); const cor = q.querySelector('.correction'); if (cor) cor.hidden = false;
+  const v = q.querySelector('.validate'); if (v) v.disabled = true;
+  q.dataset.pts = ok ? 1 : 0; q.dataset.result = ok ? '1' : '0'; qrocStatus(q, ok ? 1 : 0);
+  if (!ok) qrocSelfBox(q);                      // saisie non reconnue → auto-évaluation
+  updateScore(); unlockNext(q);
+}
+
 function grade(q) {
-  if (q.dataset.type === 'QROC') return;
+  if (q.dataset.type === 'QROC') { gradeQroc(q); return; }
   const correct = new Set(q.dataset.correct.split(''));
   const sel = new Set([...q.querySelectorAll('.opt.sel')].map(o => o.dataset.l));
   let disc = 0;
@@ -481,7 +526,7 @@ function reveal(q, skipUnlock) {
 function updateScore() {
   const qs = [...$('.q')]; const all = qs.length;
   const done = qs.filter(q => q.classList.contains('done')).length;
-  const grad = qs.filter(q => q.dataset.type !== 'QROC').length;
+  const grad = qs.length; // toutes les questions comptent, QROC comprises (auto-évaluation notée)
   let pts = 0;
   qs.forEach(q => { if (q.dataset.pts !== undefined && q.dataset.pts !== '') pts += parseFloat(q.dataset.pts); });
   const sd = document.getElementById('s-done'); if (sd) sd.textContent = done + '/' + all;
@@ -508,7 +553,9 @@ document.addEventListener('click', e => {
     return;
   }
   const v = e.target.closest('.validate'); if (v) { grade(v.closest('.q')); return; }
-  const s = e.target.closest('.show'); if (s) { reveal(s.closest('.q')); return; }
+  const s = e.target.closest('.show'); if (s) { const _q = s.closest('.q'); reveal(_q); if (_q.dataset.type === 'QROC') qrocSelfBox(_q); return; }
+  const _sy = e.target.closest('.sa-yes'); if (_sy) { qrocSelf(_sy.closest('.q'), 1); return; }
+  const _sn = e.target.closest('.sa-no'); if (_sn) { qrocSelf(_sn.closest('.q'), 0); return; }
 });
 
 const rb = document.getElementById('reset'); if (rb) rb.addEventListener('click', () => location.reload());
