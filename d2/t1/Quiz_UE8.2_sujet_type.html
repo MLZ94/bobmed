@@ -1,0 +1,848 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 8.2 — Cardiologie · Sujet type</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 8.2 — Cardiologie · Sujet type (synthèse des annales 2021-2024)</h1>
+<div class="sub">33 questions : DP1 douleur thoracique aiguë (8, verrouillé) · KFP1 syncope (4, verrouillé) · mDP1 dyspnée aiguë (6, verrouillé) · SQI1 (15). 33 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/33</b></span>
+<span class="pill">Score : <b id="s-ok">0/33</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap"><div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n'est pas une annale réelle. C'est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d'UE 8.2 (2021-2024, cf. section « Annales officielles » du portail). Objectif : réviser en priorité le contenu à plus fort rendement avant l'examen — SCA, syncope/troubles conductifs, embolie pulmonaire, péricardite/tamponnade, rétrécissement aortique, fibrillation atriale, insuffisance cardiaque, HTA.
+</div>
+
+<div class="sect">DP1 — Douleur thoracique aiguë</div>
+
+<div class="q" id="DP1-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. B., 58 ans, hypertendu, tabagique à 40 paquets-années et diabétique de type 2, consulte aux urgences pour une douleur thoracique apparue au repos il y a une heure, intense, ne cédant pas. FC 92/min, PA 145/85 mmHg, SpO2 97 % en air ambiant.</div>
+<div class="stem">Concernant la douleur thoracique typiquement angineuse, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est rétrosternale, en barre, médiothoracique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle est volontiers constrictive, décrite comme un étau</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle peut irradier vers la mâchoire, les épaules ou le bras gauche</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle est majorée par l'inspiration profonde et calmée par l'antéflexion</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Dans le syndrome coronarien aigu, elle est prolongée et trinitro-résistante</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la douleur angineuse est typiquement rétrosternale, en barre, médiothoracique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — caractère constrictif, en étau, sensation de striction thoracique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — irradiations classiques : mâchoire, épaules, bras (surtout gauche), poignets.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une douleur majorée à l'inspiration et calmée par l'antéflexion oriente vers une péricardite, non vers l'angor.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — dans le SCA, la douleur est prolongée (&gt; 20 min) et résiste à la trinitrine, contrairement à l'angor stable d'effort.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-answer="ECG | electrocardiogramme | ECG 12 dérivations | electrocardiogramme 12 dérivations" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen paraclinique devez-vous réaliser et interpréter impérativement dans les 10 premières minutes suivant l'admission ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : un électrocardiogramme (ECG) 12 dérivations (à compléter au besoin par les dérivations postérieures V7-V9 et droites V3R-V4R)</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'ECG montre un sus-décalage du segment ST en DII, DIII et aVF. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un sus-décalage de ST dans au moins deux dérivations contiguës définit un SCA ST+</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ce territoire (DII, DIII, aVF) est le territoire inférieur</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il faut rechercher un sous-décalage en miroir dans le territoire opposé</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il faut rechercher une extension au ventricule droit par les dérivations V3R-V4R</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un ECG normal permet d'éliminer formellement un syndrome coronarien aigu</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le SCA ST+ se définit par un sus-décalage persistant de ST dans ≥ 2 dérivations contiguës.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — DII-DIII-aVF explorent la paroi inférieure (le plus souvent occlusion de la coronaire droite).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le sous-décalage « en miroir » (ici en antéro-latéral) renforce le diagnostic.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'infarctus inférieur peut s'étendre au VD : les dérivations droites (V3R-V4R) le dépistent, ce qui modifie la prise en charge (prudence avec les dérivés nitrés).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un ECG normal ou non contributif n'élimine pas un SCA : il faut le répéter et doser la troponine.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous retenez le diagnostic de SCA ST+ inférieur. Concernant la prise en charge en urgence, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La reperfusion par angioplastie primaire est le traitement de choix si elle est réalisable dans les délais recommandés</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une fibrinolyse est indiquée si l'angioplastie primaire ne peut être réalisée dans les délais</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">On instaure une double antiagrégation plaquettaire (aspirine + inhibiteur du P2Y12)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une anticoagulation parentérale est associée</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il faut attendre le résultat de la troponine avant toute décision de reperfusion</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'angioplastie primaire est la stratégie de reperfusion de référence si le délai de prise en charge est respecté.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — si l'angioplastie n'est pas accessible dans les délais, la fibrinolyse est indiquée en l'absence de contre-indication.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la double antiagrégation (aspirine + inhibiteur P2Y12) est instaurée précocement.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — une anticoagulation parentérale accompagne la reperfusion.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le diagnostic de SCA ST+ est électrocardiographique : la reperfusion ne doit jamais être retardée par l'attente de la troponine.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle est la principale cause de mortalité à la phase toute initiale (préhospitalière) de l'infarctus du myocarde ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le choc cardiogénique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La fibrillation ventriculaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La rupture de paroi libre</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La péricardite tardive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — la fibrillation ventriculaire</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — le choc cardiogénique est grave mais n'est pas la première cause de mortalité préhospitalière.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la fibrillation ventriculaire est la principale cause de mort subite à la phase initiale, d'où l'intérêt d'une prise en charge médicalisée précoce (scope, défibrillateur).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la rupture de paroi est une complication plus tardive (quelques jours).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la péricardite (précoce ou tardive/syndrome de Dressler) n'est pas une cause de mortalité initiale.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles complications précoces devez-vous redouter au cours des premières heures/premiers jours de cet infarctus ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un choc cardiogénique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des troubles du rythme ventriculaires (TV, FV)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une insuffisance mitrale aiguë par dysfonction ou rupture de pilier</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un bloc auriculo-ventriculaire, notamment dans l'infarctus inférieur</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un anévrisme ventriculaire constitué dès les premières heures</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le choc cardiogénique complique les infarctus étendus (défaillance de pompe).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les troubles du rythme ventriculaires (TV/FV) sont fréquents et menaçants à la phase aiguë.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'insuffisance mitrale aiguë (rupture/dysfonction de pilier) est une complication mécanique grave.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'infarctus inférieur se complique volontiers de troubles conductifs (BAV) par atteinte du nœud AV.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'anévrisme ventriculaire est une complication tardive (remodelage), non des premières heures.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'évolution est favorable après angioplastie avec stent. Quels traitements de sortie ont démontré un bénéfice sur la morbi-mortalité au décours de cet infarctus ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un bêtabloquant</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une statine à forte intensité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un inhibiteur de l'enzyme de conversion (ou un ARA2 en cas d'intolérance)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une double antiagrégation plaquettaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un inhibiteur calcique prescrit de façon systématique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="note"><div class="rappel"><b>Moyen mnémotechnique</b> : « BASIC » du post-infarctus — <b>B</b>êtabloquant, <b>A</b>ntiagrégants (double), <b>S</b>tatine, <b>I</b>EC (ou ARA2), <b>C</b>ontrôle des facteurs de risque + réadaptation.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le bêtabloquant améliore le pronostic après IDM.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — une statine à forte intensité est indiquée, avec un objectif de LDL bas.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'IEC (ou ARA2) réduit la mortalité, en particulier en cas de dysfonction VG.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la double antiagrégation plaquettaire est indiquée (durée à adapter), relayée par l'aspirine seule.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'inhibiteur calcique n'est pas systématique : il n'a pas démontré de bénéfice sur la mortalité en post-IDM.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la prévention secondaire de ce patient, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'objectif de LDL-cholestérol est inférieur à 0,55 g/L (1,4 mmol/L)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le sevrage tabagique est une mesure prioritaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une réadaptation cardiovasculaire à l'effort est recommandée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le contrôle de l'HTA et de l'équilibre glycémique fait partie de la prise en charge</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'arrêt du tabac n'a plus d'intérêt une fois l'infarctus survenu</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — après SCA (très haut risque cardiovasculaire), l'objectif est un LDL &lt; 0,55 g/L et une réduction d'au moins 50 %.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le sevrage tabagique est l'une des mesures les plus efficaces en prévention secondaire.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la réadaptation cardiovasculaire améliore le pronostic et la qualité de vie.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le contrôle des facteurs de risque (HTA, diabète, dyslipidémie) est indispensable.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le sevrage tabagique reste bénéfique après l'infarctus (réduction du risque de récidive et de mortalité).</div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Syncope</div>
+
+<div class="q" id="KFP1-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. L., 74 ans, hypertendu, est amené aux urgences après une perte de connaissance brève survenue brutalement, sans prodrome, avec chute et traumatisme de l'arcade. Il a récupéré rapidement, sans confusion.</div>
+<div class="stem">Quels éléments orientent vers une syncope d'origine cardiaque plutôt que vagale ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une survenue brutale, sans prodrome (« à l'emporte-pièce »)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une survenue à l'effort</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une récupération rapide sans phase confusionnelle</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Des prodromes végétatifs prolongés (sueurs, nausées, vision trouble)</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Des palpitations précédant immédiatement la perte de connaissance</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la syncope cardiaque est typiquement brutale, sans prodrome (syncope d'Adams-Stokes), avec chute traumatisante.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — une syncope d'effort est un signe d'alarme (RAo serré, cardiomyopathie, trouble du rythme).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la récupération est rapide et complète, sans confusion post-critique (contrairement à la crise convulsive).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — des prodromes végétatifs prolongés orientent au contraire vers une syncope réflexe (vagale).</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — des palpitations précédant la syncope évoquent un trouble du rythme.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-answer="ECG | electrocardiogramme | ECG 12 dérivations | electrocardiogramme 12 dérivations" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen paraclinique simple, de première intention, réalisez-vous systématiquement devant toute syncope ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : un électrocardiogramme (ECG) 12 dérivations</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'ECG met en évidence un bloc auriculo-ventriculaire complet (du 3e degré). Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il existe une dissociation auriculo-ventriculaire complète</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La fréquence ventriculaire, assurée par un rythme d'échappement, est lente</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il expose à un risque de syncope et de mort subite</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les ondes P sont plus lentes que les complexes QRS</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — dans le BAV complet, aucune onde P n'est conduite : les oreillettes et les ventricules battent indépendamment.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le rythme ventriculaire est assuré par un échappement lent (jonctionnel ou ventriculaire).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le BAV complet peut se compliquer de syncope, de torsades de pointe et de mort subite.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — les ondes P (rythme sinusal) sont plus rapides que les QRS d'échappement : c'est l'inverse.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient est symptomatique et mal toléré. Quelle est votre conduite à tenir ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Surveillance scopée en unité de soins intensifs cardiologiques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Atropine et/ou isoprénaline en urgence si mauvaise tolérance</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Mise en place d'un entraînement électrosystolique (pacing) temporaire si besoin</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Implantation d'un stimulateur cardiaque (pacemaker) définitif</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Introduction d'un bêtabloquant pour régulariser le rythme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la surveillance scopée en USIC s'impose devant un BAV complet.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — en cas de mauvaise tolérance, l'atropine et surtout l'isoprénaline peuvent accélérer transitoirement le rythme.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — un entraînement électrosystolique temporaire est indiqué en cas de BAV mal toléré, en attendant le pacemaker.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le traitement de référence d'un BAV complet symptomatique est le pacemaker définitif.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un bêtabloquant est bradycardisant : il est formellement contre-indiqué et aggraverait le BAV.</div>
+</div>
+</div>
+
+<div class="sect">mDP1 — Dyspnée aiguë</div>
+
+<div class="q" id="mDP1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme M., 40 ans, tabagique, sous contraception œstroprogestative, consulte pour une dyspnée d'apparition brutale et une douleur basi-thoracique droite au retour d'un vol long-courrier. FC 110/min, PA 120/75 mmHg, SpO2 92 %.</div>
+<div class="stem">Quels sont les facteurs favorisant la survenue d'une maladie thromboembolique veineuse (TVP/embolie pulmonaire) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une immobilisation prolongée ou un voyage long-courrier</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une contraception œstroprogestative</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un cancer évolutif</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une chirurgie ou un traumatisme récent</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La pratique d'une activité physique régulière</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'immobilisation (alitement, plâtre, voyage prolongé) est un facteur de stase veineuse classique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la contraception œstroprogestative augmente le risque thromboembolique, majoré par le tabac.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le cancer est un facteur de risque majeur (état d'hypercoagulabilité).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la chirurgie et les traumatismes récents sont des facteurs favorisants importants.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'activité physique régulière n'est pas un facteur de risque, au contraire de la sédentarité.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous estimez la probabilité clinique d'embolie pulmonaire comme faible à intermédiaire. Quelle stratégie diagnostique adoptez-vous en premier ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un angioscanner thoracique d'emblée sans autre examen</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un dosage des D-dimères : s'ils sont négatifs, ils permettent d'éliminer l'embolie pulmonaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Débuter une fibrinolyse à titre systématique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une scintigraphie pulmonaire de ventilation/perfusion en première intention</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — le dosage des D-dimères</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — devant une probabilité faible/intermédiaire, l'angioscanner n'est pas d'emblée nécessaire : les D-dimères sont utiles pour éviter une imagerie inutile.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — devant une probabilité clinique non forte, des D-dimères négatifs (haute valeur prédictive négative) éliminent l'EP sans imagerie.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la fibrinolyse n'est réservée qu'à l'EP grave (avec état de choc), après confirmation.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la scintigraphie est une alternative (grossesse, insuffisance rénale), non l'examen de première intention ici.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Les D-dimères sont positifs. Quel examen confirme le diagnostic d'embolie pulmonaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La radiographie thoracique de face</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L'électrocardiogramme</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'angioscanner thoracique (angio-TDM des artères pulmonaires)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le dosage de la troponine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — l'angioscanner thoracique</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la radiographie est souvent normale ou peu spécifique : elle ne confirme pas l'EP.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — l'ECG peut montrer des signes évocateurs (S1Q3, tachycardie) mais ne confirme pas le diagnostic.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'angioscanner thoracique est l'examen de référence pour confirmer l'embolie pulmonaire (visualisation du thrombus).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la troponine participe à l'évaluation du retentissement, non au diagnostic positif.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels éléments interviennent dans la stratification de la gravité d'une embolie pulmonaire confirmée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'existence d'un état de choc ou d'une hypotension artérielle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une dysfonction du ventricule droit (échographie, scanner)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une élévation de la troponine</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le score pronostique clinique (PESI)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le calibre du thrombus au scanner, qui détermine à lui seul la gravité</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'instabilité hémodynamique (choc, hypotension) définit l'EP grave (haut risque).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la dysfonction VD est un marqueur de gravité (retentissement sur le cœur droit).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'élévation de la troponine traduit la souffrance myocardique droite.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le score PESI (ou sPESI) stratifie le risque de mortalité précoce.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la gravité dépend du retentissement hémodynamique et VD, pas uniquement de la taille du thrombus.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente présente une aggravation avec état de choc : il s'agit d'une embolie pulmonaire grave. Quelle prise en charge proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une thrombolyse (fibrinolyse) en l'absence de contre-indication</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une anticoagulation curative par héparine</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un support hémodynamique (remplissage prudent, amines si besoin) et oxygénothérapie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un anticoagulant oral direct (AOD) en monothérapie d'emblée, sans autre mesure</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'EP grave (avec choc) relève d'une thrombolyse en urgence, sauf contre-indication.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'anticoagulation curative (héparine) est débutée sans délai.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le support hémodynamique (remplissage prudent, amines vasopressives) et l'oxygénothérapie sont nécessaires.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — dans l'EP grave, on n'utilise pas un AOD en monothérapie d'emblée : la prise en charge repose sur héparine ± thrombolyse.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'évolution est favorable. Cette embolie pulmonaire est provoquée par un facteur de risque transitoire majeur (voyage, contraception arrêtée). Quelle durée d'anticoagulation recommandez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">3 mois</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">6 semaines</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">10 jours</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">À vie de façon systématique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — 3 mois</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — une EP provoquée par un facteur transitoire majeur se traite classiquement 3 mois.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — 6 semaines est insuffisant.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — 10 jours correspond à un traitement d'attaque, non à la durée totale.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'anticoagulation prolongée/à vie concerne les EP non provoquées ou récidivantes, ou en présence d'un facteur de risque persistant (cancer…).</div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les signes suivants observés chez un patient atteint de péricardite aiguë, lesquels doivent faire craindre une tamponnade ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une turgescence jugulaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un pouls paradoxal</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une élévation de la troponine</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un état de choc (hypotension, tachycardie)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un sus-décalage de ST diffus et concave vers le haut</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la turgescence jugulaire traduit l'adiastolie (gêne au remplissage) de la tamponnade.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le pouls paradoxal (chute inspiratoire de la PA systolique &gt; 10 mmHg) est un signe de tamponnade.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'élévation de la troponine témoigne d'une myopéricardite, pas d'une tamponnade.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'état de choc (adiastolie aiguë) signe la mauvaise tolérance : urgence thérapeutique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le sus-décalage diffus concave est un signe ECG de péricardite, non un critère de tamponnade.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la péricardite aiguë bénigne, citez les affirmations exactes.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La douleur est majorée en décubitus et à l'inspiration, soulagée par l'antéflexion</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un frottement péricardique peut être ausculté</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'ECG peut montrer un sus-décalage de ST diffus, concave, sans image en miroir</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'étiologie la plus fréquente est bactérienne</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le traitement de première intention associe AINS (ou aspirine) et colchicine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — douleur positionnelle : majorée en décubitus et à l'inspiration, calmée penché en avant.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le frottement péricardique est un signe spécifique, inconstant et fugace.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — sus-décalage de ST diffus, concave vers le haut, sans miroir, avec parfois sous-décalage du PQ.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'étiologie la plus fréquente est virale (ou idiopathique présumée virale).</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — le traitement associe AINS (ou aspirine) et colchicine, avec repos.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les items suivants, quels sont les critères de sévérité (rétrécissement aortique serré) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une surface aortique inférieure à 1 cm²</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un gradient moyen transaortique supérieur à 40 mmHg</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une vitesse maximale (Vmax) transaortique supérieure à 4 m/s</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une surface aortique supérieure à 1,5 cm²</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le RAo serré est défini par une surface &lt; 1 cm² (ou &lt; 0,6 cm²/m² de surface corporelle).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — un gradient moyen &gt; 40 mmHg est un critère de sévérité.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — une Vmax &gt; 4 m/s est un critère de sévérité.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une surface &gt; 1,5 cm² correspond à un rétrécissement peu serré (léger).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le rétrécissement aortique serré, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les trois symptômes cardinaux sont l'angor, la syncope d'effort et la dyspnée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'apparition de symptômes fait poser l'indication d'un remplacement valvulaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le souffle est systolique, éjectionnel, au foyer aortique, irradiant vers les carotides</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La cause la plus fréquente chez le sujet âgé est rhumatismale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la triade classique associe angor, syncope (d'effort) et dyspnée.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le RAo serré symptomatique est une indication de remplacement valvulaire (chirurgie ou TAVI).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — souffle systolique éjectionnel, râpeux, au foyer aortique, irradiant aux carotides.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — chez le sujet âgé, la cause la plus fréquente est dégénérative (maladie de Mönckeberg), non rhumatismale.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'anticoagulation dans la fibrillation atriale, citez les réponses vraies.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'indication d'anticoagulation repose sur le score CHA₂DS₂-VASc (risque embolique)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L'aspirine est le traitement recommandé en prévention des embolies dans la FA</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un score HAS-BLED élevé contre-indique formellement et définitivement l'anticoagulation</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les anticoagulants oraux directs (AOD) sont privilégiés dans la FA non valvulaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le CHA₂DS₂-VASc évalue le risque embolique et guide l'indication d'anticoagulation.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — l'aspirine n'a pas sa place en prévention des embolies de la FA : il faut une anticoagulation.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un HAS-BLED élevé incite à corriger les facteurs de risque hémorragique et à surveiller, mais ne contre-indique pas à lui seul l'anticoagulation.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — dans la FA non valvulaire, les AOD sont préférés aux AVK (sauf FA valvulaire : rétrécissement mitral serré, prothèse mécanique → AVK).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les traitements suivants, lesquels ont démontré un bénéfice sur la mortalité dans l'insuffisance cardiaque chronique à FEVG altérée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les IEC (ou ARA2, ou l'association sacubitril-valsartan)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les bêtabloquants</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les antagonistes des récepteurs des minéralocorticoïdes (spironolactone, éplérénone)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les inhibiteurs de SGLT2 (gliflozines)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les diurétiques de l'anse, qui améliorent la survie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="note"><div class="rappel"><b>Les « 4 piliers »</b> du traitement de l'IC à FEVG altérée : IEC/ARA2 ou sacubitril-valsartan · bêtabloquant · ARM · iSGLT2 — tous ont un bénéfice démontré sur la mortalité.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les IEC (ou ARA2, ou sacubitril-valsartan) réduisent la mortalité.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les bêtabloquants réduisent la mortalité (à introduire à distance d'une décompensation).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les antagonistes des récepteurs des minéralocorticoïdes réduisent la mortalité.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les inhibiteurs de SGLT2 (gliflozines) réduisent la mortalité et les hospitalisations.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — les diurétiques de l'anse améliorent les symptômes congestifs mais n'ont pas démontré de bénéfice sur la survie.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le traitement de première intention de l'hypertension artérielle essentielle non compliquée, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les IEC et les ARA2 font partie des classes de première intention</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les bêtabloquants sont la classe de première intention chez tous les patients</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les inhibiteurs calciques font partie des classes de première intention</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les diurétiques thiazidiques font partie des classes de première intention</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les mesures hygiéno-diététiques sont inutiles une fois le traitement médicamenteux débuté</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — IEC et ARA2 sont des classes de première intention.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — les bêtabloquants ne sont pas de première intention dans l'HTA non compliquée (réservés à des indications particulières : coronaropathie, insuffisance cardiaque…).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les inhibiteurs calciques sont une classe de première intention.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les diurétiques thiazidiques sont une classe de première intention.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — les mesures hygiéno-diététiques restent indispensables, associées au traitement médicamenteux.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, lesquelles peuvent être une cause d'HTA secondaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une sténose de l'artère rénale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un hyperaldostéronisme primaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un phéochromocytome</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un syndrome d'apnées obstructives du sommeil</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une hypothyroïdie fruste isolée, cause classique d'HTA sévère</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la sténose de l'artère rénale est une cause d'HTA rénovasculaire.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'hyperaldostéronisme primaire (adénome de Conn) est la première cause endocrinienne.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le phéochromocytome donne une HTA volontiers paroxystique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le SAOS est une cause fréquente et souvent méconnue d'HTA (notamment résistante).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'hypothyroïdie n'est pas une cause classique d'HTA secondaire sévère.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant l'endocardite infectieuse, lesquelles sont vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les hémocultures sont l'examen microbiologique clé et doivent être répétées</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Staphylococcus aureus et les streptocoques sont les agents les plus fréquents</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'échocardiographie recherche des végétations, un abcès ou une désinsertion de prothèse</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le diagnostic est éliminé si les hémocultures sont négatives</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les hémocultures répétées sont fondamentales (critères de Duke) et guident l'antibiothérapie.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — S. aureus et les streptocoques (oraux, D…) sont les germes les plus fréquents.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'échocardiographie (ETT puis ETO) recherche végétations, abcès, fuite, désinsertion.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — il existe des endocardites à hémocultures négatives : le diagnostic n'est pas éliminé pour autant.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les causes possibles d'une insuffisance mitrale aiguë ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une rupture de cordage</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une endocardite infectieuse (mutilation valvulaire)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une rupture ou dysfonction de pilier lors d'un infarctus du myocarde</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un rétrécissement aortique calcifié dégénératif</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la rupture de cordage entraîne une IM aiguë (souvent OAP brutal).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'endocardite peut mutiler la valve et provoquer une IM aiguë.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la rupture/dysfonction de pilier à la phase aiguë d'un IDM est une cause d'IM aiguë.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le rétrécissement aortique dégénératif est une valvulopathie aortique, sans lien avec une IM aiguë.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez un patient porteur d'une prothèse valvulaire mécanique, quelles complications sont possibles ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une thrombose de prothèse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un accident embolique systémique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une hémorragie liée au traitement anticoagulant</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une endocardite sur prothèse</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une prothèse mécanique dispense de toute anticoagulation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la thrombose de prothèse est une complication grave, favorisée par une anticoagulation insuffisante.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les accidents emboliques systémiques sont possibles.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'anticoagulation par AVK au long cours expose au risque hémorragique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'endocardite sur prothèse est une complication redoutée (prophylaxie recommandée).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une prothèse mécanique impose au contraire une anticoagulation par AVK à vie.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les caractéristiques suivantes, lesquelles sont évocatrices d'une dissection aortique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une douleur thoracique intense, à type de déchirure, migratrice (vers le dos)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une asymétrie tensionnelle ou une abolition d'un pouls</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un terrain d'HTA ou de maladie du tissu conjonctif (Marfan)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un sus-décalage de ST diffus et concave, sans miroir</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — douleur brutale, intense, à type de déchirure, volontiers migratrice vers le dos.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'asymétrie tensionnelle/abolition de pouls traduit l'extension de la dissection aux troncs artériels.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'HTA et les maladies du tissu conjonctif (Marfan, Ehlers-Danlos) sont des terrains favorisants.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le sus-décalage diffus concave sans miroir est un signe de péricardite, pas de dissection.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les signes possibles à l'ECG chez un patient présentant un syndrome coronarien aigu sans sus-décalage du segment ST (SCA ST-) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un sous-décalage du segment ST</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des ondes T négatives</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un sus-décalage persistant du segment ST dans un territoire systématisé</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un ECG normal (n'élimine pas le diagnostic)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le sous-décalage de ST est un signe fréquent du SCA ST-.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — des ondes T négatives peuvent être observées.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un sus-décalage persistant définit un SCA ST+, pas un SCA ST-.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — un ECG normal n'élimine pas un SCA ST- : il faut le répéter et doser la troponine.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'athérome et les facteurs de risque cardiovasculaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le tabagisme, le diabète, l'HTA et la dyslipidémie sont des facteurs de risque modifiables</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'âge et les antécédents familiaux sont des facteurs de risque non modifiables</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La maladie athéromateuse est diffuse et peut toucher plusieurs territoires artériels</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La rupture d'une plaque d'athérome peut déclencher un syndrome coronarien aigu</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — tabac, diabète, HTA et dyslipidémie sont des facteurs de risque modifiables majeurs.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'âge, le sexe masculin et l'hérédité coronarienne sont non modifiables.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'athérome est une maladie systémique, souvent poly-artérielle (coronaires, carotides, membres inférieurs).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la rupture/érosion de plaque et la thrombose qui s'ensuit sont le mécanisme du SCA.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes concernant la fibrillation atriale, lesquelles sont vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Sa prévalence augmente avec l'âge</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle expose à un risque accru d'accident embolique (dont l'AVC)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle peut être totalement asymptomatique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'ECG montre des ondes P sinusales régulières</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La prise en charge comprend le contrôle de la fréquence ou du rythme, et l'anticoagulation selon le risque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la prévalence de la FA augmente nettement avec l'âge.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la FA majore le risque thromboembolique, notamment d'AVC cardio-embolique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la FA peut être totalement asymptomatique, découverte fortuitement.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — dans la FA, les ondes P sinusales disparaissent (remplacées par une trémulation) et les QRS sont irréguliers.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — la prise en charge associe contrôle de la fréquence ou du rythme et anticoagulation selon le CHA₂DS₂-VASc.</div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour au portail D2 · T1</a>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’‘`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+ if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+ var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+ var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
