@@ -1,0 +1,850 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 8.3 — Endocrinologie / Nutrition · Sujet type</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 8.3 — Endocrinologie / Nutrition · Sujet type (synthèse des annales 2021-2025)</h1>
+<div class="sub">33 questions : DP1 syndrome polyuro-polydipsique aigu chez une adulte jeune (8, verrouillé) · mDP1 nodule thyroïdien découvert à l'examen cervical (6, verrouillé) · KFP1 asthénie, amaigrissement et mélanodermie (4, verrouillé) · SQI1 (15). 33 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/33</b></span>
+<span class="pill">Score : <b id="s-ok">0/33</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap"><div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n'est pas une annale réelle. C'est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d'UE 8.3 (2021-2025, cf. section « Annales officielles » du portail). Objectif : réviser en priorité le contenu à plus fort rendement avant l'examen — diabète (type 1/type 2, acidocétose, complications), pathologie thyroïdienne (nodule, hyper/hypothyroïdie), insuffisance surrénale, obésité/chirurgie bariatrique, dénutrition, dyslipidémie, adénomes hypophysaires, hyperparathyroïdie.
+</div>
+
+<div class="sect">DP1 — Syndrome polyuro-polydipsique aigu chez une adulte jeune</div>
+
+<div class="q" id="DP1-Q1" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mlle T., 19 ans, sans antécédent ni surpoids, consulte pour un syndrome polyuro-polydipsique évoluant depuis 3 semaines avec un amaigrissement de 6 kg et une asthénie majeure. Depuis 48 h, elle présente des nausées, des douleurs abdominales et une polypnée.</div>
+<div class="stem">Quels éléments sont en faveur d'un diabète de type 1 plutôt que d'un diabète de type 2 ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'âge jeune de survenue</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le syndrome cardinal (polyuro-polydipsie, amaigrissement) d'installation rapide</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La présence d'un surpoids androïde</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La présence d'une cétose</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'absence d'antécédent familial de diabète de type 2</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le DT1 débute typiquement avant 35 ans, souvent chez un sujet jeune non obèse.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le syndrome cardinal bruyant et rapide évoque une carence insulinique profonde (DT1).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le surpoids androïde et le syndrome métabolique orientent au contraire vers un DT2.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la cétose témoigne de la carence insulinique et est caractéristique du DT1.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — l'absence d'hérédité de DT2 et de terrain métabolique renforce l'hypothèse d'un DT1 auto-immun.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-answer="cetonemie capillaire | cetonemie | cetonurie | bandelette urinaire | glycemie capillaire et cetonemie | recherche de corps cetoniques" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen simple, réalisable immédiatement au lit de la patiente, permet de confirmer la présence d'une cétose ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : la cétonémie capillaire (à défaut, recherche de cétonurie à la bandelette urinaire)</div>
+<div class="note">La cétonémie capillaire (β-hydroxybutyrate) est plus précoce et plus fiable que la cétonurie ; un seuil ≥ 3 mmol/L définit une cétose significative.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La glycémie capillaire est à 4,1 g/L, la cétonémie à 4 mmol/L. Quels éléments définissent l'acidocétose diabétique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une hyperglycémie (souvent > 2,5 g/L)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une hypoglycémie associée à la cétose</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une cétonémie ≥ 3 mmol/L (ou cétonurie ≥ ++)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une acidose métabolique (pH < 7,30 et/ou bicarbonates < 15-18 mmol/L)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une alcalose métabolique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — l'acidocétose s'accompagne d'une hyperglycémie ; une cétose avec normo/hypoglycémie fait évoquer une cétose de jeûne ou l'effet d'un iSGLT2.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la triade est : hyperglycémie + cétose + acidose métabolique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — il s'agit d'une acidose, non d'une alcalose.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel bilan initial demandez-vous en urgence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ionogramme sanguin avec kaliémie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Gaz du sang</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ECG</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Dosage de l'HbA1c pour décider du traitement des premières heures</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Recherche d'un facteur déclenchant (infection notamment)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la kaliémie conditionne la prise en charge (voir question suivante).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'ECG dépiste le retentissement de la dyskaliémie.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'HbA1c renseigne sur l'équilibre des mois précédents mais ne guide pas la réanimation immédiate de l'acidocétose.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — infection, arrêt d'insuline, etc. doivent être recherchés.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La kaliémie initiale est à 4,8 mmol/L. Quelles affirmations sont exactes concernant le potassium au cours de l'acidocétose ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le capital potassique total de l'organisme est diminué malgré une kaliémie normale ou élevée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'insulinothérapie fait entrer le potassium dans les cellules et expose à une hypokaliémie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une supplémentation potassique est contre-indiquée tant que la kaliémie est normale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une kaliémie initiale basse impose de débuter la supplémentation potassique avant ou avec l'insuline</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La kaliémie n'a pas à être surveillée une fois l'insuline débutée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la déplétion potassique globale est constante (pertes urinaires, transfert extracellulaire lié à l'acidose).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — une supplémentation est le plus souvent débutée précocement dès que la kaliémie n'est pas franchement élevée et que la diurèse est conservée.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — une hypokaliémie initiale doit être corrigée avant l'insuline (risque de trouble du rythme).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la surveillance rapprochée de la kaliémie est indispensable.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les grands principes thérapeutiques des premières heures ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Réhydratation par sérum salé isotonique (NaCl 0,9 %)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Insulinothérapie par voie intraveineuse à la seringue électrique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Perfusion systématique de bicarbonates pour corriger l'acidose</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Surveillance horaire de la glycémie capillaire et de la cétonémie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Arrêt de l'insuline dès la normalisation de la glycémie, avant disparition de la cétose</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'insuline IVSE est le pilier du traitement ; on ajoute du glucosé quand la glycémie baisse pour poursuivre l'insuline jusqu'à disparition de la cétose.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — les bicarbonates ne sont pas systématiques (réservés aux acidoses très sévères), l'insuline corrige l'acidose.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'insuline doit être poursuivie jusqu'à la disparition de la cétose, pas seulement de l'hyperglycémie.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'évolution est favorable ; les anticorps anti-GAD sont fortement positifs. Quelle prise en charge au long cours proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Insulinothérapie à vie, en schéma basal-bolus</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Metformine seule en première intention</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Éducation thérapeutique et apprentissage de l'autosurveillance glycémique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Arrêt de toute insuline possible après quelques mois (« guérison » du diabète)</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Apprentissage de l'adaptation des doses et de la conduite à tenir en cas d'hypoglycémie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'insulinothérapie est indispensable et définitive dans le DT1.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — les antidiabétiques oraux ne remplacent jamais l'insuline dans le DT1.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une phase de « lune de miel » peut réduire transitoirement les besoins mais n'autorise jamais l'arrêt de l'insuline.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel objectif d'HbA1c visez-vous chez cette patiente jeune, sans comorbidité, en dehors de la grossesse ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">≤ 6 %</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">≤ 7 %</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">≤ 8 %</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">≤ 9 %</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — ≤ 7 %</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — un objectif trop bas majore le risque hypoglycémique sans bénéfice démontré.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — objectif standard chez l'adulte jeune ; il est individualisé (plus souple chez le sujet âgé ou fragile).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP1 — Nodule thyroïdien découvert à l'examen cervical</div>
+
+<div class="q" id="mDP1-Q1" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme A., 52 ans, consulte pour un nodule thyroïdien palpable du lobe droit, découvert fortuitement. Elle est cliniquement euthyroïdienne, sans adénopathie palpable.</div>
+<div class="stem">Quel bilan de première intention demandez-vous devant ce nodule thyroïdien ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Dosage de la TSH</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Scintigraphie thyroïdienne systématique en première intention</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Échographie cervicale avec classification EU-TIRADS</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">TDM cervicale injectée systématique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Dosage systématique de la thyroglobuline</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la TSH oriente d'emblée (une TSH basse fait évoquer un nodule « chaud »).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la scintigraphie n'est indiquée que si la TSH est basse.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'échographie caractérise le nodule (score EU-TIRADS) et guide la décision de cytoponction.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'injection d'iode est à éviter et le scanner n'est pas un examen de première intention.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la thyroglobuline n'a pas d'intérêt diagnostique initial (marqueur de suivi post-thyroïdectomie du cancer différencié).</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels éléments cliniques ou échographiques font craindre la malignité d'un nodule thyroïdien ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un nodule dur, fixé, à croissance rapide</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une adénopathie cervicale associée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une paralysie récurrentielle (dysphonie)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un nodule purement kystique anéchogène</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Des microcalcifications, des contours irréguliers, un nodule « plus haut que large »</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — signe d'envahissement local.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — un kyste pur est un signe de bénignité (EU-TIRADS 2).</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — ce sont les critères échographiques de suspicion (EU-TIRADS 4/5).</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La TSH est normale et l'échographie retrouve un nodule tissulaire de 2 cm classé EU-TIRADS 4. Quelle est la prochaine étape ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Scintigraphie thyroïdienne</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Thyroïdectomie totale d'emblée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Cytoponction à l'aiguille fine du nodule</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Simple surveillance à 5 ans</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — cytoponction à l'aiguille fine</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — la scintigraphie n'a pas d'intérêt si la TSH est normale.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la chirurgie ne se décide pas sans preuve cytologique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la cytoponction, classée selon Bethesda, est l'examen clé devant un nodule suspect (EU-TIRADS 4 ≥ 15 mm).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la surveillance simple ne s'applique pas à un nodule suspect ponctionnable.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-answer="scintigraphie thyroidienne | scintigraphie | scintigraphie a l iode 123 | scintigraphie thyroide" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si la TSH avait été basse (nodule potentiellement « chaud »), quel examen d'imagerie fonctionnelle aurait été indiqué avant d'envisager une cytoponction ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : la scintigraphie thyroïdienne</div>
+<div class="note">Un nodule « chaud » (hyperfixant, autonome) est quasi toujours bénin : il ne se ponctionne pas.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La cytoponction est en faveur d'un carcinome papillaire. Quelles affirmations sont exactes concernant ce cancer ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est le cancer thyroïdien le plus fréquent</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il dissémine préférentiellement par voie lymphatique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Son pronostic est globalement défavorable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement repose sur la thyroïdectomie totale, éventuellement complétée d'IRAthérapie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il dérive des cellules C et sécrète de la calcitonine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le carcinome papillaire représente la majorité des cancers thyroïdiens.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — extension lymphophile (contrairement au folliculaire, plutôt hématogène).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le pronostic des cancers différenciés est au contraire habituellement excellent.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — suivie d'une hormonothérapie substitutive/freinatrice et d'un suivi par la thyroglobuline.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c'est le carcinome médullaire qui dérive des cellules C et sécrète la calcitonine.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez une autre patiente, la calcitonine était élevée et la cytologie évoquait un carcinome médullaire. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La calcitonine est le marqueur de ce cancer</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il faut rechercher un phéochromocytome avant toute chirurgie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il est toujours sporadique, sans forme héréditaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une mutation du proto-oncogène RET doit être recherchée (NEM de type 2)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il relève d'une IRAthérapie comme les cancers différenciés</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — calcitonine (et ACE) sont les marqueurs du carcinome médullaire.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — dans le cadre d'une NEM2, un phéochromocytome doit être éliminé avant l'anesthésie (risque de crise hypertensive).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — il existe des formes héréditaires (NEM2), justifiant l'enquête génétique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — issu des cellules C, il ne capte pas l'iode : l'IRAthérapie est inefficace.</div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Asthénie, amaigrissement et mélanodermie</div>
+
+<div class="q" id="KFP1-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. B., 45 ans, consulte pour une asthénie majeure, un amaigrissement et des malaises. Vous notez une mélanodermie des zones découvertes et des plis, une hypotension artérielle et une appétence pour le sel.</div>
+<div class="stem">Quels éléments cliniques ou biologiques orientent vers une insuffisance surrénale primaire (maladie d'Addison) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La mélanodermie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'hypotension artérielle avec appétence pour le sel</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une hyponatrémie avec hyperkaliémie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une hypernatrémie avec hypokaliémie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une tendance à l'hypoglycémie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la mélanodermie témoigne de l'élévation de l'ACTH (atteinte primaire).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — traduit le déficit en minéralocorticoïdes.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — hyponatrémie + hyperkaliémie caractéristiques du déficit en aldostérone.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — c'est le profil inverse.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — le déficit en cortisol favorise les hypoglycémies.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-answer="test au synacthene | synacthene | test de stimulation a l acth | test au synacthene immediat | test a l acth" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel test dynamique confirme le diagnostic d'insuffisance surrénale ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : le test au Synacthène (test de stimulation à l'ACTH)</div>
+<div class="note">Une cortisolémie qui reste basse après injection de Synacthène confirme l'insuffisance surrénale. Le couple cortisol/ACTH de 8 h permet ensuite de distinguer l'origine périphérique (ACTH haute) de l'origine centrale (ACTH basse/normale).</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diagnostic d'insuffisance surrénale primaire est confirmé. Quels résultats biologiques attendez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une cortisolémie de 8 h basse</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une ACTH basse</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une ACTH élevée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des anticorps anti-21-hydroxylase, à rechercher (cause auto-immune)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une aldostérone élevée avec rénine basse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — dans l'atteinte périphérique, l'ACTH est élevée (rétrocontrôle levé).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la rétraction corticale auto-immune est la première cause en France.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'aldostérone est basse et la rénine élevée (déficit minéralocorticoïde).</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q4" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelques semaines plus tard, à l'occasion d'une gastro-entérite fébrile, il présente une insuffisance surrénale aiguë. Quelle est votre conduite à tenir ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Injection d'hydrocortisone en urgence, sans attendre les résultats biologiques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Réhydratation par sérum salé isotonique (± glucosé)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Perfusion de solutés riches en potassium</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Éducation : carte d'insuffisant surrénalien et adaptation (majoration) des doses en cas de stress/infection</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Arrêt définitif de l'hydrocortisone une fois l'épisode aigu résolu</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'urgence vitale impose l'hydrocortisone immédiate.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — correction de la déshydratation et de l'hypoglycémie.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — il existe une hyperkaliémie : on n'apporte pas de potassium.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'éducation prévient les récidives (règles de l'insuffisant surrénalien).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le traitement substitutif est à vie.</div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le dépistage et le diagnostic du diabète de type 2, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une glycémie à jeun ≥ 1,26 g/L (7 mmol/L) à deux reprises affirme le diabète</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une glycémie ≥ 2 g/L à n'importe quel moment, avec symptômes, affirme le diabète</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une HbA1c à 6 % affirme le diabète</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le surpoids, l'HTA et les antécédents familiaux sont des situations justifiant un dépistage</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le diagnostic repose sur la glycémie capillaire au doigt</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le seuil diagnostique d'HbA1c est ≥ 6,5 % ; 6 % est infra-seuil.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le diagnostic repose sur la glycémie veineuse, non capillaire.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la metformine, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est le traitement médicamenteux de première intention du diabète de type 2</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle expose à un risque majeur d'hypoglycémie en monothérapie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle doit être interrompue en cas d'injection de produit de contraste iodé</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle est contre-indiquée en cas d'insuffisance rénale sévère (risque d'acidose lactique)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle fait prendre du poids</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la metformine seule n'entraîne pas d'hypoglycémie (contrairement aux sulfamides et à l'insuline).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — elle est neutre voire favorable sur le poids.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les inhibiteurs de SGLT2 (gliflozines) et les analogues du GLP-1, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les analogues du GLP-1 favorisent la perte de poids</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les iSGLT2 ont démontré un bénéfice cardiovasculaire et rénal</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les iSGLT2 entraînent constamment une prise de poids</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les iSGLT2 favorisent les infections génito-urinaires</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les analogues du GLP-1 sont administrés par voie orale exclusivement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — indiqués notamment en cas d'insuffisance cardiaque ou de maladie rénale chronique.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — les iSGLT2 entraînent plutôt une perte de poids (glycosurie).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la glycosurie favorise mycoses et infections urinaires.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la plupart sont injectables (SC), même si des formes orales existent.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'hypothyroïdie primaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle associe une TSH élevée et une T4 libre basse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La thyroïdite de Hashimoto en est une cause fréquente</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le traitement de fond repose sur les antithyroïdiens de synthèse</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle se manifeste par une tachycardie et un amaigrissement</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le traitement substitutif repose sur la lévothyroxine (LT4)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — thyroïdite auto-immune, avec anticorps anti-TPO.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — les antithyroïdiens traitent l'hyper- et non l'hypothyroïdie.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'hypothyroïdie donne bradycardie, prise de poids, frilosité, ralentissement.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la maladie de Basedow, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est une cause d'hyperthyroïdie auto-immune</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La TSH est élevée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les anticorps anti-récepteurs de la TSH (TRAK) sont positifs</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une orbitopathie (exophtalmie) peut être associée</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La scintigraphie montre un nodule unique hyperfixant « chaud »</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la TSH est effondrée (freinée par l'excès d'hormones).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les TRAK sont le marqueur diagnostique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'orbitopathie basedowienne est caractéristique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la fixation est diffuse et homogène (le nodule chaud isolé évoque l'adénome toxique).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez un patient diabétique de type 2 en prévention cardiovasculaire à risque très élevé, quel objectif de LDL-cholestérol visez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">&lt; 1,3 g/L</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">&lt; 0,55 g/L</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">&lt; 1,9 g/L</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Aucun objectif chiffré n'est recommandé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — &lt; 0,55 g/L</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'objectif LDL est &lt; 0,55 g/L (1,4 mmol/L) chez les patients à risque cardiovasculaire très élevé, avec une baisse d'au moins 50 %.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'objectif est stratifié selon le niveau de risque cardiovasculaire.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels critères entrent dans la définition du syndrome métabolique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un tour de taille augmenté (obésité abdominale)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une hypertriglycéridémie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un HDL-cholestérol élevé</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une pression artérielle élevée</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une glycémie à jeun élevée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — c'est un HDL <b>bas</b> qui est un critère.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — le syndrome métabolique associe ≥ 3 de ces 5 critères.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'obésité et la chirurgie bariatrique, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'obésité est définie par un IMC ≥ 30 kg/m²</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La chirurgie peut être envisagée si l'IMC ≥ 40, ou ≥ 35 avec comorbidité</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle peut être proposée sans prise en charge médicale préalable ni suivi pluridisciplinaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une supplémentation vitaminique au long cours est nécessaire après by-pass</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les troubles du comportement alimentaire non stabilisés en sont une bonne indication</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — après échec d'une prise en charge médicale bien conduite.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un parcours médical préalable et un suivi pluridisciplinaire sont obligatoires.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le risque de carences (fer, B12, folates, vitamine D…) impose une supplémentation à vie.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un TCA non stabilisé est une contre-indication.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le diagnostic de dénutrition chez l'adulte (critères HAS), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le diagnostic associe au moins un critère phénotypique et un critère étiologique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une perte de poids ≥ 5 % en 1 mois est un critère phénotypique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une albuminémie élevée est un critère de dénutrition</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un IMC bas est un critère phénotypique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'albuminémie n'est pas influencée par un syndrome inflammatoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la dénutrition se diagnostique par l'association d'un critère phénotypique et d'un critère étiologique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — (ou ≥ 10 % en 6 mois).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — c'est une albuminémie <b>basse</b> qui est un marqueur (dénutrition sévère).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'albumine baisse aussi en cas d'inflammation, ce qui limite son interprétation isolée.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente présente une calcémie corrigée à 2,85 mmol/L. Quels résultats orientent vers une hyperparathyroïdie primaire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une PTH élevée ou « inadaptée » (non freinée) face à l'hypercalcémie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une PTH effondrée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une hypophosphorémie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une hyperphosphorémie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une calciurie systématiquement basse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — une PTH non freinée devant une hypercalcémie signe l'hyperparathyroïdie primaire (souvent un adénome parathyroïdien).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — une PTH effondrée oriente vers une hypercalcémie d'autre cause (néoplasie, etc.).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'hypophosphorémie accompagne classiquement l'hyperparathyroïdie primaire.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une calciurie basse évoque plutôt une hypercalcémie-hypocalciurie familiale bénigne.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'acromégalie, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est due le plus souvent à un adénome hypophysaire sécrétant de la GH</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le dosage de l'IGF-1 est utile au diagnostic</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'hyperglycémie provoquée par voie orale explore le freinage de la GH</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle entraîne un amaigrissement des extrémités</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le traitement de première intention est l'IRAthérapie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'IGF-1 reflète la sécrétion de GH.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'absence de freinage de la GH lors de l'HGPO confirme le diagnostic.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — au contraire, épaississement des extrémités et syndrome dysmorphique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le traitement repose surtout sur la chirurgie hypophysaire (± analogues de la somatostatine).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'hyperprolactinémie, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle peut se manifester par une aménorrhée-galactorrhée chez la femme</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Certains médicaments (neuroleptiques, antiémétiques) peuvent l'induire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une grossesse doit être exclue avant toute autre exploration… uniquement chez l'homme</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un adénome à prolactine (prolactinome) est une étiologie à rechercher par IRM hypophysaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le traitement d'un prolactinome est chirurgical en première intention</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — cause médicamenteuse fréquente à éliminer.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la grossesse (cause physiologique) est à éliminer chez la femme.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le traitement du prolactinome est d'abord médical (agonistes dopaminergiques).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome de Cushing, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il associe obésité facio-tronculaire, vergetures pourpres et amyotrophie proximale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le test de freinage minute à la dexaméthasone est un test de dépistage</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La cause iatrogène (corticothérapie) est la plus fréquente</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il s'accompagne typiquement d'une hypoglycémie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le cortisol libre urinaire des 24 h y est effondré</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'absence de freinage du cortisol après dexaméthasone évoque le diagnostic.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'hypercortisolisme iatrogène est de loin le plus fréquent.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'hypercortisolisme donne au contraire une intolérance au glucose/diabète.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le cortisol libre urinaire est augmenté.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une jeune femme consulte pour hirsutisme, prise de poids et spanioménorrhée. Quels éléments sont en faveur d'un syndrome des ovaires polykystiques (SOPK, critères de Rotterdam) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une oligo- ou anovulation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La présence des 3 critères de Rotterdam est obligatoire pour retenir le diagnostic</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une hyperandrogénie clinique ou biologique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le diagnostic est retenu d'emblée, sans éliminer les diagnostics différentiels</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une insuffisance ovarienne avec FSH élevée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — il faut <b>2 des 3</b> critères de Rotterdam (oligo/anovulation, hyperandrogénie, aspect échographique).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le SOPK est un diagnostic d'élimination (écarter hyperplasie surrénalienne, Cushing, tumeur…).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une FSH élevée évoque au contraire une insuffisance ovarienne, pas un SOPK.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-answer="fond d oeil | fond d oeil annuel | retinographie | examen du fond d oeil" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen de dépistage de la rétinopathie diabétique réalisez-vous, au minimum une fois par an, chez un patient diabétique ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : le fond d'œil (ou une rétinographie)</div>
+<div class="note">La rétinopathie diabétique reste longtemps asymptomatique : le dépistage systématique par fond d'œil/rétinographie permet un traitement avant la baisse d'acuité visuelle.</div>
+</div>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’‘`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+ if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+ var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+ var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
