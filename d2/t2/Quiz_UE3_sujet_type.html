@@ -1,0 +1,879 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 3 — Psychiatrie / Addictologie · Sujet type</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 3 — Psychiatrie / Addictologie · Sujet type (synthèse des annales 2022-2025)</h1>
+<div class="sub">33 questions : DP1 malaise avec anxiété aiguë (7, verrouillé) · DP2 symptomatologie thymique du post-partum (6, verrouillé) · KFP1 hyperthermie sous neuroleptique (3, verrouillé) · SQI1 (17). 33 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/33</b></span>
+<span class="pill">Score : <b id="s-ok">0/33</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap"><div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n’est pas une annale réelle. C’est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d’UE 3 Psychiatrie/Addictologie (2022-2025, cf. section « Annales officielles » du portail). Objectif : réviser en priorité le contenu à plus fort rendement avant l’examen — trouble panique et troubles anxieux, dépression et dépression du post-partum, trouble bipolaire (manie, lithium), schizophrénie et troubles psychotiques aigus, TOC, syndrome malin des neuroleptiques, addictions (alcool et delirium tremens, opioïdes, cocaïne/amphétamines), soins psychiatriques sans consentement, pédopsychiatrie (TSA, TDAH), état de stress post-traumatique, deuil, précarité et troubles de la personnalité.
+</div>
+
+<div class="sect">DP1 — Malaise avec anxiété aiguë</div>
+<div class="q" id="DP1-Q1" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme A., 28 ans, sans antécédent, consulte aux urgences pour un malaise brutal avec palpitations, sensation d’étouffement, tremblements, sueurs et peur intense de mourir, régressif en 20 à 30 minutes. L’examen clinique et l’ECG sont normaux.</div>
+<div class="stem">Quel est le diagnostic le plus probable devant cet épisode aigu ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une attaque de panique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un épisode dépressif caractérisé</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un épisode maniaque</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un trouble délirant</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A — une attaque de panique</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — crise d’angoisse aiguë avec symptômes physiques et psychiques, d’apparition brutale et résolutive.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — l’épisode dépressif s’installe sur plusieurs semaines, ce n’est pas un épisode aigu de quelques minutes.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la manie associe une élévation de l’humeur et de l’énergie, sans ce tableau.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — aucun élément délirant décrit.</div>
+</div>
+</div>
+<div class="q" id="DP1-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la démarche diagnostique aux urgences devant ce tableau, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il faut d’abord éliminer une cause somatique (cardiaque, respiratoire, métabolique)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un ECG et une glycémie capillaire font partie de la démarche</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le diagnostic d’attaque de panique est clinique, posé après élimination des diagnostics différentiels somatiques</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une intoxication (ou un sevrage) et une cause thyroïdienne doivent être évoquées</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le diagnostic psychiatrique dispense de tout examen somatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l’attaque de panique est un diagnostic d’élimination aux urgences.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — recherche notamment d’un trouble du rythme et d’une hypoglycémie.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — diagnostic clinique après examen somatique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — diagnostics différentiels à envisager.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un examen somatique reste indispensable.</div>
+</div>
+</div>
+<div class="q" id="DP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l’attaque de panique, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle associe des symptômes physiques (palpitations, sueurs, tremblements, dyspnée) et psychiques (peur de mourir, de perdre le contrôle)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle débute brutalement et atteint son acmé en quelques minutes</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle est spontanément résolutive, en général en moins d’une heure</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle peut survenir dans de nombreux contextes (isolée, ou dans un trouble anxieux, dépressif…)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle dure typiquement plusieurs jours sans interruption</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — symptomatologie mixte caractéristique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — montée rapide de l’angoisse.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — résolution habituellement rapide.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l’attaque de panique n’est pas spécifique d’un seul trouble.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c’est un épisode aigu bref, non un état prolongé de plusieurs jours.</div>
+</div>
+</div>
+<div class="q" id="DP1-Q4" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente rapporte la répétition de telles attaques, imprévisibles, avec une crainte permanente de leur récidive (« peur d’avoir peur »). Quel diagnostic retenez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un trouble panique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une phobie spécifique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un trouble obsessionnel compulsif</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un état de stress post-traumatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A — un trouble panique</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — attaques de panique répétées + anxiété anticipatoire.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la phobie spécifique est déclenchée par un objet/une situation précis.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le TOC associe obsessions et compulsions, pas des attaques de panique récurrentes.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l’ESPT fait suite à un événement traumatique, avec reviviscences.</div>
+</div>
+</div>
+<div class="q" id="DP1-Q5" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le trouble panique et l’agoraphobie, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le trouble panique se définit par la répétition d’attaques de panique et une anxiété anticipatoire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une agoraphobie (peur des situations où il serait difficile de s’échapper ou d’être secouru) peut lui être associée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le trouble panique peut se compliquer de conduites d’évitement, de dépression et de conduites addictives</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il retentit souvent sur le fonctionnement social et professionnel</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L’agoraphobie correspond exclusivement à la peur des espaces ouverts, sans autre situation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — critères du trouble panique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — comorbidité fréquente.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — complications évolutives.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — altération fonctionnelle possible.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — elle concerne aussi les transports, foules, files d’attente, etc.</div>
+</div>
+</div>
+<div class="q" id="DP1-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la prise en charge du trouble panique (en dehors de l’urgence), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La psychothérapie, notamment la thérapie cognitivo-comportementale (TCC), a démontré son efficacité</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le traitement pharmacologique de fond de première intention repose sur un antidépresseur (ISRS/IRSNa)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les benzodiazépines peuvent être utiles à court terme mais exposent à un risque de dépendance (à éviter en traitement de fond prolongé)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L’information et l’éducation du patient sur le trouble font partie de la prise en charge</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le traitement de fond de première intention repose sur les benzodiazépines au long cours</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — traitement de référence non pharmacologique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — antidépresseurs sérotoninergiques en première intention.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — usage limité dans le temps.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la psychoéducation est utile.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — les benzodiazépines ne sont pas le traitement de fond de première intention.</div>
+</div>
+</div>
+<div class="q" id="DP1-Q7" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous instaurez un traitement antidépresseur par ISRS. Quelle information donnez-vous à la patiente concernant le délai d’action sur l’anxiété et l’humeur ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’effet thérapeutique apparaît en général après un délai de plusieurs semaines</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L’effet est immédiat dès la première prise</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le traitement doit être arrêté brutalement dès amélioration</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une aggravation transitoire de l’anxiété en début de traitement est impossible</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A — l’effet thérapeutique apparaît après un délai de plusieurs semaines</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — délai d’action retardé des antidépresseurs, à expliquer au patient.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — faux : l’effet sur l’humeur/anxiété est différé.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l’arrêt doit être progressif et le traitement poursuivi plusieurs mois.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une majoration transitoire de l’anxiété est possible en début de traitement.</div>
+</div>
+</div>
+<div class="sect">DP2 — Symptomatologie thymique du post-partum</div>
+<div class="q" id="DP2-Q1" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme D., 32 ans, consulte 6 semaines après un accouchement pour une tristesse persistante, un désintérêt, une insomnie, une culpabilité et une asthénie évoluant depuis 3 semaines.</div>
+<div class="stem">Quel diagnostic évoquez-vous en premier devant ce tableau ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un post-partum blues (baby blues)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un épisode dépressif caractérisé du post-partum</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une psychose puerpérale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un trouble anxieux généralisé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : B — un épisode dépressif caractérisé du post-partum</div>
+<div class="note"><div class="rappel">Le <b>post-partum blues</b> (baby blues) est transitoire (pic vers J3-J5, régressif en quelques jours) : ici, la symptomatologie dépressive est durable et survient à distance de l’accouchement, orientant vers une dépression du post-partum.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — le baby blues est bref et transitoire (premiers jours), ce qui ne correspond pas à ce tableau durable.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — tableau dépressif durable survenant dans les semaines suivant l’accouchement.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la psychose puerpérale associe des éléments délirants/confusionnels aigus, absents ici.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — les symptômes décrits sont thymiques (dépressifs), non un tableau anxieux chronique.</div>
+</div>
+</div>
+<div class="q" id="DP2-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la dépression du post-partum, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle associe les symptômes d’un épisode dépressif caractérisé survenant dans les semaines/mois suivant l’accouchement</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle doit être distinguée du baby blues, transitoire et bénin des premiers jours</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle nécessite une évaluation du risque suicidaire et du retentissement sur le lien mère-enfant</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La psychose puerpérale est une urgence psychiatrique distincte, avec éléments délirants/confusionnels</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La dépression du post-partum est toujours bénigne et ne justifie aucune prise en charge</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — critères de l’épisode dépressif dans le contexte du post-partum.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — distinction sémiologique importante.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — évaluations systématiques.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — tableau plus grave à ne pas confondre.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — elle nécessite une prise en charge (risque pour la mère et l’enfant).</div>
+</div>
+</div>
+<div class="q" id="DP2-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la prise en charge de cette dépression du post-partum, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une psychothérapie de soutien et/ou une TCC sont indiquées</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un traitement antidépresseur (ISRS) peut être prescrit, y compris en cas d’allaitement (choix de la molécule adapté)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’évaluation du risque suicidaire est systématique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le soutien de la relation mère-enfant et de l’entourage fait partie de la prise en charge</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L’hospitalisation en unité mère-enfant n’est jamais envisageable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — prise en charge psychothérapeutique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — traitement possible en adaptant la molécule.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — sécurité de la patiente.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — dimension familiale et du lien mère-enfant.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — elle peut au contraire être proposée dans les formes sévères.</div>
+</div>
+</div>
+<div class="q" id="DP2-Q4" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Six mois plus tard, la patiente présente un épisode de 8 jours associant humeur euphorique, réduction du besoin de sommeil, augmentation de l’estime de soi, hyperactivité et dépenses inconsidérées. Quel diagnostic posez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un épisode maniaque, faisant reclasser le trouble en trouble bipolaire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une récidive dépressive</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une attaque de panique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un trouble obsessionnel compulsif</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A — un épisode maniaque, faisant reclasser le trouble en trouble bipolaire</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la survenue d’un épisode maniaque après un épisode dépressif définit le trouble bipolaire de type I.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le tableau est au contraire une élévation de l’humeur.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — il ne s’agit pas d’une crise d’angoisse aiguë.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — aucune obsession ni compulsion décrite.</div>
+</div>
+</div>
+<div class="q" id="DP2-Q5" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le trouble bipolaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le trouble bipolaire de type I se caractérise par la survenue d’au moins un épisode maniaque</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les antidépresseurs prescrits seuls peuvent induire un virage maniaque chez un patient bipolaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le traitement de fond repose sur un thymorégulateur (ex. lithium)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une bonne observance du traitement de fond réduit le risque de récidive</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le trouble bipolaire ne comporte jamais d’épisode dépressif</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — définition du type I.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — d’où la prudence et l’association à un thymorégulateur.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — stabilisateur de l’humeur au long cours.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l’observance est un facteur pronostique majeur.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — il alterne épisodes dépressifs et épisodes maniaques/hypomaniaques.</div>
+</div>
+</div>
+<div class="q" id="DP2-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un traitement par lithium est envisagé. Concernant le lithium, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un bilan pré-thérapeutique (fonction rénale, fonction thyroïdienne, ionogramme, ECG, βhCG) est nécessaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La lithémie doit être surveillée régulièrement (marge thérapeutique étroite)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’insuffisance rénale et une déplétion sodée (régime sans sel, diurétiques) majorent le risque de surdosage</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une surveillance de la fonction thyroïdienne et rénale est nécessaire au long cours</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le lithium peut être introduit sans aucun bilan ni surveillance</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — bilan avant instauration.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — surveillance des taux plasmatiques indispensable.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — facteurs de toxicité à connaître.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — toxicité thyroïdienne et rénale possible.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — faux : bilan et surveillance sont obligatoires.</div>
+</div>
+</div>
+<div class="sect">KFP1 — Hyperthermie sous traitement neuroleptique</div>
+<div class="q" id="KFP1-Q1" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. P., 40 ans, suivi pour une schizophrénie et traité par antipsychotique, est amené aux urgences pour une hyperthermie à 40 °C, une rigidité musculaire diffuse, une confusion et des sueurs.</div>
+<div class="stem">Quel diagnostic évoquez-vous en priorité ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un syndrome malin des neuroleptiques</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une simple infection virale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un syndrome de sevrage alcoolique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une crise d’angoisse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A — un syndrome malin des neuroleptiques</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — hyperthermie + rigidité + troubles de conscience sous neuroleptique : diagnostic à évoquer en urgence.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — ne rendrait pas compte de la rigidité et du contexte médicamenteux.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le contexte est celui d’un traitement neuroleptique, non d’un sevrage.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — ne s’accompagne pas d’hyperthermie ni de rigidité.</div>
+</div>
+</div>
+<div class="q" id="KFP1-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome malin des neuroleptiques, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il associe hyperthermie, rigidité musculaire, troubles de la conscience et signes dysautonomiques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il s’accompagne d’une élévation des CPK et d’un risque de rhabdomyolyse et d’insuffisance rénale</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">C’est une urgence vitale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il peut survenir avec les antipsychotiques typiques comme atypiques</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">C’est un effet bénin ne nécessitant pas l’arrêt du traitement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — tableau clinique caractéristique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la lyse musculaire est fréquente.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — pronostic engagé en l’absence de prise en charge.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — tous les neuroleptiques peuvent être en cause.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — au contraire, il impose l’arrêt immédiat du neuroleptique.</div>
+</div>
+</div>
+<div class="q" id="KFP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la conduite à tenir devant ce syndrome malin des neuroleptiques, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’arrêt immédiat du neuroleptique s’impose</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une hospitalisation en urgence avec mesures de réanimation (réhydratation, refroidissement, surveillance) est nécessaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une surveillance de la fonction rénale, des CPK et de l’ionogramme est indispensable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le pronostic peut être mis en jeu (défaillances d’organe)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il faut au contraire augmenter la dose de neuroleptique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — geste indispensable en premier lieu.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — prise en charge symptomatique intensive.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — dépistage de la rhabdomyolyse et de ses complications.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — complications potentiellement mortelles.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l’augmentation aggraverait le syndrome.</div>
+</div>
+</div>
+<div class="sect">SQI1</div>
+<div class="q" id="SQI1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la schizophrénie, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle associe un syndrome positif (délire, hallucinations), un syndrome négatif (retrait, émoussement affectif) et une désorganisation</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le délire y est typiquement paranoïde, à mécanismes multiples (dont hallucinatoire)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">C’est un trouble chronique débutant souvent chez l’adolescent ou l’adulte jeune</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement repose sur les antipsychotiques, associés à une prise en charge psychosociale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La schizophrénie guérit spontanément en quelques jours sans traitement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les trois dimensions symptomatiques de la schizophrénie.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — délire non systématisé, riche.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — début habituel entre 15 et 25 ans.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — traitement pharmacologique + réhabilitation.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c’est un trouble chronique nécessitant une prise en charge au long cours.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les troubles psychotiques aigus, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un trouble psychotique bref (bouffée délirante aiguë) se caractérise par un délire d’installation brutale, souvent régressif</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La consommation de cannabis peut déclencher ou révéler un épisode psychotique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une recherche de toxiques est utile devant un premier épisode psychotique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il faut éliminer une cause organique ou toxique devant un premier épisode délirant aigu</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un premier épisode psychotique ne nécessite jamais d’hospitalisation ni de traitement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — apparition aiguë, évolution potentiellement favorable.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — facteur précipitant/de risque.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — éliminer une cause toxique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — bilan somatique et toxicologique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une prise en charge (souvent hospitalière) est nécessaire.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le trouble obsessionnel compulsif (TOC), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il associe des obsessions (pensées intrusives, anxiogènes) et des compulsions (actes répétitifs visant à réduire l’anxiété)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le sujet reconnaît le plus souvent le caractère excessif ou absurde de ses symptômes</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La prise en charge associe TCC (exposition avec prévention de la réponse) et ISRS (souvent à posologie élevée)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il peut retentir de façon importante sur le fonctionnement quotidien</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les obsessions correspondent à un délire (perte du contact avec la réalité)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — définition du TOC.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — critique conservée (contrairement au délire).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — traitements de référence.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — retentissement fonctionnel possible.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — les obsessions ne sont pas un délire : le sujet en critique le caractère pathologique.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le sevrage en alcool et le delirium tremens, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le syndrome de sevrage associe tremblements, sueurs, anxiété et troubles digestifs</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le delirium tremens est une forme grave (confusion, agitation, hallucinations, déshydratation) pouvant mettre en jeu le pronostic vital</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La prévention repose sur l’hydratation, les benzodiazépines et la supplémentation en vitamine B1</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des crises convulsives peuvent survenir au cours du sevrage</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le sevrage alcoolique est toujours anodin et ne nécessite aucune surveillance</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — symptômes du sevrage non compliqué.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — complication majeure du sevrage.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — mesures préventives essentielles.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — crises comitiales de sevrage.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — il peut se compliquer et nécessite une surveillance.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q5" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome de sevrage aux opioïdes, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il associe anxiété, douleurs diffuses, sueurs, mydriase, rhinorrhée, larmoiement, crampes abdominales et diarrhée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il est très inconfortable mais rarement mortel chez l’adulte sans comorbidité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les traitements de substitution aux opiacés (méthadone, buprénorphine) font partie de la prise en charge de la dépendance</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une demande insistante et répétée d’opioïdes doit faire évoquer un trouble de l’usage</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le sevrage aux opioïdes se manifeste par un myosis serré et une dépression respiratoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — sémiologie du sevrage aux opioïdes.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — contrairement au sevrage alcoolique compliqué.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — traitements de substitution.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — signe évocateur d’une dépendance.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — myosis et dépression respiratoire caractérisent l’intoxication (surdosage), non le sevrage.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l’intoxication aiguë à la cocaïne ou aux amphétamines (psychostimulants), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle peut entraîner une agitation, une euphorie, une tachycardie et une hypertension artérielle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une mydriase est fréquente</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle expose à des complications cardiovasculaires (syndrome coronarien, troubles du rythme) et neurologiques</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des symptômes psychiatriques (anxiété, idées délirantes) peuvent survenir</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle provoque typiquement un myosis et une bradycardie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — effets sympathomimétiques.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — signe adrénergique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — complications potentiellement graves.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — manifestations psychiques possibles.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — au contraire : mydriase et tachycardie.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q7" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les soins psychiatriques sans consentement, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ils peuvent être décidés lorsque les troubles rendent impossible le consentement et nécessitent des soins immédiats</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les soins à la demande d’un tiers (SPDT) reposent sur une demande d’un tiers et des certificats médicaux</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les soins sur décision du représentant de l’État (SDRE) concernent notamment les situations de trouble à l’ordre ou à la sûreté des personnes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le patient conserve des droits et bénéficie d’un contrôle (juge des libertés et de la détention)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les soins sans consentement peuvent être décidés pour la simple convenance de l’entourage, sans trouble ni certificat</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — condition de recours aux soins sans consentement.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — modalité fondée sur un tiers.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — modalité relevant du préfet.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — garanties légales du patient.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un cadre légal strict (troubles + certificats) est requis.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q8" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le trouble du spectre de l’autisme (TSA), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il associe des altérations de la communication et des interactions sociales, et des comportements/intérêts restreints et répétitifs</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">C’est un trouble du neurodéveloppement débutant précocement dans l’enfance</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le repérage précoce (anomalie du pointage, du contact visuel) permet une prise en charge adaptée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La prise en charge est pluridisciplinaire et éducative</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le TSA est un trouble acquis à l’âge adulte, sans lien avec le développement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — deux domaines cliniques du TSA.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — apparition dans la petite enfance.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — importance du dépistage précoce.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — accompagnement global.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c’est un trouble neurodéveloppemental de l’enfance.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q9" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le trouble déficit de l’attention avec/sans hyperactivité (TDAH) et le méthylphénidate, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le TDAH associe inattention, hyperactivité et/ou impulsivité, avec un retentissement dans plusieurs domaines</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le méthylphénidate peut être proposé en cas de retentissement important, après échec des mesures environnementales</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un bilan pré-thérapeutique cardiovasculaire est recommandé avant méthylphénidate</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La surveillance porte notamment sur la croissance staturo-pondérale, l’appétit, la tension artérielle et le sommeil</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le méthylphénidate est un traitement de première intention systématique dès le diagnostic, sans mesure éducative</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — triade symptomatique + retentissement.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — place du traitement médicamenteux.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — évaluation cardiovasculaire préalable.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — effets indésirables à surveiller.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — les mesures psycho-éducatives sont premières ; le médicament n’est pas systématique.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q10" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l’état de stress post-traumatique (ESPT), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il survient après l’exposition à un événement traumatique (menace pour la vie ou l’intégrité)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il associe un syndrome de reviviscence (reviviscences, cauchemars), un évitement, une hyperréactivité neurovégétative et des altérations cognitives/émotionnelles</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les symptômes persistent classiquement plus d’un mois</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La psychothérapie (TCC centrée sur le trauma, EMDR) est un traitement de référence</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L’ESPT survient toujours pendant l’événement et ne dure que quelques heures</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — critère d’exposition traumatique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — clusters symptomatiques de l’ESPT.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — critère de durée.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — prise en charge psychothérapeutique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — les symptômes se prolongent et peuvent survenir à distance de l’événement.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q11" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le deuil, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le deuil normal est un processus adaptatif évoluant habituellement vers un apaisement progressif</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un deuil peut se compliquer d’un épisode dépressif caractérisé</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le deuil prolongé/pathologique se caractérise par une intensité et une durée inhabituelles, avec retentissement fonctionnel</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le risque suicidaire doit être évalué en cas de deuil compliqué</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Toute tristesse après un décès relève d’un traitement antidépresseur systématique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — évolution physiologique du deuil.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — complication thymique possible.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — critères du deuil compliqué.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — évaluation systématique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le deuil normal ne relève pas d’un traitement antidépresseur systématique.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q12" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la précarité et la santé, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La précarité est associée à un moins bon état de santé et à un renoncement aux soins</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle favorise le cumul de pathologies (dont chroniques) et de troubles psychiatriques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les équipes mobiles psychiatrie-précarité (EMPP) facilitent l’accès aux soins des personnes en situation de précarité</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L’évaluation doit être globale (somatique, psychique et sociale)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La précarité est sans conséquence sur l’état de santé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — inégalités sociales de santé.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — vulnérabilité sanitaire accrue.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — dispositif d’« aller-vers ».</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — approche globale nécessaire.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — elle aggrave au contraire l’état de santé.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q13" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l’épisode maniaque, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il associe une humeur élevée/expansive ou irritable, avec augmentation de l’énergie et de l’activité</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">On retrouve une réduction du besoin de sommeil, une tachypsychie, une logorrhée et une distractibilité</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Des conduites à risque (dépenses inconsidérées, désinhibition) sont fréquentes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une mesure de protection des biens (ex. sauvegarde de justice) peut être nécessaire en cas de conduites préjudiciables</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L’épisode maniaque se caractérise par un ralentissement psychomoteur et une hypersomnie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — cœur du syndrome maniaque.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — symptômes maniaques classiques.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — conséquences comportementales.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — protection juridique en urgence.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — ces signes évoquent la dépression, non la manie.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q14" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les troubles de la personnalité, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le trouble de la personnalité borderline associe instabilité affective, relationnelle et de l’image de soi, impulsivité et risque suicidaire/auto-agressif</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les troubles de la personnalité du cluster A (paranoïaque, schizoïde, schizotypique) sont marqués par des comportements « bizarres/excentriques »</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le trouble de la personnalité borderline appartient au cluster B</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un trouble de la personnalité correspond à des traits durables, inflexibles, sources de souffrance ou d’altération du fonctionnement</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le trouble de la personnalité borderline appartient au cluster A</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — caractéristiques du trouble borderline.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — regroupement du cluster A.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — cluster B (« dramatiques/émotionnels »).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — définition générale.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — il appartient au cluster B, non au cluster A.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q15" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les antidépresseurs, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les ISRS sont souvent prescrits en première intention (meilleure tolérance)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le délai d’action sur l’humeur est de plusieurs semaines</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une surveillance du risque suicidaire est nécessaire en début de traitement, notamment chez le sujet jeune (levée d’inhibition)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Chez un patient bipolaire, un antidépresseur prescrit seul peut induire un virage maniaque</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L’arrêt brutal d’un antidépresseur est recommandé dès l’amélioration des symptômes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — première intention dans de nombreux troubles.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — effet thérapeutique retardé.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — vigilance en début de traitement.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — risque de virage de l’humeur.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l’arrêt doit être progressif, après une durée de traitement suffisante.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q16" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le trouble anxieux généralisé (TAG), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il se caractérise par des soucis excessifs et incontrôlables, présents la plupart du temps depuis plusieurs mois</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il s’accompagne de symptômes physiques (tension musculaire, troubles du sommeil, fatigue, irritabilité)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La TCC est un traitement de référence</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un traitement de fond par antidépresseur (ISRS/IRSNa) peut être proposé</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le TAG se définit par des attaques de panique quotidiennes exclusivement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — anxiété chronique diffuse.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — manifestations somatiques associées.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — psychothérapie efficace.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — traitement pharmacologique de fond.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le TAG est une anxiété chronique diffuse, distincte du trouble panique.</div>
+</div>
+</div>
+<div class="q" id="SQI1-Q17" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q17</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le repérage et l’accompagnement d’un trouble de l’usage de l’alcool, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le repérage du mésusage peut s’appuyer sur des questionnaires et l’évaluation de la consommation déclarée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L’entretien motivationnel vise à renforcer la motivation au changement en respectant le rythme du patient</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une réduction de la consommation peut être un objectif intermédiaire acceptable quand l’abstinence n’est pas d’emblée souhaitée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un accompagnement addictologique et un soutien psychosocial sont proposés</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Seule l’abstinence totale, immédiate et imposée, est une prise en charge valable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — outils de repérage (ex. auto-questionnaires).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — approche centrée sur le patient.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — objectifs adaptés au patient.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — prise en charge globale.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la réduction des risques et l’adaptation des objectifs font partie de la prise en charge.</div>
+</div>
+</div>
+<a class="back" href="index.html">← Retour au portail D2 · T2</a>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’‘`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+ if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+ var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+ var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
