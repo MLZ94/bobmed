@@ -1,0 +1,801 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 7.2 — Médecine Interne · Sujet type</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 7.2 — Médecine Interne · Sujet type (synthèse des annales 2022-2024)</h1>
+<div class="sub">30 questions : DP1 fièvre et céphalées du sujet âgé (8, verrouillé) · mDP1 arthralgies et éruption du visage chez une femme jeune (6, verrouillé) · SQI1 (16). 30 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/30</b></span>
+<span class="pill">Score : <b id="s-ok">0/30</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap"><div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n'est pas une annale réelle. C'est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d'UE 7.2 (2022-2024, cf. section « Annales officielles » du portail). Objectif : réviser en priorité le contenu à plus fort rendement avant l'examen — artérite à cellules géantes (Horton) et PPR, lupus systémique et glomérulonéphrite lupique, syndrome des antiphospholipides, granulomatose avec polyangéite (ANCA), cytopénies auto-immunes et purpura, déficits immunitaires, corticothérapie prolongée.
+</div>
+
+<div class="sect">DP1 — Fièvre, altération de l'état général et céphalées chez une femme de 78 ans</div>
+
+<div class="q" id="DP1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme G., 78 ans, consulte pour des céphalées temporales d'apparition récente, une altération de l'état général et des douleurs de la mâchoire à la mastication évoluant depuis trois semaines. La VS et la CRP sont élevées.</div>
+<div class="stem">Quels éléments cliniques sont évocateurs d'une artérite à cellules géantes (maladie de Horton) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des céphalées temporales récentes</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une claudication de la mâchoire (douleur à la mastication)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une artère temporale indurée, sensible, avec diminution ou abolition du pouls temporal</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une association possible à une pseudo-polyarthrite rhizomélique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une éruption en vespertilio (ailes de papillon) du visage</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les céphalées temporales récentes chez un sujet de plus de 50 ans sont un signe cardinal.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la claudication de la mâchoire (douleur à la mastication) est très évocatrice.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'artère temporale peut être indurée, sensible, avec un pouls diminué ou aboli.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'ACG s'associe fréquemment à une pseudo-polyarthrite rhizomélique (douleurs des ceintures).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'éruption en vespertilio oriente vers un lupus, non vers une maladie de Horton.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels symptômes doivent faire craindre une complication ophtalmologique de la maladie de Horton ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une baisse d'acuité visuelle brutale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une amaurose transitoire (cécité monoculaire fugace)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une diplopie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un flou visuel</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un simple prurit oculaire isolé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la baisse d'acuité visuelle brutale est une urgence (risque de cécité définitive).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'amaurose transitoire est un signe d'alarme précédant parfois la cécité.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la diplopie (atteinte des muscles oculomoteurs par ischémie) est un signe évocateur.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — un flou visuel doit alerter.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un prurit oculaire isolé n'est pas un signe de complication ischémique de l'ACG.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente présente brutalement une cécité de l'œil droit. Quelle est la complication ophtalmologique la plus probable ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une neuropathie optique ischémique antérieure aiguë (NOIAA)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un décollement de rétine</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un glaucome aigu par fermeture de l'angle</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une cataracte</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — la neuropathie optique ischémique antérieure aiguë (NOIAA)</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la NOIAA (par occlusion des artères ciliées postérieures) est la principale cause de cécité de la maladie de Horton : c'est une urgence thérapeutique.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — le décollement de rétine n'est pas la complication de l'ACG.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le glaucome aigu est une autre urgence ophtalmologique, sans rapport avec l'ACG.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — la cataracte est d'évolution lente, non brutale.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-answer="biopsie de l artere temporale | biopsie artere temporale | BAT | biopsie de l artere temporale superficielle | biopsie temporale" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel examen réalisez-vous pour confirmer histologiquement le diagnostic d'artérite à cellules géantes ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : une biopsie de l'artère temporale (BAT). Elle ne doit pas retarder l'introduction de la corticothérapie et reste positive plusieurs jours après son début.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la biopsie de l'artère temporale au cours de la maladie de Horton, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle peut montrer une panartérite inflammatoire segmentaire et focale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La présence de cellules géantes multinucléées est évocatrice</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une destruction de la limitante élastique interne peut être observée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une biopsie négative n'élimine pas le diagnostic (atteinte segmentaire)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une biopsie négative élimine formellement le diagnostic</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'atteinte est segmentaire et focale, d'où l'intérêt d'un prélèvement suffisamment long.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'infiltrat inflammatoire avec cellules géantes multinucléées est caractéristique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la rupture de la limitante élastique interne est un signe histologique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — du fait du caractère segmentaire, une biopsie négative n'exclut pas la maladie.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c'est l'inverse : une biopsie négative n'élimine pas le diagnostic, qui reste clinique et biologique.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le traitement de la maladie de Horton, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La corticothérapie doit être débutée en urgence, sans attendre la biopsie, en cas de signes ophtalmologiques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">En cas de complication ophtalmologique, des bolus de corticoïdes intraveineux sont indiqués</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La corticothérapie est prolongée (souvent 12 à 24 mois), à décroissance progressive</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une amélioration rapide des symptômes sous corticoïdes est habituelle</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il ne faut jamais débuter les corticoïdes avant d'avoir le résultat de la biopsie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — devant un risque visuel, la corticothérapie est une urgence et ne doit pas attendre la biopsie.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les bolus IV de méthylprednisolone sont indiqués en cas d'atteinte ophtalmologique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le traitement est prolongé, avec décroissance lente et surveillance des rechutes.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la corticosensibilité rapide est un argument diagnostique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la biopsie reste positive quelques jours après le début des corticoïdes : on ne retarde jamais le traitement pour l'obtenir.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles mesures associées à la corticothérapie prolongée proposez-vous chez cette patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une prévention de l'ostéoporose cortico-induite (calcium, vitamine D ± bisphosphonate)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un régime pauvre en sel et en sucres d'absorption rapide</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une surveillance de la kaliémie et une supplémentation potassique si besoin</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La vérification du statut vaccinal, en évitant les vaccins vivants</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'arrêt de toute activité physique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la prévention de l'ostéoporose cortico-induite est systématique (calcium/vitamine D, bisphosphonate selon le risque).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — régime pauvre en sel et en sucres rapides pour limiter HTA et déséquilibre glycémique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la corticothérapie peut induire une hypokaliémie : surveillance et supplémentation si besoin.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — mise à jour vaccinale recommandée, en évitant les vaccins vivants sous immunosuppression.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'activité physique est au contraire encouragée (prévention de l'amyotrophie et de l'ostéoporose).</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles complications de la corticothérapie prolongée peuvent apparaître chez cette patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un diabète cortico-induit</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une hypertension artérielle</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une ostéoporose, voire une ostéonécrose aseptique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une susceptibilité accrue aux infections</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une amélioration de la densité minérale osseuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le diabète cortico-induit est une complication classique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'HTA est favorisée par la rétention hydrosodée.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'ostéoporose cortico-induite et l'ostéonécrose sont des complications osseuses.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'immunodépression favorise les infections.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la corticothérapie diminue la densité osseuse, elle ne l'améliore pas.</div>
+</div>
+</div>
+
+<div class="sect">mDP1 — Arthralgies et éruption du visage chez une femme de 28 ans</div>
+
+<div class="q" id="mDP1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme B., 28 ans, consulte pour une asthénie, des arthralgies inflammatoires des mains évoluant depuis trois mois et une éruption du visage majorée après une exposition solaire.</div>
+<div class="stem">Quels éléments cliniques orientent vers un lupus érythémateux systémique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une éruption en vespertilio (« ailes de papillon ») photosensible</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des arthralgies/arthrites bilatérales, symétriques et non érosives</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une atteinte rénale glomérulaire possible</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des sérites (péricardite, pleurésie)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Des nodosités rhumatoïdes destructrices caractéristiques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'érythème en vespertilio photosensible est évocateur.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'atteinte articulaire du lupus est bilatérale, symétrique et non érosive (contrairement à la polyarthrite rhumatoïde).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'atteinte rénale (glomérulonéphrite lupique) conditionne le pronostic.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les sérites (péricardite, pleurésie) font partie des manifestations du lupus.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — les nodosités et l'atteinte érosive orientent vers la polyarthrite rhumatoïde, non le lupus.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels examens immunologiques demandez-vous et comment les interprétez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les anticorps antinucléaires (AAN) : très sensibles, utiles pour le dépistage</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les anticorps anti-ADN natif (double brin) : spécifiques, corrélés à l'activité (notamment rénale)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les anticorps anti-Sm : spécifiques du lupus</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le dosage du complément (C3, C4) : abaissé en poussée</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le facteur rhumatoïde, spécifique du lupus systémique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les AAN sont très sensibles (test de dépistage) mais peu spécifiques.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les anti-ADN natif sont spécifiques et corrélés à l'activité, notamment rénale.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les anti-Sm sont spécifiques du lupus (mais peu sensibles).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — une consommation du complément (C3, C4 bas) accompagne les poussées.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le facteur rhumatoïde n'est pas spécifique du lupus (il oriente plutôt vers la polyarthrite rhumatoïde).</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente développe une protéinurie. Concernant l'atteinte rénale (glomérulonéphrite lupique), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La ponction-biopsie rénale précise la classe histologique et guide le traitement</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La classe IV (glomérulonéphrite proliférative diffuse) est la forme la plus sévère</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La recherche d'une protéinurie et d'une hématurie doit être systématique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement d'attaque des formes prolifératives associe corticoïdes et immunosuppresseur (cyclophosphamide ou mycophénolate mofétil)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'atteinte rénale est toujours bénigne et ne modifie pas le pronostic</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la PBR classe l'atteinte (classification ISN/RPS) et oriente le traitement.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la classe IV (proliférative diffuse) est la plus grave.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — protéinurie et hématurie doivent être recherchées à chaque évaluation.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le traitement d'attaque des formes prolifératives repose sur corticoïdes + cyclophosphamide ou mycophénolate.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'atteinte rénale conditionne fortement le pronostic du lupus.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le bilan met en évidence un TCA allongé. Vous évoquez un syndrome des antiphospholipides (SAPL) associé. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le SAPL peut être associé au lupus systémique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il se manifeste par des thromboses (veineuses et/ou artérielles) et des complications obstétricales</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les anticorps recherchés sont l'anticoagulant circulant de type lupique, les anticardiolipides et les anti-β2-glycoprotéine 1</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un allongement du TCA non corrigé par du plasma témoin peut être observé</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il expose surtout à un risque hémorragique imposant l'éviction de tout anticoagulant</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le SAPL peut être primaire ou secondaire (associé au lupus).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — thromboses et pertes fœtales/complications obstétricales définissent le SAPL.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les trois anticorps recherchés sont l'anticoagulant circulant lupique, les anticardiolipides et les anti-β2GP1.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'anticoagulant circulant lupique allonge le TCA in vitro (non corrigé par le plasma témoin), paradoxe pour une maladie thrombosante.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le SAPL est une maladie thrombosante : il justifie une anticoagulation, non son éviction.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel traitement de fond est prescrit chez la quasi-totalité des patients atteints de lupus systémique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'hydroxychloroquine</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L'allopurinol</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La colchicine</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le méthotrexate à forte dose</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — l'hydroxychloroquine</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'hydroxychloroquine est le traitement de fond de référence, prescrit chez presque tous les patients (sauf contre-indication), avec surveillance ophtalmologique.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — l'allopurinol est un hypo-uricémiant (goutte), sans place dans le lupus.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la colchicine est utilisée dans la goutte et la péricardite, non comme traitement de fond du lupus.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le méthotrexate n'est pas le traitement de fond de référence du lupus.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente souhaite débuter une grossesse. Quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La grossesse doit être programmée en période de rémission de la maladie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les anticorps anti-SSA/Ro peuvent traverser le placenta et exposer au lupus néonatal et au bloc auriculo-ventriculaire congénital</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'hydroxychloroquine peut être poursuivie pendant la grossesse</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une surveillance materno-fœtale rapprochée est nécessaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La grossesse est formellement et définitivement contre-indiquée chez toute patiente lupique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la grossesse doit être programmée en rémission (au moins 6 mois), avec adaptation des traitements.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les anti-SSA/Ro sont directement pathogènes pour le fœtus (lupus néonatal, BAV congénital).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'hydroxychloroquine est poursuivie pendant la grossesse (bénéfice démontré).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — un suivi multidisciplinaire rapproché est indispensable.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la grossesse n'est pas contre-indiquée par principe : elle doit être planifiée et surveillée.</div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome des antiphospholipides (SAPL), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le diagnostic associe un critère clinique (thrombose ou morbidité obstétricale) et un critère biologique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le critère biologique doit être confirmé à au moins 12 semaines d'intervalle</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le traitement d'une thrombose repose sur une anticoagulation au long cours</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le syndrome catastrophique des antiphospholipides est une forme rare et grave (thromboses multiples)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un dosage isolé et unique d'anticorps positif suffit à poser le diagnostic</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — il faut associer un critère clinique (thrombose ou complication obstétricale) et un critère biologique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la positivité des anticorps doit être confirmée à ≥ 12 semaines d'intervalle.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — après une thrombose, l'anticoagulation est prolongée (souvent à vie).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le SAPL catastrophique (CAPS) associe des thromboses multiples et une défaillance multiviscérale.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un seul dosage positif ne suffit pas : il faut une confirmation à distance et un critère clinique.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'atteinte ORL de la granulomatose avec polyangéite (GPA / maladie de Wegener), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une rhinite croûteuse et des sinusites chroniques peuvent être révélatrices</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une perforation de la cloison nasale peut survenir</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une déformation du nez « en pied de marmite » (nez en selle) est possible</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'atteinte ORL exclut par principe toute atteinte rénale ou pulmonaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la rhinite croûteuse et les sinusites chroniques sont fréquentes et révélatrices.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la perforation septale est une atteinte caractéristique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la destruction du cartilage peut donner un nez en selle.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — au contraire, la GPA associe volontiers atteintes ORL, pulmonaire et rénale (syndrome pneumo-rénal).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la granulomatose avec polyangéite (GPA) et les ANCA, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est une vascularite des vaisseaux de petit calibre associée aux ANCA</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle est typiquement associée à des ANCA de fluorescence cytoplasmique (c-ANCA) dirigés contre la protéinase 3 (PR3)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un syndrome pneumo-rénal (hémorragie alvéolaire + glomérulonéphrite) peut la révéler</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement d'attaque des formes sévères associe corticoïdes et immunosuppresseur (rituximab ou cyclophosphamide)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle atteint exclusivement les artères de gros calibre (aorte)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la GPA est une vascularite des petits vaisseaux associée aux ANCA.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — c-ANCA anti-PR3 sont typiques de la GPA.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le syndrome pneumo-rénal (hémorragie alvéolaire + glomérulonéphrite rapidement progressive) est un mode de révélation grave.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le traitement d'attaque associe corticoïdes et rituximab ou cyclophosphamide.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c'est une vascularite des petits vaisseaux (l'atteinte des gros troncs correspond à Horton/Takayasu).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le purpura, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le purpura est une lésion hémorragique qui ne s'efface pas à la vitropression</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un purpura infiltré, palpable, oriente vers un purpura vasculaire (vascularite)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un purpura fébrile et nécrotique doit faire évoquer un purpura fulminans (urgence)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le purpura s'efface totalement à la vitropression</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le purpura ne s'efface pas à la vitropression (extravasation de sang), contrairement à un érythème.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — un purpura infiltré/palpable oriente vers une vascularite.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — un purpura fébrile, extensif et nécrotique évoque un purpura fulminans (urgence, antibiothérapie immédiate).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — par définition, le purpura ne s'efface pas à la vitropression.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le purpura thrombopénique immunologique (PTI), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il est lié à une destruction périphérique des plaquettes d'origine auto-immune</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">C'est un diagnostic d'élimination (thrombopénie isolée, sans autre cause retrouvée)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le traitement de première ligne des formes nécessitant un traitement repose sur les corticoïdes (± immunoglobulines intraveineuses)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le myélogramme montre une moelle pauvre en mégacaryocytes (aplasie)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le PTI est une thrombopénie périphérique auto-immune (auto-anticorps antiplaquettes).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — c'est un diagnostic d'élimination devant une thrombopénie isolée.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — corticoïdes ± immunoglobulines IV en première ligne quand un traitement est requis.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — dans le PTI, la moelle est riche/normale en mégacaryocytes (destruction périphérique, non centrale).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'anémie hémolytique auto-immune (AHAI), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle associe une anémie régénérative (réticulocytes élevés) et des signes d'hémolyse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le test direct à l'antiglobuline (test de Coombs direct) est positif</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'association d'une AHAI et d'un PTI définit un syndrome d'Evans</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'haptoglobine est augmentée au cours de l'hémolyse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'AHAI donne une anémie régénérative avec signes d'hémolyse (bilirubine libre, LDH élevés).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le test de Coombs direct positif confirme l'origine auto-immune.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'association AHAI + PTI définit le syndrome d'Evans.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'haptoglobine est effondrée (consommée) au cours de l'hémolyse, non augmentée.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels éléments doivent faire évoquer un déficit immunitaire chez l'adulte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des infections bactériennes récidivantes (ORL, bronchopulmonaires)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des infections par des germes opportunistes ou inhabituels</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Des infections sévères, traînantes ou de résolution incomplète</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une association à des manifestations auto-immunes ou lymphoprolifératives</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un unique épisode de rhinopharyngite virale bénigne</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les infections bactériennes récidivantes (notamment sino-pulmonaires) sont un signe d'alerte.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les infections opportunistes ou à germes inhabituels doivent alerter.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la sévérité, la persistance ou la mauvaise résolution des infections évoquent un déficit.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'auto-immunité et les proliférations lymphoïdes accompagnent certains déficits (ex. DICV).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un épisode viral banal isolé n'évoque pas un déficit immunitaire.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le bilan de première intention (« de débrouillage ») d'un déficit immunitaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une NFS avec numération des différentes lignées (dont les lymphocytes) fait partie du bilan initial</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un dosage pondéral des immunoglobulines (IgG, IgA, IgM) est réalisé</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une électrophorèse des protéines sériques est utile (recherche d'une hypogammaglobulinémie)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le bilan initial impose d'emblée un séquençage génétique complet</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la NFS (avec numération lymphocytaire) est un examen de première intention.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le dosage pondéral des immunoglobulines dépiste une hypogammaglobulinémie (ex. DICV).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'électrophorèse des protéines sériques recherche une hypogammaglobulinémie.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le séquençage génétique n'est pas un examen de débrouillage : il vient dans un second temps, en milieu spécialisé.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome inflammatoire biologique, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La CRP est une protéine de l'inflammation à cinétique rapide</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La vitesse de sédimentation (VS) peut être élevée sans inflammation (anémie, hypergammaglobulinémie, âge)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une hyperfibrinémie et une hyperplaquettose peuvent accompagner l'inflammation</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une anémie inflammatoire (normochrome, normocytaire puis microcytaire) peut être observée</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'albuminémie augmente au cours du syndrome inflammatoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la CRP s'élève rapidement et décroît vite : bon marqueur de suivi.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la VS peut être élevée sans inflammation (anémie, hypergammaglobulinémie, âge, grossesse).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — hyperfibrinémie et thrombocytose accompagnent souvent l'inflammation.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'anémie inflammatoire est fréquente (blocage du fer).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'albumine est une protéine « négative » de l'inflammation : elle diminue.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la pseudo-polyarthrite rhizomélique (PPR), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle touche le sujet de plus de 50 ans</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle réalise des douleurs des ceintures (scapulaire et pelvienne) d'horaire inflammatoire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle peut être associée à une artérite à cellules géantes (Horton)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle est très corticosensible</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle entraîne des destructions articulaires érosives marquées</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la PPR est une maladie du sujet âgé (&gt; 50 ans).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — douleurs inflammatoires des ceintures scapulaire et pelvienne, avec raideur matinale.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — elle est fréquemment associée à la maladie de Horton (à rechercher).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — elle répond rapidement à une corticothérapie à dose modérée.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la PPR n'est pas une arthropathie érosive destructrice.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le phénomène de Raynaud, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il évolue classiquement en trois phases (syncopale blanche, cyanique, puis érythermalgique)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La forme primaire (maladie de Raynaud) est bénigne, bilatérale et symétrique, épargnant les pouces</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un Raynaud unilatéral, avec troubles trophiques et anticorps positifs, est rassurant</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un phénomène de Raynaud peut révéler une connectivite (sclérodermie, lupus)</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les trois phases classiques : phase blanche (syncopale), phase bleue (cyanique), puis phase rouge (érythermalgique).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le Raynaud primaire est bénin, bilatéral, symétrique et respecte les pouces.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un Raynaud unilatéral avec troubles trophiques et anticorps positifs oriente au contraire vers une cause secondaire (connectivite) : ce n'est pas rassurant.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — un phénomène de Raynaud peut être le premier signe d'une connectivite (sclérodermie surtout, lupus).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les situations suivantes au cours du lupus systémique, lesquelles peuvent menacer le pronostic vital ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une glomérulonéphrite proliférative sévère</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une atteinte neurologique centrale (neurolupus)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une atteinte cardiaque (myocardite) ou une sérite compressive</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une complication thrombotique dans le cadre d'un SAPL associé</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une simple arthralgie des mains isolée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'atteinte rénale proliférative sévère met en jeu le pronostic rénal et vital.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le neurolupus (convulsions, atteinte centrale) est une manifestation grave.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — myocardite et sérites compressives (tamponnade) sont menaçantes.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les thromboses du SAPL associé peuvent engager le pronostic vital.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une arthralgie isolée ne menace pas le pronostic vital.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Associations auto-anticorps ↔ maladie : quelles propositions sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Anticorps anti-ADN natif → lupus systémique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">ANCA anti-PR3 (c-ANCA) → granulomatose avec polyangéite</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Anticorps anti-CCP → polyarthrite rhumatoïde</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Anticorps anti-membrane basale glomérulaire → syndrome de Goodpasture</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Anticorps anti-SSA/Ro → maladie de Horton</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les anti-ADN natif sont associés au lupus (activité rénale).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les c-ANCA anti-PR3 sont typiques de la GPA.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les anti-CCP (anti-peptides citrullinés) sont spécifiques de la polyarthrite rhumatoïde.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les anticorps anti-MBG définissent le syndrome de Goodpasture.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la maladie de Horton n'est pas associée aux anti-SSA/Ro (marqueur du lupus/Gougerot-Sjögren) : son diagnostic est clinique, biologique et histologique.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Chez un patient sous corticothérapie et/ou immunosuppresseur au long cours pour une maladie systémique, quelles vaccinations sont recommandées ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La vaccination antigrippale annuelle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La vaccination antipneumococcique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La mise à jour des vaccinations du calendrier vaccinal (dont dTP)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'éviction des vaccins vivants atténués en cas d'immunosuppression</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'administration systématique de vaccins vivants atténués sous immunosuppresseur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la vaccination antigrippale annuelle est recommandée.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la vaccination antipneumococcique est recommandée chez l'immunodéprimé.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la mise à jour du calendrier vaccinal (diphtérie-tétanos-poliomyélite…) est nécessaire.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les vaccins vivants atténués sont contre-indiqués sous immunosuppression.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c'est l'inverse : les vaccins vivants sont contre-indiqués sous immunosuppresseur.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les vascularites, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'artérite à cellules géantes (Horton) atteint les vaisseaux de gros calibre</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La granulomatose avec polyangéite atteint les vaisseaux de petit calibre (associée aux ANCA)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le purpura rhumatoïde (vascularite à IgA) associe purpura, arthralgies, atteinte digestive et rénale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Toutes les vascularites sont associées aux ANCA</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'ACG (Horton) est une vascularite des gros vaisseaux.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la GPA est une vascularite des petits vaisseaux associée aux ANCA.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le purpura rhumatoïde (vascularite à IgA) associe purpura déclive, arthralgies, douleurs abdominales et atteinte rénale.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — seules certaines vascularites (des petits vaisseaux) sont associées aux ANCA ; d'autres ne le sont pas (Horton, purpura rhumatoïde…).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q16" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le déficit immunitaire commun variable (DICV), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est le déficit immunitaire primitif symptomatique le plus fréquent chez l'adulte</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il se caractérise par une hypogammaglobulinémie avec infections bactériennes récidivantes</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il peut s'accompagner de manifestations auto-immunes et d'un risque lymphoprolifératif accru</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Son traitement repose exclusivement sur une antibiothérapie prophylactique, sans substitution en immunoglobulines</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le DICV est le déficit immunitaire primitif symptomatique le plus fréquent de l'adulte.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — hypogammaglobulinémie et infections bactériennes récidivantes (sino-pulmonaires) le caractérisent.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — auto-immunité et sur-risque lymphoprolifératif sont fréquemment associés.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le traitement repose sur une substitution en immunoglobulines (± antibioprophylaxie), non sur les antibiotiques seuls.</div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour au portail D2 · T3</a>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’‘`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+ if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+ var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+ var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
