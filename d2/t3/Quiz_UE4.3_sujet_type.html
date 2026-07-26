@@ -1,0 +1,820 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 4.3 — Dermatologie · Sujet type</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 4.3 — Dermatologie · Sujet type (synthèse des annales 2021-2024)</h1>
+<div class="sub">31 questions : DP1 lésion cutanée pigmentée (8, verrouillé) · KFP1 érythrodermie (4, verrouillé) · TCS1 ulcère de jambe (3, verrouillé) · SQI1 (16). 31 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/31</b></span>
+<span class="pill">Score : <b id="s-ok">0/31</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap"><div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n'est pas une annale réelle. C'est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d'UE 4.3 (2021-2024, cf. section « Annales officielles » du portail). Objectif : réviser en priorité le contenu à plus fort rendement avant l'examen — tumeurs cutanées (mélanome, carcinomes), érythrodermie, toxidermies graves (Lyell, DRESS), dermatoses bulleuses, psoriasis, eczéma/urticaire, acné, infections cutanées, gale et ulcère de jambe.
+</div>
+
+<div class="sect">DP1 — Lésion cutanée pigmentée</div>
+
+<div class="q" id="DP1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. R., 67 ans, ancien agriculteur, phototype II, consulte pour une lésion pigmentée du haut du dos qui s'est modifiée depuis quelques mois (élargissement et changement de couleur). Il rapporte de nombreux coups de soleil dans l'enfance.</div>
+<div class="stem">Parmi les critères de la règle « ABCDE » orientant vers un mélanome, lesquels sont exacts ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">A : asymétrie de la lésion</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">B : bords irréguliers, encochés</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">C : couleur inhomogène (polychromie)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">D : diamètre supérieur à 6 mm</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">E : épaisseur de la lésion mesurée cliniquement en millimètres</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — A = Asymétrie de la lésion (les deux moitiés ne sont pas superposables).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — B = Bords irréguliers, encochés, mal limités.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — C = Couleur inhomogène (plusieurs teintes : brun, noir, rouge, blanc).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — D = Diamètre supérieur à 6 mm (critère indicatif, non absolu).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — E = Évolutivité (modification récente de taille, couleur, relief). L'épaisseur (indice de Breslow) est une donnée histologique, non clinique.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-answer="exerese | biopsie exerese | exerese biopsie | exerese chirurgicale complete | biopsie exerese complete | exerese complete | exerese diagnostique" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel geste réalisez-vous pour confirmer le diagnostic et permettre l'analyse histopronostique de la lésion ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : une exérèse chirurgicale complète (biopsie-exérèse) de la lésion avec examen anatomopathologique. Une biopsie partielle est à éviter (sauf lésion très étendue) car elle ne permet pas de mesurer l'indice de Breslow.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les facteurs de risque de mélanome cutané ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un phototype clair (I ou II)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Des expositions solaires intermittentes et intenses, des coups de soleil dans l'enfance</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un nombre élevé de nævus ou un syndrome des nævus atypiques</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des antécédents personnels ou familiaux de mélanome</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un phototype VI (peau noire), qui est le plus à risque de mélanome cutané</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les phototypes clairs (peau claire, cheveux blonds/roux, éphélides) sont plus à risque.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les expositions intermittentes et intenses et les brûlures solaires de l'enfance sont un facteur majeur.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — un grand nombre de nævus (&gt; 40-50) et le syndrome des nævus atypiques augmentent le risque.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les antécédents personnels et familiaux de mélanome sont des facteurs de risque reconnus.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le phototype VI est peu à risque de mélanome cutané ; chez le sujet à peau noire, on redoute surtout le mélanome acral (paumes, plantes, ongles).</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'analyse histologique confirme un mélanome. Concernant les facteurs histopronostiques, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'indice de Breslow (épaisseur tumorale maximale en mm) est le principal facteur pronostique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'ulcération histologique est un facteur de mauvais pronostic</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'index mitotique figure dans le compte rendu anatomopathologique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Plus l'indice de Breslow est élevé, plus le risque métastatique est important</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le niveau de Clark est aujourd'hui le critère pronostique de référence, supérieur au Breslow</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'indice de Breslow (épaisseur maximale de la tumeur) est le facteur pronostique majeur et guide la reprise chirurgicale.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'ulcération aggrave le pronostic (intégrée à la classification pTNM).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'index mitotique est un élément du compte rendu histologique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le risque de métastase (ganglionnaire et à distance) croît avec l'épaisseur.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le niveau de Clark n'est plus le critère de référence : c'est l'indice de Breslow qui prime.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La reprise chirurgicale (marges d'exérèse élargie) est principalement adaptée à :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'indice de Breslow</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le diamètre clinique initial de la lésion</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'âge du patient</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le phototype du patient</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — l'indice de Breslow</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la marge d'exérèse de la reprise chirurgicale (de 0,5 à 2 cm) est définie par l'indice de Breslow.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — ce n'est pas le diamètre clinique qui détermine la marge.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'âge n'entre pas dans la définition des marges.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le phototype est un facteur de risque, non un critère de marge d'exérèse.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">À l'examen du reste du tégument, vous notez sur la tempe une lésion perlée, translucide, parcourue de fines télangiectasies. Concernant le carcinome basocellulaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est le cancer cutané le plus fréquent</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il se développe surtout sur les zones photo-exposées (visage)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La perle épithéliomateuse bordée de télangiectasies est un signe évocateur</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Son évolution est locale : il ne métastase quasiment jamais</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il naît volontiers sur des lésions précancéreuses de type kératose actinique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le carcinome basocellulaire est le cancer le plus fréquent chez l'humain.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — il siège préférentiellement sur les zones photo-exposées, notamment le visage.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la perle translucide bordée de télangiectasies est très évocatrice.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — sa malignité est locale (destruction) ; il ne métastase quasiment jamais.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c'est le carcinome épidermoïde (spinocellulaire) qui naît sur les kératoses actiniques ; le basocellulaire survient sur peau saine.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le carcinome épidermoïde (spinocellulaire) cutané, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il peut se développer sur des lésions précancéreuses (kératoses actiniques, maladie de Bowen)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il peut métastaser, notamment par voie lymphatique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'exposition solaire chronique cumulative est un facteur de risque</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'immunodépression (transplantation d'organe) en favorise la survenue</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il ne récidive jamais après une exérèse chirurgicale complète</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — il complique souvent des kératoses actiniques ou une maladie de Bowen (carcinome in situ).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — contrairement au basocellulaire, il peut métastaser (ganglions surtout).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — l'exposition solaire cumulative (dose totale reçue) est le principal facteur de risque.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les patients immunodéprimés (greffés) développent plus de carcinomes épidermoïdes, parfois agressifs.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une récidive est possible : une surveillance dermatologique reste nécessaire.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles mesures de prévention proposez-vous à ce patient et à son entourage ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La photoprotection vestimentaire et l'application de crèmes solaires à indice élevé</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Éviter les expositions aux heures de fort ensoleillement (12 h – 16 h)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Proscrire les cabines de bronzage (UV artificiels)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une auto-surveillance cutanée et un suivi dermatologique régulier</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une exposition solaire régulière et intense pour « habituer » la peau et prévenir le mélanome</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la photoprotection (vêtements, chapeau, lunettes, crème solaire) est essentielle.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — éviter l'exposition aux heures les plus ensoleillées est recommandé.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les cabines UV sont classées cancérogènes et doivent être proscrites.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'auto-examen cutané et le suivi dermatologique permettent un diagnostic précoce.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'exposition solaire intense est au contraire un facteur de risque : elle ne « protège » pas.</div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Érythrodermie</div>
+
+<div class="q" id="KFP1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme T., 72 ans, présente depuis trois semaines une rougeur diffuse de la quasi-totalité du tégument, squameuse, associée à des frissons et une sensation de mal-être. La température est à 38,3 °C.</div>
+<div class="stem">Concernant l'érythrodermie, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est un érythème généralisé touchant plus de 90 % de la surface corporelle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle s'accompagne le plus souvent d'une desquamation</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">C'est une urgence dermatologique justifiant une hospitalisation</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle peut entraîner des troubles de la thermorégulation et hydro-électrolytiques</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle se limite par définition à un placard cutané localisé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'érythrodermie est un érythème confluent touchant plus de 90 % de la surface corporelle.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la desquamation est quasi constante.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — c'est une urgence : hospitalisation, recherche étiologique et surveillance rapprochée.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la perte de la barrière cutanée expose aux désordres thermiques et hydro-électrolytiques.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — par définition l'atteinte est généralisée, non localisée.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les principales étiologies d'érythrodermie chez l'adulte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un psoriasis (psoriasis érythrodermique)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un eczéma / une dermatite atopique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une toxidermie (dont le DRESS)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un lymphome cutané T épidermotrope (syndrome de Sézary)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un carcinome basocellulaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="note"><div class="rappel"><b>Les 4 grandes causes</b> d'érythrodermie de l'adulte : psoriasis, eczéma/dermatite atopique, toxidermie (DRESS) et lymphome cutané T (Sézary). Une cause infectieuse (gale hyperkératosique) est aussi possible.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le psoriasis peut se compliquer d'érythrodermie (arrêt brutal des corticoïdes, facteur déclenchant…).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'eczéma/dermatite atopique est une cause classique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les toxidermies, en particulier le DRESS, sont une étiologie médicamenteuse fréquente.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le lymphome cutané T (syndrome de Sézary) est une cause à ne pas méconnaître.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le carcinome basocellulaire est une tumeur localisée, il ne donne pas d'érythrodermie.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles complications redoutez-vous chez cette patiente âgée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des troubles hydro-électrolytiques et une déshydratation</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une surinfection cutanée pouvant se compliquer de sepsis</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Des troubles de la thermorégulation (hypothermie ou hyperthermie)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une décompensation cardiaque (état de haut débit) chez le sujet fragile</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une guérison spontanée constante et sans risque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la fuite cutanée entraîne pertes hydro-électrolytiques et déshydratation.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'altération de la barrière cutanée expose aux surinfections et au sepsis.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les troubles thermiques sont fréquents (perte calorique par la peau).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la vasodilatation cutanée majeure peut décompenser une cardiopathie sous-jacente.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'érythrodermie est potentiellement grave : elle ne guérit pas spontanément sans prise en charge.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la prise en charge de cette érythrodermie, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une hospitalisation est justifiée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une biopsie cutanée aide à l'orientation étiologique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La réhydratation et la correction des troubles hydro-électrolytiques sont nécessaires</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il faut rechercher et interrompre un médicament potentiellement inducteur</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une corticothérapie générale doit être débutée systématiquement en première intention</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'hospitalisation permet surveillance, bilan et traitement.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la biopsie cutanée (parfois répétée) oriente le diagnostic étiologique.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la correction des désordres hydro-électrolytiques est une priorité.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — devant toute toxidermie suspectée, l'arrêt du médicament inducteur s'impose.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la corticothérapie générale n'est pas systématique : elle peut aggraver un psoriasis (rebond) et le traitement dépend de l'étiologie.</div>
+</div>
+</div>
+
+<div class="sect">TCS1 — Ulcère de jambe</div>
+
+<div class="q" id="TCS1-Q1" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. D., 70 ans, hypertendu et tabagique, consulte pour un ulcère de jambe évoluant depuis deux mois. On teste ici, pour chaque situation, l'impact d'une nouvelle donnée sur une hypothèse diagnostique.</div>
+<div class="stem">Si vous pensez à un ulcère veineux, et que vous constatez une abolition des pouls périphériques avec un index de pression systolique (IPS) à 0,5, cette hypothèse diagnostique devient :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — peu probable</div>
+<div class="note"><div class="rappel">Un IPS abaissé (0,5) avec abolition des pouls traduit une artériopathie oblitérante : l'hypothèse d'un ulcère <b>purement</b> veineux devient peu probable (il s'agit alors plutôt d'un ulcère artériel ou mixte). Un IPS normal est requis pour retenir une origine veineuse pure.</div></div>
+</div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensez à un ulcère veineux, et que vous constatez un ulcère péri-malléolaire interne, peu douloureux, entouré d'une dermite ocre et d'un œdème, cette hypothèse diagnostique devient :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div>
+<div class="note"><div class="rappel">La localisation péri-malléolaire interne, le caractère peu douloureux, la dermite ocre et l'œdème sont typiques de l'ulcère veineux : l'hypothèse devient probable. Elle ne peut être « certaine » sans un écho-Doppler veineux confirmant l'insuffisance veineuse.</div></div>
+</div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensez à un ulcère artériel, et que le patient décrit une douleur de décubitus calmée par la position jambe pendante, cette hypothèse diagnostique devient :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — probable</div>
+<div class="note"><div class="rappel">La douleur de décubitus soulagée jambe pendante traduit une ischémie critique : elle renforce l'hypothèse d'un ulcère artériel. La confirmation reste hémodynamique (IPS abaissé, écho-Doppler artériel), d'où « probable » plutôt que « certain ».</div></div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome de Lyell (nécrolyse épidermique toxique), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est une toxidermie grave, le plus souvent d'origine médicamenteuse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le signe de Nikolski est positif (décollement cutané au frottement)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il existe un décollement cutané étendu (&gt; 30 % de la surface corporelle) et une atteinte muqueuse</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le traitement repose en première intention sur une antibiothérapie probabiliste</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La prise en charge impose l'arrêt du médicament imputable et une hospitalisation en réanimation / centre de brûlés</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="note"><div class="rappel">Syndrome de Stevens-Johnson et syndrome de Lyell sont un même spectre, distingués par la surface décollée : &lt; 10 % (SJS), 10-30 % (chevauchement), &gt; 30 % (Lyell).</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — c'est une toxidermie grave, presque toujours médicamenteuse (allopurinol, anti-épileptiques, sulfamides…).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le signe de Nikolski est positif.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — décollement épidermique &gt; 30 % dans le Lyell, avec atteinte muqueuse fréquente.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le traitement n'est pas une antibiothérapie de première intention : c'est l'arrêt du médicament et une prise en charge symptomatique en milieu spécialisé.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — arrêt du médicament imputable et hospitalisation en réanimation ou centre de brûlés.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome DRESS (Drug Reaction with Eosinophilia and Systemic Symptoms), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est une toxidermie grave d'installation retardée (2 à 6 semaines après l'introduction du médicament)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il associe une éruption étendue, une fièvre et des adénopathies</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une hyperéosinophilie et une atteinte viscérale (hépatique, rénale) sont fréquentes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'arrêt du médicament imputable est impératif</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il survient toujours dans les 48 heures suivant la première prise médicamenteuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le DRESS survient typiquement 2 à 6 semaines après l'introduction du médicament (délai long).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — éruption étendue, fièvre, adénopathies et œdème du visage sont évocateurs.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — hyperéosinophilie et atteintes viscérales (hépatite, néphrite) font la gravité.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'arrêt du médicament imputable est la mesure essentielle.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le délai d'apparition est justement long (plusieurs semaines), et non de 48 heures.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans quelle(s) situation(s) peut-on retrouver un signe de Nikolski ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le pemphigus vulgaire</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La pemphigoïde bulleuse</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le syndrome de Lyell (nécrolyse épidermique toxique)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le psoriasis en plaques</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le pemphigus (clivage intra-épidermique) donne un signe de Nikolski positif.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — la pemphigoïde bulleuse a un clivage sous-épidermique (jonctionnel) : les bulles sont tendues et le Nikolski est négatif.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le syndrome de Lyell donne un Nikolski positif (décollement étendu).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le psoriasis n'est pas une dermatose bulleuse et ne s'accompagne pas de signe de Nikolski.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la pemphigoïde bulleuse, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est la dermatose bulleuse auto-immune la plus fréquente</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle touche préférentiellement le sujet âgé</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les bulles sont tendues, sur base érythémateuse, souvent très prurigineuses</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'immunofluorescence directe montre des dépôts linéaires d'IgG et de C3 le long de la jonction dermo-épidermique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'atteinte muqueuse sévère est constante et au premier plan</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — c'est la plus fréquente des dermatoses bulleuses auto-immunes.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — elle survient surtout chez le sujet âgé.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — bulles tendues sur base érythémateuse, très prurigineuses (clivage sous-épidermique).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'IFD retrouve des dépôts linéaires d'IgG et de C3 le long de la membrane basale.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'atteinte muqueuse est rare/discrète dans la pemphigoïde bulleuse (contrairement au pemphigus).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le psoriasis, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les plaques érythémato-squameuses siègent volontiers sur les faces d'extension (coudes, genoux), le cuir chevelu et la région lombo-sacrée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une atteinte articulaire (rhumatisme psoriasique) peut être associée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le phénomène de Koebner (lésions sur les zones de traumatisme) peut être observé</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">C'est une maladie inflammatoire chronique associée à un sur-risque cardio-métabolique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">C'est une maladie contagieuse d'origine infectieuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — localisations classiques : coudes, genoux, cuir chevelu, région lombo-sacrée, ongles.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le rhumatisme psoriasique peut accompagner l'atteinte cutanée.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le phénomène de Koebner (apparition de lésions sur zones traumatisées) est caractéristique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le psoriasis est associé à un sur-risque cardio-métabolique (syndrome métabolique).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le psoriasis n'est ni infectieux ni contagieux : c'est une maladie inflammatoire à composante génétique.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles modalités thérapeutiques peuvent être utilisées dans le psoriasis modéré à sévère ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La photothérapie (UVB à spectre étroit)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le méthotrexate</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les biothérapies (anti-TNF, anti-IL17, anti-IL23…)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'acitrétine (rétinoïde) ou la ciclosporine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une corticothérapie générale prolongée en première intention</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la photothérapie UVB est une option des formes étendues.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — le méthotrexate est un traitement systémique conventionnel de référence.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les biothérapies sont indiquées dans les formes modérées à sévères en échec/contre-indication des traitements conventionnels.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — acitrétine et ciclosporine font partie des traitements systémiques.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la corticothérapie générale est contre-indiquée dans le psoriasis (risque de rebond et d'érythrodermie à l'arrêt).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la dermatite atopique, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle débute le plus souvent dans la petite enfance</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle évolue par poussées, sur un terrain de xérose cutanée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle s'inscrit fréquemment dans un terrain atopique (asthme, rhinite allergique)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les dermocorticoïdes et les émollients sont la base du traitement</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le prurit est habituellement absent</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — elle débute généralement dans la petite enfance (nourrisson).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — évolution par poussées sur une peau sèche (xérose).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le terrain atopique (asthme, rhinite, allergies) est fréquemment associé.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — dermocorticoïdes lors des poussées et émollients au quotidien sont la base du traitement.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le prurit est un signe cardinal, quasi constant.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'eczéma de contact, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est une réaction d'hypersensibilité retardée (type IV, à médiation cellulaire)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les lésions apparaissent au site de contact avec l'allergène, à bords émiettés</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les tests épicutanés (patch-tests) permettent d'identifier l'allergène responsable</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">C'est une réaction d'hypersensibilité immédiate (type I) IgE-dépendante</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'eczéma de contact est une hypersensibilité retardée de type IV.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les lésions débutent au site de contact, à limites émiettées, et peuvent diffuser.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les patch-tests identifient l'allergène en cause.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'hypersensibilité immédiate IgE-dépendante (type I) correspond à l'urticaire/anaphylaxie, pas à l'eczéma de contact.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'urticaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les lésions sont des papules/plaques œdémateuses, prurigineuses, fugaces et migratrices</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'angio-œdème (œdème de Quincke) est une forme profonde pouvant menacer les voies aériennes</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'urticaire chronique est le plus souvent d'origine allergique et impose un bilan allergologique extensif</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les antihistaminiques anti-H1 sont le traitement de première intention</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — papules/plaques œdémateuses, mobiles, fugaces (chaque lésion dure moins de 24 h) et prurigineuses.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'angio-œdème (œdème de Quincke) peut engager le pronostic vital (atteinte laryngée).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — l'urticaire chronique est le plus souvent non allergique : un bilan allergologique extensif systématique n'est pas recommandé.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les anti-H1 de 2ᵉ génération sont le traitement de première intention.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'isotrétinoïne orale utilisée dans l'acné, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est indiquée dans les acnés sévères ou résistantes aux autres traitements</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle est tératogène : une contraception efficace et un suivi de grossesse (β-hCG) sont obligatoires chez la femme en âge de procréer</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une surveillance du bilan lipidique et hépatique est nécessaire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une sécheresse cutanéo-muqueuse (chéilite) est un effet indésirable fréquent</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle peut être prescrite sans précaution chez la femme enceinte</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — indiquée dans les acnés sévères (nodulaires) ou en échec des autres traitements.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — tératogène majeur : contraception efficace, tests de grossesse mensuels et respect du plan de prévention des grossesses.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — surveillance du bilan lipidique et des transaminases.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la sécheresse cutanéo-muqueuse (chéilite, xérose) est très fréquente.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — elle est formellement contre-indiquée pendant la grossesse.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la rosacée, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle touche la partie centrale du visage (joues, nez, front, menton)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle associe érythème, télangiectasies, bouffées vasomotrices (flushs) et papulo-pustules</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le rhinophyma est une forme hypertrophique (nez épaissi et bosselé)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La présence de comédons (points noirs) est caractéristique de la rosacée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — atteinte du centre du visage.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — érythème, télangiectasies, flushs et papulo-pustules sans comédons.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le rhinophyma est la forme hypertrophique, surtout chez l'homme.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'absence de comédons distingue la rosacée de l'acné (les comédons sont typiques de l'acné).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les dermatophytoses (infections à dermatophytes), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'intertrigo inter-orteils (« pied d'athlète ») en est une manifestation fréquente</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'atteinte du corps réalise des lésions annulaires à bordure active (herpès circiné)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le diagnostic peut être confirmé par un prélèvement mycologique (examen direct et culture)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Ce sont des infections d'origine virale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'intertrigo inter-orteils est une localisation classique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — sur la peau glabre, lésion annulaire à bordure active et centre clair (herpès circiné).</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le prélèvement mycologique (examen direct + culture) confirme le diagnostic.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — les dermatophytes sont des champignons (mycose), non des virus.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'impétigo, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est une infection cutanée bactérienne (streptocoque et/ou staphylocoque)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les lésions sont des vésicules/bulles laissant place à des croûtes mélicériques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il est contagieux et fréquent chez l'enfant</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il s'agit d'une dermatose bulleuse auto-immune</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — infection à streptocoque du groupe A et/ou staphylocoque doré.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — les croûtes jaunâtres « mélicériques » (couleur de miel) sont caractéristiques.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — c'est une infection contagieuse, fréquente chez l'enfant (éviction possible).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'impétigo est une infection bactérienne, non une maladie auto-immune.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le zona, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il correspond à la réactivation du virus varicelle-zona (VZV)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'éruption vésiculeuse est unilatérale et de topographie radiculaire (métamérique)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le zona ophtalmique fait craindre des complications oculaires</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les douleurs post-zostériennes sont une complication fréquente chez le sujet âgé</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il correspond à une primo-infection par le VZV</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — le zona est la réactivation du VZV latent dans les ganglions sensitifs.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'éruption est unilatérale, limitée à un ou plusieurs métamères.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le zona ophtalmique (V1) peut se compliquer d'atteinte cornéenne : avis ophtalmologique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — les algies post-zostériennes sont fréquentes et invalidantes chez le sujet âgé.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la primo-infection par le VZV correspond à la varicelle ; le zona en est la réactivation.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la syphilis secondaire, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est due à Treponema pallidum</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La roséole puis les syphilides papuleuses (dont l'atteinte palmo-plantaire) en sont des manifestations</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les lésions cutanéo-muqueuses de la syphilis secondaire sont contagieuses</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement de référence repose sur la pénicilline (benzathine benzylpénicilline)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle se limite à un chancre unique, indolore, au point d'inoculation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'agent est le tréponème pâle (Treponema pallidum).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — roséole syphilitique puis syphilides papuleuses, avec atteinte palmo-plantaire évocatrice.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — les lésions cutanéo-muqueuses de la phase secondaire sont riches en tréponèmes et contagieuses.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la benzathine benzylpénicilline est le traitement de référence.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le chancre unique indolore correspond à la syphilis primaire, non à la secondaire.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q16" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant un prurit diffus sans lésion cutanée spécifique, quels examens paracliniques de première intention pouvez-vous demander à la recherche d'une cause générale ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une NFS (recherche d'anomalie hématologique, hyperéosinophilie)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un bilan hépatique (cholestase) et une créatininémie (insuffisance rénale)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une TSH (dysthyroïdie)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une radiographie thoracique et/ou une exploration à la recherche d'une hémopathie (lymphome)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Aucun bilan n'est jamais utile : un prurit est toujours d'origine psychogène</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la NFS recherche une hémopathie, une carence martiale, une hyperéosinophilie.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — bilan hépatique (cholestase) et créatininémie (insuffisance rénale) font partie du bilan d'un prurit « sine materia ».</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la TSH dépiste une dysthyroïdie.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la recherche d'une hémopathie (lymphome, maladie de Hodgkin) est justifiée devant un prurit inexpliqué.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un prurit diffus persistant impose au contraire un bilan étiologique ; l'origine psychogène est un diagnostic d'élimination.</div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour au portail D2 · T3</a>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’‘`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+ if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+ var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+ var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
