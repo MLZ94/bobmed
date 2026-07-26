@@ -1,0 +1,857 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 4.2 — ORL / Ophtalmologie · Sujet type</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}.citem:last-child{border-bottom:0}.cl{font-weight:600}.v-vrai .cv{color:var(--vrai);font-weight:600}.v-faux .cv{color:var(--faux);font-weight:600}.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 4.2 — ORL / Ophtalmologie · Sujet type (synthèse des annales 2022-2025)</h1>
+<div class="sub">33 questions : DP1 douleur pharyngée fébrile chez un adulte jeune (8, verrouillé) · mDP1 paralysie faciale récente (6, verrouillé) · KFP1 baisse d'acuité visuelle brutale unilatérale chez un sujet âgé (4, verrouillé) · TCS1 œil rouge douloureux après projection d'un corps étranger (3, verrouillé) · SQI1 (12). 33 questions notées.</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/33</b></span>
+<span class="pill">Score : <b id="s-ok">0/33</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap"><div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+
+<div class="note" style="margin:0 0 24px">
+<b>Sujet type</b> — Ce quiz n'est pas une annale réelle. C'est un questionnaire de synthèse composé de cas et de questions originaux, construits à partir des thèmes et des pièges qui reviennent le plus souvent dans les annales officielles d'UE 4.2 (2022-2025, cf. section « Annales officielles » du portail). Objectif : réviser en priorité le contenu à plus fort rendement avant l'examen — angine/phlegmon péri-amygdalien, paralysie faciale, baisse d'acuité visuelle brutale (NOIAA/Horton), œil rouge et corps étranger, otites, DMLA, glaucome, cancers des VADS, tumeurs de la parotide, vertiges, épistaxis.
+</div>
+
+<div class="sect">DP1 — Douleur pharyngée fébrile chez un adulte jeune</div>
+
+<div class="q" id="DP1-Q1" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. D., 21 ans, consulte pour une douleur pharyngée fébrile (39 °C) évoluant depuis 2 jours. L'examen retrouve des amygdales augmentées de volume, recouvertes d'un enduit blanchâtre, et des adénopathies cervicales sensibles. Il ne tousse pas.</div>
+<div class="stem">Quels éléments font partie du score de Mac Isaac (Centor modifié) évaluant la probabilité d'une angine à streptocoque du groupe A ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La présence d'une fièvre &gt; 38 °C</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'absence de toux</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La présence d'adénopathies cervicales sensibles</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'âge du patient</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La présence d'une rhinorrhée purulente</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'âge module le score (points en moins après 45 ans). Le 5<sup>e</sup> item est l'atteinte amygdalienne (exsudat/tuméfaction).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la rhinorrhée n'entre pas dans le score et évoque plutôt une origine virale.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le test de diagnostic rapide (TDR) de l'angine, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il détecte le streptocoque β-hémolytique du groupe A</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il permet de cibler l'antibiothérapie et d'en limiter la prescription inutile</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un TDR positif impose une culture de confirmation avant tout traitement</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Chez l'adulte, il est réalisé essentiellement quand le score clinique est élevé</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un TDR négatif justifie toujours une antibiothérapie probabiliste</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — un TDR positif suffit à traiter ; c'est un TDR négatif chez un sujet à risque de RAA qui peut faire discuter une culture.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — un TDR négatif, chez un adulte sans facteur de risque, dispense d'antibiotiques (traitement symptomatique).</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le TDR est positif. En l'absence d'allergie, quel antibiotique prescrivez-vous en première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Amoxicilline</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Amoxicilline-acide clavulanique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ciprofloxacine</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Cotrimoxazole</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — amoxicilline</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — amoxicilline pendant 6 jours est le traitement de référence de l'angine à SGA.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — l'association n'est pas nécessaire (le SGA n'est pas producteur de β-lactamase).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient signale une allergie vraie aux β-lactamines (antécédent d'urticaire diffus). Quelle(s) alternative(s) pouvez-vous proposer ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un macrolide (ex. azithromycine)</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une nouvelle prescription d'amoxicilline à dose réduite</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Après vérification de l'absence de résistance, un macrolide reste possible</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Aucune antibiothérapie n'est possible, seul le traitement symptomatique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une céphalosporine de 3<sup>e</sup> génération est toujours sans risque en cas d'allergie aux pénicillines</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — les macrolides sont l'alternative de référence en cas d'allergie vraie aux β-lactamines.</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — l'amoxicilline reste contre-indiquée.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une alternative antibiotique existe (macrolide).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une allergie croisée est possible ; les C3G ne sont pas systématiquement sûres.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les objectifs de l'antibiothérapie d'une angine à streptocoque du groupe A ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Prévenir le rhumatisme articulaire aigu (RAA)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Prévenir les complications suppuratives loco-régionales</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Accélérer la disparition des symptômes et réduire la contagiosité</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Prévenir la survenue d'un cancer de l'amygdale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Éradiquer un portage viral associé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la prévention du RAA reste l'objectif historique majeur.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — aucun lien avec le cancer de l'amygdale.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'antibiotique n'agit pas sur les virus.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une semaine plus tard, la douleur s'est majorée, unilatérale, avec un trismus et une voix « de patate chaude ». Quels éléments sont en faveur d'un phlegmon péri-amygdalien ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le trismus</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La voix modifiée (« voix de patate chaude »)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une atteinte strictement bilatérale et symétrique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un bombement du voile avec déviation de la luette</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une régression spontanée en quelques heures</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le phlegmon est unilatéral (collection péri-amygdalienne).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le bombement du pilier avec déviation de la luette est caractéristique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — c'est une complication suppurative nécessitant drainage et antibiothérapie.</div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">De manière générale, quelles complications peut-on craindre au décours d'une angine à streptocoque du groupe A ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un phlegmon ou un adénophlegmon cervical</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un rhumatisme articulaire aigu</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une cataracte</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une glomérulonéphrite aiguë post-streptococcique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un glaucome aigu par fermeture de l'angle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — complications suppuratives loco-régionales.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — complication post-streptococcique.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — glomérulonéphrite aiguë post-streptococcique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le patient, inquiet, vous interroge sur le cancer de l'amygdale. Quel est le type histologique le plus fréquent des cancers de l'oropharynx ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le carcinome épidermoïde</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L'adénocarcinome</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le lymphome</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le mélanome</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — le carcinome épidermoïde</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la grande majorité des cancers des VADS sont des carcinomes épidermoïdes (le lymphome est le principal différentiel amygdalien).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP1 — Paralysie faciale récente</div>
+
+<div class="q" id="mDP1-Q1" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">M. L., 58 ans, consulte pour une asymétrie du visage installée en 24 h. Vous suspectez une paralysie faciale.</div>
+<div class="stem">Quels éléments sont en faveur d'une origine périphérique (et non centrale) de cette paralysie faciale ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'atteinte touche le territoire facial supérieur et inférieur de façon homogène</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'effacement des rides du front et l'impossibilité de fermer l'œil</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le respect du territoire facial supérieur (front)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le signe de Charles Bell (bascule du globe vers le haut à l'occlusion)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une dissociation automatico-volontaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'atteinte périphérique touche tout l'hémiface.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le respect du front caractérise la paralysie faciale <b>centrale</b> (innervation bilatérale du frontal).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le signe de Charles Bell témoigne du déficit de l'occlusion palpébrale.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la dissociation automatico-volontaire évoque une atteinte centrale.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels éléments orienteraient vers une paralysie faciale a frigore (idiopathique, dite « de Bell ») ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une installation rapide, en quelques heures à 2 jours</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une otalgie, une hyperacousie ou une agueusie des 2/3 antérieurs de la langue possibles</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'absence d'autre signe neurologique déficitaire</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une évolution progressive sur plusieurs mois</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une masse parotidienne palpable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — la PF a frigore est un diagnostic d'élimination.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une installation progressive fait craindre une tumeur.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une masse parotidienne évoque une cause tumorale, pas une PF a frigore.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles étiologies devez-vous rechercher devant une paralysie faciale périphérique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un zona du ganglion géniculé (syndrome de Ramsay-Hunt)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une borréliose de Lyme (surtout en zone d'exposition aux tiques)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une otite (moyenne aiguë ou chronique compliquée)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une cataracte</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une tumeur de la parotide</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — rechercher des vésicules dans la zone de Ramsay-Hunt (conduit auditif).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le nerf facial traverse l'oreille moyenne.</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — le nerf facial traverse la parotide.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-answer="house et brackmann | house brackmann | classification de house et brackmann | grade de house et brackmann | house-brackmann" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle classification utilise-t-on pour coter la gravité d'une paralysie faciale périphérique ?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : la classification de House et Brackmann (grades I à VI)</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Que doit comporter votre examen clinique devant cette paralysie faciale ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une otoscopie (tympan, conduit auditif)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La palpation des aires parotidiennes</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La recherche de vésicules dans la zone de Ramsay-Hunt</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une biopsie systématique du nerf facial</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'évaluation de l'occlusion palpébrale et de la protection cornéenne</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — aucune biopsie du nerf facial en routine.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — le risque cornéen conditionne la protection oculaire.</div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q6" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diagnostic de paralysie faciale a frigore est retenu. Quelle prise en charge proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une corticothérapie orale débutée précocement</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une protection oculaire (larmes artificielles, occlusion nocturne)</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une chirurgie de décompression du nerf facial en urgence</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un traitement antiviral si une origine zostérienne est suspectée</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une abstention thérapeutique complète</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la corticothérapie précoce améliore la récupération.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — protéger la cornée est prioritaire (risque de kératite d'exposition).</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — pas de chirurgie en première intention.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — un antiviral est associé en cas de zona.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la protection oculaire est indispensable au minimum.</div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Baisse d'acuité visuelle brutale unilatérale chez un sujet âgé</div>
+
+<div class="q" id="KFP1-Q1" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Un homme de 72 ans consulte pour une baisse d'acuité visuelle brutale et indolore de l'œil droit, survenue le matin même. L'œil est blanc (non inflammatoire).</div>
+<div class="stem">Quelles étiologies évoquez-vous en priorité devant une baisse d'acuité visuelle brutale, sur un œil blanc et indolore ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une occlusion de l'artère centrale de la rétine (OACR)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une occlusion de la veine centrale de la rétine (OVCR)</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une neuropathie optique ischémique antérieure aiguë (NOIAA)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un glaucome aigu par fermeture de l'angle</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un décollement de rétine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — le glaucome aigu donne un œil <b>rouge et douloureux</b> (œil non blanc), avec céphalées et nausées.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — souvent précédé de myodésopsies et phosphènes.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'examen retrouve un œdème papillaire. Quels éléments sont en faveur d'une neuropathie optique ischémique antérieure aiguë (NOIAA) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un déficit pupillaire afférent relatif</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un œdème papillaire au fond d'œil</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une pupille en mydriase aréflexique bilatérale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un déficit du champ visuel de type altitudinal</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une cornée œdématiée avec cercle périkératique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — signe d'atteinte du nerf optique.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — le déficit altitudinal est évocateur.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — ce sont des signes d'atteinte du segment antérieur, non d'une NOIAA.</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels éléments feraient craindre une origine artéritique (maladie de Horton) de cette NOIAA ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Des céphalées temporales récentes</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une claudication de la mâchoire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une VS et une CRP élevées</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une altération de l'état général et des douleurs des ceintures (PPR)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un âge inférieur à 40 ans</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — signe très évocateur d'artérite à cellules géantes.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — syndrome inflammatoire biologique franc.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la maladie de Horton s'associe volontiers à une pseudopolyarthrite rhizomélique.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — la maladie de Horton touche le sujet âgé (&gt; 50 ans).</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q4" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">KFP1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suspectez fortement une NOIAA artéritique. Quelle est votre conduite immédiate ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Attendre le résultat de la biopsie de l'artère temporale avant tout traitement</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Débuter une corticothérapie en urgence (bolus) sans attendre la biopsie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Prescrire un simple collyre hypotonisant et revoir à 1 mois</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Réaliser une chirurgie oculaire en urgence</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B — corticothérapie en urgence sans attendre la biopsie</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — le traitement ne doit jamais être retardé par la biopsie (risque de bilatéralisation et de cécité définitive).</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'urgence est de protéger l'œil controlatéral ; la BAT peut être réalisée dans les jours suivants.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">TCS1 — Œil rouge douloureux après projection d'un corps étranger</div>
+
+<div class="q" id="TCS1-Q1" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme P. consulte en urgence pour une douleur de l'œil gauche après avoir reçu un éclat métallique en bricolant au marteau. Vous évaluez l'utilité de plusieurs gestes.</div>
+<div class="stem">Si vous pensiez réaliser un test à la fluorescéine, et que vous trouvez alors un signe de Seidel positif, vous trouvez maintenant que ce test est :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">complètement inutile</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">inutile</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins utile</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">utile</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">très utile</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E — très utile</div><div class="note">Un signe de Seidel positif (fuite d'humeur aqueuse à travers une plaie cornéenne, mise en évidence à la fluorescéine) signe une plaie perforante du globe : sa recherche est déterminante pour la conduite à tenir.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-correct="D" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez mesurer la pression intra-oculaire, et que vous obtenez une valeur normale à 14 mmHg, vous trouvez maintenant que ce test est :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">complètement inutile</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">inutile</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins utile</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">utile</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">très utile</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D — utile</div><div class="note">Une pression intra-oculaire normale est un argument (non suffisant à lui seul) en faveur de l'absence de plaie transfixiante. En cas de suspicion de perforation, la mesure de la pression doit toutefois être prudente pour ne pas appuyer sur le globe.</div></div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Si vous pensiez réaliser l'ablation d'un corps étranger cornéen superficiel à l'aiguille, et que vous constatez alors des traces de rouille sur la cornée, vous trouvez maintenant que ce geste est :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">complètement inutile</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">inutile</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins utile</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">utile</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">très utile</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E — très utile</div><div class="note">Devant un corps étranger cornéen superficiel avec rouille, l'ablation (après avoir écarté une plaie perforante) fait partie de la prise en charge de référence.</div></div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'otite externe aiguë, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La douleur est majorée à la traction du pavillon et à la pression du tragus</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La baignade est un facteur favorisant</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le traitement de première intention est une antibiothérapie orale systématique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La forme maligne (nécrosante) doit être redoutée chez le diabétique et l'immunodéprimé</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle s'accompagne d'un tympan bombé et purulent</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le traitement repose sur les gouttes auriculaires (antibiotiques ± corticoïdes), non sur les antibiotiques oraux.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'otite externe maligne est une urgence chez le sujet fragile.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le tympan bombé caractérise l'otite <b>moyenne</b> aiguë.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel est l'antibiotique de première intention d'une otite moyenne aiguë purulente de l'enfant justifiant une antibiothérapie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Amoxicilline</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Cotrimoxazole</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ciprofloxacine orale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vancomycine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A — amoxicilline</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — l'amoxicilline est le traitement de première intention (antibiothérapie surtout avant 2 ans ou si otalgie fébrile marquée).</div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le vertige positionnel paroxystique bénin (VPPB) du canal postérieur, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le vertige est bref, déclenché par les changements de position de la tête</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La manœuvre de Dix-Hallpike aide au diagnostic</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il s'accompagne d'une surdité et d'acouphènes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement repose sur des manœuvres libératoires (ex. Epley)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il impose une IRM cérébrale en urgence dans tous les cas</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — elle reproduit le nystagmus positionnel caractéristique.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — le VPPB n'a pas de signe cochléaire (surdité/acouphènes évoquent une maladie de Ménière).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — l'imagerie n'est indiquée qu'en cas de signes atypiques ou centraux.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la prise en charge d'une épistaxis, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La compression bidigitale des ailes du nez est le premier geste</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La tache vasculaire (zone de Kiesselbach) est l'origine la plus fréquente</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il faut rechercher une cause favorisante (HTA, trouble de l'hémostase, traitement anticoagulant)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une épistaxis unilatérale récidivante chez l'adulte ne justifie jamais d'exploration</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le méchage antérieur est toujours contre-indiqué</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — une épistaxis unilatérale récidivante doit faire rechercher une tumeur (ex. cavum, fosses nasales).</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le méchage antérieur est un moyen d'hémostase courant en cas d'échec de la compression.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la dégénérescence maculaire liée à l'âge (DMLA), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle peut se manifester par des métamorphopsies et un scotome central</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La forme humide (néovasculaire) relève d'injections intravitréennes d'anti-VEGF</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle atteint préférentiellement la vision périphérique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'OCT maculaire est utile au diagnostic et au suivi</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le tabac est un facteur protecteur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la grille d'Amsler dépiste les métamorphopsies.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — la DMLA atteint la vision <b>centrale</b> et respecte la vision périphérique.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le tabac est un facteur de risque majeur.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le glaucome chronique à angle ouvert, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il est longtemps asymptomatique, d'où l'importance du dépistage</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il associe une hypertonie oculaire, une excavation papillaire et une atteinte du champ visuel</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il se révèle par une douleur oculaire brutale avec œil rouge</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement de première intention repose sur des collyres hypotonisants</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il atteint d'abord la vision centrale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — c'est la triade caractéristique.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — c'est le glaucome aigu par fermeture de l'angle qui est douloureux et bruyant.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — il atteint d'abord le champ visuel périphérique, la vision centrale étant longtemps conservée.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les facteurs de risque des cancers des voies aérodigestives supérieures (VADS), quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le tabac</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'alcool, avec une synergie multiplicative avec le tabac</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'infection à HPV (notamment pour l'oropharynx)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La myopie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le port de lentilles de contact</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — l'association alcool-tabac potentialise fortement le risque.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant une tuméfaction de la parotide, quels signes cliniques orientent vers une tumeur maligne ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une paralysie faciale homolatérale</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une adénopathie cervicale associée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une fixation aux plans profonds</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une masse molle, mobile, indolore et stable depuis 10 ans</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une croissance rapide et douloureuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — la paralysie faciale signe l'envahissement du nerf VII.</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — cette description évoque une tumeur bénigne (adénome pléomorphe).</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la sinusite maxillaire aiguë bactérienne, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une douleur unilatérale, pulsatile, augmentée en position penchée en avant est évocatrice</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La persistance ou l'aggravation des symptômes au-delà de 10 jours oriente vers une surinfection bactérienne</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une rhinorrhée bilatérale claire est un critère de sinusite bactérienne</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une cause dentaire doit être recherchée (sinusite maxillaire d'origine dentaire)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le scanner des sinus est systématique dès le premier épisode</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — une rhinorrhée claire bilatérale évoque une origine virale ; c'est l'unilatéralité et la purulence qui orientent vers une bactérie.</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — la sinusite maxillaire unilatérale doit faire chercher un foyer dentaire.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — le scanner n'est pas systématique (réservé aux complications ou aux formes atypiques).</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="C" data-type="QRU">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une femme de 74 ans présente une baisse d'acuité visuelle bilatérale, lentement progressive, avec éblouissement et halos. L'examen retrouve une opacification du cristallin. Quel est le traitement de référence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une corticothérapie locale prolongée</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Des injections intravitréennes d'anti-VEGF</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La chirurgie (phacoémulsification avec implant intraoculaire)</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une simple correction optique par lunettes, sans autre traitement possible</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C — chirurgie de la cataracte</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — les anti-VEGF traitent la DMLA humide, pas la cataracte.</div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — le traitement de la cataracte est chirurgical (remplacement du cristallin par un implant).</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la surdité brusque idiopathique, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il s'agit d'une surdité de perception d'installation rapide</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle constitue une urgence diagnostique et thérapeutique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'audiogramme montre typiquement une surdité de transmission</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une IRM est indiquée pour éliminer un neurinome de l'acoustique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Aucun traitement n'est proposé, la récupération étant toujours spontanée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — la précocité de la prise en charge conditionne le pronostic.</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — c'est une surdité de <b>perception</b> (atteinte cochléaire/rétrocochléaire).</div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — l'IRM cherche un schwannome vestibulaire.</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — une corticothérapie est habituellement proposée.</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant l'uvéite antérieure aiguë, quelles affirmations sont exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle se manifeste par un œil rouge et douloureux avec photophobie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">On peut observer un cercle périkératique et un myosis</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un effet Tyndall et des précipités rétrocornéens sont évocateurs</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle donne toujours un œil blanc et indolore</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un bilan étiologique (spondyloarthrite, sarcoïdose…) doit être discuté</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — l'uvéite antérieure donne un œil rouge et douloureux.</div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — une cause générale doit être recherchée, notamment en cas de récidive.</div>
+</div>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){const opts=[...q.querySelectorAll('.opt')];const cits=[...q.querySelectorAll('.correction .citem')];opts.forEach((o,i)=>{const c=cits[i];if(!c)return;if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);}if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);}});}
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/['’‘`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+ if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+ const correct=new Set(q.dataset.correct.split(''));
+ const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+ let disc=0;
+ q.querySelectorAll('.opt').forEach(o=>{
+ const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+ o.classList.remove('sel');
+ if(isC&&isS)o.classList.add('correct');
+ else if(!isC&&isS){o.classList.add('wrong');disc++;}
+ else if(isC&&!isS){o.classList.add('missed');disc++;}
+ let m=document.createElement('span');m.className='mark';
+ if(isC&&isS)m.textContent='✓';
+ else if(!isC&&isS)m.textContent='✗';
+ else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+ if(m.textContent)o.appendChild(m);
+ });
+ const isQRU=q.dataset.type==='QRU';
+ const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+ const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+ const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+ if(missMandatory||hitUnacceptable)pts=0;
+ q.classList.add('done');
+ q.querySelector('.correction').hidden=false;markSpecial(q);
+ const st=q.querySelector('.status');st.style.color='';
+ st.textContent=fmtPts(pts)+' / 1';
+ if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+ st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+ if(pts>0&&pts<1)st.style.color='#9a6a00';
+ q.querySelector('.validate').disabled=true;
+ q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+ updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+ if(q.classList.contains('done'))return;
+ if(q.dataset.type!=='QROC'){
+ const correct=new Set(q.dataset.correct.split(''));
+ q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+ const v=q.querySelector('.validate');if(v)v.disabled=true;
+ }else{
+ const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+ }
+ q.classList.add('done');q.querySelector('.correction').hidden=false;markSpecial(q);
+ if(q.dataset.pts===undefined)q.dataset.result='skip';
+ updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+ const qs=[...$('.q')];const all=qs.length;
+ const done=qs.filter(q=>q.classList.contains('done')).length;
+ const grad=qs.length;
+ let pts=0;
+ qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+ const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+ const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+ const li=e.target.closest('.opt');
+ if(li){
+ const q=li.closest('.q');
+ if(!q.classList.contains('done')){
+ if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+ else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}else{li.classList.toggle('sel');}
+ }
+ return;
+ }
+ const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+ const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+ var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+ var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+ let nextFree=false,inDP=false;
+ for(const el of document.querySelector('.wrap').children){
+ if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+ if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+ }
+}
+
+function unlockNext(q){
+ let el=q.nextElementSibling;
+ while(el){
+ if(el.classList.contains('sect'))break;
+ if(el.classList.contains('q')&&el.classList.contains('locked')){
+ el.classList.remove('locked');
+ setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+ break;
+ }
+ el=el.nextElementSibling;
+ }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+ $('.q.locked').forEach(q=>q.classList.remove('locked'));
+ $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
