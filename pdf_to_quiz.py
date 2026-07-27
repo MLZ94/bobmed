@@ -965,6 +965,8 @@ button{{border-radius:10px}}
 button.validate{{background:var(--acc);border-color:var(--acc);color:#fff}}
 button.validate:hover{{filter:brightness(1.08)}}
 header{{box-shadow:0 1px 2px rgba(16,24,40,.04)}}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){{.wrap{{padding:0 10px 60px}}.q{{padding:13px 13px}}}}
 </style></head><body>
 <header><div class="hwrap">
 <h1>{title_html}</h1>
