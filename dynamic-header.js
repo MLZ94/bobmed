@@ -165,10 +165,13 @@
       'header .scorebar{gap:6px;margin-top:8px;font-size:13px}',
       'header .scorebar>.pill{padding:3px 10px}',
       'header .dhm-menu{display:inline-flex}',
-      /* fil d'Ariane sur une seule ligne : le dernier segment (titre de la page)
-         fait doublon avec le <h1> juste en dessous → masqué (avec son séparateur),
-         le chemin de navigation parent restant intact et cliquable */
-      'header .breadcrumb{flex-wrap:nowrap;overflow:hidden;margin-bottom:7px}',
+      /* fil d'Ariane compact : le dernier segment (titre de la page) fait doublon
+         avec le <h1> juste en dessous → masqué (avec son séparateur). Le chemin
+         parent peut passer sur plusieurs lignes (flex-wrap:wrap) plutôt que
+         déborder hors écran : plus d'overflow:hidden qui rognait et rendait les
+         derniers maillons inaccessibles — tous les liens restent visibles et
+         cliquables. Chaque maillon reste insécable (white-space:nowrap). */
+      'header .breadcrumb{flex-wrap:wrap;margin-bottom:7px}',
       'header .breadcrumb a{white-space:nowrap}',
       'header .breadcrumb .current,header .breadcrumb .sep:nth-last-child(2){display:none}',
       /* Minuteur réduit à sa seule icône (le libellé « Minuteur » est masqué) */
