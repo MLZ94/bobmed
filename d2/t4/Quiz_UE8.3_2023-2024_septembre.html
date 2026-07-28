@@ -1,0 +1,1191 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 8.3 — Endocrino / Nutrition · Session (septembre 2023)</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+</style></head><body>
+<header><div class="hwrap">
+<h1>UE 8.3 — Endocrino / Nutrition · Session (septembre 2023)</h1>
+<div class="sub">45 questions : DP1 (14, verrouillé) · DP2 (14, verrouillé) · SQI1 (17)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/45</b></span>
+<span class="pill">Score : <b id="s-ok">0/45</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">DP1 — Fatigue et essoufflement d’effort chez un homme de 25 ans</div>
+
+<div class="q" id="DP1-Q1" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mr Bonhomme, un homme de 25 ans consulte pour une fatigue inhabituelle. Il est charpentier, a l’habitude d’avoir une activité physique intense, et encore plus car il pratique le rugby en loisir. Il rapporte un essoufflement à l’ effort. Il est aussi inquiet car jeune marié il décrit des troubles de l’érection or sa femme et lui souhaitent avoir un enfant. Votre examen clinique ne retrouve pas d’anomalies majeures : taille 1m80, poids 90 kgs, Tension artérielle 123/75, une peau un peu sèche, des ongles cassants, il perd un peu ses cheveux. Il présente une gynécomastie minime à droite, un peu douloureuse. Le sexe est d’aspect normal, il n’a pas de micropénis. Les testicules sont de taille normale, sans masse palpée.La Numération, formule standard, ionogramme, urée, créatininémie, glycémie, bilan hépatique sont normaux.</div>
+<div class="stem">Au vu de l'examen clinique, vous avez prescrit un bilan thyroïdien et un bilan gonadique. Voici le bilan thyroïdien : TSH us : 1 mUI/L (0,2-4), T4L 9 pmol/L ( 11-22) – vous aviez en réalité demandé d’emblée le dosage de T4L car vous étiez inquiet à cause des troubles gonadiques associés. Quelle(s) est/sont vos conclusions et les explications possibles ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Bilan considéré comme normal</span></li>
+<li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">Insuffisance thyréotrope</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hypothyroidie infraclinique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vous vous attendez à retrouver un taux d'anticorps anti-TPO élevé</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous vous attendez à retrouver un taux d'anticorps anti-récepteur de la TSH élevé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div><div class="note"><div class="rappel">Le dosage de T4L n'est jamais justifié en première intention dans un contexte général (dépistage des dysthyroidies en population générale). Par contre, dans le cadre de la pathologie hypophysaire, l'axe thyréotrope ne peut être analysé qu'avec le dosage couplé de T4L et TSHus.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un second dosage retrouve un bilan similaire et vous confirmer une insuffisance thyréotrope. Quelle sera votre attitude thérapeutique et surveillance ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Instauration de L-thyroxine à 25 microg par jour et majoration de 25 micro chaque semaine jusqu’à la dose voulue</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Instauration de L-thyroxine à la dose de 0,5 microg/kg par jour</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Instauration de L-thyroxine à la dose de 1 microg/kg par jour</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Adaptation de la posologie pour obtenir une TSH us dans la valeur haute de la normale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Adaptation de la posologie pour obtenir une T4L normale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E</div><div class="note"><div class="rappel">Un traitement majoré par palier est indiqué uniquement chez des patients coronariens, et/ou très âgés. Pour la majorité des patients, le traitement est instauré d'emblée à la dose adéquate correspondant au poids.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous avez également vu le bilan gonadique : testostéronémie 9 nmol/L (12-32), FSH 2 UI/L (1,5-7), LH 1,5 UI/L (1,5-7), prolactinémie 75 ng/ml (N &lt; 20). Quelles sont vos conclusions ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Insuffisance testiculaire périphérique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Insuffisance gonadotrope</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hyperprolactinémie compatible avec une prise médicamenteuse</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hyperprolactinémie compatible avec une compression de tige</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hyperprolactinémie compatible avec un macroprolactinome</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous concluez donc à l’association : insuffisance gonadotrope, thyréotrope et hyperprolactinémie. Sur un plan théorique, la ou lesquelles des pathologies suivantes pourrai(en)t expliquer ces atteintes hormonales.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Maladie de Cushing</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Syndrome de Klinefelter</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Syndrome de Kallman de Morsier</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hémochromatose</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Sarcoidose</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Il vous a entendu évoquer l’hémochromatose avec votre collègue interne et s’en inquiète car sa mère est d’origine bretonne et il en a entendu parler. Que lui dites vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’atteinte hypophysaire est le plus souvent tardive</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ce diagnostic est peu probable chez lui vu la normalité de son bilan hépatique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le dépistage se fait par le test FIB-4</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un coefficient de saturation abaissé fait suspecter le diagnostic</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une hyperferritinémie fait suspecter le diagnostic</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous l’avez rassuré et surtout pour avancer vous avez prescrit une IRM hypophysaire que vous allez commentez, en terme de structures anatomiques d'après : 10.2169/internalmedicine.50.5000</div>
+<div class="extra"><img src="data:image/jpeg;base64,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" style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le point 1 correspond au 4ème ventricule</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le point 2 correspond à la tige pituitaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le point 3 correspond à l’artère carotide interne</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le point 4 correspond sinus sphénoïdal</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le point 5 correspond à l’os sphénoïdal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) est/sont les diagnostics possibles que le radiologue peut vous proposez - hors contexte clinique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Microadénome hypophysaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Macroadénome hypophysaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Sarcoidose</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Kyste de la poche de Rathke</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Atteinte hypothalamo-hypophysaire de l'hémochromatose</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">De principe, vous souhaitez éliminer une sécrétion de cortisol. Quel(s) dosage(s) allez vous prescrire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Cortisol à 8 h</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">ACTH à 8 h</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Cortisol à minuit après une prise de Dectancyl à 8H à jeun</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Cortisol à 8h le lendemain de la prise de Dectancyl à 8 H</span></li>
+<li class="opt" data-l="E" data-correct="1" data-mandatory="1"><span class="box">E</span><span class="otext">Cortisol à 8 H le lendemain de la prise de Dectancyl au coucher</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q9" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Il revient avec un dosage de cortisol à 8H à 70 nmol/L (150-550), mais il n’avait pas pris le Dectancyl, à cause d’une rupture de stock de médicament. Et, de plus, l’ACTH (dosé également au même moment) est à 15 pg/ml (10-70). `Quelle est/ou quelles sont les affirmations correctes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il présente probablement une maladie de Cushing</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il présente probablement une insuffisance corticotrope</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Pour confirmer votre hypothèse diagnostique, vous pouvez compléter les explorations par un test de freinage standard</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Pour confirmer votre hypothèse diagnostique, vous pouvez compléter les explorations par un test au Synacthène</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Pour confirmer votre hypothèse diagnostique, vous pouvez compléter les explorations par un test d’hypoglycémie insulinique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q10" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous avez choisi le test au Synacthène, car test de réalisation simple en ville. Pour rappel, les normes du cortisol à 8 H pour votre laboratoire sont 150-550 nmol/LParmi les résultats suivants, le ou lesquels vont confirmer un déficit corticotrope?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Cortisol 8h : 80 nmol/L - cortisol à 30 min : 170 nmol/L cortisol à 60 min : 200 nmol/L</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Cortisol 8h : 80 nmol/L - cortisol à 30 min : 100 nmol/L - cortisol à 60 min : 250 nmol/L</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Cortisol 8h : 170 nmol/L - cortisol à 30 min : 250 nmol/L cortisol à 60 min : 600 nmol/L</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cortisol 8h : 170 nmol/L - cortisol à 30 min : 400 nmol/L - cortisol à 60 min : 450 nmol/L</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cortisol 8h : 200 nmol/l - cortisol à 30 min : 550 nmol/l cortisol à 60 min : 450 nmol/L</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q11" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le test au synacthène était le suivant : Cortisol 8h : 80 nmol/L - cortisol à 30 min : 170 nmol/L cortisol à 60 min : 200 nmol/L , confirmant une insuffisance corticotrope. Quelle(s) est /sont vos propositions thérapeutiques ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vous l’adresser immédiatement aux urgences</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous lui administrez 100 mg en IM d’ Hemisuccinate d’hydrocortisone</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vous lui prescrivez de l’ hydrocortisone 10 mg 2 cp matin, 2 cp midi et 2 cp soir</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Vous lui prescrivez de l’ hydrocortisone 10 mg 1 cp matin, et 1 cp le midi</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous lui prescrivez de la Fludrocortisone 50 mg 1 cp matin</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q12" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">A ce stade, pour résumer, il présente donc une lésion suprasellaire découverte dans un contexte d’asthénie, associée à des déficits hypophysaires multiples : corticotrope, thyréotrope et gonadotrope et une hyperprolactinémie. Il est bien supplémenté sauf pour l’axe gonadotrope et vous demande un traitement, indépendamment de la discussion d'une intervention chirurgicale ou poursuite des explorations. Quelles sont les propositions vraies concernant la supplémentation par énantate de testostérone chez ce patient ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Ce traitement va corriger les troubles de la libido</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ce traitement va corriger les troubles de l’érection</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Ce traitement va bloquer la spermatogénèse</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Ce traitement ne doit pas être prescrit sans contrôle de l’échographie testiculaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un dosage de PSA est nécessaire avant de débuter le traitement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q13" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En parallèle de vos explorations endocriniennes, Mr Bonhomme a consulté en pneumologie car la radiographie pulmonaire réalisée pour exploration de la dyspnée avait montré un élargissement du médiastin sur des adénopathies. Le diagnostic de sarcoïdose a été posé, avec une preuve histologique de granulome au niveau médiastinal. En dehors de l’ atteinte pulmonaire, il présente aussi une légère atteinte méningée, d'autres lésions cérébrales prenant le contraste.Vous proposez le diagnostic d'atteinte hypothalamo-hypophysaire de la sarcoidose ; l'image est compatible (pour info : le diagnostic différentiel était celui d'adénome non sécrétant). Le champ visuel est normal. Il n'existe pas d'indication chirurgicale. Une corticothérapie est débutée à forte dose. Quelques mois après le début du traitement, il se plaint d’un syndrome polyuro polydispsique, estimant une diurèse à 3 L/24H.Quels sont les diagnostics à éliminer ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un diabète</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une hypercalcémie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une sécrétion inappropriée d’ ADH ( SIADH)</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un diabète insipide</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un déficit corticotrope</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q14" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le diabète sucré et l'hypercalcémie ont été éliminés. Parmi les données suivantes, quels sont les éléments en faveur ou compatible avec le diagnostic de diabète insipide ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Natrémie à 132 nmol/L au réveil</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Natrémie à 149 nmol/L au réveil</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Osmolarité plasmatique à 280 mOsm/L</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Osmalarité urinaire à 200 mOSm/L</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Osmolarité urinaire à 800 mOSm/L</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">DP2 — Élargissement du cou chez une femme de 35 ans</div>
+
+<div class="q" id="DP2-Q1" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Une femme de 35 ans vous consulte pour la découverte d’un élargissement du cou. Sa mère de 55 ans est en situation d’obésité avec un diabète et une pathologie thyroïdienne. Au niveau personnel, elle a eu deux enfants, à 30 et 34 ans, avec un diabète gestationnel et une prééclampsie lors de sa seconde grossesse. Elle fume 10 cigarettes par jour (20 paquets-année). La palpation du cou met en évidence un goitre hétérogène avec une partie bosselée supéro-lobaire droite, sans adénopathie.</div>
+<div class="stem">Vous l’interrogez sur la pathologie thyroïdienne de sa mère découverte vers l’âge de 20 ans à l’occasion d’une perte de poids avec un dyspnée et une tachycardie. Vous pensez qu’elle a eu une hyperthyroïdie. Elle a été opérée environ 2 ans après la découverte de cette hyperthyroïde. Citer la ou les deux étiologies les plus probables pour sa maman ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Maladie de Basedow</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Cancer médullaire de la thyroïde</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Cancer différencié de la thyroïde</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Thyroïdite du post partum</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Goitre multi nodulaire toxique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div><div class="note"><div class="rappel">BC cancer : euthyroïdie ; D : pas de chirurgie car régressif avec une phase d’hypothyroïdie ; E : GMN patient plus âgé</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q2" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">En cas d’hyperthyroïdie, quels examens peuvent vous être utiles ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Dosage de thyrocalcitonine</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Dosage de T4L</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Dosage des TRAK</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Scintigraphie à l’iode 131</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Scintigraphie à l’iode 123</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — anticorps anti-récepteurs à la TSH</div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Revenons à votre patiente. Indiquez les facteurs de risque de goitre d’une façon générale.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">carence iodée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">antécédents familiaux de goitre</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">la grossesse</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">le tabagisme</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">la consommation excessive d’alcool</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div><div class="note"><div class="rappel">Sexe féminin : les estrogènes, qui favorisent l’hyperplasie épithéliale et réduisent l’entrée de l’iode dans la thyroïde.Le tabac est un facteur favorisant : présence de thiocyanate qui est un compétiteur de l’iode.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q4" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant la physiologie thyroïdienne</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">la cellule thyroïdienne exprime sur sa membrane apicale au contact de la colloïde le symporteur de l’iodure</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">la cellule thyroïdienne est polarisée</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">dans le tissu conjonctif, les cellules C d’origine neuroendocrine synthétisent la calcitonine</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">la cellule thyroïdienne exprime sur la membrane basale le récepteur de la TSH,</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">l’unité fonctionnelle de la thyroïde est la papule thyroïdienne</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q5" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant un goitre, que recherchez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">un cancer</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">une hypothyroïdie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">une hyperthyroïdie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">des signes de compression</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">la prise de corticoïde</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q6" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le caractère compressif d’un goitre :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">il est suspecté en cas de dysarthrie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">il est suspecté en cas de présence d’adénopathies cervicales</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">il est suspecté en cas de syndrome de Claude Bernard Horner</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">il est suspecté en cas de déviation de la trachée sur la radiographie pulmonaire avec rétrécissement de la lumière</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">il est suspecté en cas de dysphagie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q7" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente pèse 98 kg pour 166 cm, a pris 10 kg dans la dernière année. Sa pression artérielle est de 160/90 mmHg et sa fréquence cardiaque de 80 bpm. Elle se plaint de palpitations et de sueurs importantes, notamment à l’effort. Vous notez quelques vergetures pourpres au niveau de la paroi abdominale. Elle se plaint également de crampes. Elle ne prend aucun traitement. Elle n’a pas de signe de compression. Afin d’explorer son statut thyroïdien, quels examens demandez-vous d’emblée ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">T4L</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">T3L</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">TSH</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Anticorps anti-TPO</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">TRAK</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q8" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La TSH de la patiente est normale. Indiquez les explorations complémentaires que vous envisagez d’emblée :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">dosage de thyrocalcitonine</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">dosage de T4L</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">échographie thyroïdienne</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">biopsie éventuelle lors de l’échographie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">scintigraphie thyroïdienne au technecium</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div><div class="note"><div class="rappel">D non cytoponction</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q9" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L’échographie thyroïdienne confirme la présence d’un goitre sans adénopathie satellite et retrouve un nodule supérieur droit de 15 mm de diamètre, hyperéchogène, avec des microcalcifications, à limité irrégulière et de forme ovalaire. Indiquez les caractéristiques en faveur de la malignité</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">pas d’adénopathie satellite</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">taille du nodule supracentimétrique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">nodule hyperéchogène</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">microcalcifications</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">limites irrégulières</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q10" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le nodule a été classé EU-TIRADS 5. La cytoponction est classée Bethesda 5 (60% de risque de cancer) et vous envisagez une chirurgie. Quels examens réalisez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">mesure des métanéphrines urinaires</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">dosage sanguin de thyroglobuline</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">dosage sanguin de thyroglobuline</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">dosage sanguin des anticorps antiTPO</span></li>
+<li class="opt" data-l="E" data-correct="1" data-mandatory="1"><span class="box">E</span><span class="otext">dosage sanguin de thyrocalcitonine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q11" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente a eu une thyroïdectomie partielle. Le nodule thyroïdien était finalement bénin. Vous faites à 3 mois post- opératoire. Indiquez les propositions vraies parmi les suivantes concernant les bilans thyroïdiens en général.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une TSH diminuée est en faveur d’une insuffisance thyroïdienne périphérique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Dans un contexte de pathologie hypophysaire, l’insuffisance thyréotrope est recherchée par un dosage de T4L</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Dans un contexte de pathologie hypophysaire, l’insuffisance thyréotrope est recherchée par un dosage de thyroglobuline</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une TSH basse avec une T4L normale est en faveur d’une hypothyroïdie infraclinique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une TSH normale avec une T4L basse est en faveur d’une hypothyroïdie infraclinique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q12" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez parmi les signes suivants ceux qui sont en faveur d’une hypothyroïdie.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">prise de 20 kg</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">asthénie psycho-intellectuelle</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">frilosité ancienne</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">peau jaunâtre</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">cheveux gras</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q13" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La TSH est de 11 mUI/L avec une T4L diminuée.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">vous débutez un traitement par hormone thyroïdienne</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">vous attendez un contrôle dans 6 semaines avant de débuter un traitement</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">la dose habituelle de début de traitement est de 1 à 1,5 μg/kg par jour</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">la posologie initiale doit être basse (12,5 μg par jour) en cas d’insuffisance rénale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">la posologie initiale doit être basse (12,5 μg par jour) en cas de coronaropathie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q14" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente vous consulte 3 mois plus tard sous L Thyroxine 75. Indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">le traitement est adapté selon le résultat du dosage de TSH</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">avec une TSH à 0,1 mUI/L et une T4L normale haute, vous ne changez pas la posologie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">une TSH à 0,1 mUI/L et une T4L normale haute correspondent à une hypothyroïdie infraclinique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">une hyperthyroïdie infraclinique est associée à un sur-risque d’ostéoporose</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">une hyperthyroïdie infraclinique est associée à un sur-risque de troubles du rythme</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquer les propositions vraies concernant les traitements du contrôle glycémique du diabète de type 2.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le metformine fait sécréter l'insuline endogène.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">les gliptines ( inhibiteurs de la DPP4) ne sont pas responsables d'hypoglycémie.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les gliflozines ( inhibiteurs de SGLT2) font diminuer le glycosurie.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les gliflozines (inhibiteurs de SGLT2)sont néphroprotecteurs.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les analogues du GLP1 ont montré un bénéfice cardiovasculaire associé à certaines molécules.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les signes cliniques d'une hypocalcémie aiguë?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Crise de tétanie .</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Paresthésie distales et péribuccales.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Allongement de QT sur l'ECG.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Troubles des phanères.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cataracte.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Un patient présente un nodule thyroïdien unique. La cytoponction est trés suspecte de cancer papillaire. Il vous interroge sur les modalités de prise en charge de ce cancer après la chirurgie.Quelles sont les propositions vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Traitement par L-Thyroxine, initialement à dose supra-physiologique.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Traitement à l'iode 131.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Chimiothérapie adjuvante.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Surveillance annuelle de la thyrocalcitonine.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Surveillance annuelle de la thyroglobuline et Anticorps anti-thyroglobuline.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="ABCHI" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les médicaments qui peuvent expliquer une hyperprolactinémie?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Anti-histaminique.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Anti-émétique.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">contraception oestro-progestative.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">contraception microprogestative.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">inhibiteur calcique.</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">inhibiteur de l'enzyme de conversion.</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">amiodarone</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">antidépresseur tricyclique.</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">neuroleptique</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">thymorégulateur</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, H, I</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous suspecter une acromégalie.Quel(s) dosage(s) biologique(s) allez vous demander?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un dosage de GH à 8h le matin .</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un dosage de GH vers minuit.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un dosage d'IGF-1</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un dosage de GH-RH</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un dosage de GH urinaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant le syndrome de Cushing :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">C'est l'ensemble des manifestations cliniques et biologiques engendrées par un excès chronique de minéralocorticoïdes.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les signes spécifiques sont les signes secondaires à l'effet catabolique et antianabolique des glucocorticoïdes sur le métabolisme protidique.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les vergetures cutanées sont fines et orientés verticalement sur les flancs.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le dosage de la cortisolémie à 8heures est un bon examen de dépistage</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Dans un test de freinage minute , la cortisolémie est mesurée le matin entre 6h et 8h , après la prise orale de 1mg de dexaméthasone la veille à 23h</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les examens suivants, le(s)quel(s) vous sont nécessaires pour avancer dans la démarche étiologique d'un syndrome de Cushing.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">ACTH</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Test de freinage minute</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Test de freinage fort</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Test au Synacthène</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cycle du cortisol plasmatique.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="BCDFGHMN" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Cocher parmi cette liste, les examens nécessaire dans un bilan d'une gynécomastie?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Numération de formule sanguine</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Testiostérone totale et testostérone libre</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">FSH, LH</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Prolactine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cortisol libre urinaire des 24h</span></li>
+<li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">TSH</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Oestradiol</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Beta-hcg</span></li>
+<li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">17 OH progestérone</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">DHE-Sulfate</span></li>
+<li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">ACE</span></li>
+<li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">CA19-9</span></li>
+<li class="opt" data-l="M" data-correct="1"><span class="box">M</span><span class="otext">Alfa-foetoprotéine</span></li>
+<li class="opt" data-l="N" data-correct="1"><span class="box">N</span><span class="otext">LDH</span></li>
+<li class="opt" data-l="O" data-correct="0"><span class="box">O</span><span class="otext">PSA totaux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, F, G, H, M, N</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">M.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">N.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">O.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les critères suivants le ou lesquels sont nécessaire pour affirmer le diagnostic de syndrome des ovaires polykystiques , à condition d'éliminer les diagnostics différentiels.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Oligo-aménorrhée ou cycles anovulatoires.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Oestradiol normal avec FSH et/ou LH élevées</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hyperandrogénie clinique et/ou biologique.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Présence de plus de 10 follicules de 2-9mm à l’échographie.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Présence de plus de 20 follicules de 2-9mm à l’échographie.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant les HTA endocriniennes.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'hyperaldostéronisme primaire est la cause de la plus fréquemment responsable de l'HTA endocriniennes.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les dosages d'aldostérone et de rénine peuvent être réalisés sans condition particulière.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les phéochromocytomes sécrètent de l'aldostérone.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le phéochromocytome doit bénéficier d'une enquête génétique systématique.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une des causes de L'hyperaldostéronisme primaire est le syndrome de Cushing.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles propositions sont vraies concernant le test au Synacthène?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il permet d'affirmer une maladie de Cushing.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il confirme une insuffisance surrénalienne.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il permet de différentier une inssuffisance surrénalienne périphérique d'une insuffisance corticotrope.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La réponse normale est un taux de cortisol supérieur à 200nmol/L</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La réponse normale est un taux de cortisol supérieur à 500 nmol/L</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant l'insuffisance surrénale:</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La mélanodermie est caractéristique de insuffisance corticotrope.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">On observe une hyponatrémie de dilution en cas insuffisance surrénale primaire.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'hypotension est plus marquée en cas d'insuffisance surrénale primaire qu'en cas d'insuffisance corticotrope.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">le diagnostic d'une insuffisance surrénalienne aiguë repose sur la réalisation d'un test au synacthène à 8h00 du matin</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La cause la plus fréquente d’insuffisance corticotrope est la tuberculose hypophysaire.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ABEGI" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous recevez aux urgences un patient suivi pour maladie d'addison. Il présente une insuffisance surrénale aiguë, dans le cadre d'une bronchite.Parmi les propositions thérapeutiques suivantes - à mettre en place la 1ère heure, précisez lesquelles sont adaptées.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hydrocortisone 100mg IV</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hydrocortisone 100mg IM</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hydrocortisone 10mg/h en IVSE</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Fludrocortisone 50 mg toutes les 4h</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Réhydratation avec NaCI9%</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Réhydratation par G2,5%</span></li>
+<li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Apport en glucose</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Apport en potassium</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Apport en bicarbonates</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E, G, I</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies dans le cadre di dépistage du diabète sucré en France:</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">une glycémie ç jeun normal est &lt;1.05g/L en dehors de la grossesse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le diagnostic du diabète gestationnel après 24 semaines aménorrhée repose sur le charge de 75g de glucose par voie orale.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">en dehors de la grossesse une glycémie 2 heures après charge en glucose à 1.66g/L pose le diagnostic d'intolérance au glucose.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">en dehors de la grossesse la charge en glucose est recommandée en cas d'hyperglycémie modéré à jeun</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">une HbA1c≥6,5% définit un diabète</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div><div class="note"><div class="rappel">le depistage sur l'HbA1 n'est pas encore reconnu en France. Aux USA , une Hba1c suppéreure à 5,7% et 6,4% signe un prédiabète et supérieure ou égale à 6,5% un diabète.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez les propositions vraies concernant le traitement des personnes vivant avec un diabète de type 1:</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">l'éducation thérapeutique , visant à l'autonomisation maximal du patient, est nécessaire.</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">en cas d'intolérance gastrique , il faut arrêter l'insuline basale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">les analogues rapides de l'insuline sont classiquement utilisées apres la prise des repas</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">l'objectif est une HbA1c&lt;7% pour un sujet adulte</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">les inhibiteurs de SGLT2 constituenbt un complément à l'insuline privilégié.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — lente ou intermédiaire</div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — hors grossesse</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q16" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les critère suivant , lesquels rentrent dans le définition de la dénutrition chez l'adulte?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">perte de poids &gt;5% en 6 mois</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">perte de poids &gt;10% en 6 mois</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">IMC&lt;18,5</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">réduction de la prise alimentaire &gt;50% pendant 1 semaine</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">pathologie chronique stable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q17" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q17</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comment explorer une carence en fer?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">la mesure du fer sérique est l'examen de référence.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">la mesure de la ferritinémie est l'examen de référence</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">la ferritinémie est augmentée dans les hépatopathologie chroniques.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">la ferritinémie est augmentée en cas d'insuffisance rénale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">les dosage de fer et trasferrine sont indiquées en seconde intention dans les états inflammatoires</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
