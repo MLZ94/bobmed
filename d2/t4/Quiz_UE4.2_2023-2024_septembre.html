@@ -561,32 +561,32 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 <div class="correction" hidden><div class="ans">Réponse : E — très utile</div></div>
 </div>
 
-<div class="q" id="TCS1-Q3" data-correct="A" data-type="QRU">
+<div class="q" id="TCS1-Q3" data-correct="AB" data-type="QRU">
 <div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
 <div class="stem">Si vous pensiez faire une IRM cérébrale Et qu’alors vous trouvez que l'IRM cérébrale est normale Vous trouvez maintenant que ce test est</div>
 <ul class="opts">
-<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">complètement inutile</span></li>
-<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">inutile</span></li>
+<li class="opt" data-l="A" data-correct="1" data-w="1"><span class="box">A</span><span class="otext">complètement inutile</span></li>
+<li class="opt" data-l="B" data-correct="1" data-w="1"><span class="box">B</span><span class="otext">inutile</span></li>
 <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins utile</span></li>
 <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">utile</span></li>
 <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">très utile</span></li>
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
-<div class="correction" hidden><div class="ans">Réponse : A — complètement inutile</div><div class="note">Réponse(s) B également valorisée(s) par le jury.</div></div>
+<div class="correction" hidden><div class="ans">Réponses validées par le jury : A — complètement inutile · B — inutile</div><div class="note">Barème TCS pondéré par le panel d'experts : chaque réponse validée rapporte des points, la réponse majoritaire 1/1. Pondération de A, B non communiquée par le fichier réponse : comptée 1/1 ici.</div></div>
 </div>
 
-<div class="q" id="TCS1-Q4" data-correct="C" data-type="QRU">
+<div class="q" id="TCS1-Q4" data-correct="CDE" data-type="QRU">
 <div class="qhead"><span class="qnum">TCS1 Q4</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
 <div class="stem">Si vous pensiez faire une instillation de collyres à la néosynéphrine Et qu’alors vous trouvez une diminution de l’hyperhémie conjonctivale Vous trouvez maintenant que ce test est</div>
 <ul class="opts">
 <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">complètement inutile</span></li>
 <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">inutile</span></li>
-<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ni plus ni moins utile</span></li>
-<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">utile</span></li>
-<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">très utile</span></li>
+<li class="opt" data-l="C" data-correct="1" data-w="1"><span class="box">C</span><span class="otext">ni plus ni moins utile</span></li>
+<li class="opt" data-l="D" data-correct="1" data-w="1"><span class="box">D</span><span class="otext">utile</span></li>
+<li class="opt" data-l="E" data-correct="1" data-w="1"><span class="box">E</span><span class="otext">très utile</span></li>
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
-<div class="correction" hidden><div class="ans">Réponse : C — ni plus ni moins utile</div><div class="note">Réponse(s) D, E également valorisée(s) par le jury. Ce test permet de distinguer sclérose et épisclérite.</div></div>
+<div class="correction" hidden><div class="ans">Réponses validées par le jury : C — ni plus ni moins utile · D — utile · E — très utile</div><div class="note">Barème TCS pondéré par le panel d'experts : chaque réponse validée rapporte des points, la réponse majoritaire 1/1. Pondération de C, D, E non communiquée par le fichier réponse : comptée 1/1 ici.</div><div class="note">Réponse(s) D, E également valorisée(s) par le jury. Ce test permet de distinguer sclérose et épisclérite.</div></div>
 </div>
 
 <div class="sect">KFP1 — Baisse d’acuité visuelle unilatérale chez une femme de 32 ans</div>
@@ -718,6 +718,10 @@ function grade(q){
   const isQRU=q.dataset.type==='QRU';
   const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
   let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
@@ -728,6 +732,7 @@ function grade(q){
   st.textContent=fmtPts(pts)+' / 1';
   if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
   else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
