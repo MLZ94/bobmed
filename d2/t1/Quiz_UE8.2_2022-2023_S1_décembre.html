@@ -75,6 +75,9 @@ button{border-radius:10px}
 button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
 button.validate:hover{filter:brightness(1.08)}
 header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.v-neutre .cv{color:var(--mut);font-weight:600}
 </style>
 <script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
 </head><body>
@@ -558,7 +561,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 </div>
 </div>
 
-<div class="q" id="DP1-Q4" data-correct="ABCD" data-type="QRM">
+<div class="q" id="DP1-Q4" data-correct="ABCD" data-type="QRM" data-neutral="1">
 <div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
 <div class="stem">Quelle(s) thérapeutique(s) pouvez-vous utiliser en urgence pour accélérer la fréquence cardiaque chez ce patient?</div>
 <ul class="opts">
@@ -569,7 +572,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">vérapamil</span></li>
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
-<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div><div class="note">Question neutralisée par le jury : le point est accordé à tous, quelle que soit la réponse (correction du fichier réponse donnée à titre indicatif).</div>
 <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
 <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
 <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
@@ -658,7 +661,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 </div>
 </div>
 
-<div class="q" id="DP1-Q9" data-correct="C" data-type="QRU">
+<div class="q" id="DP1-Q9" data-correct="C" data-type="QRU" data-neutral="1">
 <div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
 <div class="stem">Vous avez conclu à un rétrécissement aortique serré. Vous réalisez la coronarographie suivante qui retrouve une sténose serrée de l'IVA. Quel traitement est le plus approprié?</div>
 <ul class="opts">
@@ -669,7 +672,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">remplacement valvulaire aortique percutané (TAVI) et angioplastie de l’IVA</span></li>
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
-<div class="correction" hidden><div class="ans">Réponse : C</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="correction" hidden><div class="ans">Réponse : C</div><div class="note">Question neutralisée par le jury : le point est accordé à tous, quelle que soit la réponse (correction du fichier réponse donnée à titre indicatif).</div>
 <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
 <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
 <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
@@ -714,6 +717,7 @@ function grade(q){
   q.querySelectorAll('.opt').forEach(o=>{
     const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
     o.classList.remove('sel');
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
     if(isC&&isS)o.classList.add('correct');
     else if(!isC&&isS){o.classList.add('wrong');disc++;}
     else if(isC&&!isS){o.classList.add('missed');disc++;}
@@ -728,6 +732,7 @@ function grade(q){
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
   q.classList.add('done');
   q.querySelector('.correction').hidden=false;markSpecial(q);
   const st=q.querySelector('.status');st.style.color='';
@@ -735,6 +740,7 @@ function grade(q){
   if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
   if(pts>0&&pts<1)st.style.color='#9a6a00';
   q.querySelector('.validate').disabled=true;
@@ -746,7 +752,7 @@ function reveal(q,skipUnlock){
   if(q.classList.contains('done'))return;
   if(q.dataset.type!=='QROC'){
     const correct=new Set(q.dataset.correct.split(''));
-    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
     const v=q.querySelector('.validate');if(v)v.disabled=true;
   }else{
     const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';

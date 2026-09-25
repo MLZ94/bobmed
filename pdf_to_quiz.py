@@ -346,8 +346,12 @@ OPTION_START_RE = re.compile(r"[☐☑◎◉]")
 # début d'option : l'item disparaissait (fusionné dans l'option précédente,
 # lettres décalées) — bug confirmé sur l'annale UE7.1 mars 2024 (mDP1-Q2 items A
 # et D, SQI1-Q15 item E, tous "Neutraliser", absents ou fusionnés).
+# Certains fichiers réponse numérotent les options « 1. 2. 3. » au lieu de « A. B.
+# C. » (bug confirmé : DP2 de DFA1-UE4.1-MARS23, 10 questions dont toutes les options
+# étaient silencieusement perdues — « aucune option détectée »). On accepte donc un
+# numéro (1 à 2 chiffres), converti en lettre dans parse_option_block (1 → A…).
 _OPT_ENTRY_RE = re.compile(
-    r"([☐☑◎◉])?\s*(Faux|Valide|Indispensable|Inacceptable|Neutraliser)\s+([A-Z])\.\s*"
+    r"([☐☑◎◉])?\s*(Faux|Valide|Indispensable|Inacceptable|Neutraliser)\s+([A-Z]|\d{1,2})\.\s*"
 )
 _STRAY_GLYPH_RE = re.compile(r"[☐☑◎◉]")
 # Marqueur de début de la liste des réponses valides d'une QROC. On ne capture
@@ -389,7 +393,7 @@ IMG_EXPECTED_RE = re.compile(
     rf"|{_IMAGING}[^.!?]{{0,90}}ci[- ]?(?:dessous|apr[èe]s|contre|joints?|jointe?s?)"
     rf"|cf\.?\s*(?:image|images|photo|figure|cliché|iconographie)"
     rf"|images?\s+jointes?"
-    rf"|voici[^.!?]{{0,40}}{_IMAGING}"
+    rf"|voici[^.!?]{{0,40}}{_IMAGING}(?!\s*(?:normale?s?\b|sans\s+anomalie))"
     rf"|{_IMAGING}[^.!?]{{0,40}}voici"
     rf"|{_IMAGING}[^.!?]{{0,60}}a\s+(?:été|ete)\s+réalisée?s?",
     re.I,
@@ -455,12 +459,27 @@ def parse_option_block(blob):
     entries = list(_OPT_ENTRY_RE.finditer(clean_blob))
     if not entries:
         return []
+    # Un seul style de numérotation par question, fixé par la 1re option. Les
+    # options numérotées doivent en outre se suivre (1, 2, 3…) : les notes du jury
+    # placées après les options sont elles-mêmes des listes numérotées
+    # (« Faux\n3. La douleur… ») qui, sinon, deviennent de fausses options (bug :
+    # UE11.1 juin 2026 SQI1-Q9, 6e option fantôme).
+    if entries[0].group(3).isdigit():
+        kept, want = [], 1
+        for em in entries:
+            if em.group(3).isdigit() and int(em.group(3)) == want:
+                kept.append(em); want += 1
+        entries = kept
+    else:
+        entries = [em for em in entries if not em.group(3).isdigit()]
 
     opts = []
     for i, em in enumerate(entries):
         glyph    = em.group(1)  # None si la case est après le libellé (saut de page)
         validity = em.group(2)
         letter   = em.group(3)
+        if letter.isdigit():                      # options numérotées « 1. » → « A. »
+            letter = chr(ord("A") + int(letter) - 1)
 
         # Texte de l'option : de la fin de ce match jusqu'au début du suivant.
         text_start = em.end()
@@ -486,7 +505,12 @@ def parse_option_block(blob):
             # Un item "Neutraliser" (annulé par le jury) est compté valide pour
             # tout le monde : on le traite donc comme une réponse correcte, avec
             # une mention "(item neutralisé)" dans la correction (cf. render_citems).
-            "valid":   validity in ("Valide", "Indispensable", "Neutraliser"),
+            # « Neutraliser » : item annulé par le jury, qui ne compte JAMAIS (ni juste
+            # ni faux, quelle que soit la réponse). Ce n'est donc pas une bonne réponse :
+            # l'ancien rendu le comptait « valide », si bien que ne pas le cocher coûtait
+            # une discordance. Il est désormais exclu de data-correct et marqué
+            # data-neutral="1", ignoré par le moteur (cf. grade()).
+            "valid":   validity in ("Valide", "Indispensable"),
             # Case cochée = réponse choisie par CET étudiant (indice pour resolve_qru).
             "checked": glyph in ("☑", "◉") if glyph else False,
             "expl":    expl,
@@ -562,7 +586,13 @@ def parse_question(qtype_raw, neutralized, raw_block, warnings, section_code, qn
         # on garde tout le bloc brut comme stem, à nettoyer manuellement, et on
         # laisse render_question produire un stub [A VERIFIER] à compléter avec
         # de vraies zones (cf. section QZONE du CLAUDE.md).
-        q["stem"] = clean_span(raw_block)
+        # Le fichier réponse suit l'énoncé d'un tableau « Marqueurs Statut
+        # Pondération … ◉Zone 1: Indispensable 1 » (zones attendues) : il ne fait
+        # pas partie de l'énoncé (bug : il y était recopié tel quel). On le sépare
+        # et on le reporte dans le commentaire [A VERIFIER] du stub.
+        zm = re.search(r"Marqueurs\s+Statut\s+Pond[ée]ration", raw_block)
+        q["stem"] = clean_span(raw_block[: zm.start()] if zm else raw_block)
+        q["zone_info"] = clean_span(_STRAY_GLYPH_RE.sub(" ", raw_block[zm.end():])) if zm else ""
         warnings.append(
             f"{section_code} Q{qnum} (QZONE): pointage de zone détecté — stub "
             f"[A VERIFIER] généré, zones à positionner à la main (cf. CLAUDE.md § QZONE)."
@@ -570,6 +600,13 @@ def parse_question(qtype_raw, neutralized, raw_block, warnings, section_code, qn
         return q
 
     m = OPTION_START_RE.search(raw_block)
+    first_entry = _OPT_ENTRY_RE.search(raw_block)
+    # La 1re option peut précéder la 1re case ☐ : sur un saut de page, la case de
+    # l'option A est reportée APRÈS son libellé (« Faux A. … [page] ☐ ☐ Faux B. »).
+    # Couper l'énoncé à la 1re case avalait alors l'option A dans l'énoncé (bug :
+    # UE8.1 DEC22 SQI1-Q10). On coupe au premier des deux repères.
+    if m and first_entry and first_entry.start() < m.start():
+        m = first_entry
     if m:
         stem = raw_block[: m.start()]
         opts_blob = raw_block[m.start():]
@@ -640,8 +677,8 @@ def parse_question(qtype_raw, neutralized, raw_block, warnings, section_code, qn
 _KNOWN_LABELS = ("Faux", "Valide", "Indispensable", "Inacceptable", "Neutraliser")
 # Case à cocher suivie d'un mot capitalisé puis d'une lettre d'option : un libellé
 # de validité. Sert à repérer un libellé que _OPT_ENTRY_RE ne connaît pas.
-_ANY_LABEL_RE = re.compile(r"[☐☑◎◉]\s*([A-ZÀ-Ý][a-zà-ÿ]{3,})\s+[A-Z]\.\s")
-_SPECIAL_LABEL_RE = re.compile(r"\b(Indispensable|Inacceptable)\s+[A-Z]\.")
+_ANY_LABEL_RE = re.compile(r"[☐☑◎◉]\s*([A-ZÀ-Ý][a-zà-ÿ]{3,})\s+(?:[A-Z]|\d{1,2})\.\s")
+_SPECIAL_LABEL_RE = re.compile(r"\b(Indispensable|Inacceptable)\s+(?:[A-Z]|\d{1,2})\.")
 
 
 def check_special_items(full_text, sections, out_html):
@@ -671,7 +708,14 @@ def parse_sections(full_text, warnings):
     sections = []
     sec_matches = list(SECTION_RE.finditer(full_text))
     for i, sm in enumerate(sec_matches):
-        code = sm.group(1)
+        # Code de section normalisé : certains exports collent au code le nombre de
+        # questions (« QI(22) », « mDP2(8) ») et nomment « QI » les questions
+        # isolées. Recopié tel quel, ce nombre se lisait comme un compteur dans les
+        # titres et le portail (« SQI(6) (6) ») : on le retire et « QI » devient
+        # « SQI1 », convention du site.
+        code = re.sub(r"\(\d+\)$", "", sm.group(1))
+        if re.fullmatch(r"QI\d*", code):
+            code = "S" + code + ("" if code[-1].isdigit() else "1")
         start = sm.end()
         end = sec_matches[i + 1].start() if i + 1 < len(sec_matches) else len(full_text)
         block = full_text[start:end]
@@ -797,13 +841,14 @@ def render_citems(opts):
     for o in opts:
         verdict = "VRAI" if o["valid"] else "FAUX"
         cls = "v-vrai" if o["valid"] else "v-faux"
+        if o.get("neutral"):
+            # Item annulé par le jury : ni vrai ni faux, jamais compté (data-neutral).
+            verdict, cls = "NEUTRALISÉ", "v-neutre"
         parts = []
         if o.get("expl"):
             parts.append(esc(o["expl"]))
         if o.get("neutral"):
-            # Item annulé par le jury : compté valide, mais on le signale pour ne
-            # pas laisser croire qu'il s'agit d'une affirmation médicalement juste.
-            parts.append("item neutralisé par le jury (compté valide)")
+            parts.append("item neutralisé par le jury : jamais compté, quelle que soit la réponse")
         tail = " — " + " · ".join(parts) if parts else ""
         rows.append(
             f'<div class="citem {cls}"><span class="cl">{o["letter"]}.</span> '
@@ -895,6 +940,8 @@ def render_option_li(opt, weight=None):
         extra_attrs += ' data-mandatory="1"'
     if opt.get("unacceptable"):
         extra_attrs += ' data-unacceptable="1"'
+    if opt.get("neutral"):
+        extra_attrs += ' data-neutral="1"'
     return (
         f'<li class="opt" data-l="{opt["letter"]}" data-correct="{1 if opt["valid"] else 0}"{extra_attrs}>'
         f'<span class="box">{opt["letter"]}</span><span class="otext">{esc(opt["text"])}</span></li>'
@@ -934,15 +981,18 @@ def render_question(section_code, q, images=None, is_d2=False):
         accepted, exact = qroc_answer_data(answers)
         display = " / ".join(exact)
         data_answer = " | ".join(accepted)
+        qn_attr = ' data-neutral="1"' if q.get("neutralized") else ""
+        qn_note = ('<div class="note">Question neutralisée par le jury : le point est accordé à '
+                   'tous, quelle que soit la réponse.</div>') if q.get("neutralized") else ""
         if is_d2:
             # D2 : auto-correction par mots-clés (data-answer) + bouton Valider,
             # avec repli auto-évaluation « juste/faux » (cf. moteur QROC injecté).
-            return f'''<div class="q" id="{qid}" data-answer="{esc(data_answer)}" data-correct="" data-type="QROC">
+            return f'''<div class="q" id="{qid}" data-answer="{esc(data_answer)}" data-correct="" data-type="QROC"{qn_attr}>
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
 {dpctx_html}{stem_html}<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
 <div class="correction" hidden>
-<div class="qrocans">Réponse attendue : {esc(display)}</div>
+<div class="qrocans">Réponse attendue : {esc(display)}</div>{qn_note}
 </div>
 </div>'''
         # D1 : auto-correction par l'étudiant à la lecture du modèle (pas de
@@ -962,7 +1012,7 @@ def render_question(section_code, q, images=None, is_d2=False):
         # (cf. section QZONE du CLAUDE.md — ne PAS publier tel quel).
         return f'''<div class="q" id="{qid}" data-correct="[A VERIFIER]" data-type="QZONE">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QZONE</span><span class="status" aria-live="polite"></span></div>
-{dpctx_html}{stem_html}<!-- [A VERIFIER] QZONE : remplacer .extra par .extra.zonewrap et ajouter les <div class="zone" data-l="…" style="left:%;top:%;width:%;height:%"> (cf. CLAUDE.md § QZONE) -->
+{dpctx_html}{stem_html}<!-- [A VERIFIER] QZONE : remplacer .extra par .extra.zonewrap et ajouter les <div class="zone" data-l="…" style="left:%;top:%;width:%;height:%"> (cf. CLAUDE.md § QZONE). Zones du fichier réponse : {esc(q.get("zone_info") or "?").replace("--", "—")} -->
 <ul class="opts">
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
@@ -971,7 +1021,15 @@ def render_question(section_code, q, images=None, is_d2=False):
 </div>'''
 
     opts = q["options"]
-    neutral_note = ' <div class="note">Question neutralisée : tous les items sont comptés valides.</div>' if q["neutralized"] else ""
+    # Question neutralisée : dans le fichier réponse elle garde ses libellés Valide/
+    # Faux, mais TOUS les candidats ont 1/1 (ex. « Question 6: (Type: QRU) 1/1 Question
+    # neutralisée » avec une réponse fausse cochée). L'ancienne note « tous les items
+    # sont comptés valides » était fausse (et la question restait notée sur la clé) :
+    # data-neutral="1" sur la .q fait accorder le point quelle que soit la réponse.
+    neutral_note = (' <div class="note">Question neutralisée par le jury : le point est accordé '
+                    'à tous, quelle que soit la réponse (correction du fichier réponse donnée à '
+                    'titre indicatif).</div>') if q["neutralized"] else ""
+    q_neutral_attr = ' data-neutral="1"' if q["neutralized"] else ""
     # Note générale du jury détachée de la dernière option (cf. strip_general_note) :
     # rendue en encart « rappel », avant les verdicts par item — jamais collée à
     # l'intitulé d'une option (règle « justifications » du CLAUDE.md).
@@ -1024,7 +1082,7 @@ def render_question(section_code, q, images=None, is_d2=False):
             citems = render_citems(opts)
             correction = f'<div class="ans">Réponse : {primary}</div>{neutral_note}{general_note}\n{citems}'
 
-        return f'''<div class="q" id="{qid}" data-correct="{primary}" data-type="QRU">
+        return f'''<div class="q" id="{qid}" data-correct="{primary}" data-type="QRU"{q_neutral_attr}>
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
 {dpctx_html}{stem_html}<ul class="opts">
 {opts_html}
@@ -1054,7 +1112,7 @@ def render_question(section_code, q, images=None, is_d2=False):
     opts_html = "\n".join(render_option_li(o) for o in opts)
     ans_display = ", ".join(correct_letters) if correct_letters else "[A VERIFIER]"
     citems = render_citems(opts)
-    return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}">
+    return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}"{q_neutral_attr}>
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
 {dpctx_html}{stem_html}<ul class="opts">
 {opts_html}
@@ -1120,6 +1178,8 @@ h1{{font-size:20px;font-weight:600;margin:0}}
 .opt.wrong .box{{background:var(--faux);border-color:var(--faux);color:#fff}}
 .opt.missed{{border-style:dashed;border-color:var(--vrai)}}
 .opt.missed .box{{color:var(--vrai);border-color:var(--vrai)}}
+.opt.neutral{{border-style:dashed;opacity:.7}}
+.opt.neutral .mark{{color:var(--mut)}}
 .q.done .opt[data-mandatory="1"]{{border-left:3px solid var(--neu)}}
 .q.done .opt[data-mandatory="1"] .box{{position:relative}}
 .q.done .opt[data-mandatory="1"] .box::after{{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}}
@@ -1147,6 +1207,7 @@ button:disabled{{opacity:.5;cursor:default}}
 .cl{{font-weight:600}}
 .v-vrai .cv{{color:var(--vrai);font-weight:600}}
 .v-faux .cv{{color:var(--faux);font-weight:600}}
+.v-neutre .cv{{color:var(--mut);font-weight:600}}
 .back{{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}}
 .back:hover{{text-decoration:underline}}
 .q{{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}}
@@ -1207,6 +1268,8 @@ function grade(q){{
   q.querySelectorAll('.opt').forEach(o=>{{
     const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
     o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){{o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}}
     if(isC&&isS)o.classList.add('correct');
     else if(!isC&&isS){{o.classList.add('wrong');disc++;}}
     else if(isC&&!isS){{o.classList.add('missed');disc++;}}
@@ -1226,6 +1289,8 @@ function grade(q){{
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
   q.classList.add('done');
   q.querySelector('.correction').hidden=false;
   markSpecial(q);
@@ -1236,6 +1301,7 @@ function grade(q){{
   if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
   if(pts>0&&pts<1)st.style.color='#9a6a00';
   q.querySelector('.validate').disabled=true;
@@ -1247,7 +1313,7 @@ function reveal(q,skipUnlock){{
   if(q.classList.contains('done'))return;
   if(q.dataset.type!=='QROC'){{
     const correct=new Set(q.dataset.correct.split(''));
-    q.querySelectorAll('.opt').forEach(o=>{{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');}});
+    q.querySelectorAll('.opt').forEach(o=>{{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');}});
     const v=q.querySelector('.validate');if(v)v.disabled=true;
   }}else{{
     const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
@@ -1338,7 +1404,7 @@ function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelect
 function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
 function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
 function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
-function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
 '''
 
 

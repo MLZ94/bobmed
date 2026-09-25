@@ -76,6 +76,9 @@ button.validate:hover{filter:brightness(1.08)}
 .citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
 .citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
 header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.v-neutre .cv{color:var(--mut);font-weight:600}
 </style>
 <script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
 </head><body>
@@ -91,7 +94,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 </div></header>
 <div class="wrap">
 
-<div class="sect">mDP1</div>
+<div class="sect">mDP1 — Taches rouges des membres inférieurs chez une femme de 36 ans</div>
 
 <div class="q" id="mDP1-Q1" data-correct="A" data-type="QRU">
 <div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
@@ -181,8 +184,8 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 <ul class="opts">
 <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il existe une hypogammaglobulinémie à 4,5 g/L à l'électrophorèse des protéines sériques</span></li>
 <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Parmi ses antécédents, on note une tuberculose pulmonaire</span></li>
-<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Son taux de lymphocytes B sanguin est normal</span></li>
-<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il n'y a pas de personnes suspectes de déficit immunitaire dans sa famille</span></li>
+<li class="opt" data-l="C" data-correct="0" data-neutral="1"><span class="box">C</span><span class="otext">Son taux de lymphocytes B sanguin est normal</span></li>
+<li class="opt" data-l="D" data-correct="0" data-neutral="1"><span class="box">D</span><span class="otext">Il n'y a pas de personnes suspectes de déficit immunitaire dans sa famille</span></li>
 <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle n'a pas de splénomégalie</span></li>
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
@@ -418,7 +421,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 </div>
 </div>
 
-<div class="sect">DP1</div>
+<div class="sect">DP1 — Fièvre prolongée et asthénie chez une femme de 74 ans</div>
 
 <div class="q" id="DP1-Q1" data-correct="B" data-type="QRU">
 <div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
@@ -636,6 +639,7 @@ function grade(q){
   q.querySelectorAll('.opt').forEach(o=>{
     const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
     o.classList.remove('sel');
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
     if(isC&&isS)o.classList.add('correct');
     else if(!isC&&isS){o.classList.add('wrong');disc++;}
     else if(isC&&!isS){o.classList.add('missed');disc++;}
@@ -650,6 +654,7 @@ function grade(q){
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
   q.classList.add('done');
   q.querySelector('.correction').hidden=false;markSpecial(q);
   const st=q.querySelector('.status');st.style.color='';
@@ -657,6 +662,7 @@ function grade(q){
   if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
   if(pts>0&&pts<1)st.style.color='#9a6a00';
   q.querySelector('.validate').disabled=true;
@@ -668,7 +674,7 @@ function reveal(q,skipUnlock){
   if(q.classList.contains('done'))return;
   if(q.dataset.type!=='QROC'){
     const correct=new Set(q.dataset.correct.split(''));
-    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
     const v=q.querySelector('.validate');if(v)v.disabled=true;
   }else{
     const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';

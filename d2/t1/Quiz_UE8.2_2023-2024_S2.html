@@ -38,6 +38,8 @@ h1{font-size:20px;font-weight:600;margin:0}
 .opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
 .opt.missed{border-style:dashed;border-color:var(--vrai)}
 .opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
 .q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
 .q.done .opt[data-mandatory="1"] .box{position:relative}
 .q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
@@ -65,6 +67,7 @@ button:disabled{opacity:.5;cursor:default}
 .cl{font-weight:600}
 .v-vrai .cv{color:var(--vrai);font-weight:600}
 .v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
 .back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
 .back:hover{text-decoration:underline}
 .q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
@@ -406,7 +409,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 </div>
 </div>
 
-<div class="sect">TCS1</div>
+<div class="sect">TCS1 — Douleur thoracique aiguë chez un homme de 70 ans</div>
 
 <div class="q" id="TCS1-Q1" data-correct="CDE" data-type="QRU">
 <div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
@@ -423,7 +426,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 <div class="correction" hidden><div class="ans">Réponses validées par le jury : C — ni plus ni moins indiqué · D — indiqué · E — fortement indiqué</div><div class="note">Barème TCS pondéré par le panel d'experts : chaque réponse validée rapporte des points, la réponse majoritaire 1/1. Pondération d'après le fichier réponse : D = 0,33/1. Pondération de C, E non communiquée par le fichier réponse : comptée 1/1 ici. La réponse majoritaire du panel (1/1) est l'une d'elles.</div></div>
 </div>
 
-<div class="sect">TCS2</div>
+<div class="sect">TCS2 — Douleur thoracique aiguë chez un homme de 70 ans</div>
 
 <div class="q" id="TCS2-Q1" data-correct="E" data-type="QRU">
 <div class="qhead"><span class="qnum">TCS2 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
@@ -715,7 +718,7 @@ function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelect
 function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
 function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
 function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
-function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
 function grade(q){
   if(q.dataset.type==='QROC'){gradeQroc(q);return;}
   const correct=new Set(q.dataset.correct.split(''));
@@ -724,6 +727,8 @@ function grade(q){
   q.querySelectorAll('.opt').forEach(o=>{
     const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
     o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
     if(isC&&isS)o.classList.add('correct');
     else if(!isC&&isS){o.classList.add('wrong');disc++;}
     else if(isC&&!isS){o.classList.add('missed');disc++;}
@@ -743,6 +748,8 @@ function grade(q){
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
   q.classList.add('done');
   q.querySelector('.correction').hidden=false;
   markSpecial(q);
@@ -753,6 +760,7 @@ function grade(q){
   if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
   if(pts>0&&pts<1)st.style.color='#9a6a00';
   q.querySelector('.validate').disabled=true;
@@ -764,7 +772,7 @@ function reveal(q,skipUnlock){
   if(q.classList.contains('done'))return;
   if(q.dataset.type!=='QROC'){
     const correct=new Set(q.dataset.correct.split(''));
-    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
     const v=q.querySelector('.validate');if(v)v.disabled=true;
   }else{
     const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';

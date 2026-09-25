@@ -210,7 +210,7 @@ _MERGE_HEADER_RE = re.compile(r"Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type\s*:", re.
 # l'annale UE7.1 mars 2024 (SQI1-Q6 : D avale « Faux E. Lupus… » ; SQI1-Q15 : D
 # avale « Neutraliser E. Une pleurésie »).
 _MERGED_OPTION_RE = re.compile(
-    r"\b(Faux|Valide|Indispensable|Inacceptable|Neutraliser)\s+[A-Z]\.\s", re.I
+    r"\b(Faux|Valide|Indispensable|Inacceptable|Neutraliser)\s+(?:[A-Z]|\d{1,2})\.\s", re.I
 )
 
 
@@ -258,6 +258,24 @@ def _check_merged_questions(soup) -> list[dict]:
                         "suivante a été avalée. La scinder depuis le PDF source."
                     ),
                 })
+
+        # 1ter. Marqueur d'option fondu dans l'énoncé ou le contexte : la 1re option,
+        # dont la case ☐ a été reportée après un saut de page, a été avalée par
+        # l'énoncé (« … syndromique(s) ? Valide A. Syndrome cérébelleux gauche ») et
+        # manque dans la liste (bug confirmé : UE4.1 2022-2023 S2 mDP1-Q4, UE4.3
+        # 2023-2024 septembre mDP1-Q2 ; cause corrigée dans parse_question).
+        for el in q.select(".stem, .dpctx"):
+            if _MERGED_OPTION_RE.search(el.get_text(" ", strip=True) + " "):
+                findings.append({
+                    "level":   "error",
+                    "code":    "OPTION_IN_STEM",
+                    "message": (
+                        f"[{qid}] L'énoncé/le contexte contient un marqueur d'option "
+                        "(« Valide A. », « Faux A. »…) : une option a été avalée par "
+                        "l'énoncé. La replacer dans la liste depuis le fichier réponse."
+                    ),
+                })
+                break
 
         # 2. Lettre d'option en double.
         letters = [o.get("data-l", "") for o in q.select(".opt") if o.get("data-l")]
@@ -338,7 +356,9 @@ IMAGE_EXPECTED_RE = re.compile(
     rf"|{_IMAGING}[^.!?]{{0,90}}ci[- ]?(?:dessous|apr[èe]s|contre|joints?|jointe?s?)"
     rf"|cf\.?\s*(?:image|images|photo|figure|cliché|iconographie)"
     rf"|images?\s+jointes?"
-    rf"|voici[^.!?]{{0,40}}{_IMAGING}",
+    # « Voici le bilan : ECG normal » = résultat cité, pas une image (faux positif
+    # UE8.3 2023-2024 S2) : l'imagerie suivie de « normal(e) »/« sans anomalie » est exclue.
+    rf"|voici[^.!?]{{0,40}}{_IMAGING}(?!\s*(?:normale?s?\b|sans\s+anomalie))",
     re.I,
 )
 
@@ -421,8 +441,15 @@ def _check_pdf_reference_leak(soup) -> list[dict]:
     return findings
 
 
-def _check_initlocks_call(html_text: str) -> list[dict]:
-    """Vérifie que initLocks() est appelé dans le script."""
+def _check_initlocks_call(html_text: str, soup=None) -> list[dict]:
+    """Vérifie que initLocks() est appelé dans le script — seulement si la page a des
+    sections à verrouiller (DP/KFP/TCS/mDP). Les quiz d'exercices sans section
+    verrouillée (biostat, microbio…) n'en ont pas besoin : l'avertissement y était un
+    faux positif systématique (11 pages de d1/t4)."""
+    if soup is not None and not any(
+        re.search(r"DP|KFP|TCS", s.get_text()) for s in soup.select(".sect")
+    ):
+        return []
     if "initLocks()" not in html_text:
         return [{
             "level":   "warning",
@@ -542,6 +569,125 @@ def _check_special_items(html_text: str, soup) -> list[dict]:
     return findings
 
 
+def _check_neutral_engine(html_text: str) -> list[dict]:
+    """Items/questions neutralisés (data-neutral="1") : le moteur doit les ignorer
+    (item) ou accorder le point (question) — marqueur `dataset.neutral`. Sans lui,
+    un item neutralisé redevient une discordance et une question neutralisée est
+    notée sur la clé, à l'inverse du barème officiel."""
+    if 'data-neutral="1"' not in html_text or "dataset.neutral" in html_text:
+        return []
+    return [{
+        "level":   "error",
+        "code":    "NEUTRAL_ENGINE_MISSING",
+        "message": (
+            "Items/questions neutralisés (data-neutral) présents mais le moteur JS ne les "
+            "gère pas (marqueur 'dataset.neutral' absent de grade())."
+        ),
+    }]
+
+
+def _check_correct_vs_options(soup) -> list[dict]:
+    """data-correct de la question ≠ options marquées data-correct="1".
+
+    Le moteur ne lit QUE le data-correct de la question ; si une option marquée
+    juste (data-correct="1", et le plus souvent « VRAI » dans la correction) n'y
+    figure pas, l'étudiant qui la coche est pénalisé (bug confirmé : UE3 2023-2024
+    S1 DP2-Q4, data-correct="AC" alors que l'option D et la correction disent A, C, D).
+    Ignoré pour les QRU (une seule lettre) et les options neutralisées."""
+    if soup is None:
+        return []
+    findings = []
+    for q in soup.select(".q"):
+        if q.get("data-type") in ("QRU", "QROC", "QZONE", None):
+            continue
+        opts = q.select(".opt[data-correct]")
+        if not opts:
+            continue
+        marked = {o.get("data-l") for o in opts if o.get("data-correct") == "1" and o.get("data-neutral") != "1"}
+        qc = set(q.get("data-correct", "")) - {o.get("data-l") for o in q.select('.opt[data-neutral="1"]')}
+        if marked != qc:
+            findings.append({
+                "level":   "error",
+                "code":    "CORRECT_OPTS_MISMATCH",
+                "message": (
+                    f"[{q.get('id', '?')}] data-correct=\"{q.get('data-correct', '')}\" de la question ≠ "
+                    f"options marquées justes {''.join(sorted(marked))} — le moteur ne lit que la question."
+                ),
+            })
+    return findings
+
+
+_VOID_TAGS = {"br", "img", "meta", "link", "input", "hr", "source", "area", "base",
+              "col", "embed", "param", "track", "wbr"}
+_BALANCED_TAGS = {"div", "ul", "ol", "li", "span", "p", "section", "header", "footer",
+                  "main", "nav", "table", "tr", "td", "th", "thead", "tbody", "a", "b",
+                  "i", "em", "strong", "button", "details", "summary", "textarea", "sup",
+                  "sub", "label", "small", "u"}
+
+
+def _check_html_balance(html_text: str) -> list[dict]:
+    """Balisage mal fermé (div/li/ul/span…) — détecté ligne par ligne.
+
+    Les navigateurs « réparent » silencieusement un HTML mal formé, souvent en
+    IMBRIQUANT la suite de la page dans l'élément non fermé : une .q non fermée
+    avale toutes les questions suivantes (la notation de cette question porte
+    alors sur leurs options), une option fermée par </div> au lieu de </li> casse
+    la liste. Causes confirmées sur les quiz d'entraînement : `</note>` au lieu de
+    `</div>`, `<li …></span></div>`, caractère corrompu dans `</li>`. Bloquant."""
+    from html.parser import HTMLParser
+
+    class _P(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.stack, self.errs, self.stray = [], [], []
+
+        def handle_starttag(self, tag, attrs):
+            if tag in _BALANCED_TAGS:
+                a = dict(attrs)
+                self.stack.append((tag, self.getpos()[0], a.get("id") or a.get("class") or ""))
+
+        def handle_endtag(self, tag):
+            if tag not in _BALANCED_TAGS:
+                return  # ex. `</note>` : ignoré ici, mais son <div> reste ouvert → signalé
+            if self.stack and self.stack[-1][0] == tag:
+                self.stack.pop(); return
+            for k in range(len(self.stack) - 1, -1, -1):
+                if self.stack[k][0] == tag:
+                    for t in self.stack[k + 1:]:
+                        self.errs.append(f"L{t[1]} <{t[0]} {t[2]}> non fermée avant </{tag}> L{self.getpos()[0]}")
+                    del self.stack[k:]
+                    return
+            self.stray.append(f"L{self.getpos()[0]} </{tag}> sans ouverture")
+
+    p = _P()
+    try:
+        p.feed(html_text)
+    except Exception as e:  # HTML illisible : autre contrôle
+        return [{"level": "error", "code": "HTML_MALFORMED", "message": f"HTML illisible ({e})."}]
+    errs = p.errs + [f"L{t[1]} <{t[0]} {t[2]}> jamais fermée" for t in p.stack]
+    if "�" in html_text:
+        errs.append(f"L{html_text[:html_text.index(chr(0xFFFD))].count(chr(10)) + 1} caractère corrompu U+FFFD")
+    out = []
+    if p.stray and not errs:
+        # Fermeture orpheline au niveau racine : ignorée par le navigateur (pas
+        # d'imbrication), mais signe d'une édition bâclée — avertissement seulement.
+        out.append({
+            "level":   "warning",
+            "code":    "HTML_STRAY_CLOSE",
+            "message": "Balise(s) fermante(s) orpheline(s) : " + " ; ".join(p.stray[:3]),
+        })
+    if not errs:
+        return out
+    return out + [{
+        "level":   "error",
+        "code":    "HTML_MALFORMED",
+        "message": (
+            f"{len(errs)} défaut(s) de balisage — le navigateur imbriquera la suite de la "
+            "page dans l'élément non fermé : " + " ; ".join(errs[:3])
+        ),
+    }]
+
+
 _GLOBAL_SCRIPTS = ("breadcrumb.js", "dynamic-header.js", "timer.js", "progress.js")
 
 
@@ -628,11 +774,14 @@ def validate_file(path: Path) -> dict:
         + _check_broken_words(plain)
         + _check_image_placement(soup)
         + _check_pdf_reference_leak(soup)
-        + _check_initlocks_call(html_text)
+        + _check_initlocks_call(html_text, soup)
         + _check_qrp_engine(html_text)
         + _check_qrpl_engine(html_text)
         + _check_tcs_weight_engine(html_text)
         + _check_special_items(html_text, soup)
+        + _check_neutral_engine(html_text)
+        + _check_correct_vs_options(soup)
+        + _check_html_balance(html_text)
         + _check_global_scripts(html_text, path)
         + _check_dark_mode(html_text)
     )

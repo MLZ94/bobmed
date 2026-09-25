@@ -180,6 +180,8 @@ Chaque question `<div class="q">` contient dans cet ordre :
 | `data-l` sur `.opt` | `"A"` … | Lettre de l'option |
 | `data-mandatory="1"` sur `.opt` | — | Item **indispensable** : si non coché → 0 pt quelle que soit la discordance. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucune étoile, aucune couleur avant réponse) — cf. « CSS clés » |
 | `data-unacceptable="1"` sur `.opt` | — | Item **inacceptable** : si coché → 0 pt même si tout le reste est correct. **Neutre visuellement tant que la question n'est pas validée/révélée** (aucun repère, aucune couleur avant réponse) — cf. « CSS clés » |
+| `data-neutral="1"` sur `.opt` | — | Item **neutralisé** par le jury (libellé « Neutraliser » du fichier réponse) : **jamais compté**, ni bonne réponse ni discordance, qu'on le coche ou non. Absent de `data-correct`, verdict `NEUTRALISÉ` (`.citem.v-neutre`) dans la correction (cf. « Neutralisations ») |
+| `data-neutral="1"` sur `.q` | — | **Question neutralisée** (« Question neutralisée » dans l'en-tête du fichier réponse) : **1 point accordé à tous**, quelle que soit la réponse ; la correction (Valide/Faux) reste affichée à titre indicatif (cf. « Neutralisations ») |
 | `data-w="0.33"` sur `.opt` | poids ∈ ]0,1] | **TCS à plusieurs réponses validées par le jury** uniquement : poids de la réponse dans le barème pondéré du panel (points obtenus si on la choisit). Présent sur **chaque** option validée ; `data-correct` liste alors toutes les réponses validées (cf. « TCS ») |
 | `class="q locked"` | — | Question verrouillée (blur + pointer-events:none) |
 | `id` | `"SQI1-Q3"` | Identifiant unique |
@@ -237,6 +239,12 @@ button.validate:hover { filter:brightness(1.08); }
 .q.done .opt[data-unacceptable="1"] .box { position:relative }
 .q.done .opt[data-unacceptable="1"] .box::after { content:'✕'; font-size:9px; color:var(--faux); position:absolute; top:-5px; right:-6px }
 
+/* Item neutralisé (data-neutral="1") : pointillé grisé après validation/révélation,
+   verdict NEUTRALISÉ dans la correction */
+.opt.neutral { border-style:dashed; opacity:.7 }
+.opt.neutral .mark { color:var(--mut) }
+.v-neutre .cv { color:var(--mut); font-weight:600 }
+
 /* Tag textuel "indispensable"/"inacceptable" injecté par JS (markSpecial())
    dans la ligne .citem correspondante, au moment de la révélation */
 .citem .tag-mandatory, .citem .tag-unacceptable { display:inline-block; font-size:11px; font-weight:700; border-radius:5px; padding:1px 7px; margin-left:8px; vertical-align:middle; }
@@ -270,6 +278,8 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 ---
 
 ## Types de questions et règles
+
+**Le type (donc le barème) est celui du fichier réponse**, jamais déduit de l'énoncé : une question étiquetée `(Type: QRM)` est notée à la **discordance** même si l'énoncé dit « sélectionnez les 3… » ou « quels sont les 5 signes… » (vérifié sur les copies du dépôt des annales : 589 QRM sur 589 notées ainsi) ; une `(Type: QRP)`/`(Type: QRPL)` est notée en **proportionnel** (ex. 1 bonne sur 2 → 0,5 ; 1 sur 5 → 0,2). Seule exception, gérée par `pdf_to_quiz.py` : une QRM dont l'énoncé porte la mention d'export « Sélectionnez (jusqu'à) N items » / « (N réponses attendues) » / « (max N) » devient QRPL. 11 annales du site violaient cette règle (QRM notées en proportionnel et inversement) : corrigées, et `quiz_agent.py` la vérifie désormais (`TYPE_MISMATCH`, bloquant quand le barème diffère).
 
 ### QRM (Question à Réponses Multiples)
 - Plusieurs options cochables (toggle)
@@ -314,6 +324,15 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 - **Une seule réponse Valide** → `data-correct="X"`, notation QRU classique.
 - **Plusieurs réponses Valide** → `data-correct` = **toutes** les lettres validées (ex. `"CDE"`) + `data-w` sur **chaque** option validée : poids connu (note de la copie source pour l'option cochée ; 1 pour la seule autre option validée si l'option cochée vaut < 1, car c'est alors forcément la majoritaire), sinon `1` (poids non communiqué). Le moteur attribue les points `data-w` de l'option choisie (branche `isW` de `grade()`), 0 si l'option n'est pas validée. Ne **jamais** retenir une seule lettre dans ce cas : les autres réponses validées vaudraient 0 (bug corrigé : TCS1-Q1 UE8.2 juillet 2024, C et E validées par le jury mais notées 0, D noté 1 au lieu de 0,33). `pdf_to_quiz.py` produit ce rendu (fonction `tcs_weights`) ; `quiz_agent.py` le vérifie (`TCS_VALID_NOT_CREDITED`) et `validate_quiz.py` bloque une TCS pondérée sans moteur (`TCS_WEIGHT_ENGINE_MISSING`) ou avec une réponse validée sans poids (`TCS_WEIGHT_MISSING`).
 - **Ne PAS utiliser le format `.citem` VRAI/FAUX** (cf. « Format de correction détaillée » plus haut) : les degrés de probabilité ne sont pas des affirmations vraies/fausses. Correction : `<div class="ans">Réponse : X — texte</div>` (une réponse) ou `<div class="ans">Réponses validées par le jury : C — … · D — … · E — …</div>` (plusieurs), suivi d'une `<div class="note">` qui détaille la pondération (connue / non communiquée).
+
+### Neutralisations (item ou question annulés par le jury)
+
+Deux cas, tous deux lus dans le **fichier réponse** :
+
+- **Item neutralisé** — libellé `Neutraliser X.` (au lieu de Valide/Faux) : l'item ne compte **jamais**, coché ou non. `data-neutral="1"` sur l'`.opt`, lettre **absente** de `data-correct`, verdict `NEUTRALISÉ` (`.citem.v-neutre`). Le moteur le saute dans le calcul des discordances (`if(o.dataset.neutral==='1'){…return;}` dans la boucle de `grade()`). ⚠️ Ne jamais le compter « valide » (ancien comportement de `pdf_to_quiz.py` : ne pas le cocher coûtait une discordance) ni « faux » (certaines annales rédigées à la main) : 31 items corrigés sur le site.
+- **Question neutralisée** — mention `Question neutralisée` dans l'en-tête (`Question 6: (Type: QRU) 1/1 Question neutralisée`) : la question garde ses libellés Valide/Faux, mais **tous les candidats ont 1/1** (vérifié : réponse fausse cochée → 1/1). `data-neutral="1"` sur la `.q` : le moteur accorde le point quelle que soit la réponse (`if(isNQ)pts=1`, QROC comprises) et affiche « question neutralisée (point accordé à tous) » ; la correction reste affichée pour l'apprentissage, avec la note « Question neutralisée par le jury : le point est accordé à tous… ». L'ancienne note générée « tous les items sont comptés valides » était fausse (la question restait notée sur la clé) : 43 questions corrigées sur le site.
+
+`validate_quiz.py` bloque une page qui contient `data-neutral` sans moteur adapté (`NEUTRAL_ENGINE_MISSING`) ; `quiz_agent.py` compare items et questions neutralisés au fichier réponse (`SPECIAL_ITEM_MISMATCH`, `NEUTRAL_QUESTION_MISMATCH`).
 
 ### QZONE (pointage de zone sur une image)
 
@@ -468,8 +487,10 @@ function gradeQroc(q) {                         // « Valider » d'une QROC
   if (inp) { inp.readOnly = true; inp.classList.add(ok ? 'good' : 'bad'); }
   q.classList.add('done'); const cor = q.querySelector('.correction'); if (cor) cor.hidden = false;
   const v = q.querySelector('.validate'); if (v) v.disabled = true;
-  q.dataset.pts = ok ? 1 : 0; q.dataset.result = ok ? '1' : '0'; qrocStatus(q, ok ? 1 : 0);
-  if (!ok) qrocSelfBox(q);                      // saisie non reconnue → auto-évaluation
+  const nq = q.dataset.neutral === '1';          // question neutralisée : point accordé à tous
+  q.dataset.pts = (ok || nq) ? 1 : 0; q.dataset.result = (ok || nq) ? '1' : '0'; qrocStatus(q, (ok || nq) ? 1 : 0);
+  if (nq) q.querySelector('.status').textContent += ' — question neutralisée (point accordé à tous)';
+  else if (!ok) qrocSelfBox(q);                 // saisie non reconnue → auto-évaluation
   updateScore(); unlockNext(q);
 }
 
@@ -481,6 +502,8 @@ function grade(q) {
   q.querySelectorAll('.opt').forEach(o => {
     const l = o.dataset.l, isC = correct.has(l), isS = sel.has(l);
     o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse)
+    if (o.dataset.neutral === '1') { o.classList.add('neutral'); const m = document.createElement('span'); m.className = 'mark'; m.textContent = 'neutralisé'; o.appendChild(m); return; }
     if (isC && isS) o.classList.add('correct');
     else if (!isC && isS) { o.classList.add('wrong'); disc++; }
     else if (isC && !isS) { o.classList.add('missed'); disc++; }
@@ -509,6 +532,8 @@ function grade(q) {
   const missMandatory = [...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o => !sel.has(o.dataset.l));
   const hitUnacceptable = [...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o => sel.has(o.dataset.l));
   if (missMandatory || hitUnacceptable) pts = 0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse
+  const isNQ = q.dataset.neutral === '1'; if (isNQ) pts = 1;
   q.classList.add('done');
   q.querySelector('.correction').hidden = false;
   markSpecial(q);
@@ -519,6 +544,7 @@ function grade(q) {
   if (isW && pts > 0 && pts < 1) st.textContent += ' (réponse validée, pondérée par le jury)';
   if (missMandatory) st.textContent += ' — item indispensable manqué';
   if (hitUnacceptable) st.textContent += ' — item inacceptable coché';
+  if (isNQ) st.textContent += ' — question neutralisée (point accordé à tous)';
   st.className = 'status ' + (pts === 1 ? 'ok' : (pts === 0 ? 'ko' : 'part'));
   if (pts > 0 && pts < 1) st.style.color = '#9a6a00';
   q.querySelector('.validate').disabled = true;
@@ -530,7 +556,7 @@ function reveal(q, skipUnlock) {
   if (q.classList.contains('done')) return;
   if (q.dataset.type !== 'QROC') {
     const correct = new Set(q.dataset.correct.split(''));
-    q.querySelectorAll('.opt').forEach(o => { o.classList.remove('sel'); if (correct.has(o.dataset.l)) o.classList.add('correct'); });
+    q.querySelectorAll('.opt').forEach(o => { o.classList.remove('sel'); if (correct.has(o.dataset.l)) o.classList.add('correct'); if (o.dataset.neutral === '1') o.classList.add('neutral'); });
     const v = q.querySelector('.validate'); if (v) v.disabled = true;
   } else {
     const st = q.querySelector('.status'); st.textContent = 'révélée'; st.className = 'status rl';
@@ -645,6 +671,8 @@ Depuis la refonte 2026-07, les portails de trimestre sont structurés **par UE**
 
 `insert_snippet.py` insère toujours la carte `.qz` dans la bonne sous-catégorie « Annales officielles » du bon `.ue-block` (au bon rang chronologique) ; vérifier après insertion que la carte a bien atterri sous le bon bloc d'UE.
 
+**La description `.qz-d` reflète exactement les sections du quiz** : `N questions — CODE titre (n, verrouillé) · …`, construite à partir des `<div class="sect">` du quiz (titre en minuscule initiale, nombre de questions réel). Plus de mention « N questions notées » (obsolète : toutes les questions comptent). Un audit de 2026-09 a trouvé 56 descriptions désynchronisées (compteurs faux, sections d'une autre session, diagnostics en clair) : régénérées depuis les quiz. Toute modification d'un titre de section se répercute dans la carte. Exception : les « sujets types » (`Quiz_UE*_sujet_type.html`), décrits par leurs thèmes.
+
 **Ne jamais spoiler le diagnostic dans la carte `.qz`** : ni le titre (`.qz-t`, qui doit rester la session/date), ni la description (`.qz-d`, qui énumère les sections DP/KFP/mDP/TCS) ne doivent nommer le diagnostic à trouver d'un dossier verrouillé — même règle que pour les titres de section dans le quiz lui-même (cf. checklist de relecture, point 3). Un intitulé de section dans `.qz-d` doit rester descriptif du motif de consultation (ex. `DP1 douleur de la fosse iliaque droite`, pas `DP1 appendicite aiguë`).
 
 ---
@@ -748,16 +776,22 @@ Sur l'environnement distant BobMed (Claude Code on the web), Chromium est déjà
 - **Prend en entrée le FICHIER RÉPONSE de l'annale** (cf. « Fichier réponse de l'annale » dans la checklist) : il s'arrête (exit 1) au lieu de produire un quiz sans bonnes réponses si moins de la moitié des cases ☐/◎ portent un libellé Valide/Faux, si moins de la moitié des questions à choix ont une réponse « Valide » (sujets, y compris ceux qui gardent quelques libellés « Neutraliser » ; relevé sur le dépôt : sujets ≤ 42 %, réponses ≥ 74 %), ou si aucune question « Question N: (Type: …) » n'est détectée (formats 2021-2022, Anglais/LCA : non pris en charge).
 - **Garde-fou items indispensable/inacceptable** : compare le nombre de libellés « Indispensable »/« Inacceptable » du PDF brut, des options parsées et des attributs `data-mandatory`/`data-unacceptable` du HTML, et détecte tout libellé de validité inconnu. En cas d'écart : marqueur `[A VERIFIER]` inscrit dans le HTML (donc publication bloquée par `validate_quiz.py`) et **exit 3**.
 - Rend les **TCS à plusieurs réponses validées** avec leur barème pondéré (`data-w`, cf. « TCS ») et **découpe l'énoncé autour des images** quand le PDF intercale du texte entre elles (cf. « Images »).
+- Lit aussi : les **options numérotées** « Valide 1. / Faux 2. » (converties en A, B… ; uniquement si la 1re option est « 1. » et que les numéros se suivent, pour ne pas prendre les notes numérotées du jury pour des options) — elles étaient toutes perdues (« aucune option détectée ») ; l'**option dont la case ☐ est reportée après un saut de page** (l'énoncé est coupé au premier libellé « Valide/Faux X. », sinon l'option A était avalée par l'énoncé) ; les **neutralisations** d'item et de question (`data-neutral`, cf. « Neutralisations ») ; le **tableau des zones** d'une QZONE (« Marqueurs Statut Pondération… »), retiré de l'énoncé et reporté dans le commentaire `[A VERIFIER]`.
+- **Codes de section normalisés** : le nombre de questions collé au code par certains exports (`QI(22)`, `mDP2(8)`) est retiré et `QI` devient `SQI1` (convention du site) — il se lisait comme un compteur dans les titres et le portail.
 - **N'est pas une baguette magique** : ne jamais publier son résultat tel quel, toujours dérouler la checklist de relecture ci-dessous.
 
 **`validate_quiz.py`** — `usage: validate_quiz.py [-h] [--json] files [files ...]`
-- Remplace la relecture manuelle des points structurels/techniques de la checklist : marqueurs `[A VERIFIER]`, ligatures/PUA non résolues, piège `.wrap`/`.hwrap`, titres de section bruts (`DP1`, `KFP2`…), fusion de questions (en-tête `Question N: (Type:` fondu dans un bloc, lettre `data-l` en double, lettre répétée dans `data-correct`), cohérence `data-correct`↔options, image annoncée dans l'énoncé/le `dpctx` mais absente du HTML (code `IMAGE_MISSING`), moteurs QRP/QRPL manquants (`QRP_ENGINE_MISSING`/`QRPL_ENGINE_MISSING`), **mini-script du mode sombre absent du `<head>`** (`DARK_MODE_MISSING`, bloquant), **items indispensable/inacceptable** dont la règle « 0 point » n'est pas appliquée par le moteur (`SPECIAL_ENGINE_MISSING`) ou dont le repère visuel fuite avant la réponse (sélecteur CSS sans `.q.done`, `SPECIAL_SPOILER_CSS`), **TCS pondérée** sans moteur (`TCS_WEIGHT_ENGINE_MISSING`) ou avec une réponse validée sans poids (`TCS_WEIGHT_MISSING`), et **script global manquant sur une annale officielle** (`GLOBAL_SCRIPT_MISSING`, avertissement : une annale `Quiz_UE*.html` à scorebar qui n'inclut pas l'un des quatre scripts globaux — le plus souvent `timer.js` ou `dynamic-header.js`).
+- Remplace la relecture manuelle des points structurels/techniques de la checklist : marqueurs `[A VERIFIER]`, ligatures/PUA non résolues, piège `.wrap`/`.hwrap`, titres de section bruts (`DP1`, `KFP2`…), fusion de questions (en-tête `Question N: (Type:` fondu dans un bloc, lettre `data-l` en double, lettre répétée dans `data-correct`), cohérence `data-correct`↔options, image annoncée dans l'énoncé/le `dpctx` mais absente du HTML (code `IMAGE_MISSING`), moteurs QRP/QRPL manquants (`QRP_ENGINE_MISSING`/`QRPL_ENGINE_MISSING`), **mini-script du mode sombre absent du `<head>`** (`DARK_MODE_MISSING`, bloquant), **items indispensable/inacceptable** dont la règle « 0 point » n'est pas appliquée par le moteur (`SPECIAL_ENGINE_MISSING`) ou dont le repère visuel fuite avant la réponse (sélecteur CSS sans `.q.done`, `SPECIAL_SPOILER_CSS`), **TCS pondérée** sans moteur (`TCS_WEIGHT_ENGINE_MISSING`) ou avec une réponse validée sans poids (`TCS_WEIGHT_MISSING`), **items/questions neutralisés sans moteur** (`NEUTRAL_ENGINE_MISSING`), **`data-correct` de la question ≠ options marquées justes** (`CORRECT_OPTS_MISMATCH` : le moteur ne lit que la question), **option avalée par l'énoncé** (« Valide A. » dans une `.stem`/`.dpctx`, `OPTION_IN_STEM`), **balisage mal fermé** (`HTML_MALFORMED`, bloquant : `<div>`/`<li>` non fermé, `</note>` au lieu de `</div>`, caractère corrompu — le navigateur imbrique alors la suite de la page, ex. toutes les questions suivantes avalées par une `.q` non fermée ; `HTML_STRAY_CLOSE` en simple avertissement pour une fermeture orpheline), et **script global manquant sur une annale officielle** (`GLOBAL_SCRIPT_MISSING`, avertissement : une annale `Quiz_UE*.html` à scorebar qui n'inclut pas l'un des quatre scripts globaux — le plus souvent `timer.js` ou `dynamic-header.js`).
+- `NO_INITLOCKS` ne concerne que les pages ayant une section à verrouiller (DP/KFP/TCS/mDP) ; `IMAGE_MISSING` ignore « Voici le bilan : ECG normal » (résultat cité, pas une image).
 - Accepte plusieurs fichiers ou un glob shell (`d2/t4/*.html`).
 - `--json` : sortie JSON seule (machine-readable).
 - Exit 0 = aucune erreur bloquante (avertissements tolérés, publication possible) ; exit 1 = au moins une erreur bloquante.
 - `make validate-all` le lance sur tous les `Quiz_*.html` du dépôt en une fois.
 
-**`quiz_agent.py`** — `usage: quiz_agent.py [-h] [--debug DEBUG_JSON] [--no-api] [--json] html`
+**`quiz_agent.py`** — `usage: quiz_agent.py [-h] [--debug DEBUG_JSON] [--pdf FICHIER_REPONSE_PDF] [--no-api] [--json] html`
+- **`--pdf` : compare directement le quiz au fichier réponse** (le `.debug.json` est généré à la volée dans un dossier temporaire) — c'est l'outil d'**audit d'une annale déjà publiée**, y compris rédigée à la main : `python3 quiz_agent.py --no-api --pdf "…/réponse 2 cardio.pdf" d2/t1/Quiz_UE8.2_2023-2024_S2.html` (ou `make agent F=… PDF=…`).
+- Les questions sont appariées par identifiant, **sinon par contenu** (énoncé, puis options) : l'ancienne version, par identifiant seul, ne comparait rien sur les annales dont les codes diffèrent du PDF (`SQI1` vs `QI(20)`) — c'est ce qui avait laissé passer, sur le site, les erreurs corrigées lors de l'audit de 2026-09.
+- `TYPE_MISMATCH` est **bloquant** quand le barème diffère (QRM ↔ QRP/QRPL) ; QRP ↔ QRPL (même barème) n'est plus signalé.
 - Compare le `.debug.json` (produit par `pdf_to_quiz.py --debug`, auto-détecté dans le même dossier si `--debug` omis) au HTML final : `data-correct` incohérent avec les options « Valide » du PDF (dont une TCS dont toutes les réponses validées ne sont pas créditées, `TCS_VALID_NOT_CREDITED`), **item indispensable/inacceptable du PDF absent du HTML ou inversement, option par option** (`SPECIAL_ITEM_MISMATCH` — attrape une édition manuelle qui aurait perdu l'attribut), divergences de texte (plusieurs `.stem` d'une même question sont recollés avant comparaison) (énoncé/intitulé d'option), types de question incorrects, réponses QROC manquantes/incomplètes.
 - Les divergences textuelles non triviales (dérive de ligature vs erreur réelle) sont envoyées à `claude-haiku-4-5-20251001` pour classification (~1 centime/quiz) — nécessite `ANTHROPIC_API_KEY`.
 - `--no-api` : vérifications mécaniques seules, sans appel API ; les divergences textuelles sont simplement listées pour relecture manuelle au lieu d'être classées automatiquement.
@@ -778,7 +812,7 @@ Sur l'environnement distant BobMed (Claude Code on the web), Chromium est déjà
 
 ```bash
 make validate F=chemin/vers/Quiz.html    # validate_quiz.py
-make agent    F=chemin/vers/Quiz.html    # quiz_agent.py (auto-ignoré si .debug.json/clé API absents)
+make agent    F=chemin/vers/Quiz.html [PDF="…/réponse N.pdf"]   # quiz_agent.py (--pdf si PDF= fourni ; --no-api sans clé)
 make test     F=chemin/vers/Quiz.html    # test_quiz.py
 make check    F=chemin/vers/Quiz.html    # validate + agent + test — barrière qualité complète avant publication
 make insert   F=chemin/vers/Quiz.html    # insert_snippet.py (bloqué si validate ou test échoue)
@@ -811,7 +845,13 @@ Pour identifier la session, lire la ligne `Epreuve:` en page 1 (ex. `DFA1-UE8.2-
 - **toutes** les options « Valide » sont justes (y compris plusieurs réponses validées d'une TCS : cf. « TCS » — la note de l'étudiant source sur la question est le poids de l'option qu'il a cochée, ex. 0,33 pour TCS1-Q1 UE8.2 juillet 2024 où C, D et E sont validées) ;
 - chaque « Indispensable »/« Inacceptable » doit se retrouver en `data-mandatory="1"`/`data-unacceptable="1"` sur la bonne option (bug corrigé : mDP1-Q6 E « Inacceptable » de UE8.2 juillet 2024, perdu dans le HTML publié → un étudiant qui le cochait marquait encore des points, ex. 0,5 pour C+D+E, au lieu de 0).
 
-`pdf_to_quiz.py` refuse un fichier sujet (exit 1) ; en cas de doute sur une annale déjà publiée, régénérer depuis le fichier réponse avec `--debug` puis lancer `quiz_agent.py --debug <…debug.json> <quiz publié>`.
+`pdf_to_quiz.py` refuse un fichier sujet (exit 1) ; en cas de doute sur une annale déjà publiée : `python3 quiz_agent.py --no-api --pdf "<fichier réponse>" <quiz publié>` (ou `make agent F=… PDF=…`).
+
+#### Audit des annales publiées (à refaire après toute évolution du barème ou du moteur)
+
+Chaque annale D2 du site a été comparée à son fichier réponse (2026-09, 63 annales appariées par le contenu de leurs questions ; les sessions 2021-2022 et les « sujets types » n'ont pas de fichier réponse exploitable). Écarts trouvés et corrigés : 59 TCS dont une seule réponse validée était créditée ; 72 items indispensables et 29 inacceptables absents ; 62 énoncés dont la phrase suivant l'image était remontée avant elle ; 31 items et 43 questions neutralisés mal notés ; 11 questions notées avec le mauvais barème (QRM ↔ QRP/QRPL) ; 8 réponses différentes du fichier réponse (dont 7 dans `Quiz_UE8.1_2023-2024_S2.html`, rédigée sans le fichier réponse) ; 2 options A avalées par l'énoncé ; 1 justification rattachée à la mauvaise option ; 3 images d'ouverture de section rattachées à la question précédente ; 25 sections sans titre descriptif et 2 titres révélant le diagnostic ; 56 descriptions de portail désynchronisées. Après correction, `quiz_agent.py --pdf` ne signale plus aucune erreur sur ces 63 annales. Pour refaire l'audit : pour chaque annale, `quiz_agent.py --no-api --pdf <fichier réponse> <quiz>` (le fichier réponse se reconnaît à la ligne `Epreuve:` de sa page 1).
+
+Les quiz **rédigés à la main** (entraînement par item, sujets types) n'ont pas de fichier réponse : leur garde-fou est `validate_quiz.py`, dont le contrôle `HTML_MALFORMED` a révélé 14 pages mal balisées (`</note>` au lieu de `</div>`, `<li>` fermé par `</div>`, `.wrap` jamais fermé, caractère corrompu) — dont 4 où toutes les questions suivantes étaient imbriquées dans une question non fermée. Toujours lancer `make validate F=…` sur une page écrite ou retouchée à la main.
 
 ### Outillage automatisé (à lancer AVANT la relecture manuelle)
 
