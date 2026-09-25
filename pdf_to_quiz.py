@@ -328,10 +328,13 @@ SECTION_RE = re.compile(r"Element d'épreuve\s*:\s*(\S+)\s+(?:\(\d+\)\s+)?[\d.]+
 # concaténés, lettres d'option en double). On rend donc le score optionnel et de
 # format libre — quand il est présent on le consomme (pour qu'il ne déborde pas
 # dans l'énoncé), quand il manque ou change de forme la question reste détectée.
+# La note obtenue par l'étudiant source (« 0.33/1 ») est capturée : pour une TCS
+# à plusieurs réponses validées, c'est le poids de l'option qu'il a cochée dans le
+# barème pondéré du panel d'experts (cf. tcs_weights).
 QUESTION_RE = re.compile(
-    r"Question\s+([A-Z]+|\d+)\s*:\s*\(Type\s*:\s*(\w+)\)"
-    r"(?:\s*(?:[\d.]+\s*/\s*\d+|Non\s+corrigé))?"
-    r"\s*(Question neutralisée)?"
+    r"Question\s+(?P<num>[A-Z]+|\d+)\s*:\s*\(Type\s*:\s*(?P<type>\w+)\)"
+    r"(?:\s*(?:(?P<score>[\d.]+)\s*/\s*(?P<outof>\d+)|Non\s+corrigé))?"
+    r"\s*(?P<neutral>Question neutralisée)?"
 )
 OPTION_START_RE = re.compile(r"[☐☑◎◉]")
 # Regex de découpe par entrée d'option. La case (☐/☑/◎/◉) est optionnelle car
@@ -634,6 +637,36 @@ def parse_question(qtype_raw, neutralized, raw_block, warnings, section_code, qn
     return q
 
 
+_KNOWN_LABELS = ("Faux", "Valide", "Indispensable", "Inacceptable", "Neutraliser")
+# Case à cocher suivie d'un mot capitalisé puis d'une lettre d'option : un libellé
+# de validité. Sert à repérer un libellé que _OPT_ENTRY_RE ne connaît pas.
+_ANY_LABEL_RE = re.compile(r"[☐☑◎◉]\s*([A-ZÀ-Ý][a-zà-ÿ]{3,})\s+[A-Z]\.\s")
+_SPECIAL_LABEL_RE = re.compile(r"\b(Indispensable|Inacceptable)\s+[A-Z]\.")
+
+
+def check_special_items(full_text, sections, out_html):
+    """Renvoie la liste des incohérences sur les items indispensable/inacceptable
+    (vide si tout est cohérent) : PDF brut vs options parsées vs HTML produit, et
+    libellés de validité inconnus. Cf. l'appel dans run()."""
+    errs = []
+    unknown = sorted({m.group(1) for m in _ANY_LABEL_RE.finditer(full_text)} - set(_KNOWN_LABELS))
+    if unknown:
+        errs.append(
+            f"libellé(s) de validité inconnu(s) {unknown} — options non reconnues "
+            "(à ajouter à _OPT_ENTRY_RE / _KNOWN_LABELS)"
+        )
+    for label, key, attr in (("Indispensable", "mandatory", "data-mandatory"),
+                             ("Inacceptable", "unacceptable", "data-unacceptable")):
+        n_pdf = sum(1 for m in _SPECIAL_LABEL_RE.finditer(full_text) if m.group(1) == label)
+        n_parsed = sum(1 for s in sections for q in s["questions"]
+                       for o in q["options"] if o.get(key))
+        n_html = len(re.findall(rf'<li class="opt"[^>]*\b{attr}="1"', out_html))
+        if not (n_pdf == n_parsed == n_html):
+            errs.append(f"« {label} » : {n_pdf} dans le PDF, {n_parsed} parsé(s), "
+                        f"{n_html} dans le HTML")
+    return errs
+
+
 def parse_sections(full_text, warnings):
     sections = []
     sec_matches = list(SECTION_RE.finditer(full_text))
@@ -648,15 +681,19 @@ def parse_sections(full_text, warnings):
 
         questions = []
         for j, qm in enumerate(q_matches):
-            qnum_raw = qm.group(1)
+            qnum_raw = qm.group("num")
             qnum = int(qnum_raw) if qnum_raw.isdigit() else qnum_raw
-            qtype_raw = qm.group(2)
-            neutralized = qm.group(3)
+            qtype_raw = qm.group("type")
+            neutralized = qm.group("neutral")
             qstart = qm.end()
             qend = q_matches[j + 1].start() if j + 1 < len(q_matches) else len(block)
             raw = block[qstart:qend]
             q = parse_question(qtype_raw, neutralized, raw, warnings, code, qnum)
             q["num"] = qnum
+            # Note de l'étudiant source ramenée sur 1 (None si « Non corrigé »/absente).
+            q["score"] = None
+            if qm.group("score") and qm.group("outof") and float(qm.group("outof")) > 0:
+                q["score"] = float(qm.group("score")) / float(qm.group("outof"))
             questions.append(q)
 
         if not questions:
@@ -692,6 +729,48 @@ def resolve_qru(options):
         primary = options[0]["letter"] if options else "A"
     extra = [l for l in valid_letters if l != primary]
     return primary, extra
+
+
+def tcs_weights(q):
+    """Barème pondéré d'une TCS à PLUSIEURS réponses validées par le jury.
+
+    Dans le fichier réponse (export Uness), chaque option « Valide » d'une TCS est
+    une réponse retenue par au moins un expert du panel : elle rapporte des points,
+    pondérés par la proportion d'experts l'ayant choisie (réponse majoritaire =
+    1/1, les autres une fraction). La pondération n'est PAS 1/n : relevé sur les
+    annales du dépôt, 0,09 · 0,29 · 0,33 · 0,71 · 0,8… Toutes les réponses Valide
+    sont donc des réponses justes, à créditer — l'ancien rendu (une seule lettre
+    en data-correct, notée comme une QRU) donnait 0 à une réponse validée par le
+    jury (bug : TCS1-Q1 UE8.2 juillet 2024, C et E validées mais notées 0).
+
+    Seul le poids de l'option COCHÉE par l'étudiant source est connu : c'est sa
+    note à la question. Si elle vaut moins de 1 et qu'il ne reste qu'une autre
+    option valide, celle-ci est forcément la réponse majoritaire (1/1). Sinon le
+    poids des autres options valides n'est pas communiqué : on les crédite 1/1.
+
+    Retourne None (TCS classique, une seule réponse valide) ou une liste ordonnée
+    [(lettre, poids, connu)] des options valides."""
+    valid = [o for o in q["options"] if o["valid"]]
+    if len(valid) < 2:
+        return None
+    checked = next((o for o in q["options"] if o.get("checked")), None)
+    score = q.get("score")
+    known_checked = checked is not None and checked["valid"] and score is not None and score > 0
+    others = [o for o in valid if o is not checked]
+    out = []
+    for o in valid:
+        if known_checked and o is checked:
+            out.append((o["letter"], round(score, 2), True))
+        elif known_checked and score < 1 and len(others) == 1:
+            out.append((o["letter"], 1.0, True))   # seule autre valide : majoritaire
+        else:
+            out.append((o["letter"], 1.0, False))
+    return out
+
+
+def fmt_w(w):
+    """Poids TCS au format français (0.33 → « 0,33 », 1.0 → « 1 »)."""
+    return (f"{w:.2f}".rstrip("0").rstrip(".")).replace(".", ",")
 
 
 def esc(s):
@@ -733,8 +812,85 @@ def render_citems(opts):
     return "\n".join(rows)
 
 
-def render_option_li(opt):
+_ALNUM_CHAR_RE = re.compile(r"[0-9A-Za-zÀ-ÿ]")
+
+
+def img_div(ext, data):
+    b64 = base64.b64encode(data).decode("ascii")
+    return (
+        f'<div class="extra"><img src="data:image/{ext};base64,{b64}" '
+        f'style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>\n'
+    )
+
+
+def stem_with_images(stem, images):
+    """Rend l'énoncé et ses images DANS L'ORDRE DU PDF.
+
+    `images` : liste ordonnée de (img_html, texte_suivant), où texte_suivant est le
+    premier bloc de texte qui suit l'image dans le PDF (None si inconnu).
+
+    Bug corrigé : l'énoncé était rendu d'un seul bloc et TOUTES les images de la
+    question empilées après lui. Une question « texte → image → texte → image »
+    (ex. SQI1-Q1 UE8.2 juillet 2024 : « Le premier ECG … est celui-ci : » [ECG 1]
+    « Le suivant est réalisé après ralentissement … : » [ECG 2]) voyait donc la
+    phrase située entre les deux images remonter dans l'énoncé, avant les deux
+    ECG. On localise désormais le texte qui suit chaque image dans l'énoncé
+    (comparaison alphanumérique, insensible aux espaces/ponctuation) et on coupe
+    l'énoncé à cet endroit : .stem → .extra → .stem → .extra, convention déjà
+    utilisée par les annales rédigées à la main.
+
+    Une image dont le texte suivant n'est PAS une suite de l'énoncé (options,
+    question suivante, ou début même de l'énoncé) garde le placement standard,
+    après l'énoncé et avant les options. L'ordre des images est toujours
+    conservé : dès qu'une image reste en fin d'énoncé, les suivantes aussi."""
+    idx = [i for i, c in enumerate(stem) if _ALNUM_CHAR_RE.match(c)]
+    astem = "".join(stem[i] for i in idx).lower()
+    cuts, trailing = [], []
+    cursor = 1          # une coupe en position 0 (image AVANT tout l'énoncé) est exclue
+    for img_html, after in images:
+        k = None
+        needle = _alnum(after or "")[:40]
+        if not trailing and len(needle) >= 10:
+            pos = astem.find(needle, cursor)
+            if pos > 0:
+                k = idx[pos]
+                # Ponctuation OUVRANTE du texte suivant (« (les points noirs… ») :
+                # la ramener avec lui plutôt que de la laisser en fin de segment.
+                lead = re.match(r"[(«\[“\"‘']*", after.strip()).group(0)
+                head = stem[:k].rstrip()
+                if lead and head.endswith(lead) and len(head) > len(lead):
+                    k = len(head) - len(lead)
+                # Ne couper qu'à une frontière de phrase : sinon l'image est un
+                # emplacement de mise en page (image repoussée en haut de la page
+                # suivante au milieu d'une phrase, ex. « … à l'aide de » [image]
+                # « cette grille ? ») et on garde le placement standard.
+                if (re.search(r"[.:?!;…)»\]]$", stem[:k].rstrip())
+                        or re.match(r"[A-ZÀ-Ý(«\[“\"]", stem[k:].lstrip())):
+                    cursor = pos
+                else:
+                    k = None
+        if k is None:
+            trailing.append(img_html)
+        else:
+            cuts.append((k, img_html))
+    parts, prev = [], 0
+    for k, img_html in cuts:
+        seg = stem[prev:k].strip()
+        if seg:
+            parts.append(f'<div class="stem">{esc(seg)}</div>\n')
+        parts.append(img_html)
+        prev = k
+    seg = stem[prev:].strip()
+    if seg or not parts:
+        parts.append(f'<div class="stem">{esc(seg)}</div>\n')
+    return "".join(parts) + "".join(trailing)
+
+
+def render_option_li(opt, weight=None):
     extra_attrs = ""
+    if weight is not None:
+        # Poids TCS (barème pondéré du panel, cf. tcs_weights / grade()).
+        extra_attrs += f' data-w="{f"{weight:.2f}".rstrip("0").rstrip(".")}"'
     if opt.get("mandatory"):
         extra_attrs += ' data-mandatory="1"'
     if opt.get("unacceptable"):
@@ -767,8 +923,9 @@ def qroc_answer_data(answers):
     return accepted, exact
 
 
-def render_question(section_code, q, image_html="", is_d2=False):
+def render_question(section_code, q, images=None, is_d2=False):
     qid = f'{section_code}-Q{q["num"]}'
+    stem_html = stem_with_images(q["stem"], images or [])
     qnum_label = f'{section_code} Q{q["num"]}'
     dpctx_html = ""
 
@@ -782,8 +939,7 @@ def render_question(section_code, q, image_html="", is_d2=False):
             # avec repli auto-évaluation « juste/faux » (cf. moteur QROC injecté).
             return f'''<div class="q" id="{qid}" data-answer="{esc(data_answer)}" data-correct="" data-type="QROC">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
-{dpctx_html}<div class="stem">{esc(q["stem"])}</div>
-{image_html}<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+{dpctx_html}{stem_html}<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
 <div class="correction" hidden>
 <div class="qrocans">Réponse attendue : {esc(display)}</div>
@@ -793,8 +949,7 @@ def render_question(section_code, q, image_html="", is_d2=False):
         # notation automatique ni d'auto-évaluation — choix délibéré, cf. CLAUDE.md).
         return f'''<div class="q" id="{qid}" data-correct="" data-type="QROC">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
-{dpctx_html}<div class="stem">{esc(q["stem"])}</div>
-{image_html}<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
+{dpctx_html}{stem_html}<textarea class="qrocin" rows="2" placeholder="Votre réponse…"></textarea>
 <div class="actions"><button class="show" type="button">Voir la réponse</button></div>
 <div class="correction" hidden>
 <div class="qrocans">Réponse attendue : {esc(display)}</div>
@@ -807,8 +962,7 @@ def render_question(section_code, q, image_html="", is_d2=False):
         # (cf. section QZONE du CLAUDE.md — ne PAS publier tel quel).
         return f'''<div class="q" id="{qid}" data-correct="[A VERIFIER]" data-type="QZONE">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">QZONE</span><span class="status" aria-live="polite"></span></div>
-{dpctx_html}<div class="stem">{esc(q["stem"])}</div>
-{image_html}<!-- [A VERIFIER] QZONE : remplacer .extra par .extra.zonewrap et ajouter les <div class="zone" data-l="…" style="left:%;top:%;width:%;height:%"> (cf. CLAUDE.md § QZONE) -->
+{dpctx_html}{stem_html}<!-- [A VERIFIER] QZONE : remplacer .extra par .extra.zonewrap et ajouter les <div class="zone" data-l="…" style="left:%;top:%;width:%;height:%"> (cf. CLAUDE.md § QZONE) -->
 <ul class="opts">
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
@@ -828,8 +982,35 @@ def render_question(section_code, q, image_html="", is_d2=False):
         badge = "TCS" if q["type"] == "TCS" else "QRU"
         opts_html = "\n".join(render_option_li(o) for o in opts)
         primary_opt = next((o for o in opts if o["letter"] == primary), None)
+        weights = tcs_weights(q) if q["type"] == "TCS" else None
 
-        if q["type"] == "TCS":
+        if weights:
+            # TCS à plusieurs réponses validées par le jury : TOUTES sont justes et
+            # créditées selon leur poids (data-w), cf. tcs_weights. data-correct
+            # liste toutes les réponses validées (surlignées à la révélation).
+            wmap = {l: w for l, w, _ in weights}
+            opts_html = "\n".join(render_option_li(o, wmap.get(o["letter"])) for o in opts)
+            primary = "".join(l for l, _, _ in weights)
+            by_letter = {o["letter"]: o for o in opts}
+            ans_text = " · ".join(f'{l} — {esc(by_letter[l]["text"])}' for l, _, _ in weights)
+            known = [f"{l} = {fmt_w(w)}/1" for l, w, k in weights if k]
+            unknown = [l for l, _, k in weights if not k]
+            bits = ["Barème TCS pondéré par le panel d'experts : chaque réponse validée "
+                    "rapporte des points, la réponse majoritaire 1/1."]
+            if known:
+                bits.append("Pondération d'après le fichier réponse : " + " ; ".join(known) + ".")
+            if unknown:
+                bits.append(
+                    f"Pondération de {', '.join(unknown)} non communiquée par le fichier "
+                    "réponse : comptée 1/1 ici."
+                )
+                if len(unknown) > 1 and any(k and w < 1 for _, w, k in weights):
+                    bits.append("La réponse majoritaire du panel (1/1) est l'une d'elles.")
+            weight_note = f'<div class="note">{" ".join(bits)}</div>'
+            option_notes = build_option_notes(opts)
+            correction = (f'<div class="ans">Réponses validées par le jury : {ans_text}</div>'
+                          f'{weight_note}{general_note}{option_notes}{neutral_note}')
+        elif q["type"] == "TCS":
             # Options du TCS = degrés de probabilité (improbable...certain), pas des
             # affirmations vraies/fausses : on garde le format "réponse + note jury".
             ans_text = f'{primary}' + (f' — {esc(primary_opt["text"])}' if primary_opt else "")
@@ -845,8 +1026,7 @@ def render_question(section_code, q, image_html="", is_d2=False):
 
         return f'''<div class="q" id="{qid}" data-correct="{primary}" data-type="QRU">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
-{dpctx_html}<div class="stem">{esc(q["stem"])}</div>
-{image_html}<ul class="opts">
+{dpctx_html}{stem_html}<ul class="opts">
 {opts_html}
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
@@ -876,8 +1056,7 @@ def render_question(section_code, q, image_html="", is_d2=False):
     citems = render_citems(opts)
     return f'''<div class="q" id="{qid}" data-correct="{correct_letters}" data-type="{data_type}">
 <div class="qhead"><span class="qnum">{qnum_label}</span><span class="qtype">{badge}</span><span class="status" aria-live="polite"></span></div>
-{dpctx_html}<div class="stem">{esc(q["stem"])}</div>
-{image_html}<ul class="opts">
+{dpctx_html}{stem_html}<ul class="opts">
 {opts_html}
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
@@ -885,6 +1064,20 @@ def render_question(section_code, q, image_html="", is_d2=False):
 {citems}
 </div>
 </div>'''
+
+
+# Mini-script de bascule du mode sombre : applique html.dark AVANT le rendu si
+# l'utilisateur a choisi le thème sombre (localStorage.theme, réglé depuis la page
+# d'accueil). Les règles html.dark vivent dans theme.css, mais ce script doit
+# rester INLINE dans le <head> de chaque page (sinon flash clair au chargement,
+# cf. commentaire « Thème sombre des QUIZ » de theme.css). Oublié par l'ancien
+# gabarit : toutes les annales générées ignoraient le mode sombre. Chaîne
+# identique à celle des autres pages du site — validate_quiz.py (DARK_MODE_MISSING)
+# bloque toute page qui ne la contient pas.
+DARK_MODE_BOOTSTRAP = (
+    "<script>(()=>{if(localStorage.theme==='dark')"
+    "document.documentElement.classList.add('dark')})()</script>"
+)
 
 
 HTML_TEMPLATE = """<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -967,7 +1160,9 @@ button.validate:hover{{filter:brightness(1.08)}}
 header{{box-shadow:0 1px 2px rgba(16,24,40,.04)}}
 /* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
 @media (max-width:600px){{.wrap{{padding:0 10px 60px}}.q{{padding:13px 13px}}}}
-</style></head><body>
+</style>
+{dark_bootstrap}
+</head><body>
 <header><div class="hwrap">
 <h1>{title_html}</h1>
 <div class="sub">{sub_html}</div>
@@ -1024,6 +1219,10 @@ function grade(q){{
   const isQRU=q.dataset.type==='QRU';
   const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
   let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){{const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{{m.textContent='validée';}});}}
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
@@ -1034,6 +1233,7 @@ function grade(q){{
   st.textContent=fmtPts(pts)+' / 1';
   if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
   else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
@@ -1149,7 +1349,10 @@ def upgrade_qroc_engine_d2(html):
     gestion du clic « J'avais juste/faux » et affichage de l'auto-évaluation à la
     révélation. Remplacements ancrés sur des chaînes uniques du gabarit — sans
     effet si le gabarit évolue (à re-vérifier dans ce cas)."""
-    html = html.replace("</style></head>", QROC_ENGINE_CSS + "</style></head>", 1)
+    # Ancré sur le 1er « </style> » (celui du <head>, le seul du gabarit) et non
+    # sur « </style></head> » : le script de bascule du mode sombre s'intercale
+    # désormais entre les deux (cf. DARK_MODE_BOOTSTRAP).
+    html = html.replace("</style>", QROC_ENGINE_CSS + "</style>", 1)
     html = html.replace(
         "if(q.dataset.type==='QROC')return;",
         "if(q.dataset.type==='QROC'){gradeQroc(q);return;}",
@@ -1193,8 +1396,7 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None,
             pass
         for i, q in enumerate(s["questions"]):
             qid = f'{s["code"]}-Q{q["num"]}'
-            img_html = images_by_qid.get(qid, "")
-            block = render_question(s["code"], q, image_html=img_html, is_d2=is_d2)
+            block = render_question(s["code"], q, images=images_by_qid.get(qid, []), is_d2=is_d2)
             if i == 0 and s["dpctx"]:
                 block = block.replace(
                     '<div class="stem">',
@@ -1213,6 +1415,7 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None,
         body_html=body_html,
         favicon_href=favicon_href,
         theme_href=favicon_href.replace("favicon.svg", "theme.css"),
+        dark_bootstrap=DARK_MODE_BOOTSTRAP,
     )
     if is_d2:
         out = upgrade_qroc_engine_d2(out)
@@ -1336,6 +1539,8 @@ def run(pdf_path, debug=False, strict=False, force=False):
     sec_page_y = []     # (page, y) de chaque marqueur "Element d'épreuve:" (frontière de section)
     doc_spans = []      # (texte, couleur) de chaque span, en ordre de lecture — pour
                         # détacher la note du jury de la dernière option (couleur)
+    text_blocks = []    # (page, y, texte) de chaque bloc de texte — pour savoir quel
+                        # texte SUIT chaque image (cf. stem_with_images)
     _Q_BLOCK_RE = re.compile(r'Question\s+(?:[A-Z]+|\d+)\s*:\s*\(Type', re.IGNORECASE)
     _SEC_BLOCK_RE = re.compile(r"Element\s+d'épreuve\s*:", re.IGNORECASE)
     for pno, page in enumerate(doc):
@@ -1381,6 +1586,8 @@ def run(pdf_path, debug=False, strict=False, force=False):
                     q_page_y.append((pno, block["bbox"][1]))
                 if _SEC_BLOCK_RE.search(bt):
                     sec_page_y.append((pno, block["bbox"][1]))
+                text_blocks.append((pno, block["bbox"][1],
+                                    " ".join("".join(s["text"] for s in ln["spans"]) for ln in block["lines"])))
                 for ln in block["lines"]:
                     for sp in ln["spans"]:
                         if sp["text"]:
@@ -1399,7 +1606,39 @@ def run(pdf_path, debug=False, strict=False, force=False):
     full_text = strip_noise(full_text)
     full_text = fix_wrapped_section_codes(full_text)
 
+    # Fichier SUJET au lieu du fichier RÉPONSE : cases à cocher présentes mais aucun
+    # libellé Valide/Faux → aucune bonne réponse ni item indispensable/inacceptable
+    # récupérable. Le dépôt des annales range souvent côte à côte « sujet N.pdf »
+    # (copie sans correction) et « réponse N.pdf » / « correction N.pdf » /
+    # « … Corrigé.pdf » : seul ce dernier fait foi (cf. CLAUDE.md « Fichier réponse »).
+    # Critère = PROPORTION de cases ☐/◎ suivies d'un libellé, pas « aucun libellé » :
+    # un sujet peut porter quelques libellés résiduels (items « Neutraliser »). Relevé
+    # sur le dépôt des annales : sujets ≤ 9 % de cases libellées, réponses ≥ 77 %.
+    n_boxes = len(OPTION_START_RE.findall(full_text))
+    n_labels = len(_OPT_ENTRY_RE.findall(full_text))
+    if n_boxes >= 10 and n_labels < 0.5 * n_boxes:
+        print(f"✗ Seules {n_labels}/{n_boxes} cases portent un libellé Valide/Faux : c'est le SUJET, pas le fichier")
+        print("  réponse. Relancer sur le fichier réponse de la même session")
+        print("  (« réponse N.pdf », « correction N.pdf », « … Corrigé.pdf »).")
+        sys.exit(1)
+
     sections = parse_sections(full_text, warnings)
+
+    # Second filet, APRÈS parsing (couvre les exports de sujet sans cases ☐/◎) :
+    # un fichier réponse donne au moins une option « Valide » à (quasi) chaque
+    # question à choix. Si moins de la moitié en ont une — ou si aucune question
+    # n'est détectée — ce n'est pas un fichier réponse exploitable.
+    choice_qs = [q for s in sections for q in s["questions"] if q["type"] not in ("QROC", "QZONE")]
+    with_valid = sum(1 for q in choice_qs if any(o["valid"] for o in q["options"]))
+    if not any(s["questions"] for s in sections):
+        print("✗ Aucune question « Question N: (Type: …) » détectée : format non reconnu")
+        print("  (sujet vierge, scan, autre plateforme…). Utiliser le fichier réponse Uness.")
+        sys.exit(1)
+    if choice_qs and with_valid < 0.5 * len(choice_qs):
+        print(f"✗ Seules {with_valid}/{len(choice_qs)} questions à choix ont une réponse « Valide » :")
+        print("  c'est le SUJET, pas le fichier réponse. Relancer sur le fichier réponse de la")
+        print("  même session (« réponse N.pdf », « correction N.pdf », « … Corrigé.pdf »).")
+        sys.exit(1)
 
     # Détacher la « note générale du jury » de la dernière option de chaque
     # question (bug « justification collée à l'option » — cf. strip_general_note).
@@ -1536,17 +1775,25 @@ def run(pdf_path, debug=False, strict=False, force=False):
                         return min(cands)[1]  # 1re question après le marqueur de section
                 return active
 
+            def text_after_image(ipos):
+                """Premier bloc de texte de contenu (hors en-tête/pied de page, hors
+                cases ☐/◎ seules) qui suit l'image dans l'ordre de lecture."""
+                for pno_b, y_b, t in sorted(text_blocks, key=lambda b: (b[0], b[1])):
+                    if (pno_b, y_b) <= (ipos[0], ipos[1] + 1):
+                        continue
+                    t = clean_span(_STRAY_GLYPH_RE.sub(" ", strip_noise(t)))
+                    if t:
+                        return t
+                return None
+
             for pno, y, ext, img_data in image_events:
                 owner = owner_for_image((pno, y))
                 if owner < 0:
                     continue
                 qid = flat_q_ids[owner]
-                b64 = base64.b64encode(img_data).decode("ascii")
-                img_html = (
-                    f'<div class="extra"><img src="data:image/{ext};base64,{b64}" '
-                    f'style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>\n'
+                images_by_qid.setdefault(qid, []).append(
+                    (img_div(ext, img_data), text_after_image((pno, y)))
                 )
-                images_by_qid[qid] = images_by_qid.get(qid, "") + img_html
         else:
             # Fallback (PyMuPDF ancien ou écart de comptage) : une image par question,
             # sur la page où commence le texte de la question.
@@ -1559,11 +1806,7 @@ def run(pdf_path, debug=False, strict=False, force=False):
                 p = page_at(offset)
                 if p < len(pages_images) and pages_images[p]:
                     ext, data = pages_images[p].pop(0)
-                    b64 = base64.b64encode(data).decode("ascii")
-                    images_by_qid[qid] = (
-                        f'<div class="extra"><img src="data:image/{ext};base64,{b64}" '
-                        f'style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>\n'
-                    )
+                    images_by_qid[qid] = [(img_div(ext, data), None)]
 
     # Post-processing : corrige le mauvais placement d'image quand une question
     # attend une image ("est la suivante", "ci-dessous", "cf image"…) mais n'en a
@@ -1597,7 +1840,7 @@ def run(pdf_path, debug=False, strict=False, force=False):
         )
 
     if images_by_qid:
-        n_multi = sum(1 for v in images_by_qid.values() if v.count('<div class="extra">') > 1)
+        n_multi = sum(1 for v in images_by_qid.values() if len(v) > 1)
         msg = f"[info] {len(images_by_qid)} image(s) associée(s) automatiquement"
         if n_multi:
             msg += f" (dont {n_multi} question(s) avec {n_multi if n_multi > 1 else 'plusieurs'} images)"
@@ -1628,6 +1871,24 @@ def run(pdf_path, debug=False, strict=False, force=False):
 
     out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html,
                           images_by_qid, favicon_href, is_d2=meta["is_d2_guess"])
+
+    # Garde-fou items INDISPENSABLE / INACCEPTABLE (et libellés inconnus). Un item
+    # « Inacceptable » perdu laisse un étudiant qui le coche marquer des points au
+    # lieu de 0 — erreur silencieuse (bug confirmé : mDP1-Q6 E, UE8.2 juillet
+    # 2024). On compare donc trois décomptes : libellés du PDF brut, options parsées,
+    # attributs data-mandatory/data-unacceptable du HTML. Tout écart, ou tout libellé
+    # de validité inconnu (une option à libellé non géré est avalée par la
+    # précédente), inscrit un marqueur [A VERIFIER] dans le HTML — bloquant pour
+    # validate_quiz.py, donc pour make insert/publish — et fait sortir le script en
+    # code 3. Impossible de publier une annale qui aurait perdu un de ces items.
+    special_errors = check_special_items(full_text, sections, out_html)
+    if special_errors:
+        out_html = out_html.replace(
+            "<body>",
+            "<body>\n<!-- [A VERIFIER] items indispensable/inacceptable : "
+            + esc(" | ".join(special_errors)).replace("--", "—") + " -->",
+            1,
+        )
     # Injection automatique des quatre scripts globaux, dans l'ordre standard des
     # annales : fil d'Ariane, header dynamique, minuteur d'examen, suivi de
     # progression local. Toute annale officielle (Quiz_UE*.html) doit charger les
@@ -1710,6 +1971,14 @@ def run(pdf_path, debug=False, strict=False, force=False):
     print("=" * 70)
     print("Rappel : relis le HTML généré (titres de section, texte exact, images,")
     print("questions marquées [A VERIFIER]) avant de le publier sur le site.")
+
+    if special_errors:
+        print("✗ ITEMS INDISPENSABLE/INACCEPTABLE — incohérence PDF ↔ HTML :")
+        for e in special_errors:
+            print(f"  - {e}")
+        print("  Le HTML porte un marqueur [A VERIFIER] (publication bloquée par")
+        print("  validate_quiz.py). Corriger le parsing ou le HTML depuis le fichier réponse.")
+        sys.exit(3)
 
     if strict and (a_verifier_count or pua_found):
         print(f"\n[--strict] Sortie avec code 1 : "

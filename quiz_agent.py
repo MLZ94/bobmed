@@ -80,15 +80,21 @@ def extract_html_questions(html_path: Path) -> list[dict]:
         qtype = q_el.get("data-type", "?")
         data_correct = q_el.get("data-correct", "")
 
-        stem_el = q_el.select_one(".stem")
-        stem = stem_el.get_text(" ", strip=True) if stem_el else ""
+        # Un énoncé peut être découpé en plusieurs .stem intercalés avec les images
+        # (texte → image → texte → image, cf. split_stem_at_images de
+        # pdf_to_quiz.py) : on les recolle pour comparer au texte PDF continu.
+        stem = " ".join(el.get_text(" ", strip=True) for el in q_el.select(".stem"))
 
         opts = []
         for opt_el in q_el.select(".opt"):
             letter = opt_el.get("data-l", "?")
             otext_el = opt_el.select_one(".otext")
             text = otext_el.get_text(" ", strip=True) if otext_el else ""
-            opts.append({"letter": letter, "text": text})
+            opts.append({
+                "letter": letter, "text": text,
+                "mandatory": opt_el.get("data-mandatory") == "1",
+                "unacceptable": opt_el.get("data-unacceptable") == "1",
+            })
 
         # Correction items (VRAI/FAUX justifications)
         correction_items = []
@@ -142,7 +148,9 @@ def extract_debug_questions(debug: dict) -> list[dict]:
                 "type": qtype,
                 "expected_correct": correct_letters,
                 "stem": q.get("stem", ""),
-                "opts": [{"letter": o["letter"], "text": o.get("text", ""), "expl": o.get("expl")} for o in opts],
+                "opts": [{"letter": o["letter"], "text": o.get("text", ""), "expl": o.get("expl"),
+                          "mandatory": bool(o.get("mandatory")),
+                          "unacceptable": bool(o.get("unacceptable"))} for o in opts],
                 "qroc_answers": q.get("qroc_answers", []),
             })
     return questions
@@ -244,19 +252,21 @@ def mechanical_check(html_qs: list[dict], debug_qs: list[dict]) -> list[dict]:
                             f"options valides PDF=\"{expected}\"."
                         ),
                     })
-                elif len(exp_set) > 1 and act_set:
-                    # Plusieurs valides au PDF, une seule retenue : signaler pour
-                    # vérifier que les alternatives sont mentionnées dans la note (cf.
-                    # checklist CLAUDE.md point 7) — non bloquant.
+                elif len(exp_set) > 1 and act_set != exp_set:
+                    # Plusieurs réponses « Valide » dans le fichier réponse (TCS
+                    # validée par plusieurs experts) : TOUTES sont justes et doivent
+                    # être créditées (data-correct = toutes les lettres valides +
+                    # poids data-w, cf. tcs_weights de pdf_to_quiz.py). En retenir
+                    # une seule donne 0 point à une réponse validée par le jury.
                     others = sorted(exp_set - act_set)
                     findings.append({
-                        "level": "warning",
-                        "code": "QRU_MULTI_VALID",
+                        "level": "error",
+                        "code": "TCS_VALID_NOT_CREDITED",
                         "qid": qid,
                         "message": (
-                            f"[{qid}] PDF marque plusieurs options valides "
-                            f"({expected}); HTML retient \"{actual}\". Vérifier que "
-                            f"{others} sont bien citées dans la note du jury."
+                            f"[{qid}] Le fichier réponse valide {expected} mais le HTML "
+                            f"ne crédite que \"{actual}\" : {others} vaudraient 0 point. "
+                            "Créditer toutes les réponses validées (data-correct + data-w)."
                         ),
                     })
             else:
@@ -271,6 +281,28 @@ def mechanical_check(html_qs: list[dict], debug_qs: list[dict]) -> list[dict]:
                         "message": (
                             f"[{qid}] data-correct HTML=\"{actual}\" ≠ "
                             f"options valides PDF=\"{expected}\"."
+                        ),
+                    })
+
+        # Items indispensable / inacceptable : chaque libellé du fichier réponse doit
+        # se retrouver sur la bonne option du HTML (et réciproquement). Un attribut
+        # perdu fausse la note sans aucun symptôme visible (bug confirmé : mDP1-Q6 E
+        # « Inacceptable », UE8.2 juillet 2024, absent du HTML publié).
+        h_opts = {o["letter"]: o for o in hq["opts"]}
+        for po in dq["opts"]:
+            ho = h_opts.get(po["letter"])
+            if ho is None:
+                continue
+            for key, label in (("mandatory", "indispensable"), ("unacceptable", "inacceptable")):
+                if po.get(key) != ho.get(key):
+                    findings.append({
+                        "level": "error",
+                        "code": "SPECIAL_ITEM_MISMATCH",
+                        "qid": qid,
+                        "message": (
+                            f"[{qid}] Option {po['letter']} : item {label} "
+                            f"{'dans le PDF mais absent du HTML' if po.get(key) else 'dans le HTML mais pas dans le PDF'} "
+                            f"(attribut data-{key}=\"1\")."
                         ),
                     })
 

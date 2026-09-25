@@ -176,7 +176,21 @@ def _check_data_correct(soup) -> list[dict]:
                 ),
             })
 
-        if qtype == "QRU" and len(corr_letters) > 1:
+        # TCS pondérée (plusieurs réponses validées par le jury, poids data-w) :
+        # data-correct liste légitimement toutes les réponses validées.
+        weighted = bool(q.select(".opt[data-w]"))
+        if weighted:
+            unweighted = sorted(corr_letters - {o.get("data-l", "") for o in q.select(".opt[data-w]")})
+            if unweighted:
+                findings.append({
+                    "level":   "error",
+                    "code":    "TCS_WEIGHT_MISSING",
+                    "message": (
+                        f"[{qid}] TCS pondérée : réponse(s) validée(s) {unweighted} sans "
+                        "poids data-w — elles vaudraient 0 point."
+                    ),
+                })
+        elif qtype == "QRU" and len(corr_letters) > 1:
             findings.append({
                 "level":   "warning",
                 "code":    "QRU_MULTI_CORRECT",
@@ -463,6 +477,71 @@ def _check_qrpl_engine(html_text: str) -> list[dict]:
     return []
 
 
+def _check_tcs_weight_engine(html_text: str) -> list[dict]:
+    """Une TCS pondérée (options data-w) exige un moteur qui lit ces poids.
+
+    Sans la branche `isW` de grade(), la question serait notée comme une QRU à
+    plusieurs lettres (discordance ⇒ 0) : toute réponse validée par le jury
+    vaudrait 0 point. On bloque donc ce cas."""
+    if " data-w=" not in html_text:
+        return []
+    if "dataset.w" not in html_text:
+        return [{
+            "level":   "error",
+            "code":    "TCS_WEIGHT_ENGINE_MISSING",
+            "message": (
+                "Options data-w (TCS pondérée) présentes mais le moteur JS embarqué ne "
+                "lit pas les poids (marqueur 'dataset.w' absent de grade())."
+            ),
+        }]
+    return []
+
+
+def _check_special_items(html_text: str, soup) -> list[dict]:
+    """Items indispensable (data-mandatory) / inacceptable (data-unacceptable).
+
+    1. Le moteur embarqué doit appliquer leur règle (0 point si indispensable
+       manqué / inacceptable coché : marqueurs `missMandatory`/`hitUnacceptable`)
+       — sinon l'attribut est décoratif et la note fausse, silencieusement.
+    2. Leur repère visuel doit rester conditionné à `.q.done` : un sélecteur CSS
+       `.opt[data-mandatory…]` sans ce préfixe affiche l'étoile/la croix AVANT la
+       réponse et souffle la solution (cf. « CSS clés » de CLAUDE.md).
+    La présence même de ces attributs est garantie en amont : pdf_to_quiz.py
+    compare PDF brut / parsing / HTML, et quiz_agent.py compare debug.json / HTML."""
+    if soup is None:
+        return []
+    if not soup.select('.opt[data-mandatory="1"], .opt[data-unacceptable="1"]'):
+        return []
+    findings = []
+    missing = [m for m in ("missMandatory", "hitUnacceptable") if m not in html_text]
+    if missing:
+        findings.append({
+            "level":   "error",
+            "code":    "SPECIAL_ENGINE_MISSING",
+            "message": (
+                "Items indispensable/inacceptable présents mais le moteur JS ne les "
+                f"applique pas ({', '.join(missing)} absent de grade()) — la règle "
+                "« 0 point » ne s'appliquera pas."
+            ),
+        })
+    leaks = []
+    for st in soup.find_all("style"):
+        for rule in (st.string or "").split("}"):
+            for sel in rule.split("{")[0].split(","):
+                if re.search(r"\.opt\[data-(?:mandatory|unacceptable)", sel) and ".q.done" not in sel:
+                    leaks.append(sel.strip())
+    if leaks:
+        findings.append({
+            "level":   "error",
+            "code":    "SPECIAL_SPOILER_CSS",
+            "message": (
+                "Repère indispensable/inacceptable visible AVANT la réponse (sélecteur "
+                f"sans préfixe .q.done : {leaks[0]}) — il souffle la solution."
+            ),
+        })
+    return findings
+
+
 _GLOBAL_SCRIPTS = ("breadcrumb.js", "dynamic-header.js", "timer.js", "progress.js")
 
 
@@ -489,6 +568,33 @@ def _check_global_scripts(html_text: str, path: Path) -> list[dict]:
             "Annale officielle sans le(s) script(s) global(aux) : "
             + ", ".join(missing)
             + " — les inclure via <script src> juste avant </body> (cf. « Assets globaux »)."
+        ),
+    }]
+
+
+_DARK_BOOTSTRAP_RE = re.compile(
+    r"<script>\s*\(\(\)\s*=>\s*\{\s*if\s*\(\s*localStorage\.theme\s*===\s*'dark'\s*\)"
+    r"\s*document\.documentElement\.classList\.add\(\s*'dark'\s*\)"
+)
+
+
+def _check_dark_mode(html_text: str) -> list[dict]:
+    """Toute page doit porter, INLINE dans son <head>, le mini-script de bascule du
+    mode sombre (`localStorage.theme==='dark'` → `html.dark`). Les règles sombres
+    vivent dans theme.css, mais sans ce script la classe `html.dark` n'est jamais
+    posée : la page reste claire même quand l'utilisateur a choisi le thème sombre.
+    Bug confirmé : le gabarit de pdf_to_quiz.py l'omettait (12 annales + 40 quiz
+    d'entraînement sans mode sombre). Bloquant : correction triviale et mécanique."""
+    head = html_text.split("</head>", 1)[0] if "</head>" in html_text else ""
+    if _DARK_BOOTSTRAP_RE.search(head):
+        return []
+    return [{
+        "level":   "error",
+        "code":    "DARK_MODE_MISSING",
+        "message": (
+            "Script de bascule du mode sombre absent du <head> — ajouter juste avant "
+            "</head> : <script>(()=>{if(localStorage.theme==='dark')"
+            "document.documentElement.classList.add('dark')})()</script>"
         ),
     }]
 
@@ -525,7 +631,10 @@ def validate_file(path: Path) -> dict:
         + _check_initlocks_call(html_text)
         + _check_qrp_engine(html_text)
         + _check_qrpl_engine(html_text)
+        + _check_tcs_weight_engine(html_text)
+        + _check_special_items(html_text, soup)
         + _check_global_scripts(html_text, path)
+        + _check_dark_mode(html_text)
     )
 
     errors   = [f for f in findings if f["level"] == "error"]
