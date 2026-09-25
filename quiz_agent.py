@@ -94,6 +94,7 @@ def extract_html_questions(html_path: Path) -> list[dict]:
                 "letter": letter, "text": text,
                 "mandatory": opt_el.get("data-mandatory") == "1",
                 "unacceptable": opt_el.get("data-unacceptable") == "1",
+                "neutral": opt_el.get("data-neutral") == "1",
             })
 
         # Correction items (VRAI/FAUX justifications)
@@ -123,6 +124,7 @@ def extract_html_questions(html_path: Path) -> list[dict]:
             "opts": opts,
             "correction_items": correction_items,
             "qroc_model": qroc_model,
+            "neutralized": q_el.get("data-neutral") == "1",
         })
 
     return questions
@@ -140,8 +142,10 @@ def extract_debug_questions(debug: dict) -> list[dict]:
             qtype = q.get("type", "?")
             opts = q.get("options", [])
             # data_correct attendu = lettres des options valid=True
+            # Un item « Neutraliser » n'est jamais une bonne réponse (ancien debug.json :
+            # il y était encore marqué valid) — cf. pdf_to_quiz.py.
             correct_letters = "".join(
-                sorted(o["letter"] for o in opts if o.get("valid"))
+                sorted(o["letter"] for o in opts if o.get("valid") and not o.get("neutral"))
             ).upper()
             questions.append({
                 "id": f"{code}-Q{num}",
@@ -150,10 +154,81 @@ def extract_debug_questions(debug: dict) -> list[dict]:
                 "stem": q.get("stem", ""),
                 "opts": [{"letter": o["letter"], "text": o.get("text", ""), "expl": o.get("expl"),
                           "mandatory": bool(o.get("mandatory")),
-                          "unacceptable": bool(o.get("unacceptable"))} for o in opts],
+                          "unacceptable": bool(o.get("unacceptable")),
+                          "neutral": bool(o.get("neutral"))} for o in opts],
+                "neutralized": bool(q.get("neutralized")),
                 "qroc_answers": q.get("qroc_answers", []),
             })
     return questions
+
+
+# ── Appariement par contenu ───────────────────────────────────────────────────
+
+def _alnum(t: str) -> str:
+    return re.sub(r"[^0-9a-zà-ÿ]", "", (t or "").lower())
+
+
+def align_by_content(html_qs: list[dict], debug_qs: list[dict]) -> int:
+    """Renomme les questions du debug.json dont l'identifiant n'existe pas dans le
+    HTML (ex. « QI(20)-Q3 » côté PDF vs « SQI1-Q3 » côté site) vers la question HTML
+    de même CONTENU (énoncé, sinon options). Sans cela, une annale rédigée ou
+    retouchée à la main n'était comparée à rien (tout « MISSING_QUESTION ») : c'est
+    ce qui a laissé passer, sur le site, des TCS mal notées, des items
+    indispensable/inacceptable perdus et des réponses différentes du fichier
+    réponse. Renvoie le nombre de questions ré-appariées."""
+    import difflib
+    html_ids = {q["id"] for q in html_qs}
+    free_html = [q for q in html_qs if q["id"] not in {d["id"] for d in debug_qs}]
+    todo = [d for d in debug_qs if d["id"] not in html_ids]
+
+    def key(stem, opts):
+        return _alnum(stem)[:200] + "|" + "|".join(_alnum(o["text"])[:30] for o in opts)
+
+    cands = []
+    for d in todo:
+        kd = key(d["stem"], d["opts"])
+        for h in free_html:
+            sd, sh = _alnum(d["stem"]), _alnum(h["stem"])
+            r = 0.0
+            if len(sd) >= 60 and len(sh) >= 60:
+                r = difflib.SequenceMatcher(None, sd[:300], sh[:300], autojunk=False).ratio()
+            if r < 0.9:
+                r = max(r, 0.95 * difflib.SequenceMatcher(None, kd, key(h["stem"], h["opts"]), autojunk=False).ratio())
+            if r >= 0.6:
+                cands.append((r, d["id"], h["id"]))
+    cands.sort(reverse=True)
+    used_d, used_h, n = set(), set(), 0
+    by_id = {d["id"]: d for d in todo}
+    for r, did, hid in cands:
+        if did in used_d or hid in used_h:
+            continue
+        used_d.add(did); used_h.add(hid)
+        by_id[did]["id"] = hid
+        n += 1
+    return n
+
+
+def debug_from_pdf(pdf_path: Path) -> dict:
+    """Génère la structure debug.json directement depuis le FICHIER RÉPONSE, via
+    pdf_to_quiz.py dans un dossier temporaire (rien n'est écrit à côté du PDF)."""
+    import importlib.util, io, contextlib, tempfile, shutil
+    spec = importlib.util.spec_from_file_location("pdf_to_quiz", Path(__file__).with_name("pdf_to_quiz.py"))
+    p2q = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(p2q)
+    with tempfile.TemporaryDirectory() as tmp:
+        src = Path(tmp) / "reponse.pdf"
+        shutil.copy(pdf_path, src)
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                p2q.run(str(src), debug=True, force=True)
+        except SystemExit as e:
+            if e.code not in (0, None, 3):   # 3 = incohérence indispensable/inacceptable (signalée dans le HTML)
+                raise RuntimeError(out.getvalue().strip().splitlines()[-4:] or f"exit {e.code}")
+        js = list(Path(tmp).glob("*.debug.json"))
+        if not js:
+            raise RuntimeError("pdf_to_quiz.py n'a produit aucun debug.json")
+        return json.loads(js[0].read_text(encoding="utf-8"))
 
 
 # ── Comparaison mécanique ─────────────────────────────────────────────────────
@@ -220,13 +295,25 @@ def mechanical_check(html_qs: list[dict], debug_qs: list[dict]) -> list[dict]:
         htype = hq["type"]          # data-type HTML (QRM/QRU/QROC/QZONE)
         dtype_html = canon_type(dtype)   # type source projeté sur le rendu HTML
 
-        # Type — comparer après canonicalisation (TCS→QRU ; QRPL/QRP inchangés)
-        if dtype_html != htype and htype not in ("?",) and dtype != "QZONE":
+        # Type — comparer après canonicalisation (TCS→QRU). QRP et QRPL ont le même
+        # barème (X/N + plafond) : équivalents. En revanche QRM (discordance) ≠
+        # QRP/QRPL (proportionnel) change la note : c'est une ERREUR. Vérifié sur les
+        # copies du dépôt des annales : une question étiquetée QRM dans le fichier
+        # réponse est TOUJOURS notée à la discordance (589/589), même si l'énoncé dit
+        # « sélectionnez les 3… » ; 11 questions du site étaient notées avec l'autre barème.
+        prop = {"QRP", "QRPL"}
+        same_scale = dtype_html == htype or (dtype_html in prop and htype in prop)
+        if not same_scale and htype not in ("?",) and dtype != "QZONE":
+            scoring = {dtype_html, htype} & prop and {dtype_html, htype} & {"QRM"}
             findings.append({
-                "level": "warning",
+                "level": "error" if scoring else "warning",
                 "code": "TYPE_MISMATCH",
                 "qid": qid,
-                "message": f"[{qid}] Type PDF={dtype} (→{dtype_html}), HTML={htype}.",
+                "message": (
+                    f"[{qid}] Type PDF={dtype} (→{dtype_html}), HTML={htype}"
+                    + (" — barème différent (discordance ≠ proportionnel) : aligner data-type sur le fichier réponse."
+                       if scoring else ".")
+                ),
             })
 
         # data-correct
@@ -293,7 +380,8 @@ def mechanical_check(html_qs: list[dict], debug_qs: list[dict]) -> list[dict]:
             ho = h_opts.get(po["letter"])
             if ho is None:
                 continue
-            for key, label in (("mandatory", "indispensable"), ("unacceptable", "inacceptable")):
+            for key, label in (("mandatory", "indispensable"), ("unacceptable", "inacceptable"),
+                               ("neutral", "neutralisé")):
                 if po.get(key) != ho.get(key):
                     findings.append({
                         "level": "error",
@@ -305,6 +393,19 @@ def mechanical_check(html_qs: list[dict], debug_qs: list[dict]) -> list[dict]:
                             f"(attribut data-{key}=\"1\")."
                         ),
                     })
+
+        # Question neutralisée par le jury : point accordé à tous (data-neutral sur la .q).
+        if dq.get("neutralized") != hq.get("neutralized"):
+            findings.append({
+                "level": "error",
+                "code": "NEUTRAL_QUESTION_MISMATCH",
+                "qid": qid,
+                "message": (
+                    f"[{qid}] Question neutralisée "
+                    f"{'dans le PDF mais pas dans le HTML' if dq.get('neutralized') else 'dans le HTML mais pas dans le PDF'} "
+                    "(attribut data-neutral=\"1\" sur la .q)."
+                ),
+            })
 
         # Nombre d'options
         n_pdf = len(dq["opts"])
@@ -548,6 +649,11 @@ def main():
              "(auto-détecté si absent)"
     )
     parser.add_argument(
+        "--pdf", metavar="FICHIER_REPONSE_PDF",
+        help="Fichier réponse de l'annale (PDF Uness) : le debug.json est généré à la "
+             "volée via pdf_to_quiz.py — permet d'auditer n'importe quelle annale publiée"
+    )
+    parser.add_argument(
         "--no-api", action="store_true",
         help="Désactiver l'appel à Claude (vérifications mécaniques seulement)"
     )
@@ -568,7 +674,9 @@ def main():
 
     # Auto-détection du debug JSON
     debug_path = Path(args.debug) if args.debug else html_path.with_suffix(".debug.json")
-    if not debug_path.exists():
+    if args.pdf:
+        debug_path = None
+    elif not debug_path.exists():
         # Chercher dans le même dossier avec le même stem
         alt = html_path.parent / (html_path.stem + ".debug.json")
         if alt.exists():
@@ -590,12 +698,22 @@ def main():
 
     # Extraction debug JSON
     debug_qs = []
-    if debug_path:
+    if args.pdf:
+        try:
+            debug_qs = extract_debug_questions(debug_from_pdf(Path(args.pdf)))
+        except Exception as e:
+            print(red(f"✗ Lecture du fichier réponse impossible : {e}"), file=sys.stderr)
+            sys.exit(2)
+    elif debug_path:
         try:
             debug = json.loads(debug_path.read_text(encoding="utf-8"))
             debug_qs = extract_debug_questions(debug)
         except Exception as e:
             print(amber(f"⚠ Erreur lecture {debug_path} : {e}"), file=sys.stderr)
+    if debug_qs:
+        realigned = align_by_content(html_qs, debug_qs)
+        if realigned and not args.json:
+            print(dim(f"  {realigned} question(s) appariée(s) par contenu (identifiants PDF ≠ HTML)."))
 
     # Vérifications mécaniques
     mechanical = mechanical_check(html_qs, debug_qs) if debug_qs else []

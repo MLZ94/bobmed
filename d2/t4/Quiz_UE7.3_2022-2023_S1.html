@@ -84,6 +84,9 @@ button.validate:hover{filter:brightness(1.08)}
 .citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
 .citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
 header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.v-neutre .cv{color:var(--mut);font-weight:600}
 </style>
 <script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
 </head><body>
@@ -613,7 +616,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 </div>
 </div>
 
-<div class="q" id="mDP1-QC" data-correct="C" data-type="QRU">
+<div class="q" id="mDP1-QC" data-correct="C" data-type="QRU" data-neutral="1">
 <div class="qhead"><span class="qnum">mDP1 QC</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
 <div class="stem">Vous la revoyez 2 mois plus tard. La dactylite a régressé et la patiente ne se plaint plus de rachialgies. Par contre, elle se plaint maintenant de synovites aux 2 mains, sans efficacité des AINS. Parmi les suivants, quel traitement préconisez-vous ?</div>
 <ul class="opts">
@@ -624,7 +627,7 @@ header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
 <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Plaquenil</span></li>
 </ul>
 <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
-<div class="correction" hidden><div class="ans">Réponse : C</div> <div class="note">Question neutralisée : tous les items sont comptés valides.</div>
+<div class="correction" hidden><div class="ans">Réponse : C</div><div class="note">Question neutralisée par le jury : le point est accordé à tous, quelle que soit la réponse (correction du fichier réponse donnée à titre indicatif).</div>
 <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
 <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
 <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
@@ -877,6 +880,7 @@ function grade(q){
   q.querySelectorAll('.opt').forEach(o=>{
     const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
     o.classList.remove('sel');
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
     if(isC&&isS)o.classList.add('correct');
     else if(!isC&&isS){o.classList.add('wrong');disc++;}
     else if(isC&&!isS){o.classList.add('missed');disc++;}
@@ -891,6 +895,7 @@ function grade(q){
   const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
   const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
   if(missMandatory||hitUnacceptable)pts=0;
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
   q.classList.add('done');
   q.querySelector('.correction').hidden=false;markSpecial(q);
   const st=q.querySelector('.status');st.style.color='';
@@ -898,6 +903,7 @@ function grade(q){
   if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
   if(missMandatory)st.textContent+=' — item indispensable manqué';
   if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
   st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
   if(pts>0&&pts<1)st.style.color='#9a6a00';
   q.querySelector('.validate').disabled=true;
@@ -909,7 +915,7 @@ function reveal(q,skipUnlock){
   if(q.classList.contains('done'))return;
   if(q.dataset.type!=='QROC'){
     const correct=new Set(q.dataset.correct.split(''));
-    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');});
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
     const v=q.querySelector('.validate');if(v)v.disabled=true;
   }else{
     const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
@@ -934,7 +940,7 @@ function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelect
 function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
 function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
 function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
-function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;q.dataset.pts=ok?1:0;q.dataset.result=ok?'1':'0';qrocStatus(q,ok?1:0);if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
 document.addEventListener('click',e=>{
   const li=e.target.closest('.opt');
   if(li){

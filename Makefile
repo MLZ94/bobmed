@@ -23,12 +23,14 @@ validate: check-f
 	python3 validate_quiz.py "$(F)"
 	@echo "✓ Validation OK"
 
-# ── Étape 1b : agent de fidélité PDF→HTML (optionnel, nécessite .debug.json) ──
+# ── Étape 1b : agent de fidélité PDF→HTML (.debug.json OU fichier réponse PDF) ──
 # Usage : make agent F=Quiz_UE7.3_2023-2024_S1.html
-# Passe --no-api si ANTHROPIC_API_KEY n'est pas défini.
+#         make agent F=d2/t1/Quiz_UE8.2_2023-2024_S2.html PDF="../bobmed-annales-drive/T1/…/réponse 2 cardio.pdf"
+# Avec PDF=, compare le quiz (même rédigé à la main) au FICHIER RÉPONSE de l'annale :
+# bonnes réponses, TCS, items indispensable/inacceptable/neutralisés, types/barèmes.
 agent: check-f
 	@echo "▶ Vérification fidélité PDF→HTML de $(F)…"
-	python3 quiz_agent.py "$(F)"
+	python3 quiz_agent.py $(if $(PDF),--pdf "$(PDF)",) $(if $(ANTHROPIC_API_KEY),,--no-api) "$(F)"
 	@echo "✓ Agent OK"
 
 # ── Étape 1c : tests headless Playwright ──────────────────────────────────────
@@ -92,7 +94,7 @@ help:
 	@echo "BobMed — Commandes disponibles"
 	@echo "────────────────────────────────────────────────────────────────"
 	@echo "  make validate F=Quiz_XX.html    Valide la structure (exit 1 si erreurs)"
-	@echo "  make agent    F=Quiz_XX.html    Vérifie la fidélité PDF→HTML (Claude API)"
+	@echo "  make agent    F=Quiz_XX.html [PDF=réponse.pdf]  Fidélité au fichier réponse"
 	@echo "  make test     F=Quiz_XX.html    Tests headless Playwright (verrou, score…)"
 	@echo "  make check    F=Quiz_XX.html    validate + agent + test (barrière complète)"
 	@echo "  make insert   F=Quiz_XX.html    Insère le snippet (après validate + test)"
