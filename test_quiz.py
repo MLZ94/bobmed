@@ -83,7 +83,7 @@ def test_file(html_path: Path, headed: bool) -> dict:
         if exe:
             launch_kwargs["executable_path"] = exe
         browser = pw.chromium.launch(**launch_kwargs)
-        ctx = browser.new_context()
+        ctx = browser.new_context(permissions=["clipboard-read", "clipboard-write"])
         page = ctx.new_page()
 
         try:
@@ -307,6 +307,31 @@ def test_file(html_path: Path, headed: bool) -> dict:
                 fail("reset", "bouton #reset introuvable")
         except Exception as e:
             fail("reset", str(e))
+
+        # ── Test 9 : Chip .qnum cliquable — copie sans fuite de correction ─────
+        # Vérifie le chip de la toute première question (jamais verrouillée, cf.
+        # convention DP/KFP/TCS) : la copie doit être non vide et ne doit contenir
+        # aucun marqueur de correction (VRAI/FAUX/Réponse : n'existent que dans
+        # .correction, jamais dans .qtype/.dpctx/.stem/.otext).
+        try:
+            first_q = page.query_selector(".q")
+            qnum = first_q.query_selector(".qnum") if first_q else None
+            if qnum:
+                qnum.click()
+                page.wait_for_timeout(400)
+                clip_text = page.evaluate("() => navigator.clipboard.readText()")
+                leak_markers = ("VRAI", "FAUX", "Réponse :", "Réponses validées par le jury")
+                leaked = [m for m in leak_markers if m in clip_text]
+                if clip_text.strip() and not leaked:
+                    ok("qnum_copy", f"{len(clip_text)} caractère(s) copiés, aucune fuite")
+                elif leaked:
+                    fail("qnum_copy", f"marqueur(s) de correction dans le presse-papiers : {leaked}")
+                else:
+                    fail("qnum_copy", "presse-papiers vide après clic sur .qnum")
+            else:
+                fail("qnum_copy", ".qnum introuvable sur la première question")
+        except Exception as e:
+            fail("qnum_copy", str(e))
 
         browser.close()
 

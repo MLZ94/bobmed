@@ -718,6 +718,29 @@ def _check_global_scripts(html_text: str, path: Path) -> list[dict]:
     }]
 
 
+def _check_qnum_copy(html_text: str) -> list[dict]:
+    """Le chip .qnum (numéro de question) doit être cliquable et copier la
+    question (type, contexte clinique, énoncé(s), items, image(s)) dans le
+    presse-papiers pour un chat IA — jamais la correction, avant ou après
+    réponse (cf. « Chip de copie de question »). Signalé (avertissement,
+    corrigeable en propageant `upgrade_qnum_copy()` de pdf_to_quiz.py ou en
+    rejouant le patch de propagation du site) sur tout fichier portant le
+    moteur de quiz (`.qnum` présent) mais pas la fonction JS correspondante."""
+    if 'class="qnum"' not in html_text:
+        return []
+    if "buildQuestionClipboard" in html_text:
+        return []
+    return [{
+        "level":   "warning",
+        "code":    "QNUM_COPY_MISSING",
+        "message": (
+            "Chip .qnum non cliquable : la fonctionnalité de copie de question "
+            "pour chat IA (buildQuestionClipboard/copyQuestion) est absente — "
+            "cf. CLAUDE.md « Chip de copie de question »."
+        ),
+    }]
+
+
 _DARK_BOOTSTRAP_RE = re.compile(
     r"<script>\s*\(\(\)\s*=>\s*\{\s*if\s*\(\s*localStorage\.theme\s*===\s*'dark'\s*\)"
     r"\s*document\.documentElement\.classList\.add\(\s*'dark'\s*\)"
@@ -784,6 +807,7 @@ def validate_file(path: Path) -> dict:
         + _check_html_balance(html_text)
         + _check_global_scripts(html_text, path)
         + _check_dark_mode(html_text)
+        + _check_qnum_copy(html_text)
     )
 
     errors   = [f for f in findings if f["level"] == "error"]
