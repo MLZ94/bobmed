@@ -722,21 +722,24 @@ def _check_qnum_copy(html_text: str) -> list[dict]:
     """Le chip .qnum (numéro de question) doit être cliquable et copier la
     question (type, contexte clinique, énoncé(s), items, image(s)) dans le
     presse-papiers pour un chat IA — jamais la correction, avant ou après
-    réponse (cf. « Chip de copie de question »). Signalé (avertissement,
-    corrigeable en propageant `upgrade_qnum_copy()` de pdf_to_quiz.py ou en
-    rejouant le patch de propagation du site) sur tout fichier portant le
-    moteur de quiz (`.qnum` présent) mais pas la fonction JS correspondante."""
+    réponse (cf. « Chip de copie de question »). La logique vit dans le script
+    global partagé qcopy.js (jamais embarquée par fichier, cf. « Assets
+    globaux ») : on vérifie donc l'inclusion du <script src>, pas une fonction
+    JS locale. Signalé (avertissement, corrigeable en propageant
+    `upgrade_qnum_copy()` de pdf_to_quiz.py ou en rejouant le patch de
+    propagation du site) sur tout fichier portant le moteur de quiz (`.qnum`
+    présent) mais pas le script."""
     if 'class="qnum"' not in html_text:
         return []
-    if "buildQuestionClipboard" in html_text:
+    if "qcopy.js" in html_text:
         return []
     return [{
         "level":   "warning",
         "code":    "QNUM_COPY_MISSING",
         "message": (
-            "Chip .qnum non cliquable : la fonctionnalité de copie de question "
-            "pour chat IA (buildQuestionClipboard/copyQuestion) est absente — "
-            "cf. CLAUDE.md « Chip de copie de question »."
+            "Chip .qnum non cliquable : le script global qcopy.js (copie de "
+            "question pour chat IA) n'est pas inclus — cf. CLAUDE.md « Chip de "
+            "copie de question »."
         ),
     }]
 
