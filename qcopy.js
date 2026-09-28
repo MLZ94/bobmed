@@ -50,8 +50,8 @@ function copyQuestion(q, chip) {
   const prevText = chip.textContent;
   const done = ok => {
     chip.classList.add('copied');
-    chip.textContent = ok ? '✓ Copié !' : 'Échec';
-    setTimeout(() => { chip.classList.remove('copied'); chip.textContent = prevText; }, 1400);
+    chip.textContent = ok ? '✓ Copié' : 'Échec';
+    setTimeout(() => { chip.classList.remove('copied'); chip.textContent = prevText; }, 1100);
   };
   const writeTextOnly = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -76,6 +76,6 @@ document.addEventListener('keydown', e => {
 });
 document.querySelectorAll('.qnum').forEach(el => {
   el.tabIndex = 0; el.setAttribute('role', 'button');
-  el.title = 'Copier la question pour un chat IA';
-  el.setAttribute('aria-label', 'Copier la question ' + el.textContent + ' pour un chat IA');
+  el.title = 'Copier la question';
+  el.setAttribute('aria-label', 'Copier la question ' + el.textContent);
 });
