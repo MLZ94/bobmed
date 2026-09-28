@@ -57,9 +57,25 @@ UE_MAP = {
     "9.3": ("UE 9.3 (D1)", "d1/t4"),
     # UE 3 existe en D1 (Agents infectieux et hygiène, d1/t4/) ET en D2-T2
     # (Psy/Addicto, d2/t2/) : ambiguïté réelle, laissée à vérifier manuellement
-    # (cf. avertissement console ; préfixe DFG = D1, DFA = D2).
+    # (cf. avertissement console ; préfixe DFG = D1, DFA1 = D2).
     "3": ("Agents infectieux (D1) / Psy-Addicto (D2-T2) — VERIFIER", "d1/t4 OU d2/t2"),
 }
+
+# D3 (épreuves « DFA2-… ») : table utilisée à la place de UE_MAP dès que le code
+# d'épreuve commence par DFA2 (cf. guess_metadata). Les numéros d'UE recoupent
+# ceux de D2 : UE 7.3 = Hématologie en D3 (DFA2-UE7.3) mais Rhumatologie en D2
+# (DFA1-UE7.3) — c'est le préfixe qui tranche. Miroir de la table D3 de CLAUDE.md
+# et de UE_MAP dans insert_snippet.py.
+UE_MAP_D3 = {
+    "2":    ("Gynécologie-Obstétrique / Pédiatrie", "d3/t1"),
+    "5":    ("Gériatrie", "d3/t2"),
+    "7.3":  ("Hématologie", "d3/t2"),
+    "9":    ("Oncologie", "d3/t2"),
+    "10":   ("Thérapeutique", "d3/t3"),
+    "11.2": ("Urgences / Réanimation", "d3/t3"),
+}
+# Codes D3 sans numéro d'UE (ex. « DFA2-UE-HEMATO-FEVRIER2025 ») : mot-clé -> UE.
+UE_ALIASES_D3 = {"HEMATO": "7.3"}
 
 MONTHS_FR = {
     "JANVIER": "janvier", "JAN": "janvier",
@@ -1636,14 +1652,18 @@ def guess_metadata(epreuve_code, warnings):
             break
 
     rattrapage = "RATTRAP" in epreuve_code.upper()
+    # DFA1 = D2, DFA2 = D3 : même gabarit (QROC notées…), tables d'UE distinctes.
     is_d2 = epreuve_code.upper().startswith("DFA")
+    is_d3 = epreuve_code.upper().startswith("DFA2")
+    if ue is None and is_d3:
+        ue = next((n for kw, n in UE_ALIASES_D3.items() if kw in epreuve_code.upper()), None)
 
     if ue is None:
         warnings.append(f"Code UE non détecté dans '{epreuve_code}' — à renseigner manuellement.")
     if month is None:
         warnings.append(f"Mois/année non détectés dans '{epreuve_code}' — à renseigner manuellement.")
 
-    topic, folder = UE_MAP.get(ue, ("[À COMPLETER]", "[À COMPLETER]"))
+    topic, folder = (UE_MAP_D3 if is_d3 else UE_MAP).get(ue, ("[À COMPLETER]", "[À COMPLETER]"))
 
     if year is not None:
         acad_year = f"{year}-{year+1}" if (month and MONTHS_FR.get(month.upper(), "") ) else f"{year}"
@@ -2055,10 +2075,10 @@ def run(pdf_path, debug=False, strict=False, force=False):
     sub_html = f"{total_q} questions : " + " · ".join(sub_bits)
 
     # Calcul du chemin relatif au favicon selon la profondeur du dossier.
-    # d1/tN/ et d2/tN/ sont à 2 niveaux de la racine (annale à plat dans le
+    # d1/tN/, d2/tN/ et d3/tN/ sont à 2 niveaux de la racine (annale à plat dans le
     # dossier de trimestre) ; tout autre dossier éventuel reste à 1 niveau.
     _bc_folder = meta.get("folder", "d1/t4")
-    favicon_depth = "../../" if str(_bc_folder).startswith(("d1/", "d2/")) else "../"
+    favicon_depth = "../../" if str(_bc_folder).startswith(("d1/", "d2/", "d3/")) else "../"
     favicon_href = favicon_depth + "favicon.svg"
 
     out_html = build_html(sections, meta["title_html"], meta["title_html"], sub_html,

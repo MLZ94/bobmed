@@ -8,7 +8,7 @@
  *
  * À charger avant </body> sur toute page possédant un <header> sticky :
  *   <script src="../dynamic-header.js"></script>        (annales/, microbiologie/, …)
- *   <script src="../../dynamic-header.js"></script>     (d2/tN/)
+ *   <script src="../../dynamic-header.js"></script>     (d2/tN/, d3/tN/)
  *   <script src="../../../dynamic-header.js"></script>  (d2/tN/entrainement/)
  *
  * Aucune dépendance, injecte son propre CSS une seule fois, et ne fait rien

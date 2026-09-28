@@ -19,7 +19,7 @@
  *
  * À charger avant </body> sur les quiz, les portails et l'accueil :
  *   <script src="progress.js"></script>            (racine)
- *   <script src="../../progress.js"></script>      (d1/tN/, d2/tN/)
+ *   <script src="../../progress.js"></script>      (d1/tN/, d2/tN/, d3/tN/)
  *   <script src="../../../progress.js"></script>   (sous-portails)
  *
  * Aucune dépendance, injecte son propre CSS une seule fois, ne fait rien si
