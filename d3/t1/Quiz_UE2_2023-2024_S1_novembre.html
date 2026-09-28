@@ -1,0 +1,1184 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 2 — Gynécologie-Obstétrique / Pédiatrie · Session normale (novembre 2023)</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 2 — Gynécologie-Obstétrique / Pédiatrie · Session normale (novembre 2023)</h1>
+<div class="sub">40 questions : mDP1 (5, verrouillé) · KFP1 (3, verrouillé) · mDP4 (5, verrouillé) · mDP2 (7, verrouillé) · mDP3 (5, verrouillé) · SQI1 (15)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/40</b></span>
+<span class="pill">Score : <b id="s-ok">0/40</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">mDP1 — Ménorragies chez Mme M, 34 ans</div>
+
+<div class="q" id="mDP1-Q1" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme M, âgée de 34 ans, vient consulter pour des ménorragies « depuis 2 mois ». Les dernières règles, notamment, se sont terminées il y a 10 jours et « se sont accompagnées de caillots ». Son poids est de 89 Kg pour 1, 65 m (IMC=32). La PA est de 128/75 mm Hg. Cette patiente n’a pas d’antécédent familial ou personnel mammaire ni gynécologique notable, mais pas de suivi mammaire ni gynécologique régulier. Elle est porteuse d’un implant sous-cutané contenant de l’étonogestrel mis en place 8 mois après son 2è accouchement, il y a 5 ans dans une autre ville et non renouvelé depuis. Aucun dépistage cervico-utérin n’a été effectué depuis l’accouchement, en l’absence d’un suivi gynécologique adéquat.</div>
+<div class="stem">Quels éléments diagnostiques pouvez-vous attendre de l’examen gynécologique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Volume de l’utérus</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Existence d’un épaississement anormal de l’endomètre</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Existence éventuelle de déformation de l’utérus</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Existence d’une tumeur du col utérin</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Existence d’une masse annexielle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-correct="ACDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après explication des objectifs de l’examen gynécologique/mammaire et accord de la patiente, l’examen mammaire est sans particularité, l’examen au spéculum permet la visualisation d’une zone rouge périorificielle au niveau du col utérin, l’absence de saignement, et vous effectuez un prélèvement cervico-utérin pour recherche de virus HPV HR et éventuel examen cytologique « réflexe ». L’utérus est de volume un peu augmenté, paraissant déformé par un fibromyome fundique. La conclusion de la recherche de virus HPV à haut risque (HR) est « positive » et celle de l’examen cytologique est « anomalies des cellules malpighiennes évoquant une lésion intra-épithéliale de bas grade (LSIL) ». Quels examens proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un dosage plasmatique de béta hCG</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un contrôle de l’examen cytologique à 1 an</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">Une colposcopie</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Une biopsie avec examen anatomopathologique</span></li>
+<li class="opt" data-l="E" data-correct="1" data-mandatory="1"><span class="box">E</span><span class="otext">Une échographie pelvienne</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le dosage de béta hCG est négatif. L’échographie prescrite a montré l’existence de plusieurs nodules utérins d’aspect fibromyomateux (7 au total, le plus gros de 30 mm). La colposcopie et les biopsies effectuées confirment l’existence d’une lésion intra-épithéliale de bas grade pour laquelle un traitement par vaporisation Laser a été effectué. Au total, la pathologie cervicale n’expliquait pas les saignements, qui persistent au cours du cycle suivant. Quels examens complémentaires proposez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">NFS, Plaquettes.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">biopsie d’endomètre.</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">bilan d’hémostase</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">hystérosalpingographie</span></li>
+<li class="opt" data-l="E" data-correct="1" data-mandatory="1"><span class="box">E</span><span class="otext">hystéroscopie diagnostique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le taux d’hémoglobine est normal, de même que l’hémostase, l’hystéroscopie et la biopsie d’endomètre, mais vous souhaitez pousser plus loin les investigations, d’autant que cette patiente vous décrit maintenant une « gêne sus- pubienne », que l’échographiste a eu du mal à visualiser les annexes et que Mme M vous dit avoir fait « retirer son implant car elle envisage une nouvelle grossesse ». Quel(s) examen(s) complémentaire(s) prescrivez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Tomodensitométrie abdomino-pelvienne</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Groupe Rhésus phénotypage complet Rhésus et Kell, RAI.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Sérologies toxoplamose et rubéole</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Nouveau test béta hCG rapide.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une IRM pelvienne si béta hCG négatif.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le test béta hCG est toujours négatif. L’IRM n’a révélé aucune anomalie au niveau annexiel, et le nombre, le volume et la situation des nodules utérins d’aspect fibromyomateux sont tels que décrits en échographie. Un nouveau test HPV à haut risque (test HPV-HR) est revenu négatif, et Mme M vous confirme qu’elle envisage une nouvelle grossesse. Parmi les propositions suivantes, la(es)quelle(s) est(sont) exacte(s)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vous « donnez le feu vert » immédiat pour une nouvelle grossesse.</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Vous informez Mme M sur les bénéfices de la perte de poids avant la grossesse pour sa santé, sa fertilité et son futur enfant (mesures alimentaires et activité physique), prescrivez un dépistage du diabète.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous vous informez sur le déroulement des précédentes grossesses et accouchements, le statut vaccinal de Mme M, sa profession et sa couverture sociale.</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Vous prescrivez une supplémentation en acide folique 0,4 mg/jour à arrêter dès le retard de règles.</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vous prescrivez des sérologies toxoplasmose et rubéole, ainsi qu'une détermination du groupe sanguin (ABO, phénotype rhésus complet et Kell) et une recherche d'agglutinines irrégulières, et proposez une sérologie du VIH1 et 2.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">KFP1 — Éruption cutanée chez un garçon de 2 ans</div>
+
+<div class="q" id="KFP1-Q1" data-answer="Varicelle | varicelle | VZV" data-correct="" data-type="QROC">
+<div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez en consultation un garçon de 2 ans pour une éruption cutanée évoluant depuis 48h.</div>
+<div class="stem">A l'examen clinique vous retrouvez les lésions suivantes.</div>
+<div class="extra"><img src="data:image/jpeg;base64,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" style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>
+<div class="stem">Quel diagnostic évoquez-vous?</div>
+<textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden>
+<div class="qrocans">Réponse attendue : Varicelle / varicelle / VZV</div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-correct="BFIKL" data-type="QRP">
+<div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRP · 5 réponses</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous évoquez une varicelle.Parmi les propositions suivantes, quels sont les 5 éléments que vous recherchez à l'interrogatoire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une rhino-pharyngite dans les jours précédents</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un contact avec une personne traitée par immunosuppresseur</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un antécédent personnel de prématurité</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une corticothérapie récente</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un contact avec une personne âgée de plus de 65 ans</span></li>
+<li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Statut immun de la mère vis-à-vis de la varicelle</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Un contact avec une personne drépanocytaire homozygote</span></li>
+<li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Statut immun du frère de 5 ans vis-à-vis de la varicelle</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Une grossesse en cours chez la mère</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Un antécédent personnel de varicelle</span></li>
+<li class="opt" data-l="K" data-correct="1"><span class="box">K</span><span class="otext">Statut immun du père vis-à-vis de la varicelle</span></li>
+<li class="opt" data-l="L" data-correct="1"><span class="box">L</span><span class="otext">Un déficit immunitaire chez le frère de 5 ans</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, F, I, K, L</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — antécédent, sérologie connue, vaccination</div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span> — antécédent, sérologie connue, vaccination</div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">K.</span> <span class="cv">VRAI</span> — antécédent, sérologie connue, vaccination</div>
+<div class="citem v-vrai"><span class="cl">L.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-correct="BHI" data-type="QRPL">
+<div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRPL · 3 réponses</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Oscar n'a aucun antécédent personnel. Il est gardé en crècheSa mère est enceinte depuis 4 mois. Elle avait une sérologie négative en début de grossesse. Son frère de 5 ans n'a pas d'antécédent et n'a jamais fait la varicelle. Son père a eu la varicelle quand il était petit. Parmi les propositions suivantes, listez les 3 mesures que vous mettez en place.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vaccination de la mère avec administration de la première dose dans les 3 à 5 jours suivant le contact</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Paracétamol en cas de fièvre</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vaccination du frère avec administration de la première dose dans les 3 à 5 jours suivant le contact</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Déclaration obligatoire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Administration d'immunoglobulines anti-VZV chez le frère</span></li>
+<li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Traitement antiviral par aciclovir oral</span></li>
+<li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Antibiothérapie locale</span></li>
+<li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Eviction recommandée de la collectivité</span></li>
+<li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Administration d'immunoglobulines anti-VZV chez la mère</span></li>
+<li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Soins locaux à l'éosine aqueuse</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, H, I</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP4 — Fièvre, douleurs abdominales et pleurs à la miction chez un garçon de 3 ans</div>
+
+<div class="q" id="mDP4-Q1" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP4 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous prenez en charge un jeune garçon de 3 ans pour une fièvre 39-40° depuis 48 heures, des douleurs abdominales, des vomissements et des pleurs à la miction. A l’arrivée aux urgences : la température dépasse 40°, on constate des frissons. L’abdomen est gonflé et douloureux et l’examen est difficile du fait de l’agitation de l’enfant qui se débat lors de la palpation de la moitié inférieure de l’abdomen.</div>
+<div class="stem">Quelle(s) est(sont) votre(vos) hypothèse(s) diagnostique(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Appendicite pelvienne compliquée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pyélonéphrite aigue</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Gastro-entérite</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Cystite</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Péritonite</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP4-Q2" data-correct="BE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP4 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'examen cytobactériologique des urines retrouve une leucocyturie à 105/ml et des bacilles gram négatifs au direct. Vous posez le diagnostic de pyélonéphrite aigue. Les examens biologiques sanguins montrent une hyperleucocytose (18 500 GB/mm3), une élévation de la créatinine (90 mmol/l) de l’urée (11 mmol/l), et de la CRP (25 mg/l).Après que l’enfant se soit calmé, l’examen clinique retrouve un globe vésical. La palpation du globe déclenche un jet urinaire qui est faible. Quel(s) autres examen(s) diagnostique(s) demandez-vous en urgence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Scanner abdomino-pelvie n</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Échographie abdominale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Cystoscopie</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Cystographie rétrograde</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Échographie rénale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP4-Q3" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP4 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L’échographie abdominale retrouve un globe vésical avec un volume vésical évalué à 200 ml, une vessie à parois épaisses avec des signes de lutte. L’échographie rénale montre une dilatation urétéro-pyélo calicielle bilatérale (pyélons a 15 mm et uretères entre 10 et 12 mm). Le parenchyme rénal est aminci de façon bilatérale avec cicatrices et zones hypovascularisées au Doppler. Le reste de l'échographie abdominale est normale.Quelle(s) est(sont) votre(vos) hypothèse(s) diagnostique(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Reflux vésico-urétéral bilatéral</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Méga-uretère bilatéral</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Rétention vésicale chronique d’origine neurologique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Rétention vésicale chronique secondaire à des valves de l’urètre postérieur</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Anomalie bilatérale de jonction pyélo-urétérale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP4-Q4" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP4 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comment organisez-vous la prise en charge en urgence ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hospitalisation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Antibiothérapie orale</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Biopsie rénale</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Surveillance des Ionogrammes sanguin et urinaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Drainage vésical par sonde à demeure</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP4-Q5" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP4 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) examen(s) programmez-vous à distance pour connaître l’étiologie de cette rétention vésicale chronique révélée par une pyélonéphrite aigue ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Uro-TDM</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Cystoscopie</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">Cystographie rétrograde</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Uro-IRM</span></li>
+<li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">Scintigraphie rénale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">mDP2 — Douleurs abdominales et lombaires à 30 SA chez Mme G, 32 ans</div>
+
+<div class="q" id="mDP2-Q1" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Mme G âgée de 32 ans, 81 Kg pour 1,70 m, se présente aux urgences gynéco-obstétricales de la maternité au terme de 30 SA pour des douleurs abdominales et lombaires toutes les 10 minutes, sans fond douloureux, apparues progressivement depuis la veille au soir et gagnant en intensité. On note dans ses antécédents une notion de fibromyome utérin douloureux en début de grossesse et un premier accouchement à 33 semaines d’aménorrhée (SA). Il s’agit de sa 2ème consultation depuis le début de grossesse, vous disposez d’une échographie du 1er trimestre ayant permis une datation précise de la grossesse, et cette patiente présente un diabète gestationnel, mais ne s’est pas rendue régulièrement à ses rendez-vous de consultation de diabétologie. Mme G fume un paquet de cigarettes par jour, elle est femme de ménage et élève seule son premier enfant.. A l’examen : Température = 37,2°, Pression Artérielle = 10/6, protéinurie négative, glycosurie négative, pas de nitrites ni de leucocyturie ; HU = 30 cm, bruits du cœur fœtaux +.</div>
+<div class="stem">Quel(s) diagnostic(s) évoquez-vous en premier lieu et comment le confirmez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hématome rétro-placentaire, à confirmer par radio du contenu utérin</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Pyélonéphrite aiguë</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Menace d’accouchement prématuré, à confirmer par examen clinique et échographie du col utérin</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Appendicite aiguë</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Colique hépatique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q2" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) facteur(s) favorisant(s) possible(s) d’accouchement prématuré relevez-vous dans l’observation ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">tabagisme</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">fibromyome utérin</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">situation familiale et socio-économique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">antécédent d’accouchement à 33 SA</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">diabète gestationnel non équilibré</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q3" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Devant cette menace d’accouchement prématuré, quels examens paracliniques demandez-vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">PV , ECBU</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">NFS</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">VS</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">CRP</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Échographie obstétricale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q4" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le col est ouvert, et mesure 8 mm en échographie, le fibromyome est fundique, mesure 30 mm de diamètre, et il est non douloureux à la palpation. L’échographiste vous dit que l’estimation de poids fœtal est de 1450 gr, qu’il existe un hydramnios sans anomalie morphologique fœtale visible compte tenu des conditions d’examen. Sur l’enregistrement cardiotocographique des contractions sont visibles, sans anomalies du rythme cardiaque fœtal (RCF), à raison de 3/10 min. Le pédiatre vous dit qu’il dispose de places dans l’unité de soins intensifs pédiatriques, mais vous rappelle qu’il n’y a pas sur place d’unité de réanimation néonatale. Quel(s) élément(s) pronostique(s) important(s) sont à considérer à ce stade?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">le nombre de pédiatres disponibles</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">d’éventuels signes d’infection amniochoriale</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">l’estimation de poids fœtal de 1450 gr</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">la survenue d’éventuelles anomalies du rythme cardiaque fœtal (RCF)</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">l’absence d’unité de réanimation néonatale</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q5" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le RCF est et reste normal, le bilan infectieux est négatif, et vous envisagez un transfert de la patiente ("transfert in utero") dans un centre périnatal disposant d’une réanimation néonatale. Quels traitements pouvez-vous utiliser dans ce contexte ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">ocytociques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">inhibiteurs calciques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">bétaméthasone chronodose 12 mg intra-musculaire, à répéter 24h plus tard</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">béta-mimétiques</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">antagonistes des récepteurs de l'ocytocine</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q6" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous vous adressez à une « cellule de transfert, qui vous interroge concernant la typologie qui correspond au centre périnatal d’accueil que vous recherchez, et vous propose un transfert "en type IIA". Parmi les propositions suivantes, la(les)quelle(s) est(sont) exactes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un tel centre est adapté</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un tel centre n’est pas adapté car il ne dispose pas d’une réanimation néonatale.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un tel centre est encore moins adapté que celui dans lequel vous êtes.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un centre de type III est nécessaire en raison de l’âge gestationnel et du poids fœtal estimé.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Toutes les propositions précédentes sont fausses.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP2-Q7" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente a pu être transférée dans un centre périnatal de type 3 (disposant donc d’une unité de réanimation néonatale).Le lendemain, les contractions utérines reprennent, la présentation est céphalique et le col utérin se dilate jusqu’à 3-4 cm. Quel(s) autre(s) traitement(s) est-il indiqué de prescrire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">acide folique 5 mg/jour pendant une semaine</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">prednisolone 10 mg/j pendant 48h sous surveillance du pouls, de la PA, de la fréquence respiratoire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">solumédrol en perfusion 10 mg/jour jusqu’à l’accouchement avec une durée maximale de 48h sous surveillance du pouls, de la PA, de la fréquence respiratoire</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">aspirine 500 mg /6 à 8h, sans dépasser 2 à 3 g/jour</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">4 g de sulfate de magnésium IV administré sur 30 minutes, suivie d’une dose d’entretien de 1 g/h jusqu’à l’accouchement avec une durée maximale de 12 h sous surveillance du pouls, de la PA, de la fréquence respiratoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">mDP3 — Gêne respiratoire fébrile chez Gaspard, 4 ans</div>
+
+<div class="q" id="mDP3-Q1" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP3 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Le jeune Gaspard, 4 ans, consulte aux urgences pour une gène respiratoire apparue 3 heures plus tôt dans un contexte de toux, de rhinite et de fièvre à 38.3° depuis 3 jours.A lauscultation retrouve un murmure vésiculaire bien perçu et symétrique, avec des sibilants diffus. La FC est à 110. La PA est à 96/45. Le TRC est inférieur à 2 secondes. Les pouls centraux et périphériques sont bien présents, les extrémités sont chaudes. Il nhépatomégalie, de reflux hépato-jugulaire ou de turgescence jugulaire.</div>
+<div class="stem">Parmi les propositions suivantes la(les)quelle(s) est(sont) caractérise(nt) l'état clinique de Gaspard?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Insuffisance respiratoire décompensée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Détresse respiratoire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hémodynamique normale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Etat de choc</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Insuffisance respiratoire compensée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP3-Q2" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP3 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous diagnostiquez une détresse respiratoire sur une crise d'asthme modérée. Quel(s) traitement(s) initiez-vous en première intention ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Sulfate de magnésium en intraveineux</span></li>
+<li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">Salbutamol en nébulisation</span></li>
+<li class="opt" data-l="C" data-correct="0" data-unacceptable="1"><span class="box">C</span><span class="otext">Salbutamol en intraveineux</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Bromure d'ipratropium en nébulisation</span></li>
+<li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">Kinésithérapie respiratoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP3-Q3" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP3 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) examen(s) complémentaire(s) prescrivez vous dans l'immédiat?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Gazs du sang</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Bilan allergologique: IgE spécifiques anti-PL V</span></li>
+<li class="opt" data-l="C" data-correct="0" data-unacceptable="1"><span class="box">C</span><span class="otext">Explorations fonctionnelles respiratoires</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Radiographie de thorax</span></li>
+<li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">NFS</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP3-Q4" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP3 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Gaspard s'améliore. Vous le faites rentrer à domicile avec un traitement par Salbutamol en spray (Ventoline). Parmi les méthodes suivantes d'inhalation la(les)quelle(s) peu(ven)t être proposées(s) à Gaspard, 4 ans?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Aérosol-doseur + chambre d’inhalation + masque facial</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Aérosol-doseur</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Aérosol-doseur autodéclenché</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Aérosol-doseur + chambre d’inhalation sans masque facial</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Inhalateur de poudre</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="mDP3-Q5" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">mDP3 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">A l'interrogatoire, vous apprenez que Gaspard est régulièrement gêné par une toux nocturne qui l'a réveillé à plusieurs reprises le mois dernier. Quel(s) traitement(s) de fond instaurez vous?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Corticostéroïde inhalé</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">β2-mimétiques de courte durée d'action</span></li>
+<li class="opt" data-l="C" data-correct="0" data-unacceptable="1"><span class="box">C</span><span class="otext">Association corticostéroïde inhalé-formotérol</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Corticostéroïde oral</span></li>
+<li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">Association corticostéroïde inhalé-bronchodilatateurs de longue durée d'action</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les éléments suivants, le(les)quel(s) vous oriente(nt) vers une pneumonie à Mycoplasme ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Age &lt; 3 ans</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Contexte épidémique</span></li>
+<li class="opt" data-l="C" data-correct="0" data-unacceptable="1"><span class="box">C</span><span class="otext">Altération de l’état général</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Syndrome inflammatoire franc</span></li>
+<li class="opt" data-l="E" data-correct="1" data-mandatory="1"><span class="box">E</span><span class="otext">Début progressif</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes à propos de la trisomie 21, la(les)quelle(s) est(sont) exacte(s)?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Pour un couple ayant un enfant atteint d'une trisomie 21 libre, le risque de récurrence pour un nouvel enfant est de un tiers.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La confirmation diagnostique requiert un caryotype sanguin, sauf en cas de diagnostic clinique évident</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La forme cytogénétique la plus fréquente est la trisomie 21 libre homogène</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La forme cytogénétique la plus fréquente est la présence d'un chromosome 21 surnuméraire transmis par la mère</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les investigations cytogénétiques incluent systématiquement un caryotype parental</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les fractures de l’enfant, parmi les propositions suivantes, la(les)quelle(s) est(sont) fausse(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’os de l’enfant est plus résistant que celui d’un adulte.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un décollement épiphysaire associé à une fracture épiphysaire est classé Salter et Haris type 3.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un décollement épiphysaire associé à une fracture métaphyso-épiphysaire est classé Salter et Haris type 5.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les épiphyses sont radio-opaques.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le diagnostic de fracture est posé à la radiographie de face et de profil englobant les articulations sus et sous-jacentes.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, la(es)quelle(s) est(sont) évocatrices de reflux gastro-oesophagien pathologique?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hémoptysie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pneumopathies récidivantes, si le RGO est prouvé à la pH métrie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hématémèse</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Pyrosis</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Otites</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="E" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente tabagique, ayant un antécédent d’infection génitale haute, consulte aux urgences pour métrorragies très peu abondantes. Il existe un retard de règles. Le test de grossesse (urines) est positif. Le groupe sanguin est A rhésus négatif. Vous suspectez une grossesse extra-utérine (GEU). Parmi les propositions suivantes, la(les)quelle(s) est(sont) exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">L’association d’un test urinaire de grossesse positif et d’une absence de visualisation de sac ovulaire intra-utérin par échographie pelvienne effectuée par sonde endo-vaginale rend probable le diagnostic de GEU.</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">En l’absence de visualisation de sac gestationnel intra-utérin ou de masse latéro-utérine, la prévention de l’allo-immunisation Rhésus n’est pas indiquée.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le tabagisme est un facteur de risque de fausse-couche spontanée, mais non de GEU.</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">La faible abondance des métrorragies et l'absence de douleur rendent peu probable le diagnostic de GEU.</span></li>
+<li class="opt" data-l="E" data-correct="1" data-mandatory="1"><span class="box">E</span><span class="otext">L'apparition d'une défense abdominale rend le traitement chirurgical urgent.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="B" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, la(es)quelle(s) est(sont) systématiques lors de la prise en charge d'une coqueluche de l'enfant?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Hospitalisation</span></li>
+<li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">Antibiothérapie par macrolides, indiquée au cours des 3 premières semaines de la maladie</span></li>
+<li class="opt" data-l="C" data-correct="0" data-unacceptable="1"><span class="box">C</span><span class="otext">Eviction de la collectivité durant 7 jours</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Kinésithérapie respiratoire</span></li>
+<li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">Antibiothérapie préventive chez tous les cas contacts</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le cancer de l’endomètre</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Les métrorragies post-ménopausiques en sont la circonstance de découverte la plus fréquente.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Il existe un dépistage organisé du cancer de l’endomètre dans la population générale.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il n’est pas hormonodépendant.</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L’obésité sans diabète n’est pas un facteur de risque.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Toutes les propositions précédentes sont fausses</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les critères suivants, le(s)quel(s) es(son)t facteur(s) de risque d’hémorragie du post partum ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">un antécédent d’hémorragie grave du postpartum</span></li>
+<li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">un placenta bas inséré « praevia »</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">l’existence d’une restriction de croissance fœtale</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">l’accouchement d’un gros enfant</span></li>
+<li class="opt" data-l="E" data-correct="1" data-mandatory="1"><span class="box">E</span><span class="otext">la naissance de jumeaux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="A" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">A propos des infections génitales hautes</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Les douleurs pelviennes spontanées (en l’absence d’autre pathologie) et retrouvées à la mobilisation utérine sont un critère diagnostique majeur.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les examens complémentaires systématiques comprennent une NFS et une tomodensitométrie abdomino-pelvienne.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un drainage chirurgical doit être envisagé pour tout abcès de plus de 20 mm</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L’antibiothérapie ne comporte jamais plus de 2 antibiotiques.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Toutes les propositions précédentes sont fausses</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les critères suivants, la(es)quelle(s) es(son)t facteur(s) de risque de nouveau-né petit pour l’âge gestationnel ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Troubles hypertensifs</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Diabète gestationnel</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hypothyroïdie maternelle</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Consommation alcoolique ou de drogues</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Insuffisance pondérale maternelle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les agents infectieux suivants, lesquelles sont susceptibles de provoquer une embryo-fœtopathie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">cytomegalovirus</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">streptocoque B</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">toxoplasmose</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">rubéole</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">chlamydiae</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les infections HPV au niveau du col utérin, quelle(s) est (sont) la (les) propositions exacte(s) ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Les infections persistantes à virus HPV oncogènes de la muqueuse du col utérin sont la cause première des carcinomes pavimenteux du col utérin</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Parmi les virus HPV oncogènes, les plus souvent responsables des néoplasies cervicales intra- épithéliales sont les virus HPV 16 et 18</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le vaccin bivalent immunise principalement contre les virus oncogènes HPV 6 et 11</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le vaccin quadrivalent immunise principalement contre les virus HPV 6 , 11, 16 et 18</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La vaccination anti-HPV est recommandée aux jeunes filles de 11 à 14 ans (2 doses), avec un rattrapage possible pour les jeunes filles ayant jusqu’à 19 ans révolus</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — 3 doses</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="D" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel est le principal germe en cause dans les infections osteoarticulaires de l'enfant de 1 à 4 ans ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Escherichia coli</span></li>
+<li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Staphylococcus aureus</span></li>
+<li class="opt" data-l="C" data-correct="0" data-unacceptable="1"><span class="box">C</span><span class="otext">Streptocoque B</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Kingella kingae</span></li>
+<li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">Streptococcus pneumoniae</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les deux germes les plus fréquents dans les infections bactériennes sévères de l'enfant de moins de 3 mois?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Staphylococcus aureus</span></li>
+<li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">Escherichia coli</span></li>
+<li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">Streptocoque du groupe B</span></li>
+<li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Streptococcus pyogenes</span></li>
+<li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">Entérocoque</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Une patiente âgée de 25 ans, primigeste primipare sans antécédent médico-chirurgical notable, se présente aux urgences gynécologiques pour des douleurs pelviennes à prédominance droite, d’intensité très progressivement croissante depuis 2 jours. Elle est porteuse d’un dispositif intra-utérin posé il y a un mois. Les dernières règles se sont terminées il y a 4 jours. A l'examen : PA = 110 /70 mmHg, pouls 90/min, température à 37°8; il existe des douleurs pelviennes, retrouvées à la mobilisation utérine, mais prédominant à droite et en fosse iliaque droite; il n’y a pas de douleurs à l’ébranlement des fosses lombaires. La bandelette urinaire est négative.Quel(s) est(sont) à ce stade, avant la réalisation de tout autre examen, le(s) diagnostic(s) probable(s) devant ce tableau clinique, parmi les propositions suivantes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Pyélonéphrite aigue droite</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Appendicite aigue</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Grossesse extra-utérine</span></li>
+<li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Infection génitale haute</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Toutes les propositions précédentes sont fausses</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+function qClipText(el){
+  if(!el)return '';
+  var c=el.cloneNode(true);
+  c.querySelectorAll('br').forEach(function(br){br.replaceWith('\n');});
+  return c.textContent.replace(/[ \t]+/g,' ').replace(/\n\s+/g,'\n').trim();
+}
+function qLoadImage(img){
+  return new Promise(function(resolve){
+    var im=new Image();
+    im.onload=function(){resolve(im);};
+    im.onerror=function(){resolve(null);};
+    im.src=img.src;
+  });
+}
+function qCombineImages(imgs){
+  return Promise.all(imgs.map(qLoadImage)).then(function(loaded){
+    loaded=loaded.filter(Boolean);
+    if(!loaded.length)return null;
+    var gap=loaded.length>1?16:0;
+    var width=Math.max.apply(null,loaded.map(function(im){return im.naturalWidth;}));
+    var height=loaded.reduce(function(h,im){return h+im.naturalHeight;},0)+gap*(loaded.length-1);
+    var cv=document.createElement('canvas');
+    cv.width=width;cv.height=height;
+    var ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
+    var y=0;
+    loaded.forEach(function(im){ctx.drawImage(im,0,y);y+=im.naturalHeight+gap;});
+    return new Promise(function(resolve){cv.toBlob(resolve,'image/png');});
+  });
+}
+function buildQuestionClipboard(q){
+  var parts=[];var images=[];
+  var qt=q.querySelector('.qhead .qtype');
+  if(qt)parts.push(qClipText(qt));
+  q.querySelectorAll('.dpctx, .stem, .extra').forEach(function(el){
+    if(el.classList.contains('extra')){
+      el.querySelectorAll('img').forEach(function(img){images.push(img);parts.push('[Image]');});
+    }else{
+      parts.push(qClipText(el));
+    }
+  });
+  q.querySelectorAll('.opts > .opt, .extra.zonewrap > .zone').forEach(function(it){
+    var l=it.dataset.l;if(!l)return;
+    var otext=it.querySelector('.otext');
+    var txt=otext?qClipText(otext):(it.getAttribute('title')||'').trim();
+    parts.push(l+' '+txt);
+  });
+  return {text:parts.filter(Boolean).join('\n'),images:images};
+}
+function copyQuestion(q,chip){
+  if(!q)return;
+  var data=buildQuestionClipboard(q);
+  var prevText=chip.textContent;
+  var done=function(ok){
+    chip.classList.add('copied');
+    chip.textContent=ok?'✓ Copié !':'Échec';
+    setTimeout(function(){chip.classList.remove('copied');chip.textContent=prevText;},1400);
+  };
+  var writeTextOnly=function(){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(data.text).then(function(){done(true);}).catch(function(){done(false);});
+    }else{done(false);}
+  };
+  if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+    (data.images.length?qCombineImages(data.images):Promise.resolve(null)).then(function(imgBlob){
+      var payload={'text/plain':new Blob([data.text],{type:'text/plain'})};
+      if(imgBlob)payload['image/png']=imgBlob;
+      return navigator.clipboard.write([new ClipboardItem(payload)]);
+    }).then(function(){done(true);}).catch(function(){writeTextOnly();});
+  }else{
+    writeTextOnly();
+  }
+}
+document.addEventListener('click',function(e){
+  var qn=e.target.closest('.qnum');
+  if(qn){copyQuestion(qn.closest('.q'),qn);}
+});
+document.addEventListener('keydown',function(e){
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('qnum')){
+    e.preventDefault();copyQuestion(e.target.closest('.q'),e.target);
+  }
+});
+$('.qnum').forEach(function(el){
+  el.tabIndex=0;el.setAttribute('role','button');
+  el.title='Copier la question pour un chat IA';
+  el.setAttribute('aria-label','Copier la question '+el.textContent+' pour un chat IA');
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
