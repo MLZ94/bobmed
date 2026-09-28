@@ -252,6 +252,33 @@ button.validate:hover { filter:brightness(1.08); }
 .citem .tag-unacceptable { color:var(--faux); background:var(--fauxbg); border:1px solid var(--faux); }
 ```
 
+### Chip de copie de question (`.qnum` cliquable)
+
+**Depuis 2026-09**, le chip `.qnum` (numéro de question, ex. « SQI1 Q3 ») est cliquable sur tous les quiz du site : un clic (ou Entrée/Espace, chip focusable au clavier) copie dans le presse-papiers la question — prête à coller telle quelle dans un chat IA — **sans jamais inclure la correction**, indépendamment du fait que la question ait déjà été validée/révélée ou non (le générateur ne lit que `.qtype`, `.dpctx`, `.stem`, `.extra img`, `.opts > .opt .otext` et `.zone`, jamais `.correction`/`.citem`/`data-correct`/`.status`).
+
+**Contenu copié** (texte brut, une ligne par bloc, pas de point après la lettre d'option) :
+1. Le type (`.qtype`, ex. `QRM`)
+2. Le contexte clinique DP (`.dpctx`) s'il existe, `<br>` convertis en retours à la ligne
+3. Le(s) énoncé(s) (`.stem`) dans l'ordre du DOM, avec `[Image]` à la position de chaque image rencontrée (gère nativement le cas « texte intercalé entre les images »)
+4. Les items : `LETTRE texte` pour chaque `.opt` (lit `.otext`, jamais le `.mark` ajouté après correction) ou chaque `.zone` (QZONE, lit `title`) ; rien pour une QROC (pas d'`.opts`)
+
+**Image(s)** : si la question a une ou plusieurs images, elles sont converties en PNG (via canvas) et — s'il y en a plusieurs (cas « texte entre deux images ») — empilées verticalement en une seule image composite, puis écrites dans le **même** `ClipboardItem` que le texte (`{'text/plain':…, 'image/png':…}`). ⚠️ Chrome ne supporte **pas** plusieurs `ClipboardItem` dans un seul appel `clipboard.write()` (`NotAllowedError: Support for multiple ClipboardItems is not implemented`) — d'où la compression en une image unique plutôt qu'un tableau d'items. Fallback si `ClipboardItem`/`clipboard.write` indisponible (ou si l'écriture échoue) : `clipboard.writeText()` du texte seul.
+
+**Feedback visuel** : le chip passe en vert (`.qnum.copied`, `background:var(--vrai)`) et son texte devient temporairement `✓ Copié !` (ou `Échec` si tout a échoué), pendant 1,4 s, avant de revenir à son libellé d'origine — pas de nouvel élément DOM, juste une substitution de `textContent`.
+
+**Accessibilité** : posée en JS au chargement (pas dans le HTML statique, pour ne pas alourdir chaque annale) — `tabIndex=0`, `role="button"`, `title` et `aria-label` explicites sur chaque `.qnum`.
+
+CSS requis (ajouté par-dessus la règle `.qnum` existante, ne redéfinit ni `background` ni `color` de base) :
+```css
+.qnum { cursor:pointer; transition:filter .15s, transform .1s; user-select:none }
+.qnum:hover { filter:brightness(1.12) }
+.qnum:active { transform:scale(.94) }
+.qnum:focus-visible { outline:2px solid var(--acc); outline-offset:2px }
+.qnum.copied { background:var(--vrai)!important; filter:none }
+```
+
+`pdf_to_quiz.py` l'injecte automatiquement (`upgrade_qnum_copy()`, appliqué à **tous** les quiz générés, D1 et D2) ; `validate_quiz.py` le vérifie (`QNUM_COPY_MISSING`, avertissement non bloquant — présent en permanence sur les 36 quiz `d1/t4/`, jamais patchés puisque D1 est obsolète, cf. plus haut). Fonctions JS : `qClipText` (textContent avec `<br>`→`\n`), `qLoadImage`/`qCombineImages` (chargement + empilement canvas), `buildQuestionClipboard` (construction du texte + liste d'images), `copyQuestion` (écriture presse-papiers + feedback) — cf. « JS complet de référence » pour le code exact.
+
 ### Format de correction détaillée (VRAI/FAUX par option)
 
 Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par option (en couleur) suivi de sa justification, plutôt qu'une simple liste de lettres. C'est le format historique des annales D1, et le standard du site depuis 2026-07 (y compris pour les quiz générés par `pdf_to_quiz.py`) :
@@ -607,6 +634,87 @@ const ra = document.getElementById('revealall'); if (ra) ra.addEventListener('cl
   $('.q.locked').forEach(q => q.classList.remove('locked'));
   $('.q').forEach(q => reveal(q, true));
 });
+
+// --- Chip .qnum cliquable : copie question+items+image(s) pour un chat IA ---
+// (cf. « Chip de copie de question » — ne lit jamais .correction/data-correct)
+function qClipText(el) {
+  if (!el) return '';
+  const c = el.cloneNode(true);
+  c.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  return c.textContent.replace(/[ \t]+/g, ' ').replace(/\n\s+/g, '\n').trim();
+}
+function qLoadImage(img) {
+  return new Promise(resolve => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = () => resolve(null);
+    im.src = img.src;
+  });
+}
+function qCombineImages(imgs) {                 // empile plusieurs images en un seul PNG
+  return Promise.all(imgs.map(qLoadImage)).then(loaded => {
+    loaded = loaded.filter(Boolean);
+    if (!loaded.length) return null;
+    const gap = loaded.length > 1 ? 16 : 0;
+    const width = Math.max(...loaded.map(im => im.naturalWidth));
+    const height = loaded.reduce((h, im) => h + im.naturalHeight, 0) + gap * (loaded.length - 1);
+    const cv = document.createElement('canvas'); cv.width = width; cv.height = height;
+    const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height);
+    let y = 0; loaded.forEach(im => { ctx.drawImage(im, 0, y); y += im.naturalHeight + gap; });
+    return new Promise(resolve => cv.toBlob(resolve, 'image/png'));
+  });
+}
+function buildQuestionClipboard(q) {
+  const parts = []; const images = [];
+  const qt = q.querySelector('.qhead .qtype'); if (qt) parts.push(qClipText(qt));
+  q.querySelectorAll('.dpctx, .stem, .extra').forEach(el => {
+    if (el.classList.contains('extra')) el.querySelectorAll('img').forEach(img => { images.push(img); parts.push('[Image]'); });
+    else parts.push(qClipText(el));
+  });
+  q.querySelectorAll('.opts > .opt, .extra.zonewrap > .zone').forEach(it => {
+    const l = it.dataset.l; if (!l) return;
+    const otext = it.querySelector('.otext');
+    const txt = otext ? qClipText(otext) : (it.getAttribute('title') || '').trim();
+    parts.push(l + ' ' + txt);
+  });
+  return { text: parts.filter(Boolean).join('\n'), images };
+}
+function copyQuestion(q, chip) {
+  if (!q) return;
+  const data = buildQuestionClipboard(q);
+  const prevText = chip.textContent;
+  const done = ok => {
+    chip.classList.add('copied');
+    chip.textContent = ok ? '✓ Copié !' : 'Échec';
+    setTimeout(() => { chip.classList.remove('copied'); chip.textContent = prevText; }, 1400);
+  };
+  const writeTextOnly = () => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(data.text).then(() => done(true)).catch(() => done(false));
+    } else done(false);
+  };
+  if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+    (data.images.length ? qCombineImages(data.images) : Promise.resolve(null)).then(imgBlob => {
+      const payload = { 'text/plain': new Blob([data.text], { type: 'text/plain' }) };
+      if (imgBlob) payload['image/png'] = imgBlob;
+      return navigator.clipboard.write([new ClipboardItem(payload)]);      // 1 seul ClipboardItem : cf. note Chrome plus haut
+    }).then(() => done(true)).catch(() => writeTextOnly());
+  } else writeTextOnly();
+}
+document.addEventListener('click', e => {
+  const qn = e.target.closest('.qnum'); if (qn) copyQuestion(qn.closest('.q'), qn);
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('qnum')) {
+    e.preventDefault(); copyQuestion(e.target.closest('.q'), e.target);
+  }
+});
+$('.qnum').forEach(el => {
+  el.tabIndex = 0; el.setAttribute('role', 'button');
+  el.title = 'Copier la question pour un chat IA';
+  el.setAttribute('aria-label', 'Copier la question ' + el.textContent + ' pour un chat IA');
+});
+
 initLocks(); updateScore();
 ```
 
@@ -772,7 +880,7 @@ Sur l'environnement distant BobMed (Claude Code on the web), Chromium est déjà
 - `--strict` : exit 1 si des marqueurs `[A VERIFIER]` ou des ligatures PUA non résolues subsistent dans le HTML généré.
 - `--force` : autorise l'écrasement d'un fichier de sortie déjà existant (refusé par défaut, exit 2 — cf. point 5 de la checklist).
 - `UE_MAP` (constante en tête de fichier) fait le lien UE → dossier de destination ; c'est un miroir de la table « UE ↔ trimestre D2 » de ce même CLAUDE.md et de la constante du même nom dans `insert_snippet.py` — **garder les trois synchronisées** si l'une évolue.
-- Injecte automatiquement les **quatre scripts globaux** juste avant `</body>`, dans l'ordre standard des annales : `breadcrumb.js`, `dynamic-header.js`, `timer.js`, `progress.js` (avec le bon préfixe relatif selon la profondeur du dossier de destination). Toute annale générée charge donc le minuteur d'examen sans intervention manuelle. Injecte aussi le **mini-script de bascule du mode sombre** dans le `<head>` (cf. « Assets globaux »).
+- Injecte automatiquement les **quatre scripts globaux** juste avant `</body>`, dans l'ordre standard des annales : `breadcrumb.js`, `dynamic-header.js`, `timer.js`, `progress.js` (avec le bon préfixe relatif selon la profondeur du dossier de destination). Toute annale générée charge donc le minuteur d'examen sans intervention manuelle. Injecte aussi le **mini-script de bascule du mode sombre** dans le `<head>` (cf. « Assets globaux ») et le **chip `.qnum` cliquable** (copie question pour chat IA, `upgrade_qnum_copy()`, cf. « Chip de copie de question ») — sur tous les quiz générés, D1 et D2.
 - **Prend en entrée le FICHIER RÉPONSE de l'annale** (cf. « Fichier réponse de l'annale » dans la checklist) : il s'arrête (exit 1) au lieu de produire un quiz sans bonnes réponses si moins de la moitié des cases ☐/◎ portent un libellé Valide/Faux, si moins de la moitié des questions à choix ont une réponse « Valide » (sujets, y compris ceux qui gardent quelques libellés « Neutraliser » ; relevé sur le dépôt : sujets ≤ 42 %, réponses ≥ 74 %), ou si aucune question « Question N: (Type: …) » n'est détectée (formats 2021-2022, Anglais/LCA : non pris en charge).
 - **Garde-fou items indispensable/inacceptable** : compare le nombre de libellés « Indispensable »/« Inacceptable » du PDF brut, des options parsées et des attributs `data-mandatory`/`data-unacceptable` du HTML, et détecte tout libellé de validité inconnu. En cas d'écart : marqueur `[A VERIFIER]` inscrit dans le HTML (donc publication bloquée par `validate_quiz.py`) et **exit 3**.
 - Rend les **TCS à plusieurs réponses validées** avec leur barème pondéré (`data-w`, cf. « TCS ») et **découpe l'énoncé autour des images** quand le PDF intercale du texte entre elles (cf. « Images »).
@@ -781,7 +889,7 @@ Sur l'environnement distant BobMed (Claude Code on the web), Chromium est déjà
 - **N'est pas une baguette magique** : ne jamais publier son résultat tel quel, toujours dérouler la checklist de relecture ci-dessous.
 
 **`validate_quiz.py`** — `usage: validate_quiz.py [-h] [--json] files [files ...]`
-- Remplace la relecture manuelle des points structurels/techniques de la checklist : marqueurs `[A VERIFIER]`, ligatures/PUA non résolues, piège `.wrap`/`.hwrap`, titres de section bruts (`DP1`, `KFP2`…), fusion de questions (en-tête `Question N: (Type:` fondu dans un bloc, lettre `data-l` en double, lettre répétée dans `data-correct`), cohérence `data-correct`↔options, image annoncée dans l'énoncé/le `dpctx` mais absente du HTML (code `IMAGE_MISSING`), moteurs QRP/QRPL manquants (`QRP_ENGINE_MISSING`/`QRPL_ENGINE_MISSING`), **mini-script du mode sombre absent du `<head>`** (`DARK_MODE_MISSING`, bloquant), **items indispensable/inacceptable** dont la règle « 0 point » n'est pas appliquée par le moteur (`SPECIAL_ENGINE_MISSING`) ou dont le repère visuel fuite avant la réponse (sélecteur CSS sans `.q.done`, `SPECIAL_SPOILER_CSS`), **TCS pondérée** sans moteur (`TCS_WEIGHT_ENGINE_MISSING`) ou avec une réponse validée sans poids (`TCS_WEIGHT_MISSING`), **items/questions neutralisés sans moteur** (`NEUTRAL_ENGINE_MISSING`), **`data-correct` de la question ≠ options marquées justes** (`CORRECT_OPTS_MISMATCH` : le moteur ne lit que la question), **option avalée par l'énoncé** (« Valide A. » dans une `.stem`/`.dpctx`, `OPTION_IN_STEM`), **balisage mal fermé** (`HTML_MALFORMED`, bloquant : `<div>`/`<li>` non fermé, `</note>` au lieu de `</div>`, caractère corrompu — le navigateur imbrique alors la suite de la page, ex. toutes les questions suivantes avalées par une `.q` non fermée ; `HTML_STRAY_CLOSE` en simple avertissement pour une fermeture orpheline), et **script global manquant sur une annale officielle** (`GLOBAL_SCRIPT_MISSING`, avertissement : une annale `Quiz_UE*.html` à scorebar qui n'inclut pas l'un des quatre scripts globaux — le plus souvent `timer.js` ou `dynamic-header.js`).
+- Remplace la relecture manuelle des points structurels/techniques de la checklist : marqueurs `[A VERIFIER]`, ligatures/PUA non résolues, piège `.wrap`/`.hwrap`, titres de section bruts (`DP1`, `KFP2`…), fusion de questions (en-tête `Question N: (Type:` fondu dans un bloc, lettre `data-l` en double, lettre répétée dans `data-correct`), cohérence `data-correct`↔options, image annoncée dans l'énoncé/le `dpctx` mais absente du HTML (code `IMAGE_MISSING`), moteurs QRP/QRPL manquants (`QRP_ENGINE_MISSING`/`QRPL_ENGINE_MISSING`), **mini-script du mode sombre absent du `<head>`** (`DARK_MODE_MISSING`, bloquant), **items indispensable/inacceptable** dont la règle « 0 point » n'est pas appliquée par le moteur (`SPECIAL_ENGINE_MISSING`) ou dont le repère visuel fuite avant la réponse (sélecteur CSS sans `.q.done`, `SPECIAL_SPOILER_CSS`), **TCS pondérée** sans moteur (`TCS_WEIGHT_ENGINE_MISSING`) ou avec une réponse validée sans poids (`TCS_WEIGHT_MISSING`), **items/questions neutralisés sans moteur** (`NEUTRAL_ENGINE_MISSING`), **`data-correct` de la question ≠ options marquées justes** (`CORRECT_OPTS_MISMATCH` : le moteur ne lit que la question), **option avalée par l'énoncé** (« Valide A. » dans une `.stem`/`.dpctx`, `OPTION_IN_STEM`), **balisage mal fermé** (`HTML_MALFORMED`, bloquant : `<div>`/`<li>` non fermé, `</note>` au lieu de `</div>`, caractère corrompu — le navigateur imbrique alors la suite de la page, ex. toutes les questions suivantes avalées par une `.q` non fermée ; `HTML_STRAY_CLOSE` en simple avertissement pour une fermeture orpheline), **script global manquant sur une annale officielle** (`GLOBAL_SCRIPT_MISSING`, avertissement : une annale `Quiz_UE*.html` à scorebar qui n'inclut pas l'un des quatre scripts globaux — le plus souvent `timer.js` ou `dynamic-header.js`), et **chip `.qnum` non cliquable** (`QNUM_COPY_MISSING`, avertissement : `.qnum` présent sans `buildQuestionClipboard` — cf. « Chip de copie de question » ; en permanence présent sur les quiz `d1/t4/`, jamais patchés puisque D1 est obsolète).
 - `NO_INITLOCKS` ne concerne que les pages ayant une section à verrouiller (DP/KFP/TCS/mDP) ; `IMAGE_MISSING` ignore « Voici le bilan : ECG normal » (résultat cité, pas une image).
 - Accepte plusieurs fichiers ou un glob shell (`d2/t4/*.html`).
 - `--json` : sortie JSON seule (machine-readable).

@@ -1441,6 +1441,131 @@ def upgrade_qroc_engine_d2(html):
     return html
 
 
+# Chip .qnum cliquable : copie la question (type, contexte clinique, énoncé(s),
+# items) au format texte + une image PNG composite (si la question en a une ou
+# plusieurs, empilées) dans le presse-papiers, prête à coller dans un chat IA.
+# Ne lit jamais .correction/.citem/data-correct : le contenu copié est donc
+# rigoureusement identique avant et après validation/révélation de la question
+# (cf. CLAUDE.md § « Chip de copie de question »).
+QNUM_COPY_CSS = (
+    ".qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}\n"
+    ".qnum:hover{filter:brightness(1.12)}\n"
+    ".qnum:active{transform:scale(.94)}\n"
+    ".qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}\n"
+    ".qnum.copied{background:var(--vrai)!important;filter:none}\n"
+)
+
+QNUM_COPY_JS = r'''function qClipText(el){
+  if(!el)return '';
+  var c=el.cloneNode(true);
+  c.querySelectorAll('br').forEach(function(br){br.replaceWith('\n');});
+  return c.textContent.replace(/[ \t]+/g,' ').replace(/\n\s+/g,'\n').trim();
+}
+function qLoadImage(img){
+  return new Promise(function(resolve){
+    var im=new Image();
+    im.onload=function(){resolve(im);};
+    im.onerror=function(){resolve(null);};
+    im.src=img.src;
+  });
+}
+function qCombineImages(imgs){
+  return Promise.all(imgs.map(qLoadImage)).then(function(loaded){
+    loaded=loaded.filter(Boolean);
+    if(!loaded.length)return null;
+    var gap=loaded.length>1?16:0;
+    var width=Math.max.apply(null,loaded.map(function(im){return im.naturalWidth;}));
+    var height=loaded.reduce(function(h,im){return h+im.naturalHeight;},0)+gap*(loaded.length-1);
+    var cv=document.createElement('canvas');
+    cv.width=width;cv.height=height;
+    var ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
+    var y=0;
+    loaded.forEach(function(im){ctx.drawImage(im,0,y);y+=im.naturalHeight+gap;});
+    return new Promise(function(resolve){cv.toBlob(resolve,'image/png');});
+  });
+}
+function buildQuestionClipboard(q){
+  var parts=[];var images=[];
+  var qt=q.querySelector('.qhead .qtype');
+  if(qt)parts.push(qClipText(qt));
+  q.querySelectorAll('.dpctx, .stem, .extra').forEach(function(el){
+    if(el.classList.contains('extra')){
+      el.querySelectorAll('img').forEach(function(img){images.push(img);parts.push('[Image]');});
+    }else{
+      parts.push(qClipText(el));
+    }
+  });
+  q.querySelectorAll('.opts > .opt, .extra.zonewrap > .zone').forEach(function(it){
+    var l=it.dataset.l;if(!l)return;
+    var otext=it.querySelector('.otext');
+    var txt=otext?qClipText(otext):(it.getAttribute('title')||'').trim();
+    parts.push(l+' '+txt);
+  });
+  return {text:parts.filter(Boolean).join('\n'),images:images};
+}
+function copyQuestion(q,chip){
+  if(!q)return;
+  var data=buildQuestionClipboard(q);
+  var prevText=chip.textContent;
+  var done=function(ok){
+    chip.classList.add('copied');
+    chip.textContent=ok?'✓ Copié !':'Échec';
+    setTimeout(function(){chip.classList.remove('copied');chip.textContent=prevText;},1400);
+  };
+  var writeTextOnly=function(){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(data.text).then(function(){done(true);}).catch(function(){done(false);});
+    }else{done(false);}
+  };
+  if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+    (data.images.length?qCombineImages(data.images):Promise.resolve(null)).then(function(imgBlob){
+      var payload={'text/plain':new Blob([data.text],{type:'text/plain'})};
+      if(imgBlob)payload['image/png']=imgBlob;
+      return navigator.clipboard.write([new ClipboardItem(payload)]);
+    }).then(function(){done(true);}).catch(function(){writeTextOnly();});
+  }else{
+    writeTextOnly();
+  }
+}
+document.addEventListener('click',function(e){
+  var qn=e.target.closest('.qnum');
+  if(qn){copyQuestion(qn.closest('.q'),qn);}
+});
+document.addEventListener('keydown',function(e){
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('qnum')){
+    e.preventDefault();copyQuestion(e.target.closest('.q'),e.target);
+  }
+});
+$('.qnum').forEach(function(el){
+  el.tabIndex=0;el.setAttribute('role','button');
+  el.title='Copier la question pour un chat IA';
+  el.setAttribute('aria-label','Copier la question '+el.textContent+' pour un chat IA');
+});
+'''
+
+
+def upgrade_qnum_copy(html):
+    """Greffe le chip .qnum cliquable (copie question+items+images pour un chat
+    IA) sur le HTML produit par le gabarit : CSS ajouté avant </style>, JS ajouté
+    juste avant initLocks();updateScore(); (fin du moteur, mêmes ancres que le
+    gabarit de référence). Appliqué à tous les quiz (D1 et D2)."""
+    html = html.replace("</style>", QNUM_COPY_CSS + "</style>", 1)
+    marker = "initLocks();updateScore();"
+    if marker not in html:
+        # Gabarit rédigé à la main avec espaces autour des parenthèses : repli
+        # sur la regex tolérante utilisée par le patch de propagation du site.
+        html = re.sub(
+            r'initLocks\(\)\s*;\s*updateScore\(\)\s*;',
+            QNUM_COPY_JS + "initLocks();updateScore();",
+            html,
+            count=1,
+        )
+    else:
+        html = html.replace(marker, QNUM_COPY_JS + marker, 1)
+    return html
+
+
 def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None,
                favicon_href="../favicon.svg", is_d2=False):
     images_by_qid = images_by_qid or {}
@@ -1485,6 +1610,7 @@ def build_html(sections, title_html, title_plain, sub_html, images_by_qid=None,
     )
     if is_d2:
         out = upgrade_qroc_engine_d2(out)
+    out = upgrade_qnum_copy(out)
     return out
 
 
