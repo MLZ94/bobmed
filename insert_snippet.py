@@ -10,6 +10,7 @@ Usage:
     python3 insert_snippet.py Quiz_UE7.3_2024-2025_S1.snippet.html
     python3 insert_snippet.py --dry-run Quiz_UE7.3_2024-2025_S1.snippet.html
     python3 insert_snippet.py --portal d2/t4/index.html Quiz.snippet.html
+    python3 insert_snippet.py --portal d3/t2/index.html Quiz_UE7.3_….snippet.html  (Hémato D3)
 
 Exit codes:
     0 — insertion réussie (ou --dry-run sans erreur)
@@ -34,7 +35,8 @@ UE_MAP = {
     "7.2":  ("Médecine Interne",                      "d2/t3"),
     "8.4":  ("Néphro / Uro",                          "d2/t3"),
     "4.2":  ("ORL / Ophtalmo / Chir maxillo-faciale", "d2/t4"),
-    "7.3":  ("Rhumatologie",                          "d2/t4"),
+    # UE 7.3 : Rhumatologie en D2-T4 (DFA1) ET Hématologie en D3-T2 (DFA2)
+    "7.3":  ("Rhumatologie (D2) / Hématologie (D3)",  "AMBIGU"),
     "11.1": ("Chirurgie Orthopédique",                "d2/t4"),
     "8.3":  ("Endocrino / Nutrition",                 "d2/t4"),
     "12.1": ("Anglais",                               "d2/t4"),
@@ -44,6 +46,21 @@ UE_MAP = {
     "9.3":  ("UE 9.3 (D1)",                           "d1/t4"),
     # UE 3 : ambiguïté D1 (d1/t4/) vs D2-T2 (d2/t2/) — demande interactive
     "3":    ("Agents infectieux (D1) / Psy-Addicto (D2-T2)", "AMBIGU"),
+    # D3 (épreuves DFA2-…) — miroir de UE_MAP_D3 dans pdf_to_quiz.py
+    "2":    ("Gynécologie-Obstétrique / Pédiatrie",    "d3/t1"),
+    "5":    ("Gériatrie",                             "d3/t2"),
+    "9":    ("Oncologie",                             "d3/t2"),
+    "10":   ("Thérapeutique",                         "d3/t3"),
+    "11.2": ("Urgences / Réanimation",                "d3/t3"),
+}
+
+# UE présentes dans plusieurs années : portails candidats (choix interactif,
+# ou --portal). Le préfixe du code d'épreuve tranche : DFG = D1, DFA1 = D2, DFA2 = D3.
+AMBIGUOUS = {
+    "3":   [("d1/t4", "D1 — Agents infectieux et hygiène (préfixe DFG)"),
+            ("d2/t2", "D2-T2 — Psychiatrie/Addictologie (préfixe DFA1)")],
+    "7.3": [("d2/t4", "D2-T4 — Rhumatologie (préfixe DFA1)"),
+            ("d3/t2", "D3-T2 — Hématologie (préfixe DFA2)")],
 }
 
 # ── Couleurs terminal ─────────────────────────────────────────────────────────
@@ -205,18 +222,18 @@ def _update_footer(portal_text: str) -> str:
 
 # ── Workflow principal ────────────────────────────────────────────────────────
 
-def resolve_ue3_ambiguity(snippet_href: str) -> str:
-    """Demande à l'utilisateur de résoudre l'ambiguïté UE 3 (D1 vs D2-T2)."""
-    print(amber("⚠ UE 3 ambiguë — existe en D1 (d1/t4/) ET en D2-T2 (d2/t2/)."))
+def resolve_ambiguity(ue_num: str, snippet_href: str) -> str:
+    """Demande à l'utilisateur le portail d'une UE ambiguë (cf. AMBIGUOUS)."""
+    choices = AMBIGUOUS[ue_num]
+    print(amber(f"⚠ UE {ue_num} ambiguë — existe dans plusieurs années :"))
+    for i, (folder, label) in enumerate(choices, 1):
+        print(f"  {i} = {folder}/  ({label})")
     print(f"  Fichier : {snippet_href}")
-    print("  Indices : préfixe DFG → D1 · préfixe DFA → D2.")
     while True:
-        rep = input("  Portail cible [1=d1/t4, 2=d2/t2] : ").strip()
-        if rep == "1":
-            return "d1/t4"
-        if rep == "2":
-            return "d2/t2"
-        print("  Répondre 1 ou 2.")
+        rep = input(f"  Portail cible [1-{len(choices)}] : ").strip()
+        if rep.isdigit() and 1 <= int(rep) <= len(choices):
+            return choices[int(rep) - 1][0]
+        print(f"  Répondre un nombre entre 1 et {len(choices)} (ou relancer avec --portal).")
 
 
 def insert(snippet_path: Path, portal_path: Path | None, dry_run: bool) -> int:
@@ -244,7 +261,7 @@ def insert(snippet_path: Path, portal_path: Path | None, dry_run: bool) -> int:
 
         _, folder = UE_MAP[ue_num]
         if folder == "AMBIGU":
-            folder = resolve_ue3_ambiguity(href)
+            folder = resolve_ambiguity(ue_num, href)
 
         # Chercher l'index.html depuis la racine du dépôt (le script est à la racine)
         repo_root = Path(__file__).parent

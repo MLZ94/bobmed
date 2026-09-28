@@ -1,9 +1,10 @@
 /**
  * breadcrumb.js — Fil d'Ariane universel BobMed
  * Ajouter avant </body> :
- *   <script src="../../breadcrumb.js"></script>  (annales à plat d1/tN/, d2/tN/)
+ *   <script src="../../breadcrumb.js"></script>  (annales à plat d1/tN/, d2/tN/, d3/tN/)
  *   <script src="../../../breadcrumb.js"></script> (sous-portails : d1/tN/{exercices,
- *                                                   microbiologie,numerique}/, d2/tN/entrainement/)
+ *                                                   microbiologie,numerique}/, d2/tN/entrainement/,
+ *                                                   d3/tN/entrainement/)
  *
  * Sur les portails (index.html) qui ont déjà un fil statique,
  * le script injecte uniquement le CSS et ne crée pas de doublon.
@@ -34,6 +35,7 @@
 
   var inD1T     = path.match(/\/d1\/(t\d+)\//i);
   var inD2T     = path.match(/\/d2\/(t\d+)\//i);
+  var inD3T     = path.match(/\/d3\/(t\d+)\//i);
   var inMicro   = path.includes('/microbiologie/');
   var inExo     = path.includes('/exercices/');
   var inNum     = path.includes('/numerique/');
@@ -41,12 +43,12 @@
 
   /* Profondeur vers la racine du site :
      - d1/tN/<sous-section>/ (microbiologie, exercices, numerique) : 3 niveaux
-     - d2/tN/entrainement/ : 3 niveaux
-     - d1/tN/ (annale à plat) et d2/tN/ : 2 niveaux
+     - d2/tN/entrainement/ et d3/tN/entrainement/ : 3 niveaux
+     - d1/tN/ (annale à plat), d2/tN/ et d3/tN/ : 2 niveaux
      - autre : 1 niveau (repli) */
   var depth;
   if (inD1T) depth = (inMicro || inExo || inNum) ? 3 : 2;
-  else if (inD2T) depth = inEntr ? 3 : 2;
+  else if (inD2T || inD3T) depth = inEntr ? 3 : 2;
   else depth = 1;
   var root = '';
   for (var d = 0; d < depth; d++) root += '../';
@@ -78,13 +80,15 @@
      mobile. Le titre complet du trimestre est de toute façon affiché sur la page
      du portail elle-même. */
 
-  if (inD2T) {
-    var tNum = inD2T[1].toUpperCase();
-    items.push({ href: root + 'index.html#d2', label: 'D2' });
-    items.push({ href: root + 'd2/' + inD2T[1] + '/index.html', label: tNum });
-    /* Sous-portail d'entraînement par item (d2/tN/entrainement/) */
+  if (inD2T || inD3T) {
+    /* D2 et D3 partagent la même arborescence : dN/tN/ (+ entrainement/) */
+    var yr   = inD3T ? 'd3' : 'd2';
+    var tDir = (inD3T || inD2T)[1];
+    items.push({ href: root + 'index.html#' + yr, label: yr.toUpperCase() });
+    items.push({ href: root + yr + '/' + tDir + '/index.html', label: tDir.toUpperCase() });
+    /* Sous-portail d'entraînement par item (dN/tN/entrainement/) */
     if (inEntr) {
-      items.push({ href: root + 'd2/' + inD2T[1] + '/entrainement/index.html', label: 'Entraînement' });
+      items.push({ href: root + yr + '/' + tDir + '/entrainement/index.html', label: 'Entraînement' });
     }
   } else if (inD1T) {
     var tNumD1 = inD1T[1].toUpperCase();
@@ -117,7 +121,7 @@
       var a = document.createElement('a');
       a.href = item.href;
       a.textContent = item.label;
-      /* Scroll vers l'ancre si on reste sur la même page (index.html#d1 / #d2) */
+      /* Scroll vers l'ancre si on reste sur la même page (index.html#d1 / #d2 / #d3) */
       a.addEventListener('click', function (e) {
         var href = this.getAttribute('href');
         var hashIdx = href.indexOf('#');

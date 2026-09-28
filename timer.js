@@ -11,7 +11,7 @@
  * À charger avant </body> sur toute page annale possédant un <header> avec
  * une .scorebar :
  *   <script src="../timer.js"></script>        (annales/, …)
- *   <script src="../../timer.js"></script>     (d2/tN/)
+ *   <script src="../../timer.js"></script>     (d2/tN/, d3/tN/)
  *
  * Aucune dépendance, injecte son propre CSS une seule fois, et ne fait rien
  * sur les pages sans .scorebar (accueil, portails de trimestre, fiches).
