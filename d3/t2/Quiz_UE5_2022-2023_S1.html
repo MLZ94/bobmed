@@ -1,0 +1,1358 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 5 — Gériatrie · Session normale (mars 2023)</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 5 — Gériatrie · Session normale (mars 2023)</h1>
+<div class="sub">50 questions : DP1 (15, verrouillé) · DP2 (15, verrouillé) · SQI1 (20)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/50</b></span>
+<span class="pill">Score : <b id="s-ok">0/50</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">DP1 — Douleurs épigastriques chez une femme de 83 ans</div>
+
+<div class="q" id="DP1-Q1" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez aux urgences, une femme âgée de 83 ans à la demande de son médecin traitant pour douleurs épigastriques évoluant depuis quelques jours et majorées depuis 48 heures. Ses antécédents sont marqués par une hypertension artérielle contrôlée par une association dun verre de vin par jour.Un traitement par fénofibrate a été ajouté il y a 3 semaines pour traiter la dyslipidémie.Vous notez que les douleurs sont intenses et associées à des vomissements depuis 24 heures et une anorexie.Le médecin traitant évoque une pancréatite aiguë.</div>
+<div class="stem">Quels sont les caractéristiques de la douleur pancréatique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Douleur épigastrique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Douleur thoracique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Irradiant dans le dos</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Irradiant dans le bras gauche</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Position antalgique en "chien de fusil"</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div><div class="note"><div class="rappel">la douleur pancréatique est épigastrique, transfilante, irradiant dans le dos et calmée par la position dite en chien de fusil</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q2" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La douleur est en effet transfixiante, irradie dans le dos et la patiente est en position antalgique de "chien de fusil".La température est de 37.5°C, la fréquence respiratoire est à 18 /minute, et la saturation en O2 est à 96% en air ambiant.Quel sont les examens complémentaires que vous devez demander en priorité en urgences ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Electrocardiogramme</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Lipasémie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Créatine phosphokinase</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Numération sanguine</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Scanner abdominal</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div><div class="note"><div class="rappel">Ici la douleur est typiquement d'origine pancréatique: le scanner abdominal (examen de référence) et la lipasémie confirmeront le diagnostic évoqué. L'ECG doit être fait afin de ne pas méconnaitre un infarctus du ventricule droit chez une patiente présentant des facteurs de risque cardio-vasculaires et qui peut se présenter par un tableau d'urgence digestive. les CPK sont à faire sous statines (risque de rhabdomyolyse). la numération sanguine recherchera une hyperleucocytose.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q3" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'électrocardiogramme est en rythme sinusal sans décalage ST. La lipasémie revient à 500 UI/L (N &lt; 60) et le scanner abdominal confirme une pancréatite modérément sévère, non compliquée et sans dilatation des voies biliaires. Les CPK reviennent à 400 UI/L (N &lt; 200). Les leucocytes sont à 8000 /mm3. La C-reactive protein est à 2 mg/L. Quelles sont les mesures thérapeutiques à prendre dans l'immédiat?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Mise à jeun</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Renutrition orale hypocalorique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Renutrition entérale par sonde nano-gastrique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Renutrition parentérale</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Antalgiques de pallier 2 en intra-veineux</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div><div class="note"><div class="rappel">le traitement de la pancréatite est la mise à jeun. Une renutrition en urgence par voie IV seule est recommandée afin de ne pas solliciter le pancréas. les antalgiques de pallier 2 ne sont pas conseillés chez les plus de 65 ans. En revanche, ici un antalgique de pallier 3 peut tout à fait être utile</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q4" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente est mise à jeun, une nutrition parentérale est débutée et une antalgie de pallier 3 débutée.La patiente est admise en gériatrie pour la suite de prise en charge.A son admission, une évaluation gériatrique est réalisée dont les premiers résultats sont : prise de 5 principes actifs par jour, score ADL 5/6, score IADL 3/4, poids habituel à 75kg, poids actuel à 67.5kg (perte de poids de 10% en un mois), IMC à 26 kg/m2, et albumine à 35 g/L.Comment interprétez vous ces résultats?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Polymédication</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Dépendance IADL</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Indépendance fonctionnelle</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Dénutrition</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Dénutrition sévère</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div><div class="note"><div class="rappel">la polymédication est définie par la prise d'au moins 5 principes actifs par jour depuis au moins 6 mois, la dépendance ADL ≤ 5/6, la dépendance IADL ≤ 3/4, et la dénutrition renvoie aux nouveaux critères de la HAS 2021. Ici la perte de poids ≥ 10% en un mois classe la patiente dénutrie sévère.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q5" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Au regard de cette histoire, la cause médicamenteuse de la pancréatite semble la plus probable. Indiquez les arguments vrais.</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Car la patiente est polymédiquée</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Car la patiente a déjà été cholecystectomisée</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Car c'est la cause la plus fréquente chez la personne âgée</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Car la patiente consomme du fenofibrate</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Car la patiente consomme de l'alcool</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div><div class="note"><div class="rappel">le fénofibrate présente une imputabilité extrinsèque et intrinsèque très en faveur de l'origine médicamenteuse de cette pancréatite, surtout en association à la rosuvastatine. Ce d'autant que la patiente est polymédiquée (ce qui augmente les risques de iatrogénie). En revanche, cela reste une cause rare de pancréatite. La consommation d'alcool n'influe pas sur la iatrogénie. La cholecystectomie est un bon argument pour éliminer une origine lithiasique</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q6" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans les 24 prochaines heures, indiquez quelles sont les complications précoces à craindre chez la personne âgée hospitalisée et alitée?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Fécalome</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Déshydratation</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Thrombo-embolie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Confusion aiguë</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Syndrome de glissement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div><div class="note"><div class="rappel">fécalome et déshydratation sont des complications intermédiairessyndrome de glissement est tardif</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q7" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Dans les premières semaines d'hospitalisation, indiquez quelles sont les complications intermédiaires à craindre chez la personne âgée alitée?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Hypotension orthostatique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Encombrement bronchique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Fécalome</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Déshydratation</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Escarre</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div><div class="note"><div class="rappel">Encombrement bronchique et escarre sont des complications précoces</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q8" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Indiquez quelles sont les complications tardives à craindre chez la personne âgée hospitalisée et alitée?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Anxiété</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Dépression</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Attitudes vicieuses</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Fracture ostéoporotique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Syndrome de glissement</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div><div class="note"><div class="rappel">L'anxiété est une complication précoce, la dépression et les attitudes vicieuses sont intermédiaires</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q9" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">A 24 heure de son hospitalisation, la patiente présente une altération de son état général. Son score Glasgow est à 11/15, sa température est à 38°C, et elle présente une désaturation en air ambiant à 89%. Il n'y a pas de déficit neurologique. L'électrocardiogramme retrouve une tachycardie sinusale à 110 /minute. Quels sont les hypothèses diagnostiques possibles à ce stade?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Accident vasculaire cérébral</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Confusion aiguë</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Aggravation de la pancréatite</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Pneumopathie d'inhalation</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Embolie pulmonaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div><div class="note"><div class="rappel">A ce stade rien ne peut être éliminé prudemment en dehors de l'AVC puisque la patiente ne présente pas de déficit neurologique</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q10" data-correct="AC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'angioscanner thoracique élimine une embolie pulmonaire, et retrouve un foyer alvéolo-interstitiel du lobe moyen. Le scanner abdominal reste inchangé par rapport à la veille. La C-reactive protein est à 250 mg/L. Vous concluez à une pneumopathie d'inhalation. Indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Je prescrits une antibiothérapie probabiliste ciblant les germes communautaires</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Je prescrits une antibiothérapie probabiliste ciblant les germes nosocomiaux</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La confusion est la conséquence de la pneumopathie d'inhalation</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La confusion fait partie du syndrome démentiel</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La confusion est habituellement progressive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C</div><div class="note"><div class="rappel">le diagnostic de confusion aiguë est purement clinique: altération brutale de la vigilance. elle est la conséquence d'une pneumopathie d'inhalation suite aux épisodes de vomissements précédents. l'antibiothérapie cible les germes communautaires car la patiente est hospitalisée depuis moins de 48h</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q11" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'évolution de l'état clinique est rapidement favorable sous antibiothérapie probabiliste ciblant les germes communautaires (Amoxicilline-Acide clavulanique). Vous souhaitez compléter les éléments de l'évaluation gériatrique et en particulier l'état thymique de la patiente. Indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le mini GDS est un score de dépistage de la dépression du sujet âgé</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le mini GDS est un score diagnostic de la dépression du sujet âgé</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le mini GDS comprend 30 items</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un score mini GDS ≥ 1/4 permet d'éliminer prudemment une dépression du sujet âgé</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un score mini GDS à 0/4 permet d'éliminer prudemment une dépression du sujet âgé</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div><div class="note"><div class="rappel">le mini GDS comporte 4 items et est un très bon outil de dépistage de la dépression du sujet âgé lorsqu'il est ≥ 1/4 a l'inverse, un score à 0/4 permet d'éliminer prudemment une dépression</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q12" data-correct="ACD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Le score mini GDS de la patiente est estimé à 3/4. Indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La patiente présente un syndrome dépressif probable</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Je prescrits un antidépresseur tricyclique en première intention</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Je prescrits un antidépresseur inhibiteur de la recapture de sérotonine en première intention</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">J'arrête le traitement par zopiclone</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Je poursuis le traitement par lorazepam</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, D</div><div class="note"><div class="rappel">les ISRS sont les antidépresseurs de première intention chez la personne âgée. afin de limiter la polymédication et les interactions, on arrête le zopiclone. les benzodiazépines étant plus difficile à arrêter lorsqu'elles sont prises depuis longtemps.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q13" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous souhaitez désormais évaluer le niveau de fragilité de cette patiente. Elle a perdu 10% de son poids habituel, elle présente un épuisement psychique, une faible activité physique habituelle, sa vitesse de marche et sa force de préhension sont dans les limites de la normaleComment interprétez vous ces résultats?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La patiente est robuste</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La patiente est pré-fragile</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La patiente est fragile</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La fragilité est définie par la présence d'au moins 2 critères sur 5 du phénotype fragile</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La fragilité est définie par la présence d'au moins 3 critères sur 5 du phénotype fragile</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q14" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous réalisez enfin une évaluation de sa cognition.Indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le mini mental state examination (MMSE) est un score de dépistage des troubles cognitifs</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le mini mental state examination (MMSE) est un score diagnostic des troubles cognitifs</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un MMSE &lt; 27/30 indique des troubles cognitifs</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un MMSE &lt; 24/30 indique des troubles cognitifs</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un MMSE entre 10 et 20 indique des troubles cognitifs modérés</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP1-Q15" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L'évolution est favorable durant l'hospitalisation et vous envisagez une sortie à domicile. Quelles décisions prenez vous au regard de cette histoire clinique et biologique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Je renouvelle le traitement par rosuvastatine car la patiente présente des facteurs de risque cardio- vasculaires</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">J'arrête la rosuvastatine car la patiente a fait une rhabdomyolyse</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">J'arrête le fenofibrate car son imputabilité dans la pancréatite aiguë est forte</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La prescription de statine après 80 ans en prévention primaire est avérée</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'association rosuvastatine et fenofibrate n'est pas conseillée</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="note"><div class="rappel">L'association rosuvastatine et fenofibrate n'est pas recommandée car pourvoyeuse de iatrogénie. le fenofibrate est reconnu pour son risque de pancréatite aiguë. le fenofibrate augmente les taux sériques de rosuvastatine à l'origine de la rhabdomyolyse de la patiente. Bien que cette histoire (vraie) soit anecdotique, elle illustre la problématique majeure de la polymédication chez la personne âgée et les risques iatrogènes induits notamment par le biais des interactions.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="sect">DP2 — Première consultation de Mme V., 59 ans</div>
+
+<div class="q" id="DP2-Q1" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="dpctx">Vous recevez à votre cabinet Mme V., 59, ans pour la première fois (son médecin traitant étant parti à la retraite). Elle est mariée, 2 grands enfants (27, 31 ans), aide-soignante dans un service de gériatrie. On peut noter un surpoids (IMC à 28). Elle a une HTA bien contrôlée par le traitement spécifique, un diabète insulino-dépendant déséquilibré (Hémoglobine glyquée du mois dernier à 8,4) et une fibromyalgie. Pour la fibromyalgie, elle prend de la morphine à libération prolongée à la dose de 80 mg matin et soir avec des interdoses de morphine à libération immédiate à la dose de 20 mg 6 fois par jour (elle n’en prend généralement que 5 fois par jour) depuis 8 mois. Elle vous dit qu’au début ce traitement la soulageait mais que maintenant elle n’en est plus sûre et qu’elle a envie de l’arrêter.</div>
+<div class="stem">Qu’allez vous lui dire ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">« Il est important de soulager vos douleurs et nous allons augmenter la dose de votre traitement par morphine jusqu’à un soulagement acceptable de votre douleur»</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">« Vous avez raison nous allons arrêter ce traitement et je ne vais pas reconduire l’ordonnance de morphine»</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">« ça me paraît également bien de trouver une autre solution et nous allons diminuer très progressivement les doses de ce traitement jusqu’à l’arrêt»</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">« Pour l’instant nous allons rester aux mêmes doses et nous allons associer un anti-inflammatoire non stéroïdien (AINS) »</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">« Vous avez sans doute raison, les doses que vous prenez sont assez élevées et je vais vous adresser à une équipe spécialisée pour un avis»</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E</div><div class="note"><div class="rappel">Les opioïdes ne sont pas recommandés (recommandation SFETD) dans le traitement des douleurs dites dysfonctionnelles (fibromyalgie, migraine, notamment). Cela étant, on ne doit pas arrêter un traitement par opioïde fort brutalement car cela induit un syndrome de sevrage. Les AINS n’ont pas d’intérêt dans la fibromyalgie. Au moindre doute et notamment en cas de dose élevée (comme c’est le cas ici) et d’une durée de traitement supérieure à 3 mois, il est souhaitable de travailler en équipe et de demander un avis aux équipes spécialisées (structure de prise en charge de patients douloureux chroniques et/ou spécialisée en addictologie).D’une façon générale la prescription des opioïdes forts dans la douleur chronique non cancéreuse suit les recommandations de la société française d’étude et de traitement de la douleur (SFETD) :Uniquement après échec des traitements recommandés de 1re intention, dans le cadre d’une prise en charge globale (biopsychosociale) avec un « contrat » médecin patient clair quand aux objectifs. Il faut toujours rester vigilant lorsqu’on prescrit un traitement par opioïde fort. Un seul prescripteur doit évaluer (et prescrire) le traitement au long court. Il n’est pas recommandé de poursuivre le traitement au-delà de 3 mois en l’absence de bénéfice sur au moins un des aspects suivant : soulagement de la douleur, amélioration de la fonction, amélioration de la qualité de vie. Un avis spécialisé doit être demandé si les doses prescrites sont supérieures à 150 mg en équivalent morphine/Jour. Les effets indésirables doivent toujours être prévenus. Il est par ailleurs vivement conseillé de rechercher les facteurs de risque de mésusage des opioïdes avant toute prescription (opioïdes Risk tool). L’existence de facteurs de risque ne contre-indique aucunement le traitement mais justifie un suivi et une attention renforcés. Il est recommandé de demander un avis spécialisé avant la prescription pour des patients douloureux chroniques en absence d’étiologie précise, en cas de comorbidité psychiatrique associée et devant la présence de facteurs de mésusage.</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q2" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous avez réussi à arrêter le traitement par opioïde fort. Elle ne prend que de temps à autre un peu de Tramadol avant d’aller chez le kinésithérapeute. Quelles sont les options thérapeutiques non médicamenteuses utiles chez les patients douloureux chroniques et notamment chez ceux qui ont une fibromyalgie ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Approches psychocorporelles</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Exercices physiques en aérobie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Exercices physiques en milieu aquatique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Approches cognitivo-comportementales</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Approches multidisciplinaires</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — type relaxation et méditation</div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q3" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente revient vous voir régulièrement car le suivi du diabète est difficile. Aujourd’hui, elle se plaint de nouvelles douleurs au niveau des deux pieds surtout la nuit où elle est obligée de les mettre en dehors du lit car le frottement des draps augmente la douleur. Elle vous raconte qu’elle a l’impression de dormir les pieds sur une plaque chauffante et souvent elle va les mettre dans une cuvette d’eau glacée. Vous suspectez une douleur neuropathique dont le diabète serait l’étiologie la plus probable ? Quel questionnaire validé pour le dépistage de ce type de douleur pouvez-vous utiliser ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Questionnaire Doloplus</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Questionnaire DN4</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Questionnaire Concis sur les douleurs</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Questionnaire Algoplus</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Questionnaire HAD</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div><div class="note"><div class="rappel">Le diagnostic de douleur neuropathique est un diagnostic clinique (aucun examen complémentaire n’est requis). Les examens complémentaires peuvent être utiles pour l’enquête étiologique. L’outil DN4 est un questionnaire de dépistage des douleurs neuropathiques (périphériques ou centrales), comportant 7 items d’interrogatoire et 3 items d’examen clinique, cotés chacun de façon dichotomique (oui, non). Une réponse positive à au moins 4 items sur 10 oriente vers une douleur neuropathique avec une excellente sensibilité et spécificité.La douleur neuropathique est une douleur secondaire à une lésion ou une maladie du système somatosensoriel. La douleur peut être continue ou paroxystique ; spontanée et/ou provoquée par une stimulation perçue habituellement comme étant non douloureuse (allodynie). Les descripteurs les plus fréquents de la douleur neuropathique sont des mots comme brûlure, décharges électriques, froid douloureux associés à des dysesthésie telles que picotements, fourmillements, démangeaisons, engourdissements. L’examen clinique retrouve dans un territoire neurologique une hypoesthésie (piqure, chaud, froid), éventuellement un déficit moteur et une allodynie</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q4" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) traitement(s) pouvez-vous initier en première intention (posologie de départ) pour soulager ces douleurs neuropathiques ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Gabapentine 300 mg le soir</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Duloxétine 30 mg par jour</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Prégabaline 50 mg le soir</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Oxycodone 30 mg matin et soir</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Patch de capsaïcine à forte concentration</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div><div class="note"><div class="rappel">Les recommandations indiquent en première intention l’initiation d’un traitement par anti-épileptique (Gabapentine ou Prégabaline) ou un antidépresseur (Duloxétine ou tricyclique). La dose initiale est augmentée progressivement en fonction de la tolérance. Il y a toujours un délai d’action pour l’obtention de l’efficacité. Il n’y a aucune indication en première intention d’un opioïde fort. Les patches de capsaïcine peuvent être utiles en cas d’intolérance des traitements systémiques (ou de contre-indication en fonction des comorbidités du patient), mais l’AMM les autorise en seconde intention en cas d’intolérance ou d’échec des traitements par voie générale</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q5" data-correct="B" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Mme V est mieux, mais lors d’une visite de suivi elle vous paraît préoccupée. En effet, sa mère, 83 ans a été opérée hier d’une fracture du col du fémur et elle a l’impression qu’elle a mal. De fait, vous dit la patiente, elle gémit dès qu’elle bouge mais elle est tellement confuse que l’évaluation de la douleur est difficile. Quelle échelle pouvez-vous utiliser ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Echelle visuelle analogique (EVA)</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Algoplus</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Questionnaire douleur de Saint Antoine</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Echelle numérique (EN)</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">HAD</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B</div><div class="note"><div class="rappel">Commentaire L’échelle Algoplus est une échelle d’hétéroévaluation qui permet l’évaluation comportementale de la douleur aiguë (ce qui est le cas ici lors des mobilisations) chez la personne âgée présentant des troubles de la communication verbale. Cinq catégories d’éléments sont étudiées. Chaque réponse positive compte pour 1 point. Un score supérieur ou égal à 2/5 signe la présence d’une douleur. L’échelle ECPA (évaluation comportementale de la douleur chez la personne âgée) aurait pu aussi être utilisée. Cette dernière a le mérite de pouvoir évaluer la douleur au repos et au moment d’un soin. Elle permet le suivi de l’intensité de la douleur du patient. On doit utiliser l’échelle qui paraît la plus adaptée au patient et à l’équipe. Le point impératif est d’utiliser la même tout au long de l’évaluation chez un même patient.Le questionnaire douleur de Saint-Antoine est une échelle multidimensionnelle qui explore les dimensions sensorielles et affectives à l’aide 61 qualificatifs. Il donne des indications sur la tonalité des douleurs ainsi que sur le vécu de celles-ci par le patient. L’échelle HADs (Hospital Anxiety and Depression Scale) évalue la composante anxieuse et/ou dépressive chez le patient douloureux chronique. C’est également une échelle multidimensionnelle. L’EVA et l’EN sont des échelles d’autoévaluation de la douleur non utilisables chez la patiente. Cela étant, dans certains cas (démence, confusion légère par exemple), il peut être utile de faire une double évaluation (une autoévaluation doublée d’une hétéroévaluation par l’équipe).</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q6" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La douleur postopératoire est une douleur aiguë de mécanisme nociceptif. Quels sont d’un point de vue neurophysiologique les éléments mis en jeu aboutissant à l’intégration des informations douloureuses lors d’une douleur par mécanisme nociceptif ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Nocicepteurs périphériques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Fibres afférentes primaires</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Relais d’intégration thalamique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Sites de projection corticaux</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Sites de projection cordonaux antérieurs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div><div class="note"><div class="rappel">La corne antérieure de la moelle épinière n’est pas impliquée dans la physiologie de la douleur.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q7" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes lesquelles correspondent aux objectifs de la prise en charge de la douleur postopératoire</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Etre attentif à la tolérance des traitements antalgiques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Diminuer la douleur au repos et lors des mobilisations</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Réduire la morbidité et la mortalité</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Limiter la survenue d'une douleur chronique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Favoriser la réhabilitation postopératoire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q8" data-correct="E" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Votre patiente est revenue avant sa visite de suivi car elle n’arrivait pas à se « débarrasser » d’un lumbago dont la douleur s’intensifiait progressivement et la réveillait en fin de nuit. Vous lui avez prescrit des radios et elle vient aujourd’hui vous les montrer avec une certaine inquiétude.Les radiographies montrent une lésion lytique du corps vertébral de L5 et une plus petite de la crête iliaque droite. Que lui dîtes vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Que ce n’est pas grave, et que vous allez augmenter son traitement antalgique pour soulager sa douleur.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous lui dites immédiatement que c’est grave car c’est un cancer probablement avancé.</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vous l’adressez aux SAU, avec les images afin de compléter le bilan et faire une annonce</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Que vous allez l’adresser vers un spécialiste car vous ne savez pas ce qu’elle a</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Aucune des propositions précédentes</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : E</div><div class="note"><div class="rappel">L’annonce d’une mauvaise nouvelle, peut modifier radicalement et négativement l’idée qu’un patient se fait de son avenir. Elle peut être violente d’autant plus que celui-ci n’est pas préparé à la recevoir. L’annonce se fait généralement dans un endroit calme, le médecin doit s’assurer qu’il ne sera pas dérangé. Il doit établir la communication par une question ouverte et donner ensuite la parole au patient. L’écoute doit être active afin de déterminer la compréhension qu’a le patient de son état de santé (dans ce cas des résultats de ses examens) et surtout sa volonté de recevoir directement les informations le concernant et si c’est le cas, quel niveau d’information souhaite- t- il obtenir ? (Gravité, diagnostic, pronostic ou juste proposition thérapeutique). Finir toujours son entretien par un récapitulatif et un contrat d’avenir (stratégies thérapeutiques claires).</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q9" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q9</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Comment nomme-t-on le processus psychique inconscient visant à éviter de répondre ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Evitement</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Fuite en avant</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Dérision</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Déplacement</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Isolation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div><div class="note"><div class="rappel">Les mécanismes de défense ou les mécanismes psycho adaptatifs sont inconscients et naissent du sentiment d’un danger imminent, et visent à réduire les tensions psychiques intenses. Ils sont mis en œuvre aussi bien par les patients et leurs proches que par les soignants. Ils doivent être reconnus et respectés.L’évitement consiste à fuir tout contact avec le patient, que ce soit physiquement en évitant de lui rendre visite ou psychologiquement en ne lui prêtant aucune attention.</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q10" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Après discussion avec la patiente, vous apprenez qu’elle a déjà montré les résultats de ses radiographies au médecin du service dans lequel elle travaille, qu’il lui a expliqué que les images montrent des lésions anormales et qu’il fallait faire d’autres examens. Elle vous explique qu’elle a un rendez-vous dans 3 jours pour réaliser un Scanner thoraco-abdomino- pelvien et cérébral (demandés par le médecin de son service) et voir un « spécialiste ».Que lui dites vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Que c’est parfait, vous n’avez plus rien à faire, votre collègue va prendre la relève.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous adaptez seulement son traitement antalgique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous lui proposez de la revoir après son rendez-vous</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vous prenez le temps de comprendre ce qu’elle a compris des explications qui lui ont été données et vous lui réexpliquez avec des mots pas trop techniques.</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous la mettez sous antidépresseurs</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q11" data-correct="A" data-type="QRU">
+<div class="qhead"><span class="qnum">DP2 Q11</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Elle revient vous voir 10 jours après, complètement effondrée, car on a découvert qu‘elle avait un carcinome épidermoïde bronchique multi –métastatique (foie , os, cerveau et carcinose péritonéale) pour lequel on lui propose une chimiothérapie palliative qu’elle refuse. D’après cette évolution à quelle phase de la prise en charge se trouve-t- on concernant cette patiente ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Phase palliative active</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Phase palliative symptomatique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Phase terminale</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Phase curative</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext"></span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A</div>
+<div class="note"><div class="rappel">Selon les pathologies, différentes trajectoires de vies ont été définies pour illustrer les parcours de soins des patients (ONFV) Phase curative : l’objectif est la guérison Phase palliative active : la maladie devient incurable et l’objectif est un gain en survie tout en prenant en compte la qualité de vie . Phase palliative symptomatique : la maladie devient incurable et l’objectif est exclusivement une amélioration du confort et de la qualité de vie Phase terminale : caractérisée par la survenue probable du décès dans les heures ou les jours du fait d’une défaillance évolutive d’une ou de plusieurs fonctions vitales</div></div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div></div>
+</div>
+
+<div class="q" id="DP2-Q12" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Elle vous explique que son mari n’est pas d’accord avec le choix qu’elle a fait de refuser le traitement et elle vous explique qu’elle a peur de « perdre la tête » à cause des métastases cérébrales et qu’il pourrait en profiter pour dire aux médecins d’entamer la chimiothérapie. Que lui dites vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Que son mari a le droit de décider à sa place</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Que vous pouvez l’aider à rédiger ses directives anticipées si elle le souhaite</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous vérifiez si la patiente a été informée des conséquences de son refus</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vous lui proposez de la revoir en présence de son mari et de ses enfants si elle le souhaite</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Qu’elle n’a pas le droit de faire subir ça à sa famille</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q13" data-correct="ABCD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">L’époux a fini par accepter le choix de son épouse et vous avez aidé la patiente à rédiger ses directives anticipées. Elle reste toujours douloureuses malgré le passage aux antalgiques du palier III . Que pouvez vous lui proposer pour soulager ses douleurs ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Cimentoplastie</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Radiothérapie</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Perfusion de biphosphonate</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une augmentation des antalgiques de palier III</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Aucune proposition thérapeutique car elle est dans un refus de soin</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q14" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Vous êtes appelé par le mari car l’état de son épouse s’est dégradé depuis quelques jours, elle n’a pas de selles depuis plusieurs jours et elle vomit. Elle ne veux pas aller aux SAU et souhaite mourir chez elle. Que faites vous ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vous l’adressez aux SAU</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Vous demandez une hospitalisation en urgence dans une USP</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous lui expliquez que vous ferez en sorte de respecter sa volonté dans la mesure du possible, mais que vous avez besoin de temps afin de mettre en place une HAD</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vous l’adressez en oncologie</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous prescrivez seulement un antiémétique</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="DP2-Q15" data-correct="BD" data-type="QRM">
+<div class="qhead"><span class="qnum">DP2 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La patiente a été hospitalisée dans une USP ou le diagnostic de syndrome sub-occlusif sur carcinose péritonéal a été retenu. La patiente réitère son souhait de mourir chez elle. Quels sont les critères requis, pour pouvoir accéder à sa demande ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Symptômes complètement contrôlés par les traitements</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Capacité des proches à assumer psychologiquement l’accompagnement</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Absence de déni de la maladie de la part du patient</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Médecin généraliste d’accord pour la prise en charge à domicile</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L’existence d’une présence permanente à domicile</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la dépendance du sujet âgé, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le score ADL détermine le groupe GIR</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le score IADL détermine le groupe GIR</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La grille AGGIR détermine le groupe GIR</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un GIR ≤ 4 permet l'attribution de l'APA</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'APA est financée par la caisse d'assurance maladie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — allocation personnalisée d'autonomie</div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="BCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la dépendance du sujet âgé, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un IADL peut être normal alors que le score ADL est anormal</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un score ADL peut être normal alors que le score IADL est anormal</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La dépendance débute par l'altération du score IADL</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La dépendance débute par l'altération du score ADL</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La dépendance est sévère si l'ADL est &lt; 3/6</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le score activities of daily living (ADL), indiquez les items vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Gérer ses médicaments</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Gérer son argent</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Se rendre aux toilettes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Se déplacer à l'intérieur</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Utiliser le téléphone</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les complications de la fragilité chez la personne âgée, indiquez lesquelles sont vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Ostéoporose</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Chutes</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Dépendance</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Décès prématuré</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Hospitalisations non programmées</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome de fragilité de la personne âgée, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il inclut les chutes</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Il inclut des hospitalisations à répétition</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il peut inclure l'épuisement psychique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il peut inclure la lenteur de marche</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Il peut inclure la perte de poids</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le syndrome de fragilité de la personne âgée, indiquée les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il est indépendant des comorbidités</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il est indépendant de l'incapacité</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Sa prévalence est rare à 90 ans</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il consiste en cinq critères</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Trois critères sont suffisant pour définir la fragilité</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la fragilité chez la personne âgée, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle désigne un état de vulnérabilité excessive</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle désigne une réponse inadaptée au stress</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle est irréversible</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Sa physiopathologie est centrée sur la sarcopénie</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle est associée à une altération de l'immunité cellulaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="BDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles réactions font parties des 5 étapes du "mourir", d'après Elisabeth Kubler Ross ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'évitement</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le marchandage</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La régression</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La dépression</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'acceptation</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les traitements, les soins et l'accompagnement lors de la l'agonie</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La réduction précoce des apports hydriques artificiels peut permettre de limiter les râles agoniques</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'évaluation de la douleur reste nécessaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'introduction de la scopolamine peut se justifier</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'introduction d'un opioïde fort est toujours nécessaire</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La mise en oeuvre de Midazolam est indispensable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="BC" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la sédation chez un patient ayant une maladie grave, évolutive et incurable :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle est toujours maintenue jusqu'au décès</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle peut être réalisée à domicile</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle nécessite l'utilisation du Midazolam</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle nécessite la pose d'une voie veineuse périphérique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle peut être réalisée sur demande de la famille</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la constipation chez une patiente en situation palliative :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle est toujours due aux opioïdes</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle nécessite l'arrêt des opioïdes, même si la patiente est douloureuse</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle peut-être majorée par des troubles hydroélectrolytiques</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle nécessite de faire des lavements par voie intra-rectale systématiques</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle nécessite toujours la mise en place de mesures non médicamenteuses</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E</div>
+<div class="note"><div class="rappel">La constipation sous opioïdes | SFAP - site internet</div></div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la confusion chez un patient en phase avancée ou terminale d'une maladie létale, quelles sont les propositions vraies ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est souvent d'origine plurifactorielle</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle nécessite un accompagnement des proches</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">On peut utiliser les neuroleptiques en cas d'agitation du patient</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle ne nécessite pas toujours une prise en charge médicamenteuse</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Il faut éliminer les traitements non indispensables afin de limiter une confusion d'origine iatrogène</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la dyspnée, chez un patient en phase terminale d'une maladie grave :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un traitement étiologique peut-être proposé</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un traitement antibiotique est toujours nécessaire</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">On ne peut pas utiliser la morphine du fait du risque de dépression respiratoire</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'oxygénothérapie peut être utile</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La surveillance de la saturation en oxygène est indispensable</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La mise en place d'une prise en charge palliative</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Nécessite l'arrêt des traitements spécifiques de la maladie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Nécessite l'arrêt des bilans biologiques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Peut se faire à l'hôpital</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Ne peut pas se faire en EHPAD</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Est possible pour les enfants</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La personne de confiance :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">peut être nommée par un patient sous tutelle</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">est nommée par oral par le patient à son médecin traitant ou son médecin référent</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">est nommée pour une durée indéterminée</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">doit donner son avis propre concernant la prise en charge médicale du patient si celui-ci est inconscient</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">peut être un membre de la famille</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q16" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes et concernant les complications du décubitus, la ou lesquelles favorise(nt) des complications thromboemboliques ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une contention veineuse</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une déshydratation</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un antécédent de cancer de la vessie</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une hypotonie musculaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une amputation récente selon Burgee</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Trans Tibiale</div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q17" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q17</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les propositions suivantes, la ou lesquelles sont correctes ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une escarre stade 1 correspond à un érythème qui disparaît à la pression puis réapparaît en quelques secondes ; réversible en moins de 24 heures par la mise en décharge.</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une escarre stade 2 correspond à un érythème persistant ou hyperémie réactionnelle.</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une escarre stade 3 touche tous les plans cutanés et le tissu sous-cutané, pouvant atteindre le fascia, correspondant à une ulcération profonde.</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une escarre stade 2 correspond à une phlyctène ou ulcération peu profonde, touchant l'épiderme, le derme ou les deux</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Toutes les propositions sont fausses.</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q18" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q18</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le testing de la spasticité, la ou lesquelles est/sont adaptée(s) à l'évaluation de celle-ci ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Echelle d'Ashworth modifiée</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Echelle ASIA</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Echelle de Rankin</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Echelle de Tardieu</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Echelle de Bristol</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q19" data-correct="C" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q19</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quel(s) élément(s) concernant l’escarre suivante est/sont correctes ?</div>
+<div class="extra"><img src="data:image/jpeg;base64,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" style="max-width:100%;border-radius:8px;margin:8px 0 12px"></div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il s’agit d’une escarre stade 1</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le risque d'escarre peut être évalué par les échelles de Braden et de Barthel</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il s’agit d’une escarre sacrée</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les actions de frictions régulières de la peau permettent de prévenir la survenue d’escarre</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">C’est une complication tardive de l’immobilité et du décubitus</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q20" data-correct="AE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q20</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelle(s) est (sont) la (les) proposition(s) correcte(s) concernant les rôles du kinésithérapeute après un AVC ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le kinésithérapeute participe à la lutte contre les raideurs articulaires des membres inférieurs et des membres supérieurs</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le kinésithérapeute n’est pas impliqué dans la mise en place d’aide technique à la marche, car réservée aux ergothérapeutes</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le kinésithérapeute effectue des préconisations pour proposer des installations particulières de l’espace de vie au domicile comme la pose de barre de douche</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le kinésithérapeute ne peut intervenir dans la réadaptation des troubles vésico sphinctériens, car elle est réservée aux seuls urologues</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le kinésithérapeute peut effectuer une mise en place de TENS</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+function qClipText(el){
+  if(!el)return '';
+  var c=el.cloneNode(true);
+  c.querySelectorAll('br').forEach(function(br){br.replaceWith('\n');});
+  return c.textContent.replace(/[ \t]+/g,' ').replace(/\n\s+/g,'\n').trim();
+}
+function qLoadImage(img){
+  return new Promise(function(resolve){
+    var im=new Image();
+    im.onload=function(){resolve(im);};
+    im.onerror=function(){resolve(null);};
+    im.src=img.src;
+  });
+}
+function qCombineImages(imgs){
+  return Promise.all(imgs.map(qLoadImage)).then(function(loaded){
+    loaded=loaded.filter(Boolean);
+    if(!loaded.length)return null;
+    var gap=loaded.length>1?16:0;
+    var width=Math.max.apply(null,loaded.map(function(im){return im.naturalWidth;}));
+    var height=loaded.reduce(function(h,im){return h+im.naturalHeight;},0)+gap*(loaded.length-1);
+    var cv=document.createElement('canvas');
+    cv.width=width;cv.height=height;
+    var ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
+    var y=0;
+    loaded.forEach(function(im){ctx.drawImage(im,0,y);y+=im.naturalHeight+gap;});
+    return new Promise(function(resolve){cv.toBlob(resolve,'image/png');});
+  });
+}
+function buildQuestionClipboard(q){
+  var parts=[];var images=[];
+  var qt=q.querySelector('.qhead .qtype');
+  if(qt)parts.push(qClipText(qt));
+  q.querySelectorAll('.dpctx, .stem, .extra').forEach(function(el){
+    if(el.classList.contains('extra')){
+      el.querySelectorAll('img').forEach(function(img){images.push(img);parts.push('[Image]');});
+    }else{
+      parts.push(qClipText(el));
+    }
+  });
+  q.querySelectorAll('.opts > .opt, .extra.zonewrap > .zone').forEach(function(it){
+    var l=it.dataset.l;if(!l)return;
+    var otext=it.querySelector('.otext');
+    var txt=otext?qClipText(otext):(it.getAttribute('title')||'').trim();
+    parts.push(l+' '+txt);
+  });
+  return {text:parts.filter(Boolean).join('\n'),images:images};
+}
+function copyQuestion(q,chip){
+  if(!q)return;
+  var data=buildQuestionClipboard(q);
+  var prevText=chip.textContent;
+  var done=function(ok){
+    chip.classList.add('copied');
+    chip.textContent=ok?'✓ Copié !':'Échec';
+    setTimeout(function(){chip.classList.remove('copied');chip.textContent=prevText;},1400);
+  };
+  var writeTextOnly=function(){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(data.text).then(function(){done(true);}).catch(function(){done(false);});
+    }else{done(false);}
+  };
+  if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+    (data.images.length?qCombineImages(data.images):Promise.resolve(null)).then(function(imgBlob){
+      var payload={'text/plain':new Blob([data.text],{type:'text/plain'})};
+      if(imgBlob)payload['image/png']=imgBlob;
+      return navigator.clipboard.write([new ClipboardItem(payload)]);
+    }).then(function(){done(true);}).catch(function(){writeTextOnly();});
+  }else{
+    writeTextOnly();
+  }
+}
+document.addEventListener('click',function(e){
+  var qn=e.target.closest('.qnum');
+  if(qn){copyQuestion(qn.closest('.q'),qn);}
+});
+document.addEventListener('keydown',function(e){
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('qnum')){
+    e.preventDefault();copyQuestion(e.target.closest('.q'),e.target);
+  }
+});
+$('.qnum').forEach(function(el){
+  el.tabIndex=0;el.setAttribute('role','button');
+  el.title='Copier la question pour un chat IA';
+  el.setAttribute('aria-label','Copier la question '+el.textContent+' pour un chat IA');
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>

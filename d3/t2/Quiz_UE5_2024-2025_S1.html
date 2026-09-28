@@ -1,0 +1,713 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 5 — Gériatrie · Session normale (février 2025) · Questions isolées</title><style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 5 — Gériatrie · Session normale (février 2025) · Questions isolées</h1>
+<div class="sub">18 questions : SQI1 (18)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/18</b></span>
+<span class="pill">Score : <b id="s-ok">0/18</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-correct="ADE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la maladie d'Alzheimer, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est la démence dégénérative la plus fréquente</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Son début est brutal</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les troubles exécutifs sont au premier plan</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'atteinte hippocampique est bilatérale</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Son évolution est progressive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les critères vrais du syndrome de fragilité chez la personne âgée?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Perte de poids involontaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Epuisement</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Albuminémie &lt; 30 g/L</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Faiblesse musculaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Lenteur de marche</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le score mini geriatric depression scale (mini GDS), indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">C'est un score de dépistage de l'humeur dépressive</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">C'est un score qui comporte 10 questions</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un score à 0 permet d'éliminer raisonnablement une humeur dépressive</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">"Pensez vous au suicide" est une des questions du score</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">"Vous sentez vous découragé et triste" est une des questions du score</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-correct="CD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les complications de décubitus suivantes, lesquelles sont tardives?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Pneumopathie d'inhalation</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Hypotension orthostatique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Syndrome de glissement</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Fracture ostéoporotique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Fécalome</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-correct="ACE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La personne de confiance :</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">peut être nommée par un patient sous tutelle</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">est nommée par oral par le patient à son médecin traitant ou son médecin référent</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">est nommée pour une durée indéterminée</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">doit donner son avis propre concernant la prise en charge médicale du patient si celui-ci est inconscient</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">peut être un membre de la famille</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-correct="DE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quand un patient en situation palliative présente une occlusion digestive sur carcinose péritonéale</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un traitement chirurgical est forcément contre indiqué</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Les opioïdes, du fait du risque de constipation sont contre-indiqués</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'utilisation du Primperan est nécessaire si la patiente présente des vomissements</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La mise en place d'un traitement anti secrétoire atropinique peut-être nécessaire</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La mise en place d'une sonde naso-gastrique peut être nécessaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-correct="CE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">La mise en place d'une prise en charge palliative</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Nécessite l'arrêt des traitements spécifiques de la maladie</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Nécessite l'arrêt des bilans biologiques</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Peut se faire à l'hôpital</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Ne peut pas se faire en EHPAD</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Est possible pour les enfants</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le score Mini Mental State Examination (MMSE)</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">C'est un score de dépistage du syndrome démentiel</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">C'est un score diagnostic des troubles cognitifs</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un score entre 27 et 30 est considéré comme normal</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un score de 15 indique une atteinte modérée</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un score de 22 indique une atteinte légère</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-correct="ABDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les conséquences de la dénutrition de la personne âgée, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle aggrave la perte de masse musculaire striée squelettique</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle peut entrainer une lymphopénie</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle peut entrainer une accélération du transit intestinal</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle peut entrainer des escarres notamment via la carence en zinc</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle peut entrainer une dépendance dans les actes de la vie courante</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la dépression de la personne âgée, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La tristesse de l'humeur est un symptôme fréquent</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le ralentissement psychomoteur est un symptôme fréquent</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les plaintes somatiques sont fréquentes</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il existe une forme clinique dite "hostile"</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il existe une forme clinique dite "pseudo-schizophrénique"</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-correct="BCDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant le score Mini Mental State Examination (MMSE), indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'apprentissage des 3 mots teste le stockage</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le rappel des 3 mots teste le stockage</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le calcul mental est une épreuve d'interférence</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les intrusions sont typiques d'une atteinte hippocampique</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un indiçage réussit oriente vers une atteinte attentionnelle</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-correct="ABE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quels sont les facteurs vraies de mauvaise réponse à une renutrition entérale artificielle?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Cause de dénutrition inconnue</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Dépendance sévère</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Consommation d'inhibiteurs de pompe à protons</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Consommation d'anticoagulants</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Escarres</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-correct="ABCE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles propositions vraies font parties du vieillissement physiologique ?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Sarcopénie et insulinorésistance</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Kératose séborrhéique</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Gastrite atrophique</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Troubles mnésiques hippocampiques</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Altération de l'immunité cellulaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, C, E</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-correct="BCD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les syndromes démentiels de la personne âgée, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La maladie d'Alzheimer est une démence secondaire</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La démence vasculaire est une démence secondaire</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La démence à corps de Lewy est une démence dégénérative</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La démence front-temporale est une démence dégénérative</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La démence Parkinsonienne est une démence secondaire</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : B, C, D</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-correct="AD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant les déficits neuro sensoriels chez la personne âgée, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La presbyaccousie est une surdité de perception bilatérale et symétrique</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La presbyaccousie prédomine sur les sons graves</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La cataracte sénile est classiquement bilatérale et non symétrique</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La cataracte sous capsulaire postérieure oriente vers une origine diabétique</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La dégénérescence maculaire liée à l'âge est classiquement tardive</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q16" data-correct="AB" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Parmi les complications de décubitus suivantes, lesquelles sont précoces?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Confusion aiguë</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Escarre</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Fécalome</span></li>
+<li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Déshydratation</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cachexie</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q17" data-correct="ABD" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q17</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Concernant la confusion aiguë de la personne âgée, indiquez les propositions vraies</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La confusion aiguë traduit la réduction de la réserve cognitive</span></li>
+<li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'altération brutale de la vigilance est le symptôme le plus caractéristique</span></li>
+<li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les hallucinations sont rares</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'agitation psycho-motrice est fréquente</span></li>
+<li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La confusion aiguë est constante au cours du nycthémère</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : A, B, D</div>
+<div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span></div>
+</div>
+</div>
+
+<div class="q" id="SQI1-Q18" data-correct="CDE" data-type="QRM">
+<div class="qhead"><span class="qnum">SQI1 Q18</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<div class="stem">Quelles sont les complications vraies du syndrome de fragilité chez la personne âgée?</div>
+<ul class="opts">
+<li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Démence</span></li>
+<li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Chute</span></li>
+<li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hospitalisation</span></li>
+<li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Dépendance</span></li>
+<li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Décès prématuré</span></li>
+</ul>
+<div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+<div class="correction" hidden><div class="ans">Réponse : C, D, E</div>
+<div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span></div>
+<div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span></div>
+<div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span></div>
+</div>
+</div>
+
+<a class="back" href="index.html">← Retour</a>
+</div>
+
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+function qClipText(el){
+  if(!el)return '';
+  var c=el.cloneNode(true);
+  c.querySelectorAll('br').forEach(function(br){br.replaceWith('\n');});
+  return c.textContent.replace(/[ \t]+/g,' ').replace(/\n\s+/g,'\n').trim();
+}
+function qLoadImage(img){
+  return new Promise(function(resolve){
+    var im=new Image();
+    im.onload=function(){resolve(im);};
+    im.onerror=function(){resolve(null);};
+    im.src=img.src;
+  });
+}
+function qCombineImages(imgs){
+  return Promise.all(imgs.map(qLoadImage)).then(function(loaded){
+    loaded=loaded.filter(Boolean);
+    if(!loaded.length)return null;
+    var gap=loaded.length>1?16:0;
+    var width=Math.max.apply(null,loaded.map(function(im){return im.naturalWidth;}));
+    var height=loaded.reduce(function(h,im){return h+im.naturalHeight;},0)+gap*(loaded.length-1);
+    var cv=document.createElement('canvas');
+    cv.width=width;cv.height=height;
+    var ctx=cv.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);
+    var y=0;
+    loaded.forEach(function(im){ctx.drawImage(im,0,y);y+=im.naturalHeight+gap;});
+    return new Promise(function(resolve){cv.toBlob(resolve,'image/png');});
+  });
+}
+function buildQuestionClipboard(q){
+  var parts=[];var images=[];
+  var qt=q.querySelector('.qhead .qtype');
+  if(qt)parts.push(qClipText(qt));
+  q.querySelectorAll('.dpctx, .stem, .extra').forEach(function(el){
+    if(el.classList.contains('extra')){
+      el.querySelectorAll('img').forEach(function(img){images.push(img);parts.push('[Image]');});
+    }else{
+      parts.push(qClipText(el));
+    }
+  });
+  q.querySelectorAll('.opts > .opt, .extra.zonewrap > .zone').forEach(function(it){
+    var l=it.dataset.l;if(!l)return;
+    var otext=it.querySelector('.otext');
+    var txt=otext?qClipText(otext):(it.getAttribute('title')||'').trim();
+    parts.push(l+' '+txt);
+  });
+  return {text:parts.filter(Boolean).join('\n'),images:images};
+}
+function copyQuestion(q,chip){
+  if(!q)return;
+  var data=buildQuestionClipboard(q);
+  var prevText=chip.textContent;
+  var done=function(ok){
+    chip.classList.add('copied');
+    chip.textContent=ok?'✓ Copié !':'Échec';
+    setTimeout(function(){chip.classList.remove('copied');chip.textContent=prevText;},1400);
+  };
+  var writeTextOnly=function(){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(data.text).then(function(){done(true);}).catch(function(){done(false);});
+    }else{done(false);}
+  };
+  if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){
+    (data.images.length?qCombineImages(data.images):Promise.resolve(null)).then(function(imgBlob){
+      var payload={'text/plain':new Blob([data.text],{type:'text/plain'})};
+      if(imgBlob)payload['image/png']=imgBlob;
+      return navigator.clipboard.write([new ClipboardItem(payload)]);
+    }).then(function(){done(true);}).catch(function(){writeTextOnly();});
+  }else{
+    writeTextOnly();
+  }
+}
+document.addEventListener('click',function(e){
+  var qn=e.target.closest('.qnum');
+  if(qn){copyQuestion(qn.closest('.q'),qn);}
+});
+document.addEventListener('keydown',function(e){
+  if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('qnum')){
+    e.preventDefault();copyQuestion(e.target.closest('.q'),e.target);
+  }
+});
+$('.qnum').forEach(function(el){
+  el.tabIndex=0;el.setAttribute('role','button');
+  el.title='Copier la question pour un chat IA';
+  el.setAttribute('aria-label','Copier la question '+el.textContent+' pour un chat IA');
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+</body></html>
