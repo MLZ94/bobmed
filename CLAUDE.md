@@ -298,11 +298,40 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 ```
 
 - Un `<div class="citem v-vrai">` ou `v-faux"` par option, **dans le même ordre que `<ul class="opts">`**, qu'elle soit notée correcte ou non par l'énoncé.
-- Justification après un tiret cadratin (` — `) uniquement si elle existe dans le PDF source ; sinon la ligne s'arrête après VRAI/FAUX (jamais de justification inventée).
+- Justification après un tiret cadratin (` — `) uniquement si elle existe dans le PDF source ; sinon la ligne s'arrête après VRAI/FAUX (jamais de justification inventée **présentée comme officielle** — la seule exception, ajoutée a posteriori sur certains items et balisée comme telle, est la justification non officielle ◈ : cf. section suivante).
 - Une précision qui ne concerne pas une option précise (rappel de cours, remarque transversale) va dans un `<div class="note"><div class="rappel">…</div></div>` placé **avant** les `.citem`, jamais fondue dans le texte d'une option.
 - **TCS** : ne s'applique pas — ses options (improbable/…/certain) ne sont pas des affirmations vraies/fausses. Garder le format `<div class="ans">Réponse : X — texte</div>` (ou `Réponses validées par le jury : X — … · Y — …` si plusieurs) + `<div class="note">` pour le barème pondéré (cf. section TCS ci-dessous).
 - **QROC** : inchangé (`<div class="qrocans">` / `<div class="qrocmodel">`).
 - **Items indispensable/inacceptable** : ne jamais écrire le mot « indispensable »/« inacceptable » à la main dans un `.citem` — le tag est injecté automatiquement par `markSpecial()` (cf. « JS complet de référence ») sur le `.citem` à la même position que l'`.opt` `data-mandatory="1"`/`data-unacceptable="1"` correspondant, uniquement au moment de la révélation. Ne pas non plus placer d'étoile/repère dans le texte de l'option elle-même : c'est purement du CSS conditionné par `.q.done` (cf. « CSS clés »).
+
+### Justifications non officielles ◈ (annales D2)
+
+Le fichier réponse officiel ne justifie presque jamais ses VRAI/FAUX. Pour faciliter la révision, BobMed ajoute **a posteriori** une justification courte, **clairement balisée comme non officielle**, sur les items qui en valent la peine. Déployé sur les annales D2 (`Quiz_UE*.html` et sujets types de `d2/t1/` à `d2/t4/` ; T1 et T2 traités en entier, T3/T4 en grande partie ; les quiz d'entraînement par item n'en portent pas, leurs justifications sont rédigées d'origine). `pdf_to_quiz.py` ne les génère pas : elles s'ajoutent ensuite, après relecture.
+
+**Format** — la justification se glisse dans le `.citem` existant, juste après le verdict, sans toucher à `.cl`, `.cv`, à l'ordre des `.citem` ni à `data-correct` :
+
+```html
+<div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> <span class="nj">— <span class="njm" title="Justification ajoutée par BobMed — non officielle">◈</span> Une phrase d'explication.</span></div>
+<div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span></div> <!-- item évident : pas de justification -->
+```
+
+Une page qui contient au moins un `.nj` doit aussi porter **dans le même fichier** : (a) le bandeau, premier enfant de `<div class="wrap">` (ignoré par `initLocks()`, qui ne regarde que les `.sect` et `.q`) —
+`<div class="nj-disclaimer"><span class="njm">◈</span> <b>Justifications non officielles.</b> Les explications signalées par le symbole <span class="njm">◈</span> après &laquo; VRAI &raquo;/&laquo; FAUX &raquo; ont été ajoutées par BobMed pour faciliter la révision. Elles ne proviennent pas de la correction officielle du jury et peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>` ;
+(b) le CSS, dans le `<style>` du quiz (le mode sombre du bandeau est déjà dans `theme.css`) :
+```css
+/* BobMed - justifications non officielles ajoutees */.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}.nj-disclaimer .njm{color:var(--acc2,#06b6d4);font-weight:700}.citem .nj{color:var(--ink,#132025)}.citem .njm{font-weight:700;color:var(--acc2,#06b6d4);cursor:help;padding:0 1px}
+```
+
+**Sélectivité (règle de fond : surtout pas tous les items)** — on justifie les items qui reposent sur un **raisonnement** : seuil chiffré, indication / contre-indication, mécanisme, chronologie, diagnostic différentiel, piège tentant, définition qu'on confond facilement. On **ne justifie pas** les évidences (distracteur manifestement absurde, simple reformulation de l'énoncé, définition triviale dont le verdict suffit). Ordre de grandeur constaté : 30 à 55 % des options par annale. Sont aussi exclus :
+- les items qui ont **déjà** une justification officielle (texte après le tiret dans le `.citem`) ou dont l'explication figure déjà dans une `<div class="note">` de la question — ne jamais doubler ; sur une annale très annotée (ex. `Quiz_UE4.1_2023-2024_S1.html`), la couverture ◈ peut tomber à ~20 % ;
+- les QROC et les TCS (autre format de correction) ;
+- les items **neutralisés** (`v-neutre`).
+
+**Rédaction** — une phrase (15 à 35 mots) qui commence directement par l'explication, sans répéter « VRAI »/« FAUX » ; vocabulaire médical exact (cf. « Consignes de rédaction et de qualité ») ; **cohérente avec le fichier réponse** : la justification explique le verdict officiel, elle ne le contredit jamais. Si le verdict officiel paraît contredire le cours (ou si le sujet contient un doublon / une erreur de libellé), ne pas inventer de raisonnement : écrire que l'item est « classé faux/vrai par la correction officielle de cette annale » et renvoyer au cours (« à recouper avec le cours »). Ne jamais décrire le contenu d'une image qu'on n'a pas vue : se limiter à ce que le corrigé impose.
+
+**Réutilisation** — quand une session reprend à l'identique une question d'une autre session (mêmes options, souvent numérotées autrement : dossiers répétés entre janvier, S1 et S2), reprendre ses justifications **en appariant par le texte des options**, pas par l'identifiant, et ne pas recopier une lettre dont le libellé a changé.
+
+**Garde-fous** — après tout ajout : `make validate F=…` (en particulier `CITEM_MISMATCH` : la justification ne doit pas décaler les `.citem` par rapport aux `.opt`) et `make test F=…` ; vérifier à l'œil un exemple révélé (« Tout révéler ») avant de pousser.
 
 ---
 
