@@ -306,7 +306,7 @@ Pour les QRM et QRU **hors TCS**, la correction affiche un verdict VRAI/FAUX par
 
 ### Justifications non officielles ◈ (annales D2)
 
-Le fichier réponse officiel ne justifie presque jamais ses VRAI/FAUX. Pour faciliter la révision, BobMed ajoute **a posteriori** une justification courte, **clairement balisée comme non officielle**, sur les items qui en valent la peine. Déployé sur les annales D2 (`Quiz_UE*.html` et sujets types de `d2/t1/` à `d2/t4/` ; T1 et T2 traités en entier, T3/T4 en grande partie ; les quiz d'entraînement par item n'en portent pas, leurs justifications sont rédigées d'origine). `pdf_to_quiz.py` ne les génère pas : elles s'ajoutent ensuite, après relecture.
+Le fichier réponse officiel ne justifie presque jamais ses VRAI/FAUX. Pour faciliter la révision, BobMed ajoute **a posteriori** une justification courte, **clairement balisée comme non officielle**, sur les items qui en valent la peine. Déployé sur les annales D2 (`Quiz_UE*.html` et sujets types de `d2/t1/` à `d2/t4/` ; T1, T2 et T3 traités en entier, T4 en grande partie ; les quiz d'entraînement par item n'en portent pas, leurs justifications sont rédigées d'origine). `pdf_to_quiz.py` ne les génère pas : elles s'ajoutent ensuite, après relecture.
 
 **Format** — la justification se glisse dans le `.citem` existant, juste après le verdict, sans toucher à `.cl`, `.cv`, à l'ordre des `.citem` ni à `data-correct` :
 
