@@ -617,6 +617,77 @@ def _check_correct_vs_options(soup) -> list[dict]:
     return findings
 
 
+def _check_citem_alignment(soup) -> list[dict]:
+    """Correction VRAI/FAUX (.citem) désalignée des options.
+
+    Les lignes .citem doivent suivre l'ordre de <ul class="opts"> (même lettre au
+    même rang) et le verdict VRAI doit correspondre exactement à data-correct.
+    Bug confirmé (PR #12, 2026-10) : options mélangées sans leurs corrections sur
+    12 quiz d'entraînement — 46 questions affichaient « A. VRAI — … » pour une
+    option fausse. Le moteur notait juste, mais la correction affichée mentait.
+    Ignoré pour les QZONE (zones nommées) et les questions sans .citem (TCS, QROC)."""
+    if soup is None:
+        return []
+    findings = []
+    for q in soup.select(".q"):
+        if q.get("data-type") in ("QROC", "QZONE", None):
+            continue
+        cits = q.select(".correction .citem")
+        opts = q.select(".opt")
+        if not cits or not opts:
+            continue
+        qid = q.get("id", "?")
+        letters = [o.get("data-l") for o in opts]
+        labels = []
+        for c in cits:
+            cl = c.select_one(".cl")
+            labels.append(re.sub(r"[^A-Z]", "", cl.get_text()) if cl else "")
+        vrai = "".join(lab for c, lab in zip(cits, labels) if "v-vrai" in (c.get("class") or []))
+        neutral = {o.get("data-l") for o in opts if o.get("data-neutral") == "1"}
+        expected = "".join(l for l in letters if l in set(q.get("data-correct", "")) and l not in neutral)
+        problems = []
+        if len(cits) != len(opts):
+            problems.append(f"{len(cits)} lignes de correction pour {len(opts)} options")
+        elif labels != letters:
+            problems.append(f"lettres de la correction {''.join(l or '?' for l in labels)} ≠ ordre des options {''.join(letters)}")
+        if vrai != expected:
+            problems.append(f"VRAI sur {vrai or '∅'} alors que data-correct = {expected or '∅'}")
+        if problems:
+            findings.append({
+                "level":   "error",
+                "code":    "CITEM_MISMATCH",
+                "message": f"[{qid}] correction désalignée des options : " + " ; ".join(problems) + ".",
+            })
+    return findings
+
+
+def _check_question_count(soup) -> list[dict]:
+    """Le sous-titre « N questions » (.sub) et la scorebar statique doivent
+    refléter le nombre réel de .q (bug PR #12 : « 0 questions » affiché sur 9 quiz,
+    « 10 questions » pour 15 sur 13 autres)."""
+    if soup is None:
+        return []
+    n = len(soup.select(".q"))
+    if not n:
+        return []
+    findings = []
+    sub = soup.select_one("header .sub")
+    m = re.match(r"\s*(\d+)\s+questions?", sub.get_text()) if sub else None
+    if m and int(m.group(1)) != n:
+        findings.append({
+            "level": "warning", "code": "QUESTION_COUNT_MISMATCH",
+            "message": f"Le sous-titre annonce {m.group(1)} questions, la page en contient {n}.",
+        })
+    sd = soup.select_one("#s-done")
+    m = re.match(r"\s*0/(\d+)", sd.get_text()) if sd else None
+    if m and int(m.group(1)) != n:
+        findings.append({
+            "level": "warning", "code": "QUESTION_COUNT_MISMATCH",
+            "message": f"La scorebar statique affiche 0/{m.group(1)} pour {n} questions.",
+        })
+    return findings
+
+
 _VOID_TAGS = {"br", "img", "meta", "link", "input", "hr", "source", "area", "base",
               "col", "embed", "param", "track", "wbr"}
 _BALANCED_TAGS = {"div", "ul", "ol", "li", "span", "p", "section", "header", "footer",
@@ -807,6 +878,8 @@ def validate_file(path: Path) -> dict:
         + _check_special_items(html_text, soup)
         + _check_neutral_engine(html_text)
         + _check_correct_vs_options(soup)
+        + _check_citem_alignment(soup)
+        + _check_question_count(soup)
         + _check_html_balance(html_text)
         + _check_global_scripts(html_text, path)
         + _check_dark_mode(html_text)
