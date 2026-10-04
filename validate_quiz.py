@@ -21,6 +21,7 @@ Dépendances:
 
 import sys
 import re
+import unicodedata
 import json
 import argparse
 from pathlib import Path
@@ -688,6 +689,96 @@ def _check_question_count(soup) -> list[dict]:
     return findings
 
 
+def _norm_txt(s: str) -> str:
+    s = unicodedata.normalize("NFKD", s or "")
+    s = "".join(c for c in s if not unicodedata.combining(c)).lower()
+    return re.sub(r"[^a-z0-9]+", " ", s).strip()
+
+
+# Mots qui, ajoutés à l'intitulé de l'option, n'apportent aucune explication
+# (« La CRP n'est pas utile. » sous « CRP ») : NJ_PARAPHRASE.
+_NJ_FILLER = set("n ne pas non est sont il elle c ce un une le la les l de des du d a au aux plus "
+                 "aucun aucune jamais toujours utile inutile indique indiquee indiques necessaire "
+                 "recommande recommandee recommandes vrai faux exact exacte inexact".split())
+
+
+def _check_unofficial_justifications(html_text: str, soup) -> list[dict]:
+    """Justifications non officielles ◈ (cf. CLAUDE.md « Justifications non
+    officielles ◈ ») : une page qui en porte doit afficher le bandeau
+    .nj-disclaimer et embarquer son CSS ; le repère ◈ n'a jamais d'infobulle ;
+    pas de ◈ sur une TCS, une QROC ou un item neutralisé ; pas de ◈ qui double
+    une justification officielle ou se contente de recopier l'option."""
+    if soup is None:
+        return []
+    njs = soup.select(".citem .nj")
+    rappels = [r for r in soup.select(".rappel") if r.select_one(".njm")]
+    if not njs and not rappels:
+        return []
+    findings = []
+    disc = soup.select_one(".nj-disclaimer")
+    if disc is None:
+        findings.append({"level": "error", "code": "NJ_DISCLAIMER_MISSING",
+                         "message": "Justifications ◈ présentes sans le bandeau .nj-disclaimer."})
+    else:
+        wrap = soup.select_one(".wrap")
+        first = next((c for c in wrap.children if getattr(c, "name", None)), None) if wrap else None
+        if first is not disc:
+            findings.append({"level": "warning", "code": "NJ_DISCLAIMER_POSITION",
+                             "message": "Le bandeau .nj-disclaimer doit être le premier enfant de <div class=\"wrap\">."})
+    css = " ".join(st.get_text() for st in soup.select("style"))
+    if ".nj-disclaimer{" not in css.replace(" {", "{") or ".citem .njm" not in css:
+        findings.append({"level": "error", "code": "NJ_CSS_MISSING",
+                         "message": "CSS des justifications ◈ (.nj-disclaimer, .citem .nj, .citem .njm) absent du <style>."})
+    if rappels and ".rappel .njm" not in css:
+        findings.append({"level": "warning", "code": "NJ_CSS_MISSING",
+                         "message": "Rappel ◈ présent sans la règle CSS « .rappel .njm »."})
+    for m in soup.select(".njm"):
+        if m.has_attr("title"):
+            findings.append({"level": "error", "code": "NJM_TOOLTIP",
+                             "message": "Le repère ◈ (.njm) ne doit pas porter d'attribut title (infobulle)."})
+            break
+    if re.search(r"\.njm[^{}]*\{[^}]*cursor\s*:\s*help", css):
+        findings.append({"level": "error", "code": "NJM_TOOLTIP",
+                         "message": "Le repère ◈ ne doit pas avoir de « cursor:help »."})
+    for nj in njs:
+        c = nj.find_parent(class_="citem")
+        q = nj.find_parent(class_="q")
+        qid = q.get("id", "?") if q else "?"
+        cl = c.select_one(".cl")
+        lab = cl.get_text(strip=True) if cl else "?"
+        qtype = q.select_one(".qtype").get_text(" ", strip=True) if q and q.select_one(".qtype") else ""
+        if q is not None and (q.get("data-type") == "QROC" or "TCS" in qtype):
+            findings.append({"level": "error", "code": "NJ_MISPLACED",
+                             "message": f"[{qid}] justification ◈ sur une {'QROC' if q.get('data-type') == 'QROC' else 'TCS'}."})
+            continue
+        if "v-neutre" in (c.get("class") or []):
+            findings.append({"level": "error", "code": "NJ_MISPLACED",
+                             "message": f"[{qid}] justification ◈ sur l'item neutralisé {lab}"})
+        txt = nj.get_text(" ", strip=True)
+        if not txt.startswith("— ◈") or nj.select_one(".njm") is None:
+            findings.append({"level": "warning", "code": "NJ_FORMAT",
+                             "message": f"[{qid}] {lab} : la justification ◈ doit commencer par « — <span class=\"njm\">◈</span> »."})
+        # Justification officielle déjà présente entre le verdict et le ◈ ?
+        official = ""
+        for node in c.contents:
+            if node is nj:
+                break
+            if getattr(node, "name", None) == "span" and set(node.get("class") or []) & {"cl", "cv", "tag-mandatory", "tag-unacceptable"}:
+                continue
+            official += node.get_text(" ") if getattr(node, "name", None) else str(node)
+        if re.sub(r"[\s—–-]", "", official):
+            findings.append({"level": "warning", "code": "NJ_DOUBLE",
+                             "message": f"[{qid}] {lab} : ◈ ajouté sur un item qui a déjà une justification officielle."})
+        body = _norm_txt(txt.replace("◈", ""))
+        li = q.select_one(f'.opt[data-l="{lab.rstrip(".")}"] .otext') if q else None
+        opt = _norm_txt(li.get_text(" ", strip=True)) if li else ""
+        added = set(body.split()) - set(opt.split())
+        if body and opt and (body == opt or body in opt or (opt in body and added <= _NJ_FILLER)):
+            findings.append({"level": "warning", "code": "NJ_PARAPHRASE",
+                             "message": f"[{qid}] {lab} : la justification ◈ ne fait que reprendre l'option."})
+    return findings
+
+
 _VOID_TAGS = {"br", "img", "meta", "link", "input", "hr", "source", "area", "base",
               "col", "embed", "param", "track", "wbr"}
 _BALANCED_TAGS = {"div", "ul", "ol", "li", "span", "p", "section", "header", "footer",
@@ -880,6 +971,7 @@ def validate_file(path: Path) -> dict:
         + _check_correct_vs_options(soup)
         + _check_citem_alignment(soup)
         + _check_question_count(soup)
+        + _check_unofficial_justifications(html_text, soup)
         + _check_html_balance(html_text)
         + _check_global_scripts(html_text, path)
         + _check_dark_mode(html_text)
