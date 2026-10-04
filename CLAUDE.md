@@ -774,20 +774,23 @@ Convention : `Quiz_itemNNN_slug.html` (ex. `Quiz_item339_sca.html`, `Quiz_item23
 
 ### Badges de rang (rang A / rang B / rang A+B)
 
-Chaque question peut porter un badge de rang dans son `<div class="qhead">`, intégré au `.qtype` :
+Chaque question porte son badge de rang dans un `<span class="qrank">` **distinct** du `.qtype`, à l'intérieur de son `<div class="qhead">` (c'est le format des 108 quiz d'entraînement depuis 2026-10 ; l'ancien format intégré au `.qtype` — `<span class="qtype rang-a">Rang A · QRM</span>` — n'est plus utilisé) :
 
 ```html
-<span class="qtype rang-a">Rang A · QRM</span>   <!-- rang A uniquement -->
-<span class="qtype rang-b">Rang B · QRU</span>   <!-- rang B uniquement -->
-<span class="qtype rang-mixte">Rang A/B · QRM</span>  <!-- question intégrative mêlant rang A et B -->
+<div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+<span class="qrank rang-b">Rang B</span>        <!-- rang B uniquement -->
+<span class="qrank rang-mixte">Rang A/B</span>   <!-- question intégrative mêlant rang A et B -->
 ```
 
-CSS des badges (inclus dans le `<style>` de chaque quiz concerné — ne pas ajouter dans `theme.css`, propre aux quiz par item) :
+Le `.qtype` ne contient donc que le type (`QRM`, `QRU`, `QROC`…), ce que lit `qcopy.js` pour la copie de la question.
+
+CSS des badges (inclus dans le `<style>` de chaque quiz concerné — propre aux quiz par item ; seules les variantes du mode sombre `html.dark .rang-a/.rang-b/.rang-mixte` vivent dans `theme.css`) :
 
 ```css
-.rang-a    { background:#dcfce7; color:#166534; border-color:#86efac }
-.rang-b    { background:#dbeafe; color:#1e40af; border-color:#93c5fd }
-.rang-mixte{ background:#ede9fe; color:#6d28d9; border-color:#c4b5fd }
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
 ```
 
 - **Rang A** (vert) : connaissance fondamentale, exigible à l'EDN.
@@ -872,6 +875,7 @@ Sur l'environnement distant BobMed (Claude Code on the web), Chromium est déjà
 - **`--pdf` : compare directement le quiz au fichier réponse** (le `.debug.json` est généré à la volée dans un dossier temporaire) — c'est l'outil d'**audit d'une annale déjà publiée**, y compris rédigée à la main : `python3 quiz_agent.py --no-api --pdf "…/réponse 2 cardio.pdf" d2/t1/Quiz_UE8.2_2023-2024_S2.html` (ou `make agent F=… PDF=…`).
 - Les questions sont appariées par identifiant, **sinon par contenu** (énoncé, puis options) : l'ancienne version, par identifiant seul, ne comparait rien sur les annales dont les codes diffèrent du PDF (`SQI1` vs `QI(20)`) — c'est ce qui avait laissé passer, sur le site, les erreurs corrigées lors de l'audit de 2026-09.
 - `TYPE_MISMATCH` est **bloquant** quand le barème diffère (QRM ↔ QRP/QRPL) ; QRP ↔ QRPL (même barème) n'est plus signalé.
+- Les cases vierges **en fin de liste** du fichier réponse (« Faux H. » sans aucun texte après la dernière option rédigée, emplacements inutilisés d'une QRP/QRPL à 20 cases) sont ignorées : elles ne sont pas affichées sur le site et ne lèvent plus d'`OPT_COUNT_MISMATCH`. Des options toutes sans texte (propositions en image) restent comparées, de même qu'une case vierge marquée Valide/Indispensable/Inacceptable/Neutraliser.
 - Compare le `.debug.json` (produit par `pdf_to_quiz.py --debug`, auto-détecté dans le même dossier si `--debug` omis) au HTML final : `data-correct` incohérent avec les options « Valide » du PDF (dont une TCS dont toutes les réponses validées ne sont pas créditées, `TCS_VALID_NOT_CREDITED`), **item indispensable/inacceptable du PDF absent du HTML ou inversement, option par option** (`SPECIAL_ITEM_MISMATCH` — attrape une édition manuelle qui aurait perdu l'attribut), divergences de texte (plusieurs `.stem` d'une même question sont recollés avant comparaison) (énoncé/intitulé d'option), types de question incorrects, réponses QROC manquantes/incomplètes.
 - Les divergences textuelles non triviales (dérive de ligature vs erreur réelle) sont envoyées à `claude-haiku-4-5-20251001` pour classification (~1 centime/quiz) — nécessite `ANTHROPIC_API_KEY`.
 - `--no-api` : vérifications mécaniques seules, sans appel API ; les divergences textuelles sont simplement listées pour relecture manuelle au lieu d'être classées automatiquement.
