@@ -140,7 +140,21 @@ def extract_debug_questions(debug: dict) -> list[dict]:
         for q in section.get("questions", []):
             num = q.get("num", "?")
             qtype = q.get("type", "?")
+            # Cases vierges en fin de liste dans le fichier réponse (« Faux H. » sans
+            # aucun texte, ex. les emplacements H à T inutilisés d'une QRP/QRPL de 20
+            # cases) : elles ne comptent jamais et ne sont pas affichées sur le site
+            # (cf. UE 6 sept. 2023 mDP2-Q2, UE 7.3 2022-2023 S1 KFP1-QB). On les ignore
+            # pour ne pas lever d'OPT_COUNT_MISMATCH factice. Seules les cases situées
+            # APRÈS la dernière option rédigée sont concernées : des options toutes
+            # sans texte (propositions en image, ex. UE 4.3 2022-2023 S1 SQI1-Q7) sont
+            # conservées, de même qu'une case vierge marquée Valide/Indispensable/
+            # Inacceptable/Neutraliser.
             opts = q.get("options", [])
+            last = max((i for i, o in enumerate(opts) if (o.get("text") or "").strip()), default=-1)
+            if last >= 0:
+                opts = opts[:last + 1] + [
+                    o for o in opts[last + 1:]
+                    if o.get("valid") or o.get("mandatory") or o.get("unacceptable") or o.get("neutral")]
             # data_correct attendu = lettres des options valid=True
             # Un item « Neutraliser » n'est jamais une bonne réponse (ancien debug.json :
             # il y était encore marqué valid) — cf. pdf_to_quiz.py.
