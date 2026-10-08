@@ -8,11 +8,11 @@ Amener D3 au niveau de complétude de `main` (D2) : justifications ◈ non offic
 ## Fait et poussé sur `D3`
 - Fusion de `main` dans `D3` (commit `d67d449`).
 - Corrections : option vierge de UE 5 mars 2023 DP2-Q11 retirée ; nouveau contrôle `NJ_*` des justifications ◈ dans `validate_quiz.py`.
-- **◈ sur 17 des 18 annales D3** (≈ 1 470 ◈ + 37 rappels) : toutes les UE 2, UE 5, UE 7.3, UE 9, UE 10. Les 5 annales d'UE 2 et 3 annales d'UE 5 (mars 2023, janv. 2024, fév. 2025) ont été rédigées par Opus avec auto-relecture (pas de relecteur séparé) ; les 9 autres rédigées par Sonnet puis relues de façon adversariale par Opus.
+- **◈ sur les 18 annales D3** (≈ 1 520 ◈ + rappels) : UE 2, UE 5, UE 7.3, UE 9, UE 10, UE 11.2. Les 5 annales d'UE 2 et 3 annales d'UE 5 (mars 2023, janv. 2024, fév. 2025) ont été rédigées par Opus avec auto-relecture (pas de relecteur séparé) ; les 10 autres rédigées par Sonnet puis relues de façon adversariale par Opus.
 - **Entraînement D3-T1** : portail `d3/t1/entrainement/` + 6 quiz audités (items 23, 147, 151/158, 154/359/188, 161, 164/215).
 
 ## Reste à faire
-1. **◈ UE 11.2 mars 2023** : JSON rédigé (Sonnet) dans `nj/UE11.2_2022-2023_S1.json`, **pas encore vérifié** par Opus → vérifier puis appliquer (`apply_nj.py`).
+1. ~~◈ UE 11.2~~ : fait (vérifié par Opus, appliqué).
 2. **Quiz d'entraînement** (46 restants, plan complet dans `plan_quizzes.json`) :
    - `Quiz_item269_286_…` : spec rédigé (Sonnet) dans `specs/`, **audit non fait** ;
    - pédiatrie : item 55 ; gynéco-obstétrique : 24/344, 24/26, 25/40/44, 27/30, 43/41, 300/312 ;
