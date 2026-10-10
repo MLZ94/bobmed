@@ -12,6 +12,10 @@ Amener D3 au niveau de complétude de `main` (D2) : justifications ◈ non offic
 - **Entraînement D3-T1** : portail `d3/t1/entrainement/` + 10 quiz audités (items 23, 24/26, 24/344, 55, 147, 151/158, 154/359/188, 161, 164/215, 269/286).
 - **Entraînement D3-T2** : portail `d3/t2/entrainement/` + 4 quiz de gériatrie audités (items 123/130, 131, 132, 343).
 
+## Stratégie (décision de l'utilisateur, 10 octobre 2026)
+**Priorité aux 6 sujets types**, puis seulement ensuite reprise des quiz d'entraînement par item. Chaque sujet type s'inspire de la lecture de TOUTES les annales de l'UE : analyse des questions qui reviennent le plus et de leurs différentes formulations / manières d'aborder le sujet, puis réplique d'une épreuve qui aurait été susceptible de tomber (architecture et style des sessions récentes). Workflow `workflows/st.js` (arguments : `workflows/st_args.json`) : analyse (Opus, `st/analyse_UE*.md`) → rédaction (Sonnet) → copie à l'aveugle + audit adversarial (Opus). Publication : `outils/add_sujet_type.py <quiz> "<thèmes>"` (carte « Sujet type » + compteur du portail).
+Lot d'entraînement clos avant le changement : audit des 4 brouillons 25/40/44, 43/41, 120/133, 139/140/141 ; les rédactions interrompues (27/30, 300/312, 134/135/138, 1/7, 66/250/267 — scripts `build_item*.py` partiels dans le scratchpad) reprendront après les sujets types.
+
 ## Reste à faire
 1. ~~◈ UE 11.2~~ : fait (vérifié par Opus, appliqué).
 2. **Quiz d'entraînement** (38 restants, plan complet dans `plan_quizzes.json`) :
