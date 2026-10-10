@@ -1,4 +1,4 @@
-# Chantier « mise à niveau D3 » — état au 9 octobre 2026
+# Chantier « mise à niveau D3 » — état au 10 octobre 2026
 
 > Dossier de travail temporaire, propre à la branche `D3`. **À supprimer avant toute fusion de `D3` dans `main`** (il n'a rien à faire sur le site publié).
 
@@ -9,15 +9,15 @@ Amener D3 au niveau de complétude de `main` (D2) : justifications ◈ non offic
 - Fusion de `main` dans `D3` (commit `d67d449`).
 - Corrections : option vierge de UE 5 mars 2023 DP2-Q11 retirée ; nouveau contrôle `NJ_*` des justifications ◈ dans `validate_quiz.py`.
 - **◈ sur les 18 annales D3** (≈ 1 520 ◈ + rappels) : UE 2, UE 5, UE 7.3, UE 9, UE 10, UE 11.2. Les 5 annales d'UE 2 et 3 annales d'UE 5 (mars 2023, janv. 2024, fév. 2025) ont été rédigées par Opus avec auto-relecture (pas de relecteur séparé) ; les 10 autres rédigées par Sonnet puis relues de façon adversariale par Opus.
-- **Entraînement D3-T1** : portail `d3/t1/entrainement/` + 8 quiz audités (items 23, 55, 147, 151/158, 154/359/188, 161, 164/215, 269/286).
-- **Entraînement D3-T2** : portail `d3/t2/entrainement/` + 2 quiz de gériatrie audités (items 123/130, 132).
+- **Entraînement D3-T1** : portail `d3/t1/entrainement/` + 10 quiz audités (items 23, 24/26, 24/344, 55, 147, 151/158, 154/359/188, 161, 164/215, 269/286).
+- **Entraînement D3-T2** : portail `d3/t2/entrainement/` + 4 quiz de gériatrie audités (items 123/130, 131, 132, 343).
 
 ## Reste à faire
 1. ~~◈ UE 11.2~~ : fait (vérifié par Opus, appliqué).
-2. **Quiz d'entraînement** (42 restants, plan complet dans `plan_quizzes.json`) :
-   - rédigés, **audit non fait** (specs dans `specs/`) : 24/344, 24/26 (gynéco-obstétrique), 343 (gériatrie) ;
-   - gynéco-obstétrique à rédiger : 25/40/44, 27/30, 43/41, 300/312 ;
-   - T2 : Gériatrie (6 : 131, 120/133, 139/140/141, 134/135/138, 1/7, 66/250/267), Hématologie (8, avec les diapos de révision Braun/Rahmé 2025 du drive comme source), Oncologie (7) ;
+2. **Quiz d'entraînement** (38 restants, plan complet dans `plan_quizzes.json`) :
+   - rédigés, **audit non fait** (specs dans `specs/`) : 25/40/44 (gynéco-obstétrique), 120/133 (gériatrie) ;
+   - gynéco-obstétrique à rédiger : 27/30, 43/41, 300/312 ;
+   - T2 : Gériatrie (4 à rédiger : 139/140/141, 134/135/138, 1/7, 66/250/267), Hématologie (8, avec les diapos de révision Braun/Rahmé 2025 du drive comme source), Oncologie (7) ;
    - T3 : Thérapeutique (7), Urgences-Réanimation (7).
    Fiches « ce qui tombe » déjà écrites : `fiches/` (8) ; les autres sont produites par le rédacteur.
 3. **Sujets types** : 6 (UE 2, 5, 7.3, 9, 10, 11.2) — mode `sujet_type` de `workflows/quiz2.js`.

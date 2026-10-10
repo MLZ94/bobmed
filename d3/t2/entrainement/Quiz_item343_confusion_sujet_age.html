@@ -1,0 +1,886 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 343 — État confusionnel du sujet âgé · Entraînement par item · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>Item 343 — État confusionnel du sujet âgé · Entraînement par item</h1>
+<div class="sub">28 questions — Diagnostic positif (vigilance, fluctuation, CAM) · Terrain prédisposant et facteurs précipitants · Causes simples et curables · Iatrogénie · Causes neurologiques et place de l'imagerie · Complications de l'alitement · Prévention · Confusion en fin de vie · Pronostic · Confusion post-opératoire · Pneumopathie et hyponatrémie · Agitation : conduite à tenir · Neuroleptiques et benzodiazépines · TCS : hématome sous-dural, infection urinaire, halopéridol</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/28</b></span>
+<span class="pill">Score : <b id="s-ok">0/28</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">Questions isolées — Item 343</div>
+
+<div class="q" id="Q1" data-type="QROC" data-correct="" data-answer="alteration de la vigilance | l alteration de la vigilance | alteration brutale de la vigilance | alteration aigue de la vigilance | trouble de la vigilance | troubles de la vigilance | alteration du niveau de vigilance | vigilance | la vigilance | baisse de la vigilance | diminution de la vigilance | alteration de la conscience | troubles de la conscience | trouble de la conscience | alteration du niveau de conscience | alteration de l etat de conscience | alteration de l etat de vigilance | trouble de l etat de conscience | trouble de l attention | troubles de l attention | alteration de l attention | trouble attentionnel | troubles attentionnels | deficit attentionnel | inattention | trouble de la vigilance et de l attention | troubles de la vigilance et de l attention | alteration de la vigilance et de l attention | trouble de l attention et de la vigilance | troubles de l attention et de la vigilance">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quel trouble, d'installation brutale, est le symptôme le plus caractéristique de la confusion aiguë du sujet âgé ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : L'altération de la vigilance (du niveau de conscience), indissociable d'un trouble de l'attention</div>
+    <div class="note"><div class="rappel">Le diagnostic de confusion est clinique : l'altération fluctuante de la vigilance, associée à un trouble de l'attention et à une désorientation, d'installation brutale par rapport à l'état habituel, suffit à l'évoquer ; le Collège de gériatrie désigne l'altération de la vigilance comme le symptôme le plus caractéristique, la CAM et le DSM-5 placent le trouble de l'attention au centre du diagnostic (les deux réponses sont acceptées). Un score de Glasgow entre 10 et 13/15 dans ce contexte traduit une confusion et non un coma (coma : Glasgow ≤ 8).</div></div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la confusion aiguë de la personne âgée, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'intensité des troubles est constante au cours du nycthémère</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un score de Glasgow à 12/15 est compatible avec une confusion aiguë</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle s'installe progressivement sur plusieurs mois</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'agitation est fréquente, mais une forme hypoactive (somnolence, apathie) existe et est souvent méconnue</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Des hallucinations, surtout visuelles, et des idées délirantes peuvent s'observer</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'évolution est fluctuante, avec des moments de lucidité et une aggravation typique en fin de journée et la nuit : c'est ce qui l'oppose à un état stable.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le coma se définit par un score de Glasgow ≤ 8 : l'altération de la vigilance de la confusion abaisse le score sans en faire un coma, piège classique des dossiers.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le début est brutal, en quelques heures ou quelques jours ; une installation insidieuse sur plusieurs mois évoque au contraire un syndrome démentiel.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Chez le sujet âgé, la forme hypoactive est prise à tort pour de la fatigue ou une dépression, alors que l'agitation, plus bruyante, attire l'attention.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les perturbations de la perception et un délire mal construit sont fréquents, mais ils ne définissent pas la confusion, dont le noyau reste l'altération de la vigilance et de l'attention.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la Confusion Assessment Method (CAM), outil de repérage de la confusion, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle repose sur un début aigu à évolution fluctuante et sur un trouble de l'attention</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un score de MMSE inférieur à 24/30 suffit à poser le diagnostic de confusion</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les informations de l'entourage ou de l'équipe soignante sont utiles pour apprécier le début et la fluctuation</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un électroencéphalogramme est nécessaire pour valider les critères</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Il faut en outre une pensée désorganisée ou une altération du niveau de conscience</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Ce sont les deux critères obligatoires de la grille : sans eux, le diagnostic de confusion n'est pas retenu.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le MMSE dépiste des troubles cognitifs ; il n'est pas interprétable en pleine confusion et ne distingue pas confusion et démence.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le caractère aigu et fluctuant ne se juge que par rapport à l'état habituel du patient, que seuls ses proches ou les soignants connaissent.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La CAM est un outil purement clinique ; l'EEG n'est demandé qu'en cas de suspicion de crise ou d'état de mal non convulsif.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le diagnostic associe les deux premiers critères à au moins un des deux autres : discours incohérent ou illogique, vigilance augmentée, diminuée ou fluctuante.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la physiopathologie de la confusion aiguë du sujet âgé, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle résulte de l'association d'un terrain prédisposant et d'un ou plusieurs facteurs précipitants</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle relève d'une cause unique dans la grande majorité des cas</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une infection peut en être le facteur précipitant sans fièvre</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Plus le terrain est fragile, plus le facteur précipitant suffisant peut être minime</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un trouble neurocognitif préexistant est un facteur précipitant</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La réserve cognitive est réduite chez le sujet âgé : une agression aiguë (infection, médicament, déshydratation) suffit à décompenser le fonctionnement cérébral.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle est le plus souvent multifactorielle, ce qui impose de poursuivre la recherche étiologique même après avoir trouvé une première cause.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Chez le sujet âgé, la réponse fébrile est souvent atténuée : la confusion peut être la seule manifestation d'une pneumonie ou d'une pyélonéphrite.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Chez un patient très âgé ou porteur de troubles cognitifs, un fécalome ou un nouveau médicament peut suffire, alors qu'il faudrait une agression majeure chez un adulte jeune.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — C'est un facteur prédisposant (terrain), comme l'âge avancé, les déficits sensoriels ou la polypathologie ; les facteurs précipitants sont des événements aigus.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="ABCDE">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Chez une personne âgée confuse, quelles causes simples et curables recherchez-vous systématiquement ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une déshydratation</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une rétention aiguë d'urine (globe vésical)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un fécalome</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une hypoglycémie</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une douleur non soulagée</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Elle provoque insuffisance rénale fonctionnelle et dysnatrémie et majore la toxicité des médicaments ; elle est à la fois cause et conséquence de la confusion.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Méconnue chez le sujet âgé, elle est favorisée par l'adénome prostatique, l'alitement, les anticholinergiques et les opioïdes ; le sondage évacuateur calme souvent l'agitation.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La constipation avec fécalome est un déclencheur classique, que le toucher rectal permet de rechercher.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle donne agitation, sueurs et troubles de la conscience, notamment sous sulfamide hypoglycémiant ou insuline ; la glycémie capillaire est un geste immédiat.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le sujet confus ou dément l'exprime mal ; elle se dépiste par une échelle d'hétéro-évaluation comportementale (Algoplus, ECPA) et doit être traitée.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les classes médicamenteuses suivantes, lesquelles peuvent induire ou aggraver une confusion aiguë chez la personne âgée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Paracétamol aux doses usuelles</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Benzodiazépines et apparentés (zolpidem, zopiclone)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Médicaments anticholinergiques (oxybutynine, hydroxyzine, antidépresseurs imipraminiques)</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Opioïdes</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Corticoïdes à forte dose</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Il n'est pas confusiogène aux doses thérapeutiques et reste l'antalgique de première intention du sujet âgé.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le cerveau âgé est plus sensible à leurs effets centraux (sédation, troubles de l'attention et de la mémoire), et l'élimination des molécules à demi-vie longue est ralentie ; leur arrêt brutal peut aussi provoquer un sevrage confusiogène.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Ils bloquent la transmission cholinergique centrale, dont la baisse est un mécanisme majeur de confusion, et sont à éviter chez le sujet âgé.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Ils s'accumulent en cas d'insuffisance rénale ou de déshydratation et provoquent somnolence et confusion ; on adapte la dose ou la molécule sans laisser la douleur non traitée.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Ils peuvent induire agitation, délire et confusion, de façon dose-dépendante.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les causes neurologiques de confusion chez la personne âgée et la place des examens complémentaires, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un scanner cérébral est systématique devant toute confusion du sujet âgé</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un hématome sous-dural chronique peut se révéler par une confusion, parfois sans déficit focal</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une ponction lombaire est systématique devant toute confusion fébrile</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une crise convulsive non vue peut être suivie d'une confusion post-critique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'électroencéphalogramme est l'examen de première intention</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Il est indiqué en cas de traumatisme crânien ou de chute récente, de déficit focal, de céphalées, de traitement antithrombotique ou de cause non retrouvée, mais pas lorsqu'une cause extra-neurologique explique le tableau.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le traumatisme crânien, souvent minime, est fréquemment oublié ou jugé anodin ; l'âge et les traitements antithrombotiques sont des facteurs de risque, et le scanner confirme le diagnostic.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle s'impose devant un syndrome méningé ou une suspicion d'encéphalite ; elle n'est pas systématique lorsqu'un foyer extra-neurologique, comme une pneumopathie, explique la fièvre.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La confusion post-critique, d'installation brutale, régresse en général en quelques heures ; une confusion fluctuante qui se prolonge doit faire évoquer un état de mal non convulsif.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il n'est demandé qu'en cas de suspicion de crise ou d'état de mal non convulsif, ou de confusion inexpliquée persistante.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les complications de l'alitement chez la personne âgée suivantes, lesquelles surviennent dès les premiers jours (complications précoces) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Syndrome de glissement</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Thrombo-embolie veineuse</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Fécalome</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Confusion aiguë</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Hypotension orthostatique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — C'est une complication tardive, après plusieurs semaines, associant refus alimentaire, perte de l'envie de vivre et déclin rapide.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'immobilisation provoque rapidement une stase veineuse, d'où la prévention par un anticoagulant à dose préventive dès l'alitement.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Il s'agit d'une complication intermédiaire, qui s'installe après plusieurs jours d'alitement avec ralentissement du transit et déshydratation.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle fait partie des complications précoces, favorisée par la perte des repères, la douleur, la déshydratation et la rupture de l'environnement habituel.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Elle relève des complications intermédiaires : le déconditionnement cardiovasculaire se constitue après plusieurs jours d'alitement.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRP" data-correct="ACEGI">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRP · 5 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les mesures suivantes, lesquelles contribuent à prévenir la survenue d'une confusion aiguë chez un patient âgé hospitalisé ? (5 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Faire porter ses lunettes et ses appareils auditifs</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Poser systématiquement une sonde urinaire à demeure à l'admission</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Maintenir une hydratation et une alimentation suffisantes</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Prescrire une benzodiazépine tous les soirs pour garantir le sommeil</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Mobiliser précocement et éviter l'alitement prolongé</span></li>
+    <li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Limiter les visites des proches pour éviter la fatigue du patient</span></li>
+    <li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Limiter les médicaments à risque (benzodiazépines, anticholinergiques)</span></li>
+    <li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Contentionner le patient la nuit pour limiter les chutes</span></li>
+    <li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Préserver le rythme veille-sommeil et fournir des repères temporels (horloge, calendrier)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E, G, I</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Corriger les déficits sensoriels permet au patient de comprendre son environnement et diminue désorientation et hallucinations.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle expose aux infections urinaires, entrave la mobilisation et n'a d'indication qu'en cas de rétention.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La déshydratation et la dénutrition sont des facteurs précipitants majeurs, aisément évitables par une surveillance des apports.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les benzodiazépines altèrent la vigilance et l'attention et favorisent la confusion et les chutes ; le sommeil se préserve d'abord par des mesures d'environnement.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le lever précoce limite le déconditionnement et les complications de décubitus, dont la confusion elle-même.</div>
+    <div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span> — La présence de visages familiers rassure et aide à garder des repères : on la favorise.</div>
+    <div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span> — La revue d'ordonnance et la déprescription des molécules confusiogènes réduisent directement l'incidence de la confusion.</div>
+    <div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span> — La contention majore l'agitation, la confusion et les complications de décubitus, sans prévenir efficacement les chutes.</div>
+    <div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span> — Lumière et activité le jour, calme et obscurité la nuit, repères visibles : cela restaure le rythme circadien, souvent inversé chez le sujet confus.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la confusion chez un patient en fin de vie, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">En cas d'agitation, un neuroleptique peut être utilisé</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle impose toujours un traitement médicamenteux</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle est le plus souvent d'origine plurifactorielle</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il faut déprescrire les traitements non indispensables pour limiter la part iatrogène</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle nécessite un accompagnement des proches</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Après recherche des causes réversibles et mise en place des mesures non médicamenteuses, un neuroleptique à faible dose peut soulager, avec réévaluation régulière.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les mesures non médicamenteuses et le traitement des causes accessibles (douleur, globe, fécalome) sont proposés d'abord ; le traitement médicamenteux n'est pas systématique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Défaillances d'organes, déshydratation, infection, douleur, rétention et médicaments (opioïdes, anxiolytiques) s'associent le plus souvent.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — En fin de vie, les médicaments sans bénéfice immédiat ajoutent leurs effets indésirables ; leur arrêt est une mesure thérapeutique à part entière.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elle est source d'angoisse pour la famille : expliquer ce qui se passe, rassurer et associer les proches aux mesures de confort fait partie de la prise en charge.</div>
+  </div>
+</div>
+
+<div class="q" id="Q11" data-type="QRM" data-correct="C">
+  <div class="qhead"><span class="qnum">Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le pronostic de la confusion aiguë du sujet âgé, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle disparaît toujours en quelques heures dès que la cause est traitée</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une récupération complète écarte tout trouble neurocognitif sous-jacent</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle est associée à une surmortalité et à un risque accru de perte d'autonomie, de chutes, d'institutionnalisation et de déclin cognitif ultérieur</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle n'a pas d'incidence sur la durée d'hospitalisation</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle ne constitue une urgence diagnostique que lorsqu'elle s'accompagne d'une agitation</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elle peut persister plusieurs jours, voire plusieurs semaines après la correction de la cause, surtout sur un terrain de troubles cognitifs.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La confusion révèle souvent un trouble neurocognitif méconnu : une évaluation cognitive est nécessaire à distance de l'épisode.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — C'est un marqueur de vulnérabilité cérébrale et de fragilité : son retentissement dépasse l'épisode aigu, ce qui justifie sa prévention et son dépistage.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle l'allonge et favorise les complications de décubitus, les chutes et la dénutrition.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La forme hypoactive, silencieuse, a un pronostic au moins aussi défavorable : toute confusion est une urgence diagnostique, quelle que soit sa forme.</div>
+  </div>
+</div>
+
+<div class="sect">DP — Femme de 84 ans, désorientation brutale au deuxième jour d'une hospitalisation pour fracture</div>
+
+<div class="q" id="Q12" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">Q12</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Madame R., 84 ans, est hospitalisée depuis deux jours pour une fracture du col du fémur survenue lors d'une chute mécanique, sans traumatisme crânien. Elle a été opérée hier (prothèse intermédiaire de hanche). Elle vit seule, était autonome (ADL 6/6, IADL 4/4) et n'a pas de trouble cognitif connu. Ses antécédents sont une hypertension artérielle traitée par amlodipine, une ostéoporose et une insomnie traitée depuis des années par lorazepam 1 mg le soir, poursuivi depuis l'admission. Elle porte des lunettes et un appareil auditif. Depuis l'intervention, elle reçoit du paracétamol et de la morphine à la demande. Ce matin, l'infirmière vous appelle : la nuit a été agitée, la patiente a arraché sa perfusion et ne reconnaît plus sa fille, alors qu'elle était parfaitement orientée hier en fin de journée, au retour du bloc opératoire. Elle ne sait pas où elle est, a du mal à fixer son attention sur vos questions et tient des propos incohérents ; par moments, elle répond correctement. À l'examen : température 37,8 °C, pression artérielle 105/60 mmHg, fréquence cardiaque 96/min, saturation en oxygène 94 % en air ambiant, score de Glasgow 14/15 (réponse verbale confuse), pas de déficit moteur focal.</div>
+  <div class="stem">Concernant votre analyse initiale, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le tableau est celui d'un syndrome démentiel</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le tableau est celui d'une confusion aiguë</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un MMSE doit être réalisé immédiatement pour préciser le diagnostic</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'absence de trouble cognitif connu rend le diagnostic de confusion improbable</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le diagnostic est clinique et ne nécessite ni électroencéphalogramme ni imagerie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un syndrome démentiel évolue depuis au moins 6 mois avec retentissement sur l'autonomie et ne se diagnostique pas en pleine confusion ; la patiente était autonome et lucide la veille.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Début brutal en une nuit chez une patiente orientée la veille, inattention, propos incohérents et fluctuation des troubles : ce sont les critères cliniques de la confusion, ici post-opératoire.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Non interprétable en cas de trouble de l'attention et de la vigilance, il sera réalisé à distance de l'épisode, une fois la confusion résolue.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Un terrain cognitivement sain n'en protège pas : un facteur précipitant majeur (chirurgie, anesthésie, morphine) peut décompenser une réserve cognitive pourtant correcte.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'examen au lit (vigilance, attention, orientation, fluctuation) l'affirme ; les examens complémentaires servent à chercher la cause.</div>
+  </div>
+</div>
+
+<div class="q" id="Q13" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels éléments de l'observation ont pu contribuer au déclenchement de ce tableau ? Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La morphine administrée à la demande</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le port de ses lunettes et de son appareil auditif</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'hospitalisation en milieu inconnu, avec un sommeil perturbé</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'intervention chirurgicale sous anesthésie</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le lorazepam pris chaque soir</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les opioïdes s'accumulent chez la personne âgée dont la fonction rénale est réduite ; sédatifs et confusiogènes, ils restent pourtant nécessaires à l'analgésie, à posologie adaptée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Corriger les déficits sensoriels protège de la confusion ; c'est leur privation (oubli, perte, retrait) qui expose à la désorientation.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Perte des repères, bruit, soins nocturnes et inversion du rythme veille-sommeil sont des facteurs d'environnement, accessibles à la prévention.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le stress opératoire, l'inflammation, la perte sanguine et l'anesthésie sont des facteurs précipitants majeurs : la chirurgie de hanche est l'un des contextes les plus à risque chez le sujet âgé.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les benzodiazépines sédatent et altèrent l'attention et la mémoire ; le cerveau âgé y est particulièrement sensible, d'où un risque de confusion et de chute.</div>
+  </div>
+</div>
+
+<div class="q" id="Q14" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q14</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous recherchez les causes simples et curables. La sonde urinaire posée au bloc opératoire a été retirée hier en fin d'après-midi et la patiente n'a pas uriné depuis ; l'abdomen est sensible et mat en sus-pubien, et l'échographie vésicale (bladder scan) retrouve 650 mL. La glycémie capillaire est à 6,1 mmol/L. Biologie : natrémie 138 mmol/L, créatininémie 82 µmol/L, hémoglobine 9,2 g/dL (12,4 g/dL à l'admission), CRP 58 mg/L. L'ECG est en rythme sinusal. Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La CRP à 58 mg/L au lendemain de l'intervention affirme une infection</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La rétention aiguë d'urine est un facteur déclenchant probable : un sondage évacuateur est indiqué</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un scanner cérébral s'impose en urgence</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'hypoglycémie est éliminée</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'anémie post-opératoire peut contribuer à la confusion</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Une élévation de la CRP est attendue après une chirurgie orthopédique (pic à 48-72 heures) ; elle ne signe l'infection qu'associée à des signes cliniques ou à une cinétique anormale.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — 650 mL avec douleur sus-pubienne, sans miction depuis l'ablation de la sonde, affirment la rétention ; la distension vésicale et la douleur sont elles-mêmes confusiogènes, et leur levée fait souvent régresser l'agitation.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Sans traumatisme crânien, sans déficit focal, sans céphalée ni anticoagulant à dose curative, aucun argument ne le justifie ; il se discute si aucune cause n'est trouvée ou si l'évolution est atypique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — 6,1 mmol/L (1,1 g/L) est normal : cette cause immédiatement réversible, à écarter en premier devant toute altération de la conscience, n'est pas en cause.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La baisse de l'hémoglobine réduit le transport d'oxygène vers le cerveau ; elle s'ajoute aux autres facteurs et justifie une surveillance.</div>
+  </div>
+</div>
+
+<div class="q" id="Q15" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">Q15</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous mettez en place la prise en charge de la confusion de Madame R. Quelles mesures non médicamenteuses sont adaptées ? Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'isoler dans une chambre fermée, dans l'obscurité et sans visite, pour la calmer</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Remettre ses lunettes et son appareil auditif</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Respecter le rythme veille-sommeil : lumière et activité le jour, calme et obscurité la nuit</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La réorienter régulièrement (horloge, calendrier, explications simples) et favoriser la présence de sa fille</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La remobiliser précocement (mise au fauteuil, kinésithérapie) selon les consignes du chirurgien</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'isolement et la privation de stimulations aggravent désorientation et anxiété ; l'environnement doit être calme mais éclairé le jour et familier.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Ils lui permettent de comprendre ce qui l'entoure et diminuent désorientation et hallucinations.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Cela restaure le rythme circadien, souvent inversé dans la confusion, et limite l'agitation nocturne.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Rappeler le lieu et le moment avec des repères visibles, en présence de proches familiers, rassure sans contraindre.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le lever précoce après une prothèse de hanche limite les complications de décubitus et participe à la prévention de la confusion.</div>
+  </div>
+</div>
+
+<div class="q" id="Q16" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">La nuit suivante, malgré ces mesures et le sondage évacuateur, Madame R. reste très agitée : elle se lève seule, cherche à quitter le service et risque de chuter. Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une benzodiazépine est le traitement médicamenteux de première intention</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un neuroleptique à faible dose et de courte durée peut être discuté, après un ECG</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il faut arrêter brutalement le lorazepam pris depuis des années</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il faut sécuriser l'environnement et assurer une surveillance rapprochée, sans contention</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le neuroleptique doit être réévalué chaque jour et arrêté dès que l'agitation cède</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elle aggrave sédation, confusion et risque de chute ; elle est réservée au sevrage (alcool, benzodiazépines) ou aux contre-indications des neuroleptiques.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Il est réservé à l'agitation dangereuse résistant aux mesures non médicamenteuses, une fois les causes traitées ; l'ECG recherche un allongement du QT, risque propre aux neuroleptiques.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'arrêt brutal d'une benzodiazépine au long cours expose à un syndrome de sevrage (agitation, confusion, convulsions) ; le sevrage, souhaitable à terme, sera progressif et à distance de l'épisode aigu.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La sécurité (lit bas, présence d'un proche ou d'un soignant) prévient chutes et arrachages de dispositifs sans les effets délétères de la contention.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Chez le sujet âgé, les neuroleptiques exposent à sédation, chutes, hypotension orthostatique, troubles du rythme et surmortalité : la durée doit être la plus brève possible.</div>
+  </div>
+</div>
+
+<div class="q" id="Q17" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q17</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Madame R. retrouve son état cognitif antérieur en cinq jours. Indiquez les propositions vraies concernant la suite de la prise en charge.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La guérison de la confusion écarte tout trouble neurocognitif sous-jacent</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une évaluation cognitive (MMSE) sera réalisée à distance de l'épisode, une fois la confusion résolue</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Aucune surveillance particulière n'est plus nécessaire, car la confusion ne récidive pas</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le lorazepam pris depuis des années doit être réévalué en vue d'un sevrage progressif</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'épisode n'a pas d'impact sur le pronostic</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La confusion révèle souvent un trouble neurocognitif jusque-là méconnu : un épisode résolu n'exclut donc rien.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Ce n'est qu'en dehors de toute confusion que le test est interprétable et que l'on peut dépister un trouble cognitif sous-jacent.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le terrain reste fragile : le risque de récidive est élevé lors d'un nouveau facteur précipitant (infection, hospitalisation, nouveau médicament).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les benzodiazépines augmentent le risque de chute, de fracture et de troubles cognitifs chez la personne âgée, d'autant que la patiente vient de se fracturer le col du fémur : une déprescription progressive est recommandée.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La confusion est un marqueur de fragilité, associé à une surmortalité, à une perte d'autonomie et à un déclin cognitif ultérieur.</div>
+  </div>
+</div>
+
+<div class="sect">mDP — Homme de 86 ans adressé aux urgences, somnolence et propos incohérents</div>
+
+<div class="q" id="Q18" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q18</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Monsieur G., 86 ans, vit à domicile avec son épouse et est autonome. Ce matin, elle appelle le SAMU : depuis son lever, il est somnolent, tient des propos incohérents et ne reconnaît pas son salon, alors qu'il était parfaitement lucide la veille. Il est suivi pour une hypertension artérielle traitée par indapamide et périndopril, un épisode dépressif traité depuis trois semaines par sertraline, et une arthrose. À son arrivée aux urgences : score de Glasgow 13/15 (ouverture des yeux à la demande, réponse verbale confuse), température 38,4 °C, fréquence cardiaque 108/min, pression artérielle 110/65 mmHg, fréquence respiratoire 26/min, saturation en oxygène 88 % en air ambiant. Il existe des crépitants de la base droite. Il n'y a ni déficit neurologique focal ni raideur de nuque.</div>
+  <div class="stem">Comment qualifiez-vous son état clinique ? Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Coma</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Confusion aiguë</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Syndrome démentiel</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Insuffisance respiratoire aiguë hypoxémique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Crise convulsive en cours</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le coma correspond à un score de Glasgow ≤ 8 ; ici le patient ouvre les yeux et répond, même de façon confuse (13/15).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Altération brutale de la vigilance, désorientation et propos incohérents chez un patient lucide la veille : l'altération de la vigilance suffit au diagnostic.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Un syndrome démentiel évolue depuis au moins six mois et ne se diagnostique pas en pleine confusion ; le début est ici brutal.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Une saturation à 88 % en air ambiant, soit inférieure à 90 %, avec une fréquence respiratoire à 26/min, traduit une hypoxémie qui doit être corrigée sans attendre.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Aucun mouvement convulsif n'est observé ; la confusion s'est installée sans événement paroxystique rapporté.</div>
+  </div>
+</div>
+
+<div class="q" id="Q19" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q19</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles hypothèses diagnostiques ne peuvent pas être écartées à ce stade ? Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Accident vasculaire cérébral</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pneumopathie infectieuse</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Maladie d'Alzheimer évoluée</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hyponatrémie d'origine médicamenteuse</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Embolie pulmonaire</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Sans déficit neurologique focal, l'AVC est improbable et peut être écarté prudemment à ce stade ; l'imagerie cérébrale ne se discute qu'en l'absence d'autre cause.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Fièvre, polypnée, hypoxémie et crépitants focalisés réalisent le tableau d'une pneumonie, cause fréquente de confusion fébrile du sujet âgé.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Un trouble neurocognitif évolue sur des mois : il ne rend pas compte d'une rupture brutale chez un patient lucide la veille et ne peut être évoqué qu'après résolution de la confusion.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'indapamide (diurétique thiazidique) et la sertraline (ISRS, par sécrétion inappropriée d'ADH, surtout dans les premières semaines de traitement) en sont des causes classiques chez le sujet âgé.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'hypoxémie avec tachycardie ne permet pas de l'écarter avant les examens ; elle reste toutefois moins probable que la pneumopathie devant la fièvre et les crépitants.</div>
+  </div>
+</div>
+
+<div class="q" id="Q20" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q20</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Les examens en urgence montrent : sodium 121 mmol/L, protidémie 71 g/L, glycémie 6,2 mmol/L, urée 9 mmol/L, créatininémie 105 µmol/L, leucocytes 17 G/L, CRP 190 mg/L. L'angioscanner thoracique élimine une embolie pulmonaire et montre une condensation alvéolaire du lobe inférieur droit. Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'indapamide et la sertraline sont des causes possibles de l'hyponatrémie</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une natrémie à 121 mmol/L est trop modérée pour participer à la confusion</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'âge de 86 ans abaisse le seuil de survenue de la confusion devant ces deux agressions (infection, hyponatrémie)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La pneumopathie suffit à expliquer le tableau : il n'y a pas lieu de rechercher d'autre cause</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La protidémie et la glycémie normales écartent une fausse hyponatrémie par hyperprotidémie et une hyponatrémie hypertonique par hyperglycémie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le diurétique thiazidique induit une perte de sodium ; l'ISRS peut provoquer une sécrétion inappropriée d'ADH, deux mécanismes qui s'additionnent chez le sujet âgé.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une natrémie inférieure à 125 mmol/L est franchement basse et peut provoquer, à elle seule, confusion, nausées et chutes.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La réserve cognitive diminue avec l'âge : des agressions qu'un adulte jeune tolère suffisent à décompenser un cerveau âgé.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La confusion est presque toujours multifactorielle chez le sujet âgé ; méconnaître l'hyponatrémie exposerait à une aggravation et à une récidive.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Une hyperprotidémie majeure fausse le dosage du sodium et une hyperglycémie attire l'eau hors des cellules ; ici l'osmolalité calculée, d'environ 257 mOsm/kg, confirme une hyponatrémie hypotonique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q21" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q21</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur G. est hospitalisé. Quelles décisions de prise en charge sont adaptées ? Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Oxygénothérapie</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Correction rapide de la natrémie en quelques heures, jusqu'à 135 mmol/L</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Antibiothérapie probabiliste par amoxicilline-acide clavulanique par voie intraveineuse</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Surveillance rapprochée de la natrémie</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Arrêt de l'indapamide</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'hypoxémie est elle-même confusiogène et délétère pour le cerveau : l'oxygène est débuté d'emblée, avec surveillance de la saturation.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une correction trop rapide d'une hyponatrémie installée depuis plusieurs jours expose à la démyélinisation osmotique ; la vitesse est limitée à environ 8 à 10 mmol/L par 24 heures.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Pour une pneumonie du sujet âgé avec comorbidités, elle couvre le pneumocoque, Haemophilus influenzae et les anaérobies en cas d'inhalation.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le contrôle à intervalles courts permet de respecter la vitesse maximale de correction et de dépister une surcorrection, possible après l'arrêt du médicament en cause.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le diurétique thiazidique est une cause fréquente d'hyponatrémie du sujet âgé : il est suspendu, et la sertraline est réévaluée, faute de quoi l'hyponatrémie récidive.</div>
+  </div>
+</div>
+
+<div class="q" id="Q22" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q22</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur G. est alité en médecine gériatrique. Quelles mesures de prévention des complications de décubitus prescrivez-vous dès maintenant ? Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Anticoagulation préventive par héparine de bas poids moléculaire, à dose adaptée à la fonction rénale</span></li>
+    <li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Contention physique préventive au lit pour éviter les chutes et l'arrachage de la perfusion</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Mise au fauteuil précoce</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Pose systématique d'une sonde urinaire à demeure</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Laxatif osmotique pour prévenir la constipation</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Un patient âgé alité pour une affection médicale aiguë est à haut risque de thrombo-embolie veineuse ; la dose préventive est ajustée à la clairance de la créatinine.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — On ne contentionne pas à titre préventif : la contention aggrave l'agitation et la confusion, favorise escarres et déconditionnement ; elle reste exceptionnelle, prescrite, limitée dans le temps et réévaluée.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Elle limite l'encombrement bronchique, la perte de masse musculaire et la désadaptation à l'effort, et aide à conserver des repères.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle expose aux infections urinaires et aux traumatismes et gêne la mobilisation ; elle est réservée à une indication précise comme la rétention aiguë.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L'alitement, la déshydratation et certains médicaments ralentissent le transit ; prévenir la constipation et le fécalome, autre cause de confusion, fait partie des mesures systématiques.</div>
+  </div>
+</div>
+
+<div class="sect">KFP — Homme de 80 ans hospitalisé, agitation nocturne</div>
+
+<div class="q" id="Q23" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q23</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Monsieur P., 80 ans, est hospitalisé depuis quatre jours en médecine pour une décompensation cardiaque, d'évolution favorable sous furosémide. Il est connu pour une hypertension artérielle, un diabète de type 2 traité par glimépiride et une hypertrophie bénigne de la prostate. Depuis son admission, il reçoit du lorazepam 1 mg le soir pour dormir. À trois heures du matin, l'infirmière vous appelle : Monsieur P. s'est levé seul, a arraché sa perfusion, crie sur les soignants et ne sait pas où il se trouve, alors qu'il était calme et orienté à la visite du soir. Il n'a aucun geste agressif. Sa température est à 36,9 °C, sa pression artérielle à 150/85 mmHg, sa fréquence cardiaque à 96/min, sa saturation en oxygène à 95 % en air ambiant. Son score de Glasgow est à 13/15 (paroles inappropriées), sans déficit neurologique focal.</div>
+  <div class="stem">Quel diagnostic syndromique retenez-vous en priorité ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Syndrome démentiel évolutif</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Accès maniaque</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Confusion aiguë</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Trouble psychotique aigu d'origine psychiatrique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Épisode dépressif caractérisé</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Il évolue depuis des mois avec retentissement sur l'autonomie ; il ne s'installe pas en quelques heures chez un patient orienté à la visite du soir.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un trouble de l'humeur inaugural à 80 ans, avec désorientation et altération de la vigilance, est une confusion jusqu'à preuve du contraire.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Début brutal chez un patient orienté la veille, désorientation spatiale, propos incohérents et vigilance altérée (Glasgow 13/15) : l'agitation n'est ici que l'expression de la confusion.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Avant d'invoquer une cause psychiatrique chez un sujet âgé hospitalisé, une cause organique doit être éliminée ; l'altération de la vigilance l'oriente vers une confusion.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il ne s'accompagne pas d'une désorientation brutale ni d'une altération de la vigilance, et ne s'exprime pas par une agitation avec arrachage de perfusion.</div>
+  </div>
+</div>
+
+<div class="q" id="Q24" data-type="QRPL" data-correct="BDFI">
+  <div class="qhead"><span class="qnum">Q24</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRPL · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les éléments clés de votre conduite immédiate ? Listez jusqu'à 4 réponses.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Contention physique au lit</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Se présenter, rassurer et parler calmement, en limitant le nombre d'interlocuteurs</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Lorazepam 2 mg par voie intraveineuse</span></li>
+    <li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Faire une glycémie capillaire</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Scanner cérébral en urgence</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Sécuriser l'environnement : lit bas, objets dangereux éloignés, surveillance rapprochée</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Halopéridol par voie intramusculaire d'emblée</span></li>
+    <li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Électroencéphalogramme</span></li>
+    <li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Pratiquer un examen clinique complet à la recherche d'une cause organique</span></li>
+    <li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Lui expliquer par des arguments logiques pourquoi il doit rester au lit</span></li>
+    <li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Avis psychiatrique en urgence</span></li>
+    <li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Transfert en réanimation</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, F, I</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La contention aggrave l'agitation et la confusion et expose à des complications graves ; l'absence de danger immédiat ne la justifie pas.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Un contact rassurant, une voix calme et un entourage restreint réduisent l'anxiété et l'agitation sans effet indésirable.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Une benzodiazépine IV aggrave la confusion et la sédation, avec un risque de dépression respiratoire et de chute ; elle n'est pas un traitement de première intention.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Chez un diabétique traité par sulfamide hypoglycémiant, l'hypoglycémie est une cause immédiatement réversible et dangereuse, à éliminer avant toute autre hypothèse.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il n'est pas le premier geste : sans traumatisme, sans déficit focal et sans anticoagulant, les causes simples sont d'abord recherchées.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Protéger le patient et son entourage prime tant que la cause n'est pas connue, sans recours à la contention.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Un neuroleptique n'est discuté qu'en cas d'agitation dangereuse résistant aux mesures non médicamenteuses et après avoir traité les causes.</div>
+    <div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span> — Il n'est utile qu'en cas de suspicion de crise ou d'état de mal non convulsif, ce que rien n'évoque ici.</div>
+    <div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span> — L'agitation est un symptôme, non un diagnostic : l'examen général (hydratation, abdomen, auscultation, état neurologique) oriente vers la cause avant toute prescription.</div>
+    <div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span> — Le patient confus ne peut raisonner : l'argumentation prolongée l'agite davantage ; il faut des phrases simples et rassurantes.</div>
+    <div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span> — Une cause organique doit être éliminée avant de recourir à la psychiatrie, l'altération de la vigilance orientant vers une confusion.</div>
+    <div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span> — Aucune défaillance vitale n'est présente (constantes stables, pas de détresse respiratoire) : la surveillance se poursuit dans le service.</div>
+  </div>
+</div>
+
+<div class="q" id="Q25" data-type="QRPL" data-correct="BDFH">
+  <div class="qhead"><span class="qnum">Q25</span><span class="qtype">QRPL · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après ces premières mesures, la glycémie capillaire est à 7,5 mmol/L et Monsieur P. est un peu plus calme. L'infirmière vous apprend qu'il n'a pas uriné depuis la veille au soir malgré le furosémide, et qu'il se tient le bas-ventre. Quels sont les éléments clés de votre conduite dans les trois heures qui suivent ? Listez jusqu'à 4 réponses.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Bandelette urinaire et ECBU systématiques</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Rechercher un globe vésical par la palpation sus-pubienne et l'échographie vésicale</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ponction lombaire</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Évaluer la douleur avec une échelle adaptée</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Angioscanner thoracique</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Réaliser un ionogramme sanguin avec urée et créatininémie</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Hémocultures et antibiothérapie probabiliste</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Revoir l'ordonnance et suspendre les médicaments confusiogènes, dont le lorazepam</span></li>
+    <li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Électroencéphalogramme</span></li>
+    <li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Scanner cérébral systématique</span></li>
+    <li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Avis psychiatrique</span></li>
+    <li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Dosage de la vitamine B12 et de la TSH en urgence</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, F, H</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — En l'absence de fièvre et de signes urinaires, une confusion isolée n'est pas un signe d'infection urinaire, et une bactériurie asymptomatique ne se traite pas.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'absence de miction, la douleur du bas-ventre et l'hypertrophie prostatique évoquent une rétention aiguë d'urine, cause fréquente d'agitation chez l'homme âgé.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Rien n'évoque une méningite ou une encéphalite (apyrexie, pas de syndrome méningé) : l'examen n'a pas d'indication.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le patient confus l'exprime mal ; la douleur du bas-ventre et celle de toute autre origine, non soulagées, entretiennent l'agitation.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Rien ne suggère une embolie pulmonaire (saturation correcte, pas de douleur thoracique) : l'examen est irradiant et sans indication.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Sous furosémide, déshydratation, dysnatrémie et insuffisance rénale fonctionnelle sont fréquentes et confusiogènes.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Le patient est apyrétique et sans point d'appel infectieux : une antibiothérapie ne doit pas être débutée sans argument.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — Le lorazepam, introduit à l'admission, est une benzodiazépine sédative et confusiogène : la revue d'ordonnance est une étape clé de toute confusion du sujet âgé.</div>
+    <div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span> — Il n'est réservé qu'aux suspicions de crise ou d'état de mal non convulsif, que rien n'évoque ici.</div>
+    <div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span> — Sans traumatisme, sans déficit focal ni antithrombotique, il n'est pas systématique ; il se discute si aucune cause n'est trouvée.</div>
+    <div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span> — La cause est organique et sera recherchée d'abord ; l'avis psychiatrique n'a pas de place à ce stade.</div>
+    <div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span> — Ces dosages font partie du bilan d'un trouble cognitif chronique et non de la prise en charge immédiate d'une agitation aiguë.</div>
+  </div>
+</div>
+
+<div class="sect">TCS — Femme de 83 ans, désorientation et somnolence progressives sur trois jours</div>
+
+<div class="q" id="Q26" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">Q26</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Madame V., 83 ans, vit seule. Sa fille l'amène aux urgences pour une désorientation et une somnolence apparues progressivement en trois jours. Elle est apyrétique, sans signe fonctionnel urinaire ni déficit neurologique focal. Vous la jugez confuse et en cherchez la cause. Chaque question apporte une information nouvelle, indépendante des autres.</div>
+  <div class="stem">Si vous pensiez à un hématome sous-dural chronique et que vous apprenez que Madame V. est traitée par apixaban pour une fibrillation atriale et qu'elle a fait une chute à domicile il y a trois semaines, sans consulter, cette hypothèse devient :</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D — probable</div>
+    <div class="note">Un âge avancé, un traitement antithrombotique et un traumatisme crânien minime parfois oublié sont les facteurs classiques de l'hématome sous-dural chronique, dont la confusion ou la somnolence d'installation subaiguë est une expression fréquente, même sans déficit focal. L'hypothèse devient probable, sans être certaine : le scanner cérébral sans injection la confirme ou l'écarte.</div>
+  </div>
+</div>
+
+<div class="q" id="Q27" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q27</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensiez à une infection urinaire comme cause de cette confusion et que vous apprenez que la bandelette urinaire, réalisée d'emblée à l'admission, est positive (leucocytes et nitrites), cette hypothèse devient :</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C — ni plus ou moins probable</div>
+    <div class="note">La bactériurie asymptomatique est fréquente chez la femme âgée, plus encore en institution : chez une patiente apyrétique et sans signe urinaire, une bandelette positive traduit le plus souvent une colonisation et n'apporte aucun argument en faveur d'une infection. Elle ne rend donc l'hypothèse ni plus ni moins probable (une bandelette négative l'aurait, elle, rendue improbable). Une confusion isolée n'est pas un signe d'infection urinaire : la bandelette ne devrait pas être demandée sans signe d'appel, la colonisation n'est pas traitée et la recherche d'une autre cause se poursuit.</div>
+  </div>
+</div>
+
+<div class="q" id="Q28" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">Q28</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous envisagiez de prescrire de l'halopéridol pour calmer ses agitations nocturnes et que vous apprenez que Madame V. est suivie pour une maladie de Parkinson traitée par lévodopa, cette prescription devient :</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A — improbable</div>
+    <div class="note">L'halopéridol, antagoniste dopaminergique, est contre-indiqué dans la maladie de Parkinson, dont il aggrave l'akinésie et la rigidité (la démence à corps de Lewy est également concernée, avec une hypersensibilité sévère aux neuroleptiques). La prescription devient improbable. Il faut d'abord traiter la cause de la confusion et privilégier les mesures non médicamenteuses ; si un antipsychotique est indispensable, l'avis d'un spécialiste est nécessaire.</div>
+  </div>
+</div>
+
+<footer>28 questions · Item 343 · D3 T2 UE 5 Gériatrie · BobMed entraînement. · Voir aussi : <a href="../../../d2/t2/entrainement/Quiz_item108_demences.html">Item 108 — Démences (D2 T2)</a> · <a href="../../../d2/t2/entrainement/Quiz_item74_psychotropes.html">Item 74 — Psychotropes (D2 T2)</a></footer>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script src="../../../qcopy.js"></script>
+</body></html>
