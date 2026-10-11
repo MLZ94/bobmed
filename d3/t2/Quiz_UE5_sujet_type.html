@@ -1,0 +1,1093 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 5 — Gériatrie · Sujet type</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+/* BobMed - justifications non officielles ajoutees */.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 5 — Gériatrie · Sujet type (synthèse des annales 2022-2025)</h1>
+<div class="sub">37 questions : SQI1 (15) · TCS1 femme de 84 ans hospitalisée depuis dix jours en court séjour gériatrique (3, verrouillé) · KFP1 femme de 81 ans, deuxième chute en six mois (2, verrouillé) · mDP1 homme de 80 ans suivi pour une maladie cancéreuse évoluée, douleurs croissantes à domicile (5, verrouillé) · DP1 femme de 86 ans trouvée somnolente et désorientée à son domicile en juillet (12, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/37</b></span>
+<span class="pill">Score : <b id="s-ok">0/37</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+<div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+<div class="note" style="margin:0 0 24px"><b>Sujet type</b> — Ce quiz n’est pas une annale réelle : il a été construit à partir de la lecture de toutes les annales de l’UE 5 disponibles (2022-2025), de l’analyse des questions qui reviennent le plus et de leurs différentes formulations, puis rédigé avec des cas et des questions originaux, sur l’architecture des épreuves les plus récentes (questions isolées, TCS, KFP, mini-dossier et dossier progressif). Thèmes travaillés : vieillissement et fragilité, troubles cognitifs (MMSE, maladie d’Alzheimer, démences), complications de décubitus et escarres, confusion aiguë, dépression du sujet âgé, dénutrition (HAS 2021), autonomie et dépendance (ADL, IADL, AGGIR, APA), chutes, iatrogénie, douleur, soins palliatifs et droits du patient.</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-type="QRM" data-correct="AD">
+  <div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le vieillissement physiologique, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le débit de filtration glomérulaire diminue avec l’âge, alors que la créatininémie peut rester normale</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La mémoire sémantique (vocabulaire, connaissances générales) est précocement altérée</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La sensation de soif augmente avec l’âge, ce qui protège de la déshydratation</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La presbyacousie prédomine sur les fréquences aiguës</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La sarcopénie liée à l’âge n’a pas de retentissement métabolique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La baisse de la masse musculaire réduit la production de créatinine : une créatininémie « normale » peut masquer un DFG diminué, d’où l’intérêt d’estimer le DFG avant toute prescription.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La mémoire sémantique reste longtemps préservée ; le vieillissement normal ralentit surtout la vitesse de traitement et la récupération des souvenirs en mémoire épisodique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La soif diminue avec l’âge et la capacité de concentration des urines baisse : le sujet âgé est exposé à la déshydratation, surtout en cas de fièvre ou de forte chaleur.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — C’est une surdité de perception bilatérale et symétrique qui débute sur les aigus et gêne d’abord la compréhension de la parole dans le bruit.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le muscle est le principal site de captation du glucose : sa raréfaction favorise l’insulinorésistance.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le syndrome de fragilité chez la personne âgée, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Les chutes répétées font partie des critères du phénotype de fragilité</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La faible activité physique (sédentarité) est l’un des critères du phénotype de fragilité</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La présence d’un ou deux critères définit la pré-fragilité</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La fragilité est synonyme de dépendance</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La fragilité est un état potentiellement réversible</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les cinq critères de Fried sont la perte de poids involontaire, l’épuisement, la faible activité physique, la lenteur de la marche et la faiblesse de la force de préhension ; les chutes n’en font pas partie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — C’est l’un des cinq critères du phénotype de Fried, évalué sur la dépense énergétique hebdomadaire ou l’activité déclarée.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le patient est robuste sans critère, pré-fragile avec 1 ou 2 critères, fragile à partir de 3 critères sur 5.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La fragilité est un état de vulnérabilité sans incapacité installée, qui expose au risque de dépendance ; la dépendance est une notion distincte, mesurée par les échelles ADL et IADL.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Activité physique, renutrition et revue des traitements peuvent faire régresser ou stabiliser la fragilité : c’est ce qui justifie de la repérer.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les complications de décubitus de la personne âgée, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La confusion aiguë peut être une complication précoce du décubitus</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L’escarre n’apparaît qu’après plusieurs semaines d’alitement</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La désadaptation à l’orthostatisme (hypotension orthostatique) s’installe en quelques jours à quelques semaines d’alitement</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le syndrome de glissement est une complication tardive</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les fractures ostéoporotiques sont des complications précoces</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note"><div class="rappel">Chronologie classique : complications précoces (heures à quelques jours) = maladie thrombo-embolique veineuse, encombrement bronchique, escarre, confusion aiguë, anxiété ; intermédiaires (premières semaines) = désadaptation à l’orthostatisme (hypotension orthostatique), fécalome, déshydratation, dépression, attitudes vicieuses et rétractions ; tardives (semaines à mois) = ostéoporose et fractures, syndrome de glissement.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Désorientation, perte des repères, immobilisation et rétention d’urine peuvent déclencher une confusion dès les premières heures ou les premiers jours d’alitement, surtout lorsque la réserve cognitive est diminuée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une pression prolongée de quelques heures suffit à créer une ischémie cutanée : l’escarre est une complication précoce, à prévenir dès l’admission.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L’alitement altère les réflexes vasomoteurs et réduit le volume circulant : la tolérance de la station debout diminue progressivement.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Il survient à distance de l’événement aigu, après un intervalle libre, quand l’alitement se prolonge : refus alimentaire, mutisme et régression psychomotrice en font une complication tardive, comme l’ostéoporose et les fractures.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La perte osseuse d’immobilisation se constitue en semaines à mois : la fracture est une complication tardive.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les escarres de la personne âgée, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le stade 2 correspond à une nécrose cutanée atteignant le fascia</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Au stade 1, l’érythème persiste à la pression digitale et ne blanchit pas</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un coussin en anneau (« bouée ») est recommandé pour décharger la région sacrée</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une escarre de stade 4 justifie systématiquement une antibiothérapie</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L’échelle de Braden permet d’estimer le risque d’escarre</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le stade 2 est une phlyctène ou une ulcération superficielle (épiderme, derme) ; l’atteinte de tous les plans cutanés jusqu’au fascia définit le stade 3.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L’érythème non blanchissant traduit une atteinte microcirculatoire ; un érythème qui blanchit à la pression est réactionnel et réversible.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L’anneau comprime la périphérie de la zone qu’il entoure et aggrave l’ischémie ; il est déconseillé au profit de supports adaptés (mousse, gel, air).</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les antibiotiques ne sont indiqués qu’en cas d’infection documentée (cellulite, ostéite, sepsis) ; une plaie simplement colonisée ne se traite pas par antibiotiques.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Braden (comme Norton) évalue le risque à partir de la perception sensorielle, de l’humidité, de l’activité, de la mobilité, de la nutrition et des frictions ; l’indice de Barthel mesure, lui, la dépendance.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-type="QRM" data-correct="AC">
+  <div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les critères de dénutrition de la personne âgée selon la HAS (2021), indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un IMC &lt; 22 kg/m² est un critère phénotypique chez la personne de plus de 70 ans</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une perte de poids de 5 % en six mois est un critère phénotypique</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une réduction de moitié des apports alimentaires pendant plus d’une semaine est un critère étiologique</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une albuminémie &lt; 35 g/L est un critère diagnostique de dénutrition</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La sarcopénie confirmée est un critère étiologique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="note"><div class="rappel">HAS 2021 (≥ 70 ans) : dénutrition = au moins 1 critère phénotypique (perte de poids ≥ 5 % en 1 mois ou ≥ 10 % en 6 mois, IMC &lt; 22 kg/m², sarcopénie confirmée) + au moins 1 critère étiologique (réduction des apports, malabsorption, situation d’agression ou maladie inflammatoire). Sévérité : perte de poids ≥ 10 % en 1 mois ou ≥ 15 % en 6 mois, IMC &lt; 20 kg/m², albuminémie &lt; 30 g/L.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Ce seuil, propre au sujet âgé, est plus élevé que celui de l’adulte plus jeune (18,5 kg/m²) ; un IMC &lt; 20 kg/m² définit la sévérité.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les seuils sont une perte ≥ 5 % en un mois ou ≥ 10 % en six mois (ou ≥ 10 % par rapport au poids avant la maladie) : 5 % en six mois est insuffisant.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La réduction de la prise alimentaire d’au moins 50 % pendant plus d’une semaine (ou toute réduction pendant plus de deux semaines) est un critère étiologique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L’albuminémie dépend de l’inflammation et de l’hydratation : elle n’est plus un critère diagnostique ; seule une valeur &lt; 30 g/L intervient pour apprécier la sévérité.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — C’est un critère phénotypique (baisse de la masse et de la fonction musculaires) ; les critères étiologiques sont la baisse des apports, la malabsorption et l’état d’agression.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les items suivants, lesquels sont explorés par le score IADL (version à quatre items) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’utilisation du téléphone</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La gestion du budget</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La capacité à faire sa toilette</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La prise des médicaments</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L’utilisation des moyens de transport</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Activité instrumentale qui sollicite mémoire et attention : son altération est un signe précoce de perte d’autonomie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle fait appel aux fonctions exécutives et au calcul, domaines souvent touchés en premier en cas de troubles cognitifs.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — C’est une activité de base évaluée par le score ADL, avec l’habillage, l’accès aux toilettes, les transferts, la continence et l’alimentation.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle explore l’autonomie dans la prise correcte des traitements ; sa perte justifie un pilulier préparé par un tiers.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elle suppose planification, orientation et capacités motrices ; elle est perdue tôt dans l’évolution de la dépendance.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la maladie d’Alzheimer, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Son évolution se fait typiquement par paliers successifs</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle s’accompagne d’une dégénérescence neurofibrillaire liée à l’accumulation de protéine Tau hyperphosphorylée</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’anosognosie est fréquente</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un syndrome extrapyramidal inaugural est la règle</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L’IRM montre typiquement une atrophie des hippocampes des deux côtés</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L’évolution « en marche d’escalier » caractérise les démences vasculaires ; la maladie d’Alzheimer s’aggrave de façon lente et progressive.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Avec les plaques amyloïdes (peptide Aβ), c’est la lésion histologique caractéristique ; elle débute dans les régions hippocampiques.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le patient minimise ou ignore ses troubles, d’où une plainte qui vient souvent de l’entourage, à la différence de la dépression où la plainte est spontanée.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Un syndrome parkinsonien précoce oriente plutôt vers une démence à corps de Lewy ; dans la maladie d’Alzheimer, les signes moteurs sont tardifs.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L’atrophie des régions temporales internes est l’anomalie d’imagerie typique, bilatérale, et reflète l’atteinte précoce de la mémoire épisodique.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les démences non Alzheimer, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La démence fronto-temporale débute souvent par des troubles du comportement</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La démence vasculaire est une démence dégénérative</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La démence à corps de Lewy associe fluctuations cognitives, hallucinations visuelles et syndrome parkinsonien</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une hypersensibilité aux neuroleptiques est caractéristique de la démence à corps de Lewy</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une démence mixte associe des lésions de type Alzheimer et des lésions vasculaires</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Apathie, désinhibition ou changement de personnalité sont au premier plan, la mémoire étant relativement préservée au début.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle est secondaire à des lésions cérébrovasculaires (infarctus, leucopathie), contrairement aux démences dégénératives (Alzheimer, Lewy, fronto-temporale).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Ce sont des critères cliniques centraux de la maladie (avec le trouble du comportement en sommeil paradoxal), les troubles mnésiques n’étant pas au premier plan au début.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les neuroleptiques peuvent entraîner une aggravation sévère (syndrome parkinsonien, réactions graves) : en cas d’agitation, ils sont à éviter.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La coexistence des deux types de lésions est fréquente chez le sujet très âgé et explique des tableaux intriqués.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la confusion aiguë de la personne âgée, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle s’installe typiquement en plusieurs mois</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La forme hypoactive est fréquente et souvent méconnue</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle disparaît spontanément et ne nécessite pas de rechercher la cause</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une rétention aiguë d’urine peut en être le facteur déclenchant</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les symptômes sont stables tout au long de la journée</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le début est brutal ou rapide (heures à jours), ce qui la distingue du syndrome démentiel.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Somnolence, apathie et ralentissement, moins bruyants que l’agitation, font prendre la confusion pour de la fatigue ou une dépression.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La confusion est le symptôme d’une cause organique (infection, médicament, déshydratation, rétention d’urine…) à rechercher et à traiter : c’est une urgence médicale.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Rétention d’urine, fécalome, douleur non soulagée et médicaments anticholinergiques sont des causes « simples » à rechercher systématiquement.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les symptômes fluctuent au cours du nycthémère, avec une aggravation vespérale et nocturne.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-type="QRM" data-correct="ABCD">
+  <div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la dépression de la personne âgée, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les inhibiteurs de la recapture de la sérotonine (ISRS) sont le traitement médicamenteux de première intention</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle peut se présenter sous une forme hostile, avec irritabilité et agressivité envers l’entourage</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le mini-GDS est un outil de dépistage et non de diagnostic</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un score mini-GDS à 0/4 rend une dépression peu probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le traitement peut être interrompu dès la rémission des symptômes</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Leur profil de tolérance est meilleur que celui des tricycliques, à éviter (effets anticholinergiques, cardiaques et orthostatiques) ; on débute à demi-dose chez le sujet âgé.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La dépression du sujet âgé est souvent atypique : forme hostile, plaintes somatiques au premier plan, ralentissement psychomoteur ou refus de soins, ce qui justifie un repérage systématique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le diagnostic repose sur l’entretien clinique ; le mini-GDS (quatre questions) oriente, et un score ≥ 1 justifie une évaluation plus approfondie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Un score nul a une bonne valeur prédictive négative ; dès 1/4, une dépression est possible et justifie une évaluation clinique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il est poursuivi plusieurs mois après la rémission (au moins six mois) pour limiter le risque de rechute.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les chutes de la personne âgée, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une hypoglycémie peut être le facteur précipitant d’une chute</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un temps passé au sol de plus d’une heure est un critère de gravité</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La maladie de Parkinson est un facteur précipitant de chute</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une rétropulsion à la verticalisation, avec peur de retomber, évoque un syndrome post-chute</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Après une chute, un repos au lit est prescrit jusqu’à la disparition de l’appréhension</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Événement aigu intrinsèque, à rechercher par une glycémie capillaire chez tout diabétique traité par insuline ou sulfamide hypoglycémiant.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La station au sol prolongée expose à la rhabdomyolyse, à la déshydratation, à l’hypothermie, aux escarres et à la pneumopathie d’inhalation, et favorise le syndrome post-chute.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — C’est un facteur prédisposant, lié au terrain (troubles de la marche et de l’équilibre) ; les facteurs précipitants sont des événements aigus intrinsèques (malaise, hypotension orthostatique, hypoglycémie) ou extrinsèques (obstacle, chaussures inadaptées).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Rétropulsion, peur de retomber et perte des automatismes de la marche le caractérisent ; sans prise en charge rapide, il évolue vers la grabatisation et la perte d’autonomie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L’immobilisation entretient le cercle vicieux peur-immobilité ; le syndrome post-chute est une urgence gériatrique qui impose une verticalisation et une kinésithérapie précoces.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-type="QRM" data-correct="D">
+  <div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les directives anticipées, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La personne de confiance peut les rédiger à la place d’un patient qui ne peut plus exprimer sa volonté</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elles doivent obligatoirement être rédigées sur le formulaire officiel</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elles sont réservées aux patients en fin de vie</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elles sont valables sans limitation de durée</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elles ne s’imposent jamais au médecin</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elles expriment la volonté de leur auteur, rédigées lorsqu’il est en état de le faire ; si le patient ne peut plus s’exprimer, la personne de confiance témoigne de sa volonté mais n’en rédige pas à sa place.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Des modèles existent mais ne sont pas obligatoires : un document écrit sur papier libre, daté et signé, suffit.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Toute personne majeure peut en rédiger, en bonne santé comme malade, pour le cas où elle ne pourrait plus exprimer sa volonté.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Depuis la loi de 2016, la limite de validité de trois ans a été supprimée : elles restent valables jusqu’à ce que leur auteur les modifie ou les révoque, ce qu’il peut faire à tout moment.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Depuis 2016, elles s’imposent au médecin, sauf urgence vitale le temps d’une évaluation complète de la situation, ou si elles sont manifestement inappropriées ou non conformes à la situation médicale.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la sédation profonde et continue maintenue jusqu’au décès (loi de 2016), indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle peut être proposée en cas de souffrance réfractaire chez un patient atteint d’une affection grave et incurable dont le pronostic vital est engagé à court terme</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle est décidée à la seule demande de la famille</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle est associée à une analgésie</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Son objectif est d’abréger la vie du patient</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le midazolam est le médicament recommandé en première intention pour la réaliser</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — C’est l’une des situations prévues par la loi, à la demande du patient ; les autres sont l’arrêt, demandé par le patient, d’un traitement qui engage le pronostic vital à court terme, et l’arrêt des traitements de maintien en vie chez un patient hors d’état de s’exprimer, au titre du refus de l’obstination déraisonnable.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle est mise en œuvre à la demande du patient ou, s’il ne peut plus exprimer sa volonté, sur décision médicale après une procédure collégiale qui vérifie que les conditions légales sont réunies ; la famille ne peut pas la décider.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La loi prévoit l’association à une analgésie et l’arrêt des traitements de maintien en vie.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle vise à supprimer la perception d’une souffrance réfractaire, pas à provoquer le décès, ce qui la distingue de l’euthanasie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — C’est le produit de référence des recommandations de la HAS, titré jusqu’à l’obtention de la sédation profonde.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le score Mini Mental State Examination (MMSE), indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un score de 28/30 permet d’exclure un trouble neurocognitif</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le rappel différé des trois mots explore la mémoire épisodique</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le calcul mental explore la mémoire épisodique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le niveau d’études influence le score</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">C’est un outil de repérage des troubles cognitifs et non un test diagnostique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le MMSE est peu sensible aux stades précoces et aux atteintes exécutives, surtout chez les sujets de haut niveau d’études : un score normal n’exclut pas un trouble débutant.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Cette épreuve teste l’apprentissage, le stockage puis la récupération d’informations nouvelles, fonctions dépendantes de l’hippocampe.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — C’est une épreuve d’attention et de calcul, qui sert aussi d’interférence entre l’apprentissage et le rappel des trois mots.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Un faible niveau scolaire peut abaisser le score sans trouble cognitif, un niveau élevé peut masquer un déficit : on interprète le score avec l’âge et le niveau socio-culturel.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Il oriente vers un bilan neuropsychologique et étiologique, mais ne permet pas à lui seul de poser un diagnostic de syndrome démentiel ou de maladie.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-type="QRM" data-correct="ADE">
+  <div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Chez un patient en situation palliative présentant une occlusion intestinale sur carcinose péritonéale, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les antisécrétoires (butylbromure de scopolamine, octréotide) peuvent être prescrits</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le métoclopramide est le traitement de choix des vomissements en cas d’occlusion complète</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les opioïdes sont arrêtés d’emblée en raison du risque de constipation</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une corticothérapie peut être utilisée</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une sonde nasogastrique peut être posée à titre transitoire en cas de vomissements abondants</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Ils réduisent les sécrétions digestives, donc les vomissements et les douleurs, sans geste invasif.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Prokinétique, il augmente le péristaltisme et les douleurs face à un obstacle complet : il est contre-indiqué.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Ils restent indiqués pour la douleur, y compris en occlusion, par voie sous-cutanée si les vomissements empêchent la voie orale.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les corticoïdes réduisent l’œdème péritumoral et pariétal et peuvent aider à lever l’obstacle.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elle soulage rapidement ; une gastrostomie de décharge est une alternative si le besoin se prolonge.</div>
+  </div>
+</div>
+
+<div class="sect">TCS1 — Femme de 84 ans hospitalisée depuis dix jours en court séjour gériatrique</div>
+
+<div class="q" id="TCS1-Q1" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Mme T., 84 ans, est hospitalisée depuis dix jours en court séjour gériatrique pour une pneumopathie communautaire. L’infection est contrôlée : apyrexie depuis cinq jours, CRP à 10 mg/L (150 mg/L à l’admission). Elle est restée alitée la majeure partie du séjour. Elle vit seule en résidence autonomie et son entourage signale une diminution de l’appétit depuis plusieurs semaines.</div>
+  <div class="stem">Si vous pensez à un syndrome de glissement et que vous apprenez que, depuis deux jours, malgré le contrôle de l’infection, la patiente refuse de s’alimenter, ne parle plus, refuse de se lever et repousse toute aide, alors votre hypothèse diagnostique est</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D — probable</div>
+    <div class="note">Le syndrome de glissement est un diagnostic d’élimination : après un événement aigu (ici la pneumopathie et l’alitement), il associe refus alimentaire, mutisme, régression psychomotrice et refus des soins. L’information rend l’hypothèse probable mais pas certaine : il faut d’abord éliminer une cause organique (récidive infectieuse, trouble métabolique, iatrogénie) et une dépression. Dans une épreuve officielle, un panel d’experts valide souvent plusieurs réponses voisines, pondérées par la proportion d’experts les ayant choisies : la réponse retenue ici est la réponse majoritaire.</div>
+  </div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous envisagez de prescrire un inhibiteur de la recapture de la sérotonine (ISRS) devant une humeur dépressive (mini-GDS à 3/4) et que vous apprenez que la natrémie est à 118 mmol/L, quel est l’impact de cette information sur votre décision de prescrire cet ISRS ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A — improbable</div>
+    <div class="note">Les ISRS exposent à l’hyponatrémie par sécrétion inappropriée d’ADH, surtout chez la femme âgée, sous diurétique ou après une pneumopathie. Une hyponatrémie sévère à 118 mmol/L doit faire explorer et corriger l’hyponatrémie avant toute introduction ; on choisit ensuite une molécule moins à risque, avec surveillance de la natrémie, ou une prise en charge non médicamenteuse. Dans une épreuve officielle, un panel d’experts valide souvent plusieurs réponses voisines, pondérées par la proportion d’experts les ayant choisies : la réponse retenue ici est la réponse majoritaire.</div>
+  </div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-type="QRU" data-correct="E">
+  <div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensez à une dénutrition sévère et que vous apprenez que la patiente pèse 48 kg pour 1,58 m (IMC : 19,2 kg/m²), alors votre hypothèse diagnostique est</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : E — certain</div>
+    <div class="note">Chez une personne de plus de 70 ans, un IMC &lt; 20 kg/m² est un critère de sévérité (HAS 2021). Le diagnostic de dénutrition est acquis : IMC &lt; 22 kg/m² (critère phénotypique) et pneumopathie, situation d’agression (critère étiologique), auxquelles s’ajoute la baisse des apports depuis plusieurs semaines. Un seul critère de sévérité suffit : l’hypothèse de dénutrition sévère est certaine. Dans une épreuve officielle, un panel d’experts valide souvent plusieurs réponses voisines, pondérées par la proportion d’experts les ayant choisies : la réponse retenue ici est la réponse majoritaire.</div>
+  </div>
+</div>
+
+<div class="sect">KFP1 — Femme de 81 ans, deuxième chute en six mois</div>
+
+<div class="q" id="KFP1-Q1" data-type="QRPL" data-correct="BDFHJL">
+  <div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRPL · 6 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Mme L., 81 ans, vous est adressée en consultation de gériatrie après une deuxième chute en six mois. Cette nuit, en se levant pour aller aux toilettes, elle est tombée et s’est relevée seule au bout de quelques minutes, sans traumatisme. Elle vit seule, n’a jamais fumé et ne consomme pas d’alcool. Antécédents : hypertension artérielle traitée par indapamide 1,5 mg et amlodipine 5 mg ; insomnie traitée par lorazépam 1 mg au coucher depuis dix ans ; syndrome dépressif traité par paroxétine 20 mg, actuellement stabilisé ; cataracte bilatérale non opérée. À l’examen : pression artérielle 148/82 mmHg en position couchée et 122/68 mmHg après une minute de position debout, sans accélération de la fréquence cardiaque ; appui monopodal impossible au-delà de 3 secondes ; examen neurologique normal ; MMSE 28/30 ; mini-GDS 0/4 ; IMC 24 kg/m² ; ECG en rythme sinusal.</div>
+  <div class="stem">Quels sont les éléments clés qui guident votre analyse des facteurs de risque de chute de cette patiente ? Listez jusque 6</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Score MMSE à 28/30</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Chutes répétées (deux en six mois)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Examen neurologique normal</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hypotension orthostatique (baisse de 26 mmHg de la pression systolique à la première minute)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Score mini-GDS à 0/4</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Traitement par lorazépam au long cours</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">IMC à 24 kg/m²</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Appui monopodal inférieur à 5 secondes</span></li>
+    <li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">ECG en rythme sinusal</span></li>
+    <li class="opt" data-l="J" data-correct="1"><span class="box">J</span><span class="otext">Cataracte bilatérale non opérée</span></li>
+    <li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Absence de traumatisme lors de la chute</span></li>
+    <li class="opt" data-l="L" data-correct="1"><span class="box">L</span><span class="otext">Traitement par paroxétine</span></li>
+    <li class="opt" data-l="M" data-correct="0"><span class="box">M</span><span class="otext">Capacité à se relever seule du sol</span></li>
+    <li class="opt" data-l="N" data-correct="0"><span class="box">N</span><span class="otext">Absence de tabagisme</span></li>
+    <li class="opt" data-l="O" data-correct="0"><span class="box">O</span><span class="otext">Absence de consommation d’alcool</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, F, H, J, L</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Une cognition normale n’explique pas les chutes : ce sont les troubles cognitifs, absents ici, qui constituent un facteur de risque.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Au moins deux chutes en un an définissent les chutes répétées, qui signent des facteurs de risque persistants et prédisent la récidive.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Il écarte un déficit moteur, un syndrome cérébelleux ou parkinsonien, mais un examen normal n’est pas un facteur de risque.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Une baisse de la systolique ≥ 20 mmHg (ou de la diastolique ≥ 10 mmHg) dans les trois minutes du lever la définit ; facteur précipitant majeur, ici sans accélération du pouls, ce qui traduit une altération du baroréflexe liée à l’âge, aggravée par les antihypertenseurs et les psychotropes.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L’absence de dépression actuelle n’est pas un facteur de risque : c’est la dépression qui en est un.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Les benzodiazépines (sédation, myorelaxation, troubles de l’équilibre) sont à haut risque de chute, surtout au long cours chez le sujet âgé.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Un IMC normal ne permet ni d’expliquer les chutes ni de guider leur analyse : ce n’est pas un élément clé ici.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — Test simple de l’équilibre : une durée &lt; 5 secondes prédit le risque de chute et de récidive.</div>
+    <div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span> — Un ECG normal n’apporte aucun argument pour une cause rythmique ; ce n’est pas un facteur de risque.</div>
+    <div class="citem v-vrai"><span class="cl">J.</span> <span class="cv">VRAI</span> — La baisse d’acuité visuelle altère la perception des obstacles, surtout la nuit ; c’est un facteur de risque modifiable (chirurgie).</div>
+    <div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span> — Elle conditionne la gravité de la chute, non le risque de chuter à nouveau.</div>
+    <div class="citem v-vrai"><span class="cl">L.</span> <span class="cv">VRAI</span> — Les antidépresseurs, notamment les ISRS, sont associés à un sur-risque de chute (sédation, hyponatrémie, hypotension) ; la paroxétine est de plus anticholinergique.</div>
+    <div class="citem v-faux"><span class="cl">M.</span> <span class="cv">FAUX</span> — C’est un élément rassurant (pas de station prolongée au sol), non un facteur de risque.</div>
+    <div class="citem v-faux"><span class="cl">N.</span> <span class="cv">FAUX</span> — Le tabac ne fait pas partie des facteurs de risque de chute reconnus : cet élément ne guide pas l’analyse.</div>
+    <div class="citem v-faux"><span class="cl">O.</span> <span class="cv">FAUX</span> — L’alcool est un facteur de risque de chute (sédation, troubles de l’équilibre) : sa consommation aurait été un élément clé, son absence n’en est pas un.</div>
+  </div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-type="QRPL" data-correct="CEGIM">
+  <div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRPL · 5 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les éléments clés de votre prise en charge ? Listez jusque 5</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Contention nocturne au lit</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Arrêt brutal du lorazépam</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Diminution progressive du lorazépam</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Scanner cérébral systématique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Kinésithérapie : travail de l’équilibre et de la force musculaire, apprentissage du relevé du sol</span></li>
+    <li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Enregistrement Holter-ECG systématique</span></li>
+    <li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Réévaluation du traitement antihypertenseur, notamment du diurétique</span></li>
+    <li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Remplacement du lorazépam par un hypnotique de type zolpidem</span></li>
+    <li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Consultation ophtalmologique pour la cataracte</span></li>
+    <li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Entrée en EHPAD d’emblée</span></li>
+    <li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Électroencéphalogramme</span></li>
+    <li class="opt" data-l="L" data-correct="0"><span class="box">L</span><span class="otext">Interdiction de sortir seule</span></li>
+    <li class="opt" data-l="M" data-correct="1"><span class="box">M</span><span class="otext">Aménagement du domicile avec visite d’un ergothérapeute</span></li>
+    <li class="opt" data-l="N" data-correct="0"><span class="box">N</span><span class="otext">Fauteuil roulant pour les déplacements</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C, E, G, I, M</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La contention n’est pas une mesure préventive de chute : elle majore agitation, perte d’autonomie, lésions cutanées et gravité des chutes.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L’arrêt brutal d’une benzodiazépine prise depuis dix ans expose au syndrome de sevrage (anxiété, insomnie rebond, convulsions) : la réduction doit être progressive, par paliers.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Après dix ans de traitement, le sevrage se fait par paliers sur plusieurs semaines, avec des mesures non médicamenteuses de l’insomnie.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L’examen neurologique est normal et il n’y a pas de traumatisme crânien : aucune indication d’imagerie cérébrale.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les programmes d’exercice multimodaux (équilibre, renforcement) réduisent le risque de chute, et l’apprentissage du relevé du sol limite la gravité d’une chute.</div>
+    <div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span> — En l’absence de syncope, de palpitations et d’anomalie de l’ECG, rien n’oriente vers une cause rythmique.</div>
+    <div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span> — L’hypotension orthostatique impose de revoir les antihypertenseurs, en commençant par l’indapamide, avec des objectifs tensionnels assouplis chez le sujet âgé.</div>
+    <div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span> — Un hypnotique apparenté aux benzodiazépines expose aux mêmes risques de chute et de confusion : changer de molécule ne règle pas le problème.</div>
+    <div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span> — La correction visuelle et la chirurgie de la cataracte, facteur de risque modifiable, améliorent la perception des obstacles.</div>
+    <div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span> — La décision serait disproportionnée avant tout bilan et correction des facteurs modifiables chez une patiente encore autonome.</div>
+    <div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span> — Aucun argument pour une épilepsie (pas de perte de connaissance ni de mouvements anormaux) : l’examen n’est pas indiqué.</div>
+    <div class="citem v-faux"><span class="cl">L.</span> <span class="cv">FAUX</span> — Restreindre les sorties accélère la perte d’autonomie et la sédentarité, et entretient la peur de tomber.</div>
+    <div class="citem v-vrai"><span class="cl">M.</span> <span class="cv">VRAI</span> — Éclairage nocturne, suppression des tapis, barres d’appui et trajet lit-toilettes sécurisé sont des mesures efficaces contre les chutes à domicile.</div>
+    <div class="citem v-faux"><span class="cl">N.</span> <span class="cv">FAUX</span> — Le fauteuil favorise l’immobilité et la fonte musculaire ; l’objectif est de préserver la marche.</div>
+  </div>
+</div>
+
+<div class="sect">mDP1 — Homme de 80 ans suivi pour une maladie cancéreuse évoluée, douleurs croissantes à domicile</div>
+
+<div class="q" id="mDP1-Q1" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">mDP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">M. D., 80 ans, est suivi pour un adénocarcinome prostatique métastatique (métastases osseuses du rachis lombaire et du bassin), en échappement à l’hormonothérapie. Après information, il a refusé la poursuite des traitements anticancéreux spécifiques et souhaite rester à domicile avec son épouse de 78 ans ; son oncologue estime le pronostic à plusieurs mois. Son état général est relativement conservé (OMS 2). Son DFG est estimé à 45 mL/min. Il consulte pour des douleurs lombaires et de la hanche droite, mal soulagées, cotées 7/10 sur l’échelle numérique, qui le réveillent la nuit, malgré un traitement par paracétamol 1 g trois fois par jour et tramadol 50 mg trois fois par jour. Il décrit aussi des brûlures et des décharges électriques à la face antérieure de la cuisse droite.</div>
+  <div class="stem">Vous évaluez sa douleur. Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’autoévaluation par l’échelle numérique est adaptée à ce patient</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La douleur est de mécanisme mixte, nociceptif et neuropathique</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une hétéroévaluation par l’échelle Algoplus est obligatoire du fait de l’âge</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le questionnaire DN4 permet de dépister la composante neuropathique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Après chaque modification du traitement, la douleur est réévaluée avec la même échelle</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le patient communique sans trouble cognitif : l’échelle numérique (ou visuelle analogique, ou verbale simple) est l’outil de référence, l’hétéroévaluation étant réservée aux patients qui ne peuvent pas s’exprimer.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les douleurs osseuses métastatiques sont nociceptives ; les brûlures et décharges de la face antérieure de la cuisse évoquent une atteinte radiculaire, donc une composante neuropathique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L’âge n’est pas une indication : Algoplus évalue les douleurs aiguës des patients incapables de s’exprimer.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Questionnaire de dix items (interrogatoire et examen) ; un score ≥ 4/10 est en faveur d’une douleur neuropathique.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le même outil permet de comparer les scores dans le temps et d’apprécier l’efficacité du traitement.</div>
+  </div>
+</div>
+
+<div class="q" id="mDP1-Q2" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">mDP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous adaptez le traitement antalgique. Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un anti-inflammatoire non stéroïdien au long cours est adapté à la douleur osseuse</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le tramadol peut être remplacé par un opioïde fort de palier III, introduit à faible dose avec des interdoses</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un laxatif est prescrit dès l’instauration de l’opioïde</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une radiothérapie antalgique des localisations osseuses douloureuses peut être indiquée</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La composante neuropathique peut justifier l’ajout d’un gabapentinoïde (gabapentine ou prégabaline), introduit à faible dose</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Chez un patient de 80 ans dont le DFG est à 45 mL/min, les AINS exposent aux risques rénal, digestif et cardiovasculaire : ils sont à éviter au long cours.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La douleur, intense et insuffisamment soulagée par le palier II, justifie le palier III ; le sujet âgé et la fonction rénale imposent une dose initiale réduite et une titration prudente.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La constipation est un effet indésirable constant des opioïdes, sans tolérance : elle se prévient systématiquement.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — C’est un traitement efficace de la douleur osseuse métastatique, souvent en séance unique, qui peut permettre de réduire les antalgiques.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les gabapentinoïdes sont un traitement de première intention de la douleur neuropathique ; leur élimination rénale impose, avec un DFG à 45 mL/min, une titration lente et une posologie réduite (somnolence, vertiges, risque de chute).</div>
+  </div>
+</div>
+
+<div class="q" id="mDP1-Q3" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">mDP1 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Compte tenu de l’évolution de sa maladie et de ses souhaits, comment qualifiez-vous la situation de ce patient ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Phase curative</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Phase palliative</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Phase terminale</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Agonie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un cancer métastatique en échappement hormonal n’est plus accessible à un traitement à visée curative.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Maladie incurable et évolutive, état général relativement conservé, pronostic de plusieurs mois : les soins palliatifs sont associés aux soins de support, sans attendre la fin de vie.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La phase terminale correspond à une dégradation marquée de l’état général, avec un pronostic de quelques jours à quelques semaines : ce n’est pas le cas ici.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L’agonie est la toute fin de la vie (quelques heures à quelques jours), avec défaillance progressive des fonctions vitales.</div>
+  </div>
+</div>
+
+<div class="q" id="mDP1-Q4" data-type="QRM" data-correct="ADE">
+  <div class="qhead"><span class="qnum">mDP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le patient désigne son épouse comme personne de confiance. Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La désignation est faite par écrit et cosignée par la personne désignée</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle prend les décisions médicales à la place du patient</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Sa désignation doit être renouvelée tous les trois ans</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle peut accompagner le patient lors de ses consultations</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Si le patient ne peut plus s’exprimer, son témoignage prévaut sur celui de la famille et des proches</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — C’est la condition de forme prévue par le code de la santé publique ; la désignation est révisable et révocable à tout moment.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle témoigne de la volonté du patient et l’accompagne ; la décision médicale revient au médecin, après consultation de la personne de confiance si le patient ne peut plus s’exprimer.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La désignation est faite pour une durée indéterminée et reste valable tant que le patient ne la révoque pas.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle peut l’assister dans ses démarches et assister aux entretiens médicaux pour l’aider dans ses décisions.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La loi lui donne priorité sur tout autre témoignage, à l’exception des directives anticipées ; hors urgence, aucune intervention ni investigation ne peut être réalisée sans qu’elle ait été consultée.</div>
+  </div>
+</div>
+
+<div class="q" id="mDP1-Q5" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">mDP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Trois semaines plus tard, il est pris en charge en hospitalisation à domicile. Depuis 48 heures, il est somnolent, ne s’alimente plus et boit à peine ; sa respiration est devenue bruyante et encombrée, sans signe de gêne apparent. Son épouse est présente. Quelle prise en charge proposez-vous ? Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une hydratation intraveineuse abondante est nécessaire pour limiter l’encombrement</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un traitement anticholinergique, tel que le butylbromure de scopolamine, peut être prescrit</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Des aspirations trachéales répétées sont indiquées</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un transfert en réanimation est justifié</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les soins de bouche et la position latérale participent au confort</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les apports hydriques parentéraux majorent les sécrétions bronchiques et les œdèmes : en phase agonique, on les réduit, voire on les arrête, plutôt que de les augmenter.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Il diminue les sécrétions salivaires et bronchiques responsables des râles agoniques, de préférence avant qu’elles ne soient abondantes.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elles sont inconfortables, peu efficaces sur des sécrétions profondes et n’améliorent pas le confort ; elles n’ont pas de place systématique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Ce serait une obstination déraisonnable ; l’objectif est le confort du patient et de son entourage, au lieu de vie qu’il a choisi.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La bouche sèche est un inconfort majeur chez un patient qui respire la bouche ouverte ; la position latérale facilite le drainage des sécrétions.</div>
+  </div>
+</div>
+
+<div class="sect">DP1 — Femme de 86 ans trouvée somnolente et désorientée à son domicile en juillet</div>
+
+<div class="q" id="DP1-Q1" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Vous recevez aux urgences, en juillet, Mme R., 86 ans, adressée par son aide à domicile qui l’a trouvée somnolente et désorientée. Veuve, elle vit seule dans son appartement ; une aide à domicile intervient trois fois par semaine pour les courses et le ménage, sa fille vit à 300 km. Antécédents : hypertension artérielle, insuffisance cardiaque à fraction d’éjection préservée, urgenturie (instabilité vésicale), insomnie. Traitement habituel : furosémide 40 mg le matin, ramipril 5 mg, amlodipine 5 mg, oxybutynine 5 mg deux fois par jour, zopiclone 7,5 mg au coucher. Depuis trois jours de forte chaleur, elle boit très peu. À l’examen : score de Glasgow 12/15 (Y3 V4 M5), température 37,6 °C, pression artérielle 96/58 mmHg, fréquence cardiaque 108/min, saturation en oxygène 96 % en air ambiant ; muqueuses sèches, matité sus-pubienne, auscultation pulmonaire normale, pas de déficit neurologique focal ni de raideur méningée.</div>
+  <div class="stem">Avec ces informations, comment qualifiez-vous l’état clinique de la patiente ? Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il s’agit d’un coma</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il s’agit d’une confusion aiguë</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le pli cutané est un signe fiable de déshydratation chez le sujet âgé</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il s’agit d’un syndrome démentiel</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La matité sus-pubienne doit faire rechercher un globe vésical, par exemple par un bladder scan</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un coma correspond à un score de Glasgow ≤ 8 ; ici la patiente ouvre les yeux à la demande (Y3), répond de façon confuse (V4) et localise la douleur (M5).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L’altération aiguë de la vigilance et de l’orientation, sans déficit focal, chez un sujet fragile exposé à des facteurs déclenchants, définit la confusion aiguë : c’est une urgence diagnostique, avec recherche de la cause.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L’élasticité cutanée diminue avec l’âge : le pli persiste même sans déshydratation ; on s’appuie plutôt sur la clinique générale, la perte de poids et la biologie.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le syndrome démentiel suppose une évolution d’au moins six mois avec retentissement sur l’autonomie ; il ne se définit pas par un début aigu.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La rétention aiguë d’urine est une cause fréquente de confusion chez le sujet âgé ; le bladder scan est simple, rapide et non invasif.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q2" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Les examens biologiques réalisés en urgence montrent : natrémie 154 mmol/L (N : 135-145), kaliémie 4,6 mmol/L, protidémie 84 g/L (N : 60-80), hématocrite 48 % (N : 36-46), urée 21 mmol/L (N : 3-8), créatininémie 168 µmol/L (valeur habituelle : 82 µmol/L), glycémie 6,2 mmol/L, CRP 9 mg/L, CPK 160 UI/L (N &lt; 200). Le bladder scan retrouve 750 mL d’urines résiduelles. Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il existe une déshydratation intracellulaire</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Il existe un syndrome de sécrétion inappropriée d’ADH</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il existe une déshydratation extracellulaire</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il existe une insuffisance rénale aiguë</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il existe une rhabdomyolyse</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L’hypernatrémie traduit une hyperosmolarité plasmatique qui attire l’eau hors des cellules.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Ce syndrome donne une hyponatrémie par dilution, avec protidémie et hématocrite plutôt abaissés : ici la natrémie, la protidémie et l’hématocrite sont élevées.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L’hémoconcentration (protidémie et hématocrite élevées) et l’augmentation de l’urée signent la perte de volume extracellulaire.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La créatininémie a doublé par rapport à la valeur habituelle ; l’origine est fonctionnelle (hypovolémie, IEC, diurétique), avec une composante obstructive possible devant le globe vésical.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les CPK sont normales (&lt; 200 UI/L) : une rhabdomyolyse, que l’on évoquerait après un séjour prolongé au sol, n’est pas en cause.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q3" data-type="QRM" data-correct="ABCDE">
+  <div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Indiquez les facteurs ayant pu contribuer à la survenue de cette confusion aiguë</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La déshydratation avec hypernatrémie</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La rétention aiguë d’urine</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le traitement par oxybutynine</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le traitement par zopiclone</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le maintien du furosémide malgré la canicule et la baisse des apports</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D, E</div>
+    <div class="note"><div class="rappel">La confusion aiguë est le plus souvent plurifactorielle : un terrain prédisposant (âge, réserve cognitive diminuée) et plusieurs facteurs précipitants (déshydratation, médicaments, rétention d’urine, infection…). Tous doivent être recherchés et corrigés.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L’hyperosmolarité entraîne une souffrance neuronale : une hypernatrémie importante est une cause classique de somnolence et de confusion.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Source d’inconfort et de douleur, elle est une cause « simple » fréquente de confusion chez la personne âgée.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Anticholinergique à fort passage cérébral, à éviter chez le sujet âgé : il altère la cognition, favorise la confusion et aggrave la rétention d’urine.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La dose de 7,5 mg dépasse la dose initiale recommandée chez le sujet âgé (3,75 mg) : l’hypnotique s’accumule et majore somnolence et confusion.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Il aggrave l’hypovolémie, l’hypernatrémie et l’insuffisance rénale, donc les facteurs de confusion.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q4" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelle prise en charge initiale proposez-vous ? Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un sondage vésical évacuateur</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Du furosémide par voie intraveineuse pour restaurer la diurèse</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une réhydratation progressive, avec contrôles réguliers de la natrémie et de la créatininémie</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une correction de la natrémie en quelques heures</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La suspension temporaire du furosémide et du ramipril</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Un globe de 750 mL justifie un drainage immédiat ; on surveille ensuite la diurèse (risque de polyurie post-obstructive).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un diurétique aggraverait l’hypovolémie, l’hypernatrémie et l’insuffisance rénale aiguë.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Patiente somnolente et hypotendue : la réhydratation est d’abord parentérale ; la volémie est restaurée en priorité, puis le déficit en eau libre est corrigé sur 48 à 72 heures, sous surveillance de la natrémie et de la fonction rénale.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Dans une hypernatrémie installée depuis plusieurs jours, la natrémie ne doit pas baisser de plus de 10 à 12 mmol/L par 24 heures, au risque d’un œdème cérébral.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — En situation d’hypovolémie avec insuffisance rénale aiguë, diurétique et IEC sont suspendus puis réintroduits après correction.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q5" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après la prise en charge initiale, la patiente est hospitalisée en court séjour gériatrique. Concernant la prévention des complications de décubitus, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une contention physique au lit pour prévenir les chutes nocturnes</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une prévention médicamenteuse de la maladie thrombo-embolique veineuse, adaptée à la fonction rénale</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un massage biquotidien des zones d’appui</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un lever et une mise au fauteuil dès que l’état clinique le permet</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un lever différé jusqu’à la normalisation complète de la natrémie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La contention n’est pas une mesure préventive : elle majore agitation, confusion, escarres et risque de chute grave ; son recours est exceptionnel, prescrit, limité dans le temps et réévalué.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Une patiente âgée alitée en phase aiguë est à haut risque ; en cas d’insuffisance rénale sévère, la dose est adaptée, voire l’héparine non fractionnée est préférée.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le massage est contre-indiqué ; la prévention repose sur le soulagement des appuis, les changements de position, la nutrition et l’inspection quotidienne de la peau.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La verticalisation précoce prévient l’encombrement bronchique, la désadaptation à l’orthostatisme, les escarres et la fonte musculaire.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La natrémie ne conditionne pas le lever : différer expose aux complications du décubitus ; le lever est entrepris dès que l’état hémodynamique et la vigilance le permettent.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q6" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">À J5, après réhydratation, la patiente pèse 51 kg pour 1,60 m (IMC : 19,9 kg/m²) ; son poids il y a six mois était de 58 kg, soit une perte de 12 %. L’aide à domicile rapporte que, depuis trois semaines, elle ne consomme plus que la moitié des repas qu’elle lui achète. L’albuminémie est à 33 g/L. Selon les critères de la HAS 2021, indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une perte de poids de 12 % en six mois suffit à elle seule à classer la dénutrition comme sévère</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La patiente présente une dénutrition</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La réduction de moitié des apports depuis trois semaines est un critère phénotypique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La dénutrition est sévère</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La perte de poids est un critère phénotypique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La sévérité par la perte de poids exige ≥ 10 % en un mois ou ≥ 15 % en six mois ; 12 % en six mois correspond à une dénutrition modérée.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le diagnostic repose sur l’association d’un critère phénotypique et d’un critère étiologique, tous deux présents ici.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — C’est un critère étiologique (réduction de la prise alimentaire) ; les critères phénotypiques sont la perte de poids, l’IMC bas et la sarcopénie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Un IMC &lt; 20 kg/m² chez une personne de plus de 70 ans suffit à classer la dénutrition comme sévère.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le seuil est ≥ 10 % en six mois (ou ≥ 5 % en un mois) ; l’IMC &lt; 22 kg/m² est l’autre critère phénotypique présent.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q7" data-type="QRM" data-correct="AE">
+  <div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelle prise en charge nutritionnelle proposez-vous ? Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un enrichissement de l’alimentation et des compléments nutritionnels oraux</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une nutrition parentérale en première intention</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un régime sans sel strict pour prévenir une décompensation cardiaque</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Des apports énergétiques d’emblée maximaux, pour combler rapidement le déficit</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Des objectifs de 30 à 40 kcal/kg/jour et de 1,2 à 1,5 g/kg/jour de protéines</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — C’est la prise en charge de première intention : la voie orale est privilégiée tant qu’elle est possible.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Cette voie est réservée à l’échec ou à l’impossibilité de la nutrition entérale (tube digestif non fonctionnel) ; elle expose à plus de complications infectieuses et métaboliques.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les régimes restrictifs sont déconseillés chez le sujet âgé dénutri : ils diminuent les apports et aggravent la dénutrition ; on surveille le poids et les signes d’insuffisance cardiaque.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Chez une patiente sévèrement dénutrie dont les apports étaient réduits, la renutrition est progressive, avec surveillance de la phosphorémie, de la kaliémie et de la magnésémie les premiers jours : risque de syndrome de renutrition inappropriée.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Ce sont les cibles recommandées par la HAS chez la personne âgée dénutrie.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q8" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">À J10, la confusion a régressé : la patiente est vigilante et orientée. Sa fille, présente aujourd’hui, rapporte des oublis croissants depuis deux ans (rendez-vous, prise des médicaments) et deux épisodes de désorientation dans son quartier depuis un an. Le MMSE est à 19/30 ; le rappel différé des trois mots est à 0/3, non amélioré par l’indiçage, avec des intrusions. Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une IRM cérébrale est indiquée dans le bilan</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le MMSE aurait dû être réalisé dès l’admission pour poser le diagnostic</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’évolution depuis plus de six mois, le retentissement fonctionnel et l’absence de confusion actuelle permettent d’évoquer un syndrome démentiel</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un score de 19/30 suffit à poser le diagnostic de maladie d’Alzheimer</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L’absence d’amélioration du rappel par l’indiçage évoque un trouble du stockage de type hippocampique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L’imagerie cérébrale (IRM de préférence) fait partie du bilan initial d’un trouble neurocognitif : elle élimine une cause curable (hématome sous-dural, tumeur, hydrocéphalie) et recherche atrophie et lésions vasculaires.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les troubles de l’attention de la confusion aiguë faussent les épreuves cognitives : l’évaluation se fait après la résolution de la confusion.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Ce sont les arguments du syndrome démentiel : troubles cognitifs objectivés, évoluant depuis au moins six mois, avec retentissement sur l’autonomie, en dehors d’un état confusionnel.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le MMSE est un outil de repérage ; le diagnostic étiologique repose sur le bilan neuropsychologique, l’imagerie et, si besoin, les biomarqueurs du liquide cérébrospinal.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Si l’indiçage ne permet pas de retrouver les mots, l’information n’a pas été stockée (profil de maladie d’Alzheimer) ; s’il est efficace, il s’agit plutôt d’un trouble de la récupération (atteinte frontale ou sous-corticale, dépression).</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q9" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Pour évaluer l’autonomie avant l’hospitalisation, vous interrogez sa fille et l’aide à domicile. Activités de base : elle réalise seule sa toilette, son habillage, se rend seule aux toilettes, se déplace et se transfère seule, est continente et mange seule. Activités instrumentales : elle téléphone sans difficulté et gère son budget, mais ne prend plus les transports seule et ne prépare plus ses médicaments (sa fille prépare un pilulier lors de ses visites mensuelles). Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Son score ADL est de 5/6</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Son score IADL est de 2/4</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle est dépendante pour les actes ADL</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle est dépendante pour les actes IADL</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La dépendance IADL est un signe tardif, qui apparaît après la dépendance ADL</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="note"><div class="rappel">ADL (6 items cotés 1, 0,5 ou 0) : toilette, habillage, aller aux toilettes, transferts, continence, alimentation. IADL (version à 4 items) : téléphone, transports, médicaments, budget.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les six items (toilette, habillage, toilettes, transferts, continence, alimentation) sont réalisés seule : le score ADL est de 6/6.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Téléphone (1) et budget (1) conservés ; transports (0) et médicaments (0) perdus : 2/4.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Avec un ADL à 6/6, l’autonomie est conservée pour les actes essentiels de la vie quotidienne.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Tout score IADL inférieur au maximum traduit une dépendance pour les activités instrumentales.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les activités instrumentales, plus complexes (cognition, organisation), sont altérées en premier ; la dépendance ADL est plus tardive.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q10" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous préparez l’ordonnance de sortie. Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L’introduction d’un anticholinestérasique avant tout bilan étiologique</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L’arrêt de l’oxybutynine</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La diminution progressive du zopiclone, associée à des mesures non médicamenteuses du sommeil</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le remplacement du zopiclone par du lorazépam</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La réévaluation de la posologie du furosémide selon le poids et l’état d’hydratation</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Leur éventuelle prescription ne se discute qu’une fois le diagnostic étiologique établi et après avis spécialisé ; leur bénéfice reste modeste.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Anticholinergique à haut risque de confusion et de rétention d’urine : on privilégie des mesures non médicamenteuses (mictions programmées, rééducation) ou une molécule moins à risque cognitif.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les hypnotiques augmentent chutes et confusion et ne se prescrivent que brièvement ; une réduction progressive évite l’insomnie de rebond.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Substituer une benzodiazépine à un hypnotique apparenté garde les mêmes risques de chute, de confusion et de dépendance.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Dans l’insuffisance cardiaque à fraction d’éjection préservée, le diurétique se prescrit à la dose minimale efficace, avec suivi du poids, de la natrémie et de la fonction rénale, surtout en période de chaleur.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q11" data-type="QRM" data-correct="AD">
+  <div class="qhead"><span class="qnum">DP1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Avant la sortie, vous évaluez la fonction musculaire : force de préhension à 13 kg (seuil pathologique chez la femme : &lt; 16 kg) et vitesse de marche à 0,6 m/s. Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La force de préhension abaissée permet de retenir une sarcopénie probable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La sarcopénie est irréversible et ne justifie pas de rééducation</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une vitesse de marche à 0,6 m/s est dans les limites de la normale</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La mesure de la masse musculaire (absorptiométrie biphotonique ou impédancemétrie) permet de confirmer le diagnostic</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un repos au lit prolongé est recommandé jusqu’à la fin de la renutrition</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Selon l’EWGSOP2, une force musculaire basse suffit à parler de sarcopénie probable, avant confirmation.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle est en partie réversible : activité physique avec renforcement musculaire, apports protéiques suffisants et correction de la dénutrition.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Une vitesse ≤ 0,8 m/s traduit une performance physique altérée et, si la sarcopénie est confirmée, un stade sévère.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La confirmation repose sur la baisse de la masse musculaire, mesurée par DEXA ou impédancemétrie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L’immobilité aggrave la perte musculaire : renutrition et exercice physique sont associés.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q12" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">DP1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous organisez le retour à domicile de la patiente, dont la fille souhaite être soutenue. Indiquez les propositions vraies</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le GIR est calculé à partir des scores ADL et IADL</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le GIR est déterminé à l’aide de la grille AGGIR</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’APA est ouverte aux personnes classées en GIR 1 à 4</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L’APA à domicile est attribuée par le conseil départemental</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le dispositif d’appui à la coordination (DAC) peut être sollicité pour organiser un parcours complexe</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le GIR est déterminé par la grille AGGIR, qui étudie dix variables discriminantes (cohérence, orientation, toilette, habillage, alimentation, élimination, transferts, déplacements à l’intérieur et à l’extérieur, communication à distance), non par l’ADL ni l’IADL.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle classe la perte d’autonomie en six groupes, du GIR 1 (dépendance la plus lourde) au GIR 6.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L’allocation personnalisée d’autonomie s’adresse aux personnes de 60 ans et plus en perte d’autonomie ; les GIR 5 et 6 relèvent d’autres aides, notamment des caisses de retraite.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle est financée et versée par le département, après évaluation par une équipe médico-sociale ; son montant varie selon le degré de dépendance et les ressources.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les DAC appuient les professionnels (médecin traitant, hôpital) pour coordonner les situations complexes, sans coût pour le patient.</div>
+  </div>
+</div>
+
+<footer>37 questions · sujet type · UE 5 Gériatrie · D3 T2 · BobMed.</footer>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+<script src="../../qcopy.js"></script>
+</body></html>

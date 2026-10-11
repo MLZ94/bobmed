@@ -16,6 +16,8 @@ Amener D3 au niveau de complétude de `main` (D2) : justifications ◈ non offic
 **Priorité aux 6 sujets types**, puis seulement ensuite reprise des quiz d'entraînement par item. Chaque sujet type s'inspire de la lecture de TOUTES les annales de l'UE : analyse des questions qui reviennent le plus et de leurs différentes formulations / manières d'aborder le sujet, puis réplique d'une épreuve qui aurait été susceptible de tomber (architecture et style des sessions récentes). Workflow `workflows/st.js` (arguments : `workflows/st_args.json`) : analyse (Opus, `st/analyse_UE*.md`) → rédaction (Sonnet) → copie à l'aveugle + audit adversarial (Opus). Publication : `outils/add_sujet_type.py <quiz> "<thèmes>"` (carte « Sujet type » + compteur du portail).
 Lot d'entraînement clos avant le changement : les 4 brouillons 25/40/44, 43/41, 120/133, 139/140/141 ont été audités et publiés ; les rédactions interrompues (27/30, 300/312, 134/135/138, 1/7, 66/250/267 — scripts `build_item*.py` partiels dans le scratchpad) reprendront après les sujets types.
 
+- **Sujets types publiés** : UE 2 (37 q.) et UE 5 (37 q.). Analyses faites : UE 2, 5, 7.3, 9 (`analyses/`).
+
 ## Reste à faire
 1. ~~◈ UE 11.2~~ : fait (vérifié par Opus, appliqué).
 2. **Quiz d'entraînement** (34 restants, plan complet dans `plan_quizzes.json`) :
