@@ -1,0 +1,1032 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 10 — Thérapeutique · Sujet type</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+/* BobMed - justifications non officielles ajoutees */.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 10 — Thérapeutique · Sujet type (synthèse des annales 2022-2025)</h1>
+<div class="sub">35 questions : SQI1 (2) · SQI2 (4) · SQI3 (6) · SQI4 (4) · KFP1 homme de 77 ans, céphalées et confusion après une chute (3, verrouillé) · DP1 céphalées et altération de l’état général chez une femme de 74 ans (13, verrouillé) · TCS1 femme de 32 ans, pression artérielle élevée en automesure (3, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/35</b></span>
+<span class="pill">Score : <b id="s-ok">0/35</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+<div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+<div class="note" style="margin:0 0 24px"><b>Sujet type</b> — Ce quiz n’est pas une annale réelle : il a été construit à partir de la lecture de toutes les annales de l’UE 10 disponibles (2022-2025), de l’analyse des questions qui reviennent le plus et de leurs différentes formulations, puis rédigé avec des cas et des questions originaux. Il reprend l’architecture de la session la plus récente : quatre blocs de questions isolées (méthodologie des essais, antithrombotiques, bon usage et pharmacologie générale, psychotropes), un KFP, un dossier progressif de médecine interne et une TCS. Thèmes travaillés : analyse des essais, randomisation, phases du développement et niveaux de preuve ; AVK, AOD, thrombopénie induite par l’héparine et antiagrégants ; hyperkaliémie médicamenteuse, hypoglycémie sous sulfamide, ordonnance de stupéfiants, AINS, cadre réglementaire et pharmacovigilance, effets indésirables des anti-infectieux ; benzodiazépines, lithium, ISRS et syndrome malin des neuroleptiques ; interactions médicamenteuses et antidotes des anticoagulants ; corticothérapie prolongée, méthotrexate, biothérapie et bilan préthérapeutique ; choix d’un antihypertenseur. Les titres des sections verrouillées décrivent le motif de consultation sans donner le diagnostic.</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la méthodologie des essais thérapeutiques, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Dans un essai de supériorité, l’analyse per protocole est l’analyse la plus conservatrice</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Dans un essai de supériorité, l’analyse principale est l’analyse en intention de traiter</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une randomisation bien conduite dispense de vérifier la comparabilité des groupes à l’inclusion</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un essai de phase II correspond à la première administration du médicament chez l’homme</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le double aveugle limite les biais de suivi et d’évaluation du critère de jugement</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L’intention de traiter est l’analyse conservatrice d’un essai de supériorité : elle dilue la différence entre les bras. L’analyse per protocole tend au contraire à la surestimer.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Chaque patient est analysé dans le bras où il a été randomisé, y compris s’il a arrêté le traitement ou est perdu de vue : la comparabilité des groupes obtenue par la randomisation est préservée.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La randomisation n’équilibre les groupes qu’en moyenne : un déséquilibre fortuit reste possible, surtout sur de petits effectifs. La comparabilité est vérifiée sur les caractéristiques initiales, et la stratification sur les facteurs pronostiques majeurs limite ce risque.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La première administration chez l’homme (tolérance, pharmacocinétique, souvent chez le volontaire sain) est la phase I. La phase II vérifie l’efficacité et recherche la dose optimale chez quelques dizaines à centaines de malades, avant les essais comparatifs de phase III.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Ni le patient ni l’investigateur ne connaissent le traitement reçu : la prise en charge reste comparable entre les bras (biais de suivi) et le critère est évalué sans a priori (biais d’évaluation).</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-type="QRM" data-correct="C">
+  <div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les niveaux de preuve et la gradation des recommandations de la HAS, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une étude de cohorte bien menée permet de formuler une recommandation de grade A</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une série de cas rétrospective fournit une présomption scientifique (grade B)</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une recommandation de grade A repose sur une preuve scientifique établie, de niveau 1 (essais randomisés de forte puissance, méta-analyses d’essais randomisés)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">En l’absence de données publiées, aucune recommandation ne peut être formulée</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un essai comparatif randomisé de faible puissance fournit un niveau de preuve 1</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note"><div class="rappel">Gradation HAS : niveau 1 (essais randomisés de forte puissance, méta-analyses) → grade A, preuve scientifique établie · niveau 2 (essais randomisés de faible puissance, comparatifs non randomisés bien menés, cohortes) → grade B, présomption scientifique · niveaux 3 et 4 (cas-témoins, séries de cas, études rétrospectives) → grade C, faible niveau de preuve. Sans données : accord d’experts.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Une cohorte est de niveau de preuve 2, qui conduit à une présomption scientifique (grade B). Le grade A exige un niveau de preuve 1.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les séries de cas et les études rétrospectives sont de niveau 4 : elles ne donnent qu’un faible niveau de preuve (grade C).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le grade A correspond au niveau de preuve 1 : seuls des essais comparatifs randomisés de forte puissance ou leurs méta-analyses établissent une preuve scientifique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Faute de données, la recommandation repose sur un accord d’experts : elle est formulée, sans grade, avec cette mention.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Un essai randomisé de faible puissance est de niveau 2 (grade B) ; la forte puissance est ce qui fait passer l’essai au niveau 1.</div>
+  </div>
+</div>
+
+<div class="sect">SQI2</div>
+
+<div class="q" id="SQI2-Q1" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">SQI2 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Une patiente de 72 ans débute un traitement par antivitamine K (AVK). Concernant ce traitement, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La warfarine est l’AVK à privilégier en première intention</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L’effet anticoagulant est obtenu dès la première prise</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un premier INR est contrôlé environ 48 heures après la première prise</span></li>
+    <li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">En cas d’oubli d’une prise, il faut doubler la dose suivante</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les aliments riches en vitamine K doivent être consommés régulièrement, sans être exclus</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Sa demi-vie longue (environ 40 heures) donne un INR plus stable que celle de l’acénocoumarol, et la fluindione a été associée à des réactions immuno-allergiques graves.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L’effet complet n’apparaît qu’après 3 à 5 jours, le temps que disparaissent les facteurs vitamine K-dépendants déjà synthétisés (demi-vie du facteur II : 60 heures). Un relais par héparine est nécessaire en situation aiguë.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Ce contrôle précoce, à 48 ± 12 heures, dépiste une hypersensibilité individuelle à l’AVK avant le contrôle suivant, à 3-6 jours.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Il ne faut jamais doubler la dose : la prise oubliée n’est rattrapée que dans les 8 heures suivant l’heure habituelle, sinon elle est sautée, et l’oubli est noté dans le carnet de suivi. Doubler expose au surdosage et à l’hémorragie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Ce sont les variations brutales d’apport en vitamine K qui déséquilibrent l’INR, pas sa présence. Un régime d’exclusion est inutile : on recommande une alimentation variée et stable.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI2-Q2" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">SQI2 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Dans laquelle ou lesquelles des situations suivantes un anticoagulant oral direct (AOD) est-il contre-indiqué ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Fibrillation atriale chez un homme de 82 ans dont le DFG (Cockcroft) est à 45 mL/min</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Patient porteur d’une valve cardiaque mécanique</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Thrombose veineuse profonde proximale chez un homme de 50 ans sans antécédent</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Syndrome des antiphospholipides avec triple positivité et antécédent de thrombose</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Ulcère gastroduodénal cicatrisé il y a 10 ans</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un DFG à 45 mL/min n’est pas une contre-indication : les seuils sont un DFG &lt; 15 mL/min (apixaban, rivaroxaban, édoxaban) ou &lt; 30 mL/min (dabigatran). La posologie s’adapte selon la molécule à l’âge, au poids et à la fonction rénale.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les AOD ont fait la preuve d’une moindre efficacité et d’un excès d’événements thrombo-emboliques et hémorragiques (essai RE-ALIGN avec le dabigatran) : les AVK restent obligatoires.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les AOD (rivaroxaban, apixaban) sont recommandés en première intention dans la maladie thrombo-embolique veineuse en l’absence de contre-indication.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Un excès d’événements thrombotiques a été observé sous AOD dans le SAPL triple positif (essai TRAPS avec le rivaroxaban) : les AVK sont recommandés.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Seule une lésion à risque hémorragique significatif (ulcère actif, saignement récent) contre-indique un AOD ; un ancien ulcère cicatrisé n’est pas une contre-indication.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI2-Q3" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">SQI2 Q3</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un homme de 66 ans reçoit de l’héparine non fractionnée à dose curative depuis 8 jours pour une embolie pulmonaire. Le taux de plaquettes, à 280 G/L à l’initiation, est à 105 G/L ce jour, sans saignement ni autre cause identifiée de thrombopénie. Quelle est la conduite à tenir ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Poursuivre l’héparine non fractionnée et contrôler la numération plaquettaire dans 48 heures</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Remplacer l’héparine non fractionnée par une héparine de bas poids moléculaire</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Transfuser des plaquettes</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Arrêter toute héparine et la remplacer par un anticoagulant non héparinique, par exemple l’argatroban</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Arrêter toute anticoagulation jusqu’à la normalisation des plaquettes</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="note"><div class="rappel">Score des 4T pour estimer la probabilité de TIH : thrombopénie (chute &gt; 50 %), délai (5-10 jours), thrombose, absence d’autre cause. Les AVK ne sont introduits qu’après remontée des plaquettes (&gt; 150 G/L), en chevauchement avec l’anticoagulant non héparinique.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Une chute des plaquettes de plus de 50 % survenant 5 à 21 jours après le début d’une héparine est une thrombopénie induite par l’héparine (TIH) jusqu’à preuve du contraire : poursuivre expose à une thrombose paradoxale.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les anticorps anti-facteur 4 plaquettaire (PF4)/héparine présentent une réactivité croisée avec les HBPM, qui entretiendraient la TIH.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La TIH est une thrombopénie prothrombotique et non hémorragique : la transfusion plaquettaire n’est réservée qu’à une hémorragie grave.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L’arrêt est immédiat, sans attendre la recherche des anticorps anti-PF4/héparine. Un anticoagulant non héparinique prend le relais, car l’embolie pulmonaire reste à traiter et la TIH est prothrombotique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Suspendre l’anticoagulation est dangereux : l’embolie pulmonaire est en cours et la TIH expose à un risque thrombotique élevé.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI2-Q4" data-type="QRM" data-correct="B">
+  <div class="qhead"><span class="qnum">SQI2 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la pharmacologie des antiagrégants plaquettaires, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le ticagrelor est une prodrogue qui nécessite une activation hépatique</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L’aspirine inhibe de façon irréversible la cyclo-oxygénase 1 plaquettaire</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L’effet antiagrégant de l’aspirine disparaît dans les 24 heures suivant l’arrêt</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le clopidogrel est un antagoniste de la glycoprotéine IIb/IIIa</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le prasugrel se lie de façon réversible au récepteur P2Y12</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le ticagrelor est actif tel quel et se lie de façon réversible au récepteur P2Y12. Les prodrogues sont le clopidogrel et le prasugrel.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L’acétylation de la COX-1 est définitive et les plaquettes, anucléées, ne peuvent pas resynthétiser l’enzyme pendant toute leur vie.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L’effet dure 7 à 10 jours, durée de vie des plaquettes, dont environ 10 % sont renouvelées chaque jour.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le clopidogrel est un antagoniste du récepteur P2Y12 de l’ADP. Les antagonistes de la GP IIb/IIIa (abciximab, eptifibatide, tirofiban) sont réservés à la voie intraveineuse.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le prasugrel, thiénopyridine comme le clopidogrel, se lie de façon irréversible au récepteur P2Y12 ; seul le ticagrelor est réversible.</div>
+  </div>
+</div>
+
+<div class="sect">SQI3</div>
+
+<div class="q" id="SQI3-Q1" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">SQI3 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les médicaments suivants, le(s)quel(s) peut/peuvent induire une hyperkaliémie ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Spironolactone</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Ramipril</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Furosémide</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Triméthoprime (cotrimoxazole)</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Héparine</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Antagoniste de l’aldostérone, elle réduit l’excrétion urinaire de potassium.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L’inhibiteur de l’enzyme de conversion diminue la production d’aldostérone, d’où une rétention de potassium, surtout en cas d’insuffisance rénale.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Diurétique de l’anse, il augmente l’excrétion urinaire de potassium et expose à l’hypokaliémie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Il bloque les canaux sodiques du tube collecteur, comme l’amiloride, ce qui retient le potassium ; le risque est majoré en cas d’insuffisance rénale ou d’association à un IEC.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L’héparine, non fractionnée comme de bas poids moléculaire, inhibe la synthèse d’aldostérone par la zone glomérulée de la surrénale.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI3-Q2" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">SQI3 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Une femme de 81 ans, diabétique de type 2 traitée par glimépiride seul, est retrouvée confuse et en sueurs à son domicile. La glycémie capillaire est à 0,38 g/L. Elle a débuté du fluconazole il y a 4 jours pour une candidose buccale. Quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le fluconazole a pu majorer l’effet du sulfamide hypoglycémiant</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La metformine aurait exposé au même risque d’hypoglycémie que le glimépiride</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L’hypoglycémie peut récidiver après le resucrage, ce qui justifie une surveillance prolongée</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une insuffisance rénale favorise l’accumulation du sulfamide</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le glucagon est le traitement de choix de l’hypoglycémie sous sulfamide</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le fluconazole inhibe le CYP2C9, qui métabolise le glimépiride : les concentrations du sulfamide augmentent et l’hypoglycémie devient plus profonde et plus durable.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La metformine ne stimule pas la sécrétion d’insuline et n’induit pas d’hypoglycémie en monothérapie ; le risque est propre aux insulinosécréteurs (sulfamides, glinides) et à l’insuline.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L’effet du sulfamide se prolonge pendant plusieurs heures, voire jours en cas d’interaction ou d’insuffisance rénale : une surveillance hospitalière d’au moins 24 heures est recommandée.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le glimépiride et ses métabolites sont éliminés par le rein ; ces médicaments sont contre-indiqués en cas d’insuffisance rénale sévère.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le glucagon stimule lui-même la sécrétion d’insuline en présence du sulfamide : il est peu efficace et la rechute est fréquente. On donne du glucose, par voie orale ou intraveineuse.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI3-Q3" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">SQI3 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous prescrivez du sulfate de morphine à libération prolongée par voie orale à un patient atteint d’un cancer. Concernant cette prescription, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le pharmacien peut la renouveler grâce à la mention « à renouveler »</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle est rédigée sur une ordonnance sécurisée</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La durée maximale de prescription est de 28 jours</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le pharmacien peut délivrer la totalité des 28 jours même si l’ordonnance lui est présentée 10 jours après sa rédaction</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le chevauchement avec une ordonnance antérieure est interdit, sauf mention expresse du prescripteur</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les stupéfiants ne sont pas renouvelables : la mention est sans valeur et une nouvelle ordonnance est nécessaire.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les stupéfiants se prescrivent sur ordonnance sécurisée, avec la posologie, la quantité et la durée de traitement en toutes lettres.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Elle est de 28 jours pour la morphine orale, avec une durée plus courte pour certaines autres formes de stupéfiants.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Au-delà de 3 jours après la date de l’ordonnance, le pharmacien ne délivre que la durée de traitement restant à courir.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Sans mention expresse du prescripteur, une nouvelle délivrance ne peut débuter avant la fin de la période couverte par l’ordonnance précédente.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI3-Q4" data-type="QRM" data-correct="CE">
+  <div class="qhead"><span class="qnum">SQI3 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les contre-indications et les interactions des anti-inflammatoires non stéroïdiens (AINS), quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Les inhibiteurs sélectifs de la COX-2 sont sans risque chez le patient coronarien</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L’association à un antivitamine K est sans conséquence tant que l’INR reste dans la cible</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Ils sont contre-indiqués à partir de 24 semaines d’aménorrhée</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un asthme induit par l’aspirine ne contre-indique pas les autres AINS</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L’association à un inhibiteur de l’enzyme de conversion et à un diurétique expose à une insuffisance rénale aiguë</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les coxibs sont contre-indiqués en cas de cardiopathie ischémique, d’AVC ou d’artériopathie, en raison d’un risque thrombotique majoré.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les AINS exposent à une hémorragie digestive par lésion muqueuse et effet antiagrégant, indépendamment de la valeur de l’INR : l’association est déconseillée.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — À partir du début du 6e mois, ils exposent le fœtus à une toxicité rénale (oligoamnios, anurie) et à la fermeture prématurée du canal artériel.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Tous les AINS inhibant la COX-1 sont contre-indiqués dans l’asthme induit par l’aspirine (réaction croisée par excès de leucotriènes bronchoconstricteurs).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les AINS suppriment la vasodilatation prostaglandine-dépendante de l’artériole afférente, alors que l’IEC dilate l’efférente et que le diurétique réduit la volémie : la filtration glomérulaire s’effondre.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI3-Q5" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">SQI3 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le cadre réglementaire du médicament et la gestion de ses risques, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’autorisation de mise sur le marché (AMM) est délivrée par l’ANSM ou, en procédure centralisée, par la Commission européenne après avis de l’EMA</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">L’AMM est obtenue à l’issue des essais de phase IV</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La commission de la transparence de la HAS évalue le service médical rendu</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un médecin qui suspecte un effet indésirable grave ou inattendu d’un médicament doit le déclarer à son centre régional de pharmacovigilance</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un aléa thérapeutique n’est indemnisé qu’en cas de faute du prescripteur</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L’AMM est nationale (ANSM) ou européenne centralisée : la Commission européenne décide sur avis du comité de l’Agence européenne des médicaments.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L’AMM est accordée après les phases I à III, qui établissent qualité, efficacité et sécurité ; la phase IV est postérieure à la commercialisation.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Après l’AMM, elle évalue le service médical rendu et l’amélioration du service médical rendu, qui orientent le remboursement et le prix ; elle ne délivre pas l’AMM.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La déclaration est une obligation pour les professionnels de santé, qui porte sur tout effet indésirable suspecté (grave ou non) ; elle alimente la surveillance du médicament après sa mise sur le marché.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L’aléa résulte d’un acte non fautif : la demande est examinée par la commission de conciliation et d’indemnisation (CCI, ex-CRCI) et l’indemnisation est versée par l’ONIAM, sans recherche de faute, au-delà d’un seuil de gravité.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI3-Q6" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">SQI3 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les associations suivantes entre une classe d’anti-infectieux et un effet indésirable, laquelle ou lesquelles est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Fluoroquinolones – tendinopathie, risque majoré par une corticothérapie</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Macrolides – allongement de l’intervalle QT</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Amoxicilline – tendinopathie</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Aminosides – néphrotoxicité et ototoxicité</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Cyclines – coloration dentaire, d’où leur contre-indication avant 8 ans</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les tendinopathies, avec risque de rupture achilléenne, sont favorisées par l’âge, l’insuffisance rénale et la corticothérapie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les macrolides bloquent les canaux potassiques cardiaques : l’allongement du QT expose aux torsades de pointes, surtout avec d’autres médicaments allongeant le QT ou en cas d’hypokaliémie.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La tendinopathie est l’effet indésirable des fluoroquinolones. Les aminopénicillines donnent surtout des réactions allergiques et des troubles digestifs.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Ils s’accumulent dans le tubule proximal et l’oreille interne : une surveillance de la fonction rénale et des concentrations résiduelles est nécessaire.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les cyclines chélatent le calcium et se fixent sur l’émail et la dentine en formation, d’où la dyschromie dentaire chez l’enfant de moins de 8 ans.</div>
+  </div>
+</div>
+
+<div class="sect">SQI4</div>
+
+<div class="q" id="SQI4-Q1" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">SQI4 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les benzodiazépines, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">À visée anxiolytique, la durée de prescription est limitée à 12 semaines, période de diminution progressive des doses comprise</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">À visée hypnotique, la durée de prescription est limitée à 4 semaines, période de diminution progressive des doses comprise</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elles n’entraînent pas de dépendance aux posologies usuelles</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Leur arrêt doit être progressif</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Chez le sujet âgé, on privilégie une demi-vie longue</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — C’est la durée maximale prévue par l’AMM pour un traitement anxiolytique, décroissance incluse.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La durée maximale d’un traitement hypnotique est de 4 semaines, décroissance incluse.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Tolérance et dépendance physique peuvent apparaître dès quelques semaines de traitement, même à dose thérapeutique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Un arrêt brutal expose au syndrome de sevrage (anxiété, insomnie de rebond, convulsions) : la dose est réduite par paliers.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Chez le sujet âgé, on évite les molécules à demi-vie longue ou à métabolite actif, qui s’accumulent et favorisent confusion, chutes et fractures.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI4-Q2" data-type="QRM" data-correct="ABCDE">
+  <div class="qhead"><span class="qnum">SQI4 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un homme de 45 ans atteint d’un trouble bipolaire va débuter un traitement par lithium. Quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le bilan préthérapeutique comprend notamment la créatininémie, la TSH, la calcémie et un ECG</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La lithiémie se mesure environ 12 heures après la dernière prise</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Les AINS, les IEC et les diurétiques thiazidiques augmentent la lithiémie</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La fonction rénale et la TSH sont surveillées tout au long du traitement</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une déshydratation ou un régime pauvre en sel expose au surdosage</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le lithium peut altérer les fonctions rénale et thyroïdienne, majorer la calcémie (hyperparathyroïdie) et modifier la conduction cardiaque : un bilan de référence est nécessaire.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La lithiémie résiduelle est dosée 12 heures après la dernière prise ; la marge thérapeutique est étroite (environ 0,5 à 0,8 mmol/L avec la forme à libération immédiate, 0,8 à 1,2 mmol/L avec la forme à libération prolongée).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le lithium est réabsorbé au tubule proximal avec le sodium : ces médicaments diminuent sa clairance rénale et exposent au surdosage.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le traitement au long cours expose à la néphropathie tubulo-interstitielle chronique et à l’hypothyroïdie ; la calcémie est également surveillée.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La déplétion sodée augmente la réabsorption tubulaire du lithium et donc la lithiémie ; vomissements, diarrhée et fièvre sont des situations à risque.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI4-Q3" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">SQI4 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Une femme de 38 ans débute la sertraline pour un épisode dépressif caractérisé. Quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le traitement pourra être arrêté dès la rémission</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L’effet antidépresseur n’apparaît qu’après 2 à 4 semaines de traitement</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le risque suicidaire est maximal après plusieurs mois de traitement</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un dosage plasmatique de la sertraline est nécessaire pour adapter la posologie</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L’association au tramadol expose à un syndrome sérotoninergique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Après rémission d’un premier épisode, le traitement est poursuivi au moins 6 mois pour prévenir la rechute.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Ce délai d’action doit être annoncé à la patiente pour éviter un arrêt prématuré par défaut d’efficacité apparente.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le risque est maximal en début de traitement, lorsque la levée d’inhibition psychomotrice précède l’amélioration de l’humeur : la surveillance est rapprochée les premières semaines.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les ISRS n’ont pas de dosage plasmatique de routine, contrairement au lithium : la posologie s’adapte à la clinique.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le tramadol inhibe aussi la recapture de la sérotonine : agitation, tremblements, myoclonies, hyperthermie et diarrhée peuvent apparaître, avec un risque de convulsions.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI4-Q4" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">SQI4 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un homme de 24 ans, traité par halopéridol depuis 10 jours pour une schizophrénie, présente une fièvre à 40 °C, une rigidité généralisée, des sueurs profuses et une confusion. Les CPK sont à 12 000 UI/L. Quelle est la première mesure à prendre ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Arrêt immédiat de l’antipsychotique</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ajout d’un correcteur anticholinergique</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Remplacement par un antipsychotique de seconde génération à faible dose</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Paracétamol et poursuite du traitement antipsychotique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Transfert en réanimation sans modification du traitement antipsychotique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le tableau est celui d’un syndrome malin des neuroleptiques, urgence vitale : l’arrêt de l’antipsychotique précède la réanimation symptomatique (refroidissement, hydratation) et, selon la gravité, le dantrolène ou la bromocriptine.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L’anticholinergique ne traite pas le syndrome malin et aggrave l’hyperthermie en limitant la sudation.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Tout antipsychotique est contre-indiqué à la phase aiguë ; une reprise éventuelle, prudente, n’est envisagée qu’après la guérison.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Poursuivre l’antipsychotique entretient le syndrome, et l’hyperthermie est d’origine centrale et musculaire, peu sensible au paracétamol.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le transfert en soins intensifs est justifié, mais sans arrêt de l’antipsychotique le syndrome malin persiste.</div>
+  </div>
+</div>
+
+<div class="sect">KFP1 — Homme de 77 ans, céphalées et confusion après une chute</div>
+
+<div class="q" id="KFP1-Q1" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">M. B., 77 ans, retraité, est amené aux urgences par sa fille pour des céphalées, une somnolence et une confusion apparues depuis 24 heures. Il a fait une chute de sa hauteur il y a 3 jours, sans perte de connaissance ni plaie. Antécédents : fibrillation atriale permanente traitée par warfarine depuis 3 ans avec des INR stables entre 2 et 3, hypertension artérielle, bronchopneumopathie chronique obstructive. Il y a 8 jours, son médecin traitant a pris en charge une candidose buccale, survenue sous corticoïde inhalé. Traitement en cours : warfarine 5 mg/j (posologie adaptée à l’INR), bisoprolol 2,5 mg/j, ramipril 5 mg/j, budésonide-formotérol inhalé 2 fois par jour, tiotropium inhalé, atorvastatine 20 mg/j, miconazole gel buccal 4 fois par jour, paracétamol 1 g si douleur. À l’examen : score de Glasgow à 14, pas de déficit moteur ni sensitif, hématome du cuir chevelu pariétal gauche, PA 152/84 mmHg, FC 88/min irrégulière, saturation 95 % en air ambiant.</div>
+  <div class="stem">Un scanner cérébral sans injection est réalisé en urgence. Il montre une collection extra-axiale spontanément hyperdense, en croissant, de siège fronto-pariétal gauche, qui franchit les sutures, avec un effet de masse sur le ventricule latéral gauche et une déviation de la ligne médiane de 5 mm. De quelle lésion s’agit-il ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Hématome extradural</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Hématome sous-dural aigu</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Hémorragie sous-arachnoïdienne</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hématome intraparenchymateux</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Infarctus sylvien</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L’hématome extradural est lenticulaire (biconvexe) et limité par les sutures ; il complique une fracture avec rupture de l’artère méningée moyenne.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Collection en croissant, hyperdense, qui franchit les sutures sans passer la faux du cerveau. Il est dû à la rupture de veines-ponts, favorisée par l’âge, l’atrophie cérébrale, un traumatisme minime et les anticoagulants.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L’hémorragie sous-arachnoïdienne est une hyperdensité des citernes et des sillons, sans collection extra-axiale en croissant.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L’hématome intraparenchymateux est une hyperdensité intra-axiale, au sein du parenchyme cérébral.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L’infarctus est une hypodensité systématisée dans un territoire artériel, sans collection hyperdense.</div>
+  </div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-type="QROC" data-correct="" data-answer="miconazole | le miconazole | miconazole gel buccal | le miconazole gel buccal | gel buccal de miconazole | le gel buccal de miconazole | miconazole en gel buccal | daktarin | daktarin gel buccal | le daktarin | interaction avec le miconazole | interaction miconazole warfarine | miconazole buccal | daktarin gel | gel de miconazole | le gel de miconazole | interaction warfarine miconazole | interaction avk miconazole | interaction miconazole avk | interaction entre la warfarine et le miconazole | potentialisation de la warfarine par le miconazole">
+  <div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le bilan réalisé aux urgences montre un INR à 8,6, alors que le dernier INR, il y a un mois, était à 2,4. Parmi les médicaments de son traitement, lequel explique le plus probablement ce déséquilibre de l’INR ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : Miconazole (gel buccal)</div>
+    <div class="note"><div class="rappel">Le miconazole, même en gel buccal (une partie est avalée et absorbée), inhibe le CYP2C9 qui métabolise la warfarine : l’effet de l’AVK est très fortement majoré. L’association est contre-indiquée (thésaurus des interactions de l’ANSM) ; en cas de candidose buccale sous AVK, on choisit un antifongique sans effet sur l’INR, comme l’amphotéricine B en suspension buvable.</div></div>
+  </div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-type="QRPL" data-correct="ACDFHJ">
+  <div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRPL · 6 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles sont les 6 mesures que vous mettez en œuvre sans délai ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Arrêt de la warfarine</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Perfusion de plasma frais congelé en première intention</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Arrêt du miconazole</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Concentré de complexes prothrombiniques (PPSB), à dose adaptée à l’INR et au poids</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Sulfate de protamine</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Vitamine K 10 mg par voie intraveineuse lente</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Idarucizumab</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Contrôle de l’INR 30 minutes après l’injection de PPSB</span></li>
+    <li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Attente de la normalisation spontanée de l’INR sous surveillance</span></li>
+    <li class="opt" data-l="J" data-correct="1"><span class="box">J</span><span class="otext">Avis neurochirurgical urgent</span></li>
+    <li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Transfusion de plaquettes</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, F, H, J</div>
+    <div class="note"><div class="rappel">Hémorragie grave sous AVK : arrêt de l’AVK, PPSB et vitamine K associés, contrôle de l’INR à 30 minutes. La réversion ne retarde pas la décision neurochirurgicale.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Tant que l’anticoagulation n’est pas stoppée, l’hématome peut continuer à s’étendre.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le plasma frais congelé impose un volume important (risque de surcharge chez un sujet âgé), un délai de décongélation et une correction partielle ; il n’est utilisé qu’en l’absence de concentré de complexes prothrombiniques.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Il supprime la cause de l’interaction, contre-indiquée avec les AVK ; un antifongique sans effet sur l’INR lui est substitué.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le PPSB corrige en quelques minutes le déficit en facteurs II, VII, IX et X. Il est indiqué dès qu’une hémorragie est grave, ce qui est le cas d’une hémorragie intracrânienne.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La protamine est l’antidote de l’héparine non fractionnée ; elle est sans effet sur un AVK.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Elle permet la resynthèse hépatique des facteurs vitamine K-dépendants et prolonge la correction apportée par le PPSB, dont l’effet est transitoire (début d’action en 6 à 12 heures).</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — L’idarucizumab est l’antidote spécifique du dabigatran, sans effet sur un AVK.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — Le contrôle vérifie l’efficacité de la réversion ; l’objectif est un INR inférieur à 1,5.</div>
+    <div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span> — La correction spontanée prend plusieurs jours, ce qui est inacceptable devant un hématome intracrânien avec effet de masse.</div>
+    <div class="citem v-vrai"><span class="cl">J.</span> <span class="cv">VRAI</span> — L’effet de masse avec confusion pose la question d’une évacuation chirurgicale, d’où la réversion rapide de l’anticoagulation.</div>
+    <div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span> — Le patient ne prend aucun antiagrégant et aucune thrombopénie n’est signalée : les plaquettes ne sont pas en cause.</div>
+  </div>
+</div>
+
+<div class="sect">DP1 — Céphalées et altération de l’état général chez une femme de 74 ans</div>
+
+<div class="q" id="DP1-Q1" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Mme L., 74 ans, retraitée, vit seule et reste autonome. Elle a vécu une dizaine d’années en Martinique dans sa jeunesse. Antécédents : hypertension artérielle, diabète de type 2 (HbA1c à 6,9 %), dyslipidémie. Traitement habituel : ramipril 5 mg/j, hydrochlorothiazide 12,5 mg/j, metformine 1 000 mg 2 fois par jour, atorvastatine 20 mg/j, paracétamol 1 g si besoin. Elle consulte pour des céphalées temporales d’apparition récente, évoluant depuis 5 semaines, associées à une douleur du cuir chevelu au coiffage, une douleur de la mâchoire à la mastication, une perte de poids de 4 kg et une fébricule vespérale. Elle ne signale aucun trouble visuel. Depuis 10 jours, elle prend du kétoprofène LP 100 mg 2 fois par jour pour ces céphalées, sans effet. À l’examen : température 37,9 °C, PA 142/80 mmHg, artères temporales indurées et douloureuses, pouls temporal gauche aboli, examens neurologique et ophtalmologique normaux. Biologie : CRP 96 mg/L, hémoglobine 10,9 g/dL, VGM 86 fL, plaquettes 486 G/L, créatininémie 82 µmol/L (DFG estimé à 65 mL/min/1,73 m²).</div>
+  <div class="stem">Quelle est l’hypothèse diagnostique la plus probable ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Migraine de révélation tardive</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Céphalée de tension</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Artérite à cellules géantes</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Méningite subaiguë</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Sinusite frontale chronique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Une migraine ne débute pas à 74 ans et n’explique ni l’inflammation biologique ni les anomalies des artères temporales.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une céphalée de tension est bilatérale, sans signe général ni syndrome inflammatoire, et n’altère pas le pouls temporal.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Après 50 ans, céphalées temporales récentes, douleur du cuir chevelu, claudication de la mâchoire, altération de l’état général, anomalies de l’artère temporale et syndrome inflammatoire forment le tableau classique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Rien ne soutient une méningite : pas de syndrome méningé, une fébricule seulement, et les anomalies des artères temporales orientent ailleurs.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Une sinusite donne une douleur faciale ou frontale sans claudication de la mâchoire ni anomalie du pouls temporal, et ne s’accompagne pas d’un tel syndrome inflammatoire.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q2" data-type="QRM" data-correct="B">
+  <div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Une artérite à cellules géantes est évoquée et une biopsie d’artère temporale est programmée dans 5 jours. Concernant la prise en charge initiale, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une corticothérapie à faible dose (10 mg/j de prednisone) est suffisante pour obtenir la rémission</span></li>
+    <li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">La corticothérapie est débutée sans attendre la biopsie</span></li>
+    <li class="opt" data-l="C" data-correct="0" data-unacceptable="1"><span class="box">C</span><span class="otext">La corticothérapie n’est débutée qu’après le résultat de la biopsie</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Des bolus de méthylprednisolone intraveineux sont systématiques</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un traitement par anti-TNF alpha est indiqué d’emblée</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note"><div class="rappel">Dose d’attaque de prednisone : environ 0,7 mg/kg/j. Bolus de méthylprednisolone en cas de manifestation oculaire. La biopsie d’artère temporale reste le plus souvent positive pendant les 2 semaines suivant le début du traitement.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le traitement d’attaque est de l’ordre de 0,7 mg/kg/j de prednisone, soit 40 à 60 mg/j ; une dose faible ne protège pas contre la cécité.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le risque est la neuropathie optique ischémique antérieure avec cécité définitive : le traitement est une urgence thérapeutique qui ne doit pas attendre la confirmation histologique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Retarder le traitement expose à une cécité irréversible ; la biopsie reste contributive pendant 1 à 2 semaines après le début des corticoïdes.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les bolus sont réservés aux formes avec atteinte ophtalmologique ou menace visuelle ; en l’absence de trouble visuel, la prednisone orale suffit.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les anti-TNF alpha n’ont pas démontré d’efficacité dans l’artérite à cellules géantes ; les corticoïdes sont le traitement de référence.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q3" data-type="QRP" data-correct="ACE">
+  <div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRP · 3 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Avant de débuter cette corticothérapie prolongée, quelle(s) mesure(s) ou exploration(s) est/sont nécessaire(s) chez cette patiente ? (3 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Traitement présomptif d’une anguillulose par ivermectine</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Cortisolémie à 8 heures</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Glycémie et kaliémie</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Échocardiographie transthoracique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vérification du statut vaccinal</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Un séjour en zone d’endémie, même ancien, expose à une auto-infestation persistante : la corticothérapie peut déclencher une anguillulose maligne. Une dose d’ivermectine est donnée d’emblée, sans retarder la corticothérapie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Avant le traitement l’axe corticotrope est intact : ce dosage n’a pas d’intérêt, il sert éventuellement lors du sevrage.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les corticoïdes sont hyperglycémiants et hypokaliémiants : un état de référence est nécessaire chez cette patiente diabétique, déjà sous diurétique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Aucun argument cardiaque n’impose cet examen avant une corticothérapie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Les vaccins doivent être à jour avant l’immunodépression induite : les vaccins vivants atténués seront contre-indiqués sous traitement.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q4" data-type="QRPL" data-correct="BCEGI">
+  <div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRPL · 5 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">La corticothérapie est débutée à 0,7 mg/kg/j de prednisone. Parmi les mesures suivantes, lesquelles (5 réponses attendues) sont justifiées chez cette patiente du fait de la corticothérapie prolongée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Régime strict sans sel</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Arrêt du kétoprofène</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bisphosphonate</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Supplémentation potassique systématique, quelle que soit la kaliémie</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Activité physique adaptée</span></li>
+    <li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Vaccin vivant atténué contre le zona</span></li>
+    <li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Renforcement de la surveillance glycémique et adaptation du traitement antidiabétique</span></li>
+    <li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Supplémentation martiale</span></li>
+    <li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Correction d’une carence en vitamine D et apports calciques suffisants</span></li>
+    <li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Restriction des apports calciques, les corticoïdes exposant à l’hypercalcémie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E, G, I</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le régime désodé strict n’est plus recommandé ; on conseille une alimentation équilibrée, modérément salée et pauvre en sucres d’absorption rapide.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L’association AINS-corticoïdes majore le risque d’ulcère et d’hémorragie digestive ; de plus, l’AINS est dangereux pour le rein avec un IEC et un diurétique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Chez une femme ménopausée de plus de 70 ans, une corticothérapie à au moins 7,5 mg/j pendant 3 mois ou plus justifie un traitement antiostéoporotique (recommandations GRIO), après bilan dentaire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La supplémentation se guide sur la kaliémie ; elle serait dangereuse chez une patiente sous IEC, exposée à l’hyperkaliémie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elle fait partie de la prévention de l’ostéoporose et de la myopathie cortisonique.</div>
+    <div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span> — Les vaccins vivants atténués sont contre-indiqués sous corticothérapie à dose immunosuppressive ; le vaccin recombinant adjuvanté contre le zona, non vivant, est en revanche recommandé chez l’immunodéprimé.</div>
+    <div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span> — Les corticoïdes sont hyperglycémiants et peuvent déséquilibrer un diabète de type 2 jusque-là bien contrôlé.</div>
+    <div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span> — L’anémie est de type inflammatoire (VGM 86, CRP élevée) et régresse avec le traitement de l’inflammation ; le fer n’est pas justifié sans carence prouvée.</div>
+    <div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span> — Ils font partie de toute prévention de l’ostéoporose cortico-induite, quel que soit le traitement associé.</div>
+    <div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span> — C’est l’inverse : les corticoïdes diminuent l’absorption intestinale du calcium et augmentent son excrétion urinaire. Les apports calciques doivent être suffisants, ce qui fait partie de la prévention de l’ostéoporose.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q5" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la pharmacologie des glucocorticoïdes, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Ils agissent sur un récepteur membranaire couplé aux protéines G</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La prednisone est une prodrogue, activée en prednisolone par le foie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">5 mg de prednisone ont une activité anti-inflammatoire équivalente à celle de 20 mg d’hydrocortisone</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L’activité minéralocorticoïde de la prednisone est supérieure à celle de l’hydrocortisone</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La rifampicine diminue l’efficacité d’une corticothérapie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les glucocorticoïdes traversent la membrane et se lient à un récepteur intracellulaire qui migre dans le noyau et module la transcription de gènes.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La prednisone, inactive, est transformée en prednisolone par la 11β-hydroxystéroïde déshydrogénase hépatique : dans l’insuffisance hépatique sévère, on préfère la prednisolone.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Équivalences : hydrocortisone 20 mg = prednisone 5 mg = méthylprednisolone 4 mg = dexaméthasone 0,75 mg.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L’hydrocortisone est la plus minéralocorticoïde ; la prednisone retient moins le sodium, et la dexaméthasone presque pas.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Inducteur enzymatique puissant (CYP3A4), la rifampicine accélère le catabolisme des corticoïdes, ce qui peut imposer d’augmenter la posologie.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q6" data-type="QRM" data-correct="AD">
+  <div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Six mois après le début du traitement, alors que la prednisone a été réduite à 10 mg/j, les céphalées réapparaissent et la CRP remonte à 45 mg/L. Un traitement d’épargne cortisonique par méthotrexate est introduit. Concernant ses modalités de prescription, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une prise unique hebdomadaire, le jour étant précisé sur l’ordonnance</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Élimination principalement biliaire, sans adaptation à la fonction rénale</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La dose hebdomadaire peut être répartie en prises quotidiennes</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une supplémentation en acide folique, à distance de la prise, est associée</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Les AINS peuvent être associés sans précaution</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le méthotrexate est un médicament à prise hebdomadaire : une prise quotidienne par erreur est une cause classique d’intoxication mortelle, d’où la précision écrite du jour de prise.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le méthotrexate est éliminé à plus de 80 % par le rein : la posologie s’adapte au DFG et le médicament est contre-indiqué en insuffisance rénale sévère.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Fractionner la dose hebdomadaire en prises quotidiennes expose à une toxicité hématologique et muqueuse grave.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L’acide folique, pris 24 à 48 heures après le méthotrexate, réduit la toxicité digestive et hématologique sans diminuer son efficacité.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les AINS diminuent la clairance rénale du méthotrexate et majorent sa toxicité hématologique : l’association impose prudence et surveillance.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q7" data-type="QROC" data-correct="" data-answer="toxicité du méthotrexate | toxicité hématologique du méthotrexate | toxicité médullaire du méthotrexate | intoxication au méthotrexate | surdosage en méthotrexate | pancytopénie au méthotrexate | pancytopénie toxique au méthotrexate | pancytopénie due au méthotrexate | pancytopénie induite par le méthotrexate | pancytopénie secondaire au méthotrexate | pancytopénie médicamenteuse | pancytopénie iatrogène | toxicité du mtx | toxicité hématologique du mtx | hématotoxicité du méthotrexate | aplasie au méthotrexate | myélotoxicité du méthotrexate | toxicité médullaire du mtx | aplasie médullaire au méthotrexate | aplasie médullaire toxique au méthotrexate | aplasie médullaire induite par le méthotrexate | aplasie médullaire médicamenteuse | pancytopénie fébrile au méthotrexate | neutropénie fébrile au méthotrexate | neutropénie fébrile sous méthotrexate | pancytopénie fébrile sous méthotrexate | toxicité hématologique et muqueuse du méthotrexate | toxicité médicamenteuse du méthotrexate | iatrogénie du méthotrexate | surdosage au méthotrexate | surdosage en mtx | intoxication au mtx | pancytopénie au mtx | interaction méthotrexate cotrimoxazole | interaction méthotrexate bactrim | toxicité du méthotrexate favorisée par le cotrimoxazole | toxicité du méthotrexate potentialisée par le cotrimoxazole">
+  <div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Six semaines plus tard, la patiente consulte pour une fièvre à 38,6 °C et des ulcérations buccales douloureuses. La NFS montre : hémoglobine 8,2 g/dL, VGM 104 fL, leucocytes 1,1 G/L dont polynucléaires neutrophiles 0,4 G/L, plaquettes 46 G/L. Elle a repris d’elle-même le kétoprofène pour ses céphalées, et son médecin lui a prescrit du cotrimoxazole il y a 10 jours pour une infection urinaire. Quel diagnostic évoquez-vous en priorité ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : Toxicité hématologique du méthotrexate (pancytopénie), favorisée par le cotrimoxazole et le kétoprofène</div>
+    <div class="note"><div class="rappel">Le tableau associe pancytopénie macrocytaire, mucite (ulcérations buccales) et fièvre sous méthotrexate : c’est une toxicité du méthotrexate, compliquée d’une neutropénie fébrile. Le cotrimoxazole (le triméthoprime est lui-même un antifolique et réduit l’excrétion rénale du méthotrexate) et l’AINS (baisse de la clairance rénale du méthotrexate) sont les facteurs déclenchants classiques. Ce n’est pas une simple carence en folates : le blocage de la dihydrofolate réductase n’est pas levé par l’acide folique, d’où l’acide folinique.</div></div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q8" data-type="QRPL" data-correct="CFH">
+  <div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRPL · 3 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les médicaments de la liste ci-dessous (ordonnance et automédication), quels sont les 3 médicaments impliqués dans la survenue de cette complication ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Prednisone 10 mg/j</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ramipril 5 mg/j</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Méthotrexate 15 mg une fois par semaine</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Hydrochlorothiazide 12,5 mg/j</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Metformine 1 000 mg 2 fois par jour</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Cotrimoxazole 800/160 mg 2 fois par jour</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Atorvastatine 20 mg/j</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Kétoprofène LP 100 mg 2 fois par jour</span></li>
+    <li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Alendronate 70 mg une fois par semaine</span></li>
+    <li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Acide folique 5 mg une fois par semaine</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C, F, H</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les corticoïdes tendent à augmenter les polynucléaires neutrophiles et n’expliquent pas une pancytopénie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Pas d’interaction directe avec le méthotrexate ; l’IEC ne fait qu’ajouter un risque rénal lorsqu’il est associé à l’AINS et au diurétique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Antifolique (inhibiteur de la dihydrofolate réductase) : sa toxicité hématologique et muqueuse est dose-dépendante et majorée par l’insuffisance rénale, l’élimination étant rénale.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Pas d’interaction pharmacocinétique significative avec le méthotrexate.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Aucun lien avec la toxicité du méthotrexate ; son risque propre est l’acidose lactique en cas d’insuffisance rénale aiguë.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Le triméthoprime est un antifolique qui s’additionne à l’effet du méthotrexate et réduit son excrétion rénale : association déconseillée, cause classique de pancytopénie sévère.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Aucune interaction pertinente avec le méthotrexate.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — Les AINS diminuent la clairance rénale du méthotrexate, surtout chez une patiente âgée sous IEC et diurétique, et majorent sa toxicité.</div>
+    <div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span> — Aucune interaction pertinente avec le méthotrexate.</div>
+    <div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span> — L’acide folique protège de la toxicité du méthotrexate : ce n’est pas un facteur favorisant.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q9" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelle(s) mesure(s) thérapeutique(s) mettez-vous en œuvre ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Arrêt immédiat du méthotrexate, du cotrimoxazole et du kétoprofène</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Acide folinique (folinate de calcium)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Acide folique par voie orale seul</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Hospitalisation et antibiothérapie probabiliste intraveineuse à large spectre</span></li>
+    <li class="opt" data-l="E" data-correct="0" data-unacceptable="1"><span class="box">E</span><span class="otext">Poursuite du méthotrexate à demi-dose</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="note"><div class="rappel">Toxicité hématologique du méthotrexate : arrêt du méthotrexate et des médicaments en interaction, acide folinique, prise en charge de la neutropénie fébrile (antibiothérapie large spectre, facteurs de croissance selon la gravité), surveillance de la fonction rénale. L’acide folique seul n’est pas un antidote.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Supprimer le médicament responsable et les facteurs qui retardent son élimination est la première mesure, avant tout traitement spécifique.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le folinate est la forme réduite active de l’acide folique : il contourne le blocage de la dihydrofolate réductase par le méthotrexate et réduit la toxicité.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L’acide folique doit être réduit par la dihydrofolate réductase, enzyme précisément bloquée par le méthotrexate : il est inefficace comme antidote.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Fièvre avec polynucléaires neutrophiles inférieurs à 0,5 G/L : neutropénie fébrile, urgence imposant une antibiothérapie à large spectre après prélèvements.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Poursuivre le médicament responsable d’une pancytopénie sévère expose à une aplasie profonde et à une issue fatale.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q10" data-type="QRP" data-correct="BDE">
+  <div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRP · 3 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après guérison de cette complication, le méthotrexate est définitivement arrêté. La patiente rechute à chaque tentative de réduction de la prednisone sous 8 mg/j, et un traitement par tocilizumab est décidé. Vous diriez que le tocilizumab est utilisé chez cette patiente en tant que (3 réponses attendues) :</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Traitement symptomatique</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Traitement ciblé</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Traitement de synthèse</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Traitement biologique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Traitement de fond</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un traitement symptomatique soulage sans modifier l’évolution de la maladie (antalgiques, AINS) ; le tocilizumab agit sur le processus inflammatoire.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Il cible une molécule précise de la cascade inflammatoire, le récepteur de l’interleukine 6.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les traitements de synthèse sont d’origine chimique (méthotrexate, léflunomide, anti-JAK) ; le tocilizumab est une protéine.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le tocilizumab est un anticorps monoclonal obtenu par biotechnologie : un médicament biologique.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Il agit sur le processus inflammatoire de la maladie et permet de maintenir la rémission tout en réduisant la dose de corticoïdes (épargne cortisonique).</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q11" data-type="QRM" data-correct="ABCE">
+  <div class="qhead"><span class="qnum">DP1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous notez dans ses antécédents une diverticulite sigmoïdienne non compliquée, il y a 3 ans. Quel(s) examen(s) complémentaire(s) devez-vous réaliser avant de débuter le tocilizumab ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Numération formule sanguine avec plaquettes</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Transaminases</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Sérologies des hépatites B et C et du VIH</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Recherche d’anticorps antinucléaires</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Test de libération de l’interféron gamma (IGRA)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, E</div>
+    <div class="note"><div class="rappel">L’antécédent de diverticulite n’impose pas d’examen supplémentaire, mais c’est une précaution d’emploi du tocilizumab (risque de perforation digestive) : la patiente est informée des signes d’alerte digestifs. Un bilan lipidique est aussi réalisé avant le traitement, qui peut élever le cholestérol et les triglycérides.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Neutropénie et thrombopénie sont des effets indésirables fréquents : le traitement n’est pas débuté si les polynucléaires neutrophiles sont inférieurs à 2 G/L, et avec prudence si les plaquettes sont inférieures à 100 G/L.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le tocilizumab peut élever les transaminases : prudence si elles dépassent 1,5 fois la normale, et initiation déconseillée au-delà de 5 fois la normale.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le dépistage est systématique avant une biothérapie immunosuppressive, notamment pour prévenir une réactivation de l’hépatite B.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les anticorps antinucléaires servent au diagnostic des connectivites, pas à la sécurité du tocilizumab.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Un dépistage de l’infection tuberculeuse latente est nécessaire avant toute biothérapie, car le blocage de l’interleukine 6 expose aux infections graves.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q12" data-type="QRM" data-correct="CD">
+  <div class="qhead"><span class="qnum">DP1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Trois mois après le début du tocilizumab, la patiente consulte pour une fièvre à 38,5 °C et une douleur de la fosse iliaque gauche. La CRP est à 2 mg/L. Quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une CRP normale permet d’écarter une infection</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le tocilizumab est un anticorps monoclonal humain dirigé contre le récepteur de l’interleukine 6</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le tocilizumab rend la CRP ininterprétable pour le diagnostic d’infection</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une complication digestive, notamment une perforation sigmoïdienne, doit être recherchée</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La fièvre traduit une rechute de la maladie, qui impose de majorer la corticothérapie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le tocilizumab bloque la voie de l’interleukine 6, qui commande la synthèse hépatique de la CRP : une infection grave peut exister malgré une CRP normale.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Il est humanisé et non humain (suffixe -zumab ; -umab pour les anticorps humains comme l’adalimumab, -ximab pour les chimériques comme l’infliximab). Il bloque bien le récepteur de l’interleukine 6, d’où la CRP effondrée.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La CRP est effondrée sous tocilizumab et la fièvre peut être atténuée : le diagnostic repose sur la clinique et l’imagerie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les perforations digestives sont un effet indésirable du tocilizumab, favorisé par un antécédent de diverticulite et la corticothérapie : un scanner abdomino-pelvien est urgent et le tocilizumab est suspendu.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Une rechute n’explique pas une douleur de la fosse iliaque gauche, et augmenter les corticoïdes masquerait et aggraverait une infection.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q13" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">DP1 Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">La prednisone est progressivement réduite et la dose atteint 4 mg/j. Concernant l’arrêt de la corticothérapie, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">À cette dose, un arrêt brutal est sans risque</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une insuffisance surrénale peut se révéler à l’occasion d’un stress (infection, chirurgie)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un test au Synacthène est obligatoire avant chaque palier de décroissance</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une prise vespérale limite le freinage de l’axe hypothalamo-hypophyso-surrénalien</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La patiente est informée de ne jamais interrompre brutalement son traitement et de consulter en cas de fièvre ou de vomissements</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Après une corticothérapie prolongée, l’axe hypothalamo-hypophyso-surrénalien est freiné même à faible dose : un arrêt brutal expose à l’insuffisance surrénale aiguë.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La surrénale freinée ne peut pas augmenter sa sécrétion de cortisol en situation de stress : le risque persiste plusieurs mois après l’arrêt.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le test n’est pas systématique : vers 5 mg/j, on dose la cortisolémie à 8 heures avant la prise, et le test au Synacthène n’est réalisé que si ce dosage est intermédiaire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La prise unique matinale respecte le rythme circadien du cortisol et limite le freinage ; une prise vespérale le majore.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L’éducation thérapeutique prévient l’arrêt brutal ; fièvre et vomissements (qui empêchent la prise) imposent un avis médical rapide, car la dose doit être adaptée.</div>
+  </div>
+</div>
+
+<div class="sect">TCS1 — Femme de 32 ans, pression artérielle élevée en automesure</div>
+
+<div class="q" id="TCS1-Q1" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Une femme de 32 ans, sans antécédent ni traitement, consulte pour une pression artérielle élevée en automesure (moyenne de 154/98 mmHg sur 3 jours). L’examen clinique est normal et le bilan initial est en cours. Vous envisagez d’instaurer un traitement antihypertenseur. Les trois questions sont indépendantes.</div>
+  <div class="stem">Si vous pensiez prescrire un inhibiteur de l’enzyme de conversion (périndopril), et que vous apprenez qu’elle envisage une grossesse dans les prochains mois, alors le fait de prescrire ce traitement est désormais…</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A — improbable</div>
+    <div class="note">Réponse retenue : improbable. Les IEC et les ARA2 sont contre-indiqués aux 2e et 3e trimestres (toxicité rénale fœtale : oligoamnios, anurie) et déconseillés au 1er. Chez une femme qui envisage une grossesse, on choisit d’emblée une molécule compatible (méthyldopa, labétalol, nicardipine ou nifédipine). Dans une épreuve officielle, un panel d’experts valide souvent plusieurs réponses voisines, pondérées par la proportion d’experts les ayant choisies : la réponse retenue ici est la réponse majoritaire.</div>
+  </div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensiez prescrire un diurétique thiazidique (indapamide), et que vous apprenez que sa kaliémie est à 3,1 mmol/L, alors le fait de prescrire ce traitement est désormais…</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A — improbable</div>
+    <div class="note">Réponse retenue : improbable. L’hypokaliémie est une contre-indication de l’indapamide, qui l’aggraverait. Surtout, une hypokaliémie spontanée chez une femme jeune hypertendue fait rechercher un hyperaldostéronisme primaire (aldostérone et rénine) avant de choisir le traitement, et un diurétique fausserait ce bilan : un inhibiteur calcique est préféré. « Peu probable » est une réponse voisine défendable. Dans une épreuve officielle, un panel d’experts valide souvent plusieurs réponses voisines, pondérées par la proportion d’experts les ayant choisies : la réponse retenue ici est la réponse majoritaire.</div>
+  </div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensiez prescrire un inhibiteur calcique (amlodipine), et que vous apprenez qu’elle a un asthme ancien, bien contrôlé, alors le fait de prescrire ce traitement est désormais…</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C — ni plus ou moins probable</div>
+    <div class="note">Réponse retenue : ni plus ou moins probable. L’asthme ne contre-indique pas les inhibiteurs calciques : ce sont les bêtabloquants qui sont contre-indiqués dans l’asthme, particulièrement les non cardiosélectifs. Cette information ne modifie donc pas la probabilité de prescrire l’amlodipine. Dans une épreuve officielle, un panel d’experts valide souvent plusieurs réponses voisines, pondérées par la proportion d’experts les ayant choisies : la réponse retenue ici est la réponse majoritaire.</div>
+  </div>
+</div>
+
+<footer>35 questions · sujet type · UE 10 Thérapeutique · D3 T3 · BobMed.</footer>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+<script src="../../qcopy.js"></script>
+</body></html>
