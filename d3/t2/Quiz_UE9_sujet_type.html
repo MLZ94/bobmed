@@ -1,0 +1,947 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="stylesheet" href="../../theme.css">
+<title>Quiz — UE 9 — Oncologie · Sujet type</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+/* BobMed - justifications non officielles ajoutees */.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;border-left:4px solid var(--acc2,#06b6d4);border-radius:10px;padding:11px 15px;font-size:13px;line-height:1.5;color:#0b3a52;margin:0 0 18px}.nj-disclaimer b{color:#084863}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>UE 9 — Oncologie · Sujet type (synthèse des annales 2022-2025)</h1>
+<div class="sub">31 questions : SQI1 (15) · DP1 femme de 61 ans, nodule du sein gauche (10, verrouillé) · TCS1 fièvre sous chimiothérapie adjuvante chez un homme de 66 ans (3, verrouillé) · KFP1 homme de 54 ans opéré d’un cancer du sein, antécédents familiaux de cancers (3, verrouillé)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/31</b></span>
+<span class="pill">Score : <b id="s-ok">0/31</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+<div class="nj-disclaimer"><b>Sujet type — justifications non officielles.</b> Ce quiz est composé de questions originales rédigées par BobMed : l'ensemble des corrections et justifications ci-dessous sont pédagogiques et ne proviennent d'aucune correction officielle du jury. Elles peuvent comporter des imprécisions&nbsp;: recoupez-les toujours avec votre cours.</div>
+<div class="note" style="margin:0 0 24px"><b>Sujet type</b> — Ce quiz n’est pas une annale réelle : il a été construit à partir de la lecture de toutes les annales de l’UE 9 disponibles (2022-2025), de l’analyse des questions qui reviennent le plus et de leurs différentes formulations, puis rédigé avec des cas et des questions originaux, sur l’architecture de l’épreuve la plus récente (questions isolées, dossier progressif, TCS, KFP). Thèmes travaillés : oncogénétique (formes héréditaires, tumeurs MSI), fièvre sous chimiothérapie, syndrome occlusif, marqueurs tumoraux, bilan d’extension, classification pTNM et résidu tumoral, chimiothérapie, anti-HER2 et immunothérapie (toxicités), hormonothérapie et oncogériatrie, RCP et dispositif d’annonce, dépistage colorectal, cancer du sein (diagnostic, biologie tumorale, traitement local, suivi) et urgences oncologiques.</div>
+
+<div class="sect">SQI1</div>
+
+<div class="q" id="SQI1-Q1" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">SQI1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Madame Hélène D., 66 ans, a été opérée il y a six ans d’un cancer du sein gauche. Elle est suivie pour une cirrhose post-hépatite C ancienne, guérie sur le plan virologique. Elle consulte pour des douleurs de l’hypochondre droit et un amaigrissement de 5 kg en deux mois. L’échographie abdominale découvre plusieurs nodules hépatiques. Quels sont les deux marqueurs tumoraux dont le dosage peut vous orienter dans votre diagnostic ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Le dosage de la thyroglobuline</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le dosage de l’alpha-fœtoprotéine (AFP)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le dosage de la NSE</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le dosage du CA 15-3</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le dosage du SCC</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="note"><div class="rappel">Raisonnement attendu : chaque élément du contexte appelle un marqueur (cirrhose → AFP, antécédent de cancer du sein → CA 15-3). Un marqueur oriente mais ne pose jamais le diagnostic : la preuve est histologique.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Marqueur de suivi des cancers thyroïdiens différenciés après thyroïdectomie totale ; rien dans le contexte n’évoque une origine thyroïdienne.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle est élevée dans le carcinome hépatocellulaire, dont la cirrhose est le principal terrain ; elle oriente le diagnostic sans le prouver (imagerie caractéristique ou biopsie).</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Marqueur des tumeurs neuro-endocrines et du carcinome bronchique à petites cellules, sans rapport avec le contexte.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Marqueur des adénocarcinomes mammaires : son élévation fait évoquer des métastases hépatiques d’un cancer du sein ancien ; peu sensible et peu spécifique, il n’a d’intérêt qu’en présence d’un signe d’appel ou d’une maladie métastatique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Marqueur des carcinomes épidermoïdes (col utérin, ORL, œsophage, bronche), sans rapport avec un cancer du sein ou une cirrhose.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q2" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">SQI1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Paul V., 72 ans, est amené aux urgences pour des vomissements et un arrêt des matières et des gaz depuis quatre jours. Depuis trois mois, il décrit des troubles du transit (constipation, puis épisodes diarrhéiques) et a perdu 8 kg. L’abdomen est distendu, tympanique, sensible sans défense ; le toucher rectal montre une ampoule vide. La créatininémie est à 78 µmol/L. Quel examen d’imagerie demandez-vous en première intention ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une radiographie d’abdomen sans préparation</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une coloscopie en urgence</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un scanner abdomino-pelvien avec injection de produit de contraste</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une échographie abdominale</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une IRM abdomino-pelvienne</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Peu sensible, elle ne précise ni le siège, ni la cause, ni les signes de gravité d’une occlusion : elle n’est plus l’examen de première intention.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Sur un côlon non préparé et dilaté, elle expose à la perforation et ne renseigne ni sur le retentissement ni sur l’extension.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Il confirme l’occlusion, en précise le siège et la cause (tumeur sténosante) et recherche des signes de gravité (ischémie, perforation) ; la fonction rénale normale autorise l’injection.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L’interposition des gaz et des anses dilatées gêne l’examen : elle ne permet pas de préciser le siège ni la cause de l’obstacle.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Moins disponible et moins performante que le scanner en urgence pour l’analyse des anses digestives.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q3" data-type="QRM" data-correct="AC">
+  <div class="qhead"><span class="qnum">SQI1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Bernard T., 63 ans, consulte pour des rectorragies. La coloscopie découvre une tumeur ulcérée du bas rectum, à 4 cm de la marge anale ; les biopsies montrent un adénocarcinome. Le toucher rectal retrouve une tumeur ulcérée de la paroi postérieure. Quels sont les deux examens d’imagerie du bilan d’extension que vous demandez ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une IRM pelvienne</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une TEP-TDM au FDG en première intention</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un scanner thoraco-abdomino-pelvien injecté</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une IRM cérébrale systématique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une scintigraphie osseuse</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="note"><div class="rappel">Le bilan d’extension d’un cancer du rectum associe l’évaluation locorégionale (IRM pelvienne, écho-endoscopie pour les tumeurs superficielles) et la recherche de métastases (scanner thoraco-abdomino-pelvien).</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Référence pour l’extension locorégionale du cancer du rectum : elle évalue la profondeur de l’invasion, le fascia mésorectal, les ganglions et les rapports avec le sphincter, et guide l’indication d’un traitement néoadjuvant.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle n’est pas l’examen de première intention du bilan d’un cancer colorectal ; elle est réservée à des situations particulières (doute diagnostique, récidive, résécabilité de métastases).</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Il recherche les métastases à distance, dont les sièges habituels sont le foie, le poumon et le péritoine.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les métastases cérébrales sont exceptionnelles au diagnostic ; l’imagerie cérébrale n’est demandée qu’en présence de signes neurologiques.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les métastases osseuses sont rares et tardives dans le cancer du rectum : l’exploration du squelette se fait sur signe d’appel.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q4" data-type="QRU" data-correct="E">
+  <div class="qhead"><span class="qnum">SQI1 Q4</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le compte rendu anatomopathologique de la colectomie droite de Monsieur Roger C. conclut à un adénocarcinome du côlon droit qui envahit la sous-séreuse sans atteindre la séreuse, avec 5 ganglions métastatiques sur 18 examinés. Le scanner thoraco-abdomino-pelvien ne montre pas de métastase à distance. Quel est le stade pTNM ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">pT3N1M0</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">pT4N2M0</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">pT4N1M0</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">pT3N2M1</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">pT3N2M0</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : E</div>
+    <div class="note"><div class="rappel">Repères : T3 = invasion de la sous-séreuse ou des tissus péricoliques ; T4 = séreuse franchie ou organe adjacent envahi ; N1 = 1 à 3 ganglions envahis, N2 = 4 ou plus ; au moins 12 ganglions doivent être examinés pour conclure à N0.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — N1 correspond à 1 à 3 ganglions envahis : cinq ganglions atteints classent N2.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — T4 suppose le franchissement de la séreuse (péritoine viscéral) ou l’envahissement d’un organe de voisinage ; la tumeur s’arrête ici à la sous-séreuse, donc pT3.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Deux erreurs : la séreuse n’est pas franchie (pT3 et non pT4) et cinq ganglions atteints font N2 et non N1.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — M1 impose une métastase à distance, absente du bilan d’extension.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L’envahissement de la sous-séreuse sans franchissement de la séreuse fait pT3 ; quatre ganglions ou plus envahis font N2 ; il n’y a pas de métastase à distance (M0).</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q5" data-type="QRM" data-correct="D">
+  <div class="qhead"><span class="qnum">SQI1 Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Madame Colette A., 81 ans, est opérée d’un adénocarcinome du côlon droit. Elle n’a aucun antécédent personnel ni familial de cancer. L’analyse de la tumeur montre une instabilité des microsatellites (phénotype MSI) avec perte d’expression de MLH1 et de PMS2 en immunohistochimie, et une mutation somatique BRAF V600E. Elle s’inquiète pour ses enfants. Quelle est l’hypothèse la plus probable ? (Une réponse)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un syndrome de Lynch</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une polypose adénomateuse familiale</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une polypose associée à MUTYH</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une forme sporadique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une mutation constitutionnelle de BRCA1</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="note"><div class="rappel">Devant une tumeur colique MSI avec perte de MLH1, la mutation BRAF V600E (ou l’hyperméthylation du promoteur de MLH1) oriente vers une forme sporadique et ne justifie pas de recherche constitutionnelle de principe ; en son absence, ou en cas de perte de MSH2, MSH6 ou PMS2 isolée, une consultation d’oncogénétique est indiquée.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Il donne des tumeurs MSI, mais chez des sujets plus jeunes, avec des antécédents familiaux ; la mutation BRAF V600E, associée à l’hyperméthylation somatique du promoteur de MLH1, plaide contre lui.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Liée à une mutation d’APC, elle donne des centaines de polypes colorectaux dès l’adolescence et des tumeurs à microsatellites stables.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Transmission autosomique récessive, polypose adénomateuse de quelques dizaines à quelques centaines de polypes ; les tumeurs sont habituellement à microsatellites stables.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Une instabilité des microsatellites chez une femme âgée, au côlon droit, avec mutation BRAF V600E, relève le plus souvent d’une hyperméthylation somatique du promoteur de MLH1 : MSI n’est pas synonyme de Lynch.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — BRCA1 expose aux cancers du sein et de l’ovaire, non au cancer colorectal.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q6" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">SQI1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Madame Simone P., 86 ans, vit seule et reste autonome pour les actes essentiels, mais elle maigrit depuis six mois. On découvre un carcinome infiltrant du sein droit de 4 cm, à récepteurs aux œstrogènes positifs et HER2 négatif (score 1+). Le bilan d’extension est négatif. Le score G8 est à 11/17. Elle refuse toute chirurgie. Quelles sont les propositions exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une chimiothérapie néoadjuvante par EC 100 puis paclitaxel est le traitement de première intention</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une évaluation gériatrique approfondie est indiquée</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L’âge de 86 ans justifie une abstention thérapeutique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une hormonothérapie par anti-aromatase peut être proposée</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le dossier doit être présenté en réunion de concertation pluridisciplinaire</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="note"><div class="rappel">Oncogériatrie : le dépistage de la fragilité par le G8 (anormal si ≤ 14/17) précède, en cas d’anomalie, une évaluation gériatrique approfondie, avant la RCP.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Chez une patiente fragile porteuse d’une tumeur hormonosensible HER2 négatif, une polychimiothérapie à base d’anthracycline expose à une toxicité importante pour un bénéfice limité : elle n’est pas proposée d’emblée.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Un score G8 ≤ 14/17 est anormal et traduit une fragilité : il impose une évaluation gériatrique approfondie pour adapter la décision thérapeutique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L’âge seul n’est pas un critère de décision : le traitement dépend de l’état général, des comorbidités, de la fragilité et des souhaits de la patiente.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Pour une tumeur à récepteurs hormonaux positifs chez une femme ménopausée qui refuse la chirurgie, l’hormonothérapie exclusive est une option efficace et bien tolérée.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Toute décision de traitement d’un cancer est collégiale, a fortiori chez le sujet âgé fragile.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q7" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">SQI1 Q7</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Marc H., 68 ans, tabagique à 50 paquets-années, est suivi pour un carcinome bronchique à petites cellules métastatique. Il est hospitalisé pour une confusion d’apparition récente. La natrémie est à 119 mmol/L, l’osmolalité plasmatique à 245 mOsm/kg, l’osmolalité urinaire à 480 mOsm/kg et la natriurèse à 70 mmol/L. Il n’y a ni œdème ni signe de déshydratation, et les fonctions rénale, thyroïdienne et surrénalienne sont normales. Quel syndrome évoquez-vous pour expliquer la confusion ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un syndrome cave supérieur</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un syndrome de Schwartz-Bartter</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un syndrome de Lambert-Eaton</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un syndrome de Cushing paranéoplasique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un syndrome carcinoïde</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note"><div class="rappel">L’hyponatrémie du SIADH est une hyponatrémie de dilution hypo-osmolaire, en euvolémie ; la restriction hydrique est le traitement de base, le sérum salé hypertonique étant réservé aux formes avec signes neurologiques graves.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Il associe turgescence jugulaire, œdème en pèlerine et circulation collatérale thoracique ; il ne provoque pas d’hyponatrémie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Sécrétion inappropriée d’ADH par la tumeur : hyponatrémie hypo-osmolaire en euvolémie, avec osmolalité urinaire inappropriée (&gt; 100 mOsm/kg) et natriurèse conservée (&gt; 30 mmol/L), fréquente dans le carcinome à petites cellules.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Syndrome myasthéniforme paranéoplasique du carcinome à petites cellules (anticorps anti-canaux calciques) : déficit musculaire proximal avec aréflexie, sans hyponatrémie.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Sécrétion ectopique d’ACTH : hypertension, hypokaliémie, hyperglycémie ; il n’explique pas une hyponatrémie hypo-osmolaire avec osmolalité urinaire élevée.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Lié aux tumeurs neuro-endocrines digestives métastatiques : bouffées vasomotrices, diarrhée et bronchospasme.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q8" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">SQI1 Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Gilles N., 63 ans, est opéré d’un adénocarcinome du sigmoïde. Le compte rendu anatomopathologique conclut à un stade pT4N1M0, avec une résection R1. Il vous demande d’expliquer ce stade. Comment l’interprétez-vous ? (Réponses vraies)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La tumeur a franchi la séreuse ou envahi un organe de voisinage</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un à trois ganglions régionaux sont envahis</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il persiste un résidu tumoral macroscopique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il persiste un résidu tumoral microscopique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Il n’existe pas de métastase à distance</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="note"><div class="rappel">Résidu tumoral (R) : R0 = pas de résidu, R1 = résidu microscopique, R2 = résidu macroscopique. La classification pTNM évalue l’extension locale, ganglionnaire et métastatique, donne une idée du pronostic et du risque de rechute, et guide les indications thérapeutiques.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — pT4 correspond à la perforation du péritoine viscéral (T4a) ou à l’envahissement d’une structure adjacente (T4b), facteur de mauvais pronostic.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — N1 correspond à 1 à 3 ganglions métastatiques ; N2 commence à 4.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Un reliquat visible à l’œil nu en fin d’intervention correspond à R2, et non à R1.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — R1 : la tumeur paraît retirée en totalité à l’œil nu, mais l’examen histologique retrouve des cellules tumorales sur la limite de résection.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — M0 : aucune métastase viscérale n’a été mise en évidence au bilan d’extension, ce qui n’exclut pas une maladie micrométastatique.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q9" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">SQI1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Alain M., 58 ans, sans antécédent ni symptôme digestif, reçoit une invitation au dépistage organisé du cancer colorectal et vous interroge. Quelles sont les affirmations exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il s’adresse aux femmes et aux hommes de 50 à 74 ans, sans symptôme ni facteur de risque particulier</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un test positif doit être contrôlé par un second test avant de décider d’une coloscopie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le test est un test immunologique à renouveler tous les 2 ans</span></li>
+    <li class="opt" data-l="D" data-correct="1" data-mandatory="1"><span class="box">D</span><span class="otext">Un test positif impose la réalisation d’une coloscopie</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">S’il avait un père opéré d’un cancer du côlon à 55 ans, il ne relèverait pas du dépistage organisé mais d’une surveillance par coloscopie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="note"><div class="rappel">Dépistage organisé : population à risque moyen de 50 à 74 ans, test immunologique tous les 2 ans, coloscopie si le test est positif. Risque élevé (antécédent personnel ou familial au 1er degré, maladie inflammatoire chronique, syndrome héréditaire) : coloscopie de surveillance, hors dépistage organisé.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le dépistage organisé concerne la population à risque moyen de 50 à 74 ans ; en dehors de ce cadre (symptômes, risque élevé), une autre stratégie s’applique.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un test positif n’est jamais recontrôlé : un second test négatif ne rassurerait pas, et seule la coloscopie permet de rechercher un cancer ou un adénome.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le test immunologique de recherche de sang dans les selles, plus sensible que l’ancien test au gaïac, est proposé tous les 2 ans en l’absence d’anomalie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La coloscopie est le seul examen qui permet de visualiser, biopsier et réséquer les lésions (cancer, adénomes avancés) responsables du saignement.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Un parent du 1er degré atteint d’un cancer colorectal avant 65 ans classe en risque élevé : la coloscopie est proposée d’emblée, sans test préalable.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q10" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">SQI1 Q10</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Jean-Luc P., 66 ans, présente une altération de l’état général avec une perte de 9 kg en trois mois. Le scanner thoraco-abdomino-pelvien montre de multiples lésions hépatiques hypodenses à rehaussement périphérique, dans un foie non cirrhotique ; aucune tumeur primitive n’est identifiée. La coloscopie et la fibroscopie œso-gastro-duodénale sont normales. Quel examen permet d’obtenir le diagnostic de certitude ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une TEP-TDM au FDG</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le dosage des marqueurs tumoraux (ACE, AFP, CA 19-9)</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une ponction-biopsie du parenchyme hépatique non tumoral</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une biopsie percutanée écho-guidée d’une lésion hépatique avec analyse histologique et immunohistochimique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une chimiothérapie probabiliste d’épreuve</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="note"><div class="rappel">Devant des métastases de primitif inconnu : confirmation histologique de la lésion la plus accessible (immunohistochimie, biologie moléculaire) avant toute décision en RCP.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elle peut aider à rechercher le primitif ou d’autres localisations, mais elle ne donne aucune preuve histologique.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un marqueur oriente mais ne prouve rien : sa positivité n’est ni assez sensible ni assez spécifique pour affirmer l’origine des lésions.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle analyserait du tissu sain et ne renseignerait pas sur la nature des lésions ; la biopsie doit viser une lésion.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La preuve est histologique : l’immunohistochimie oriente vers l’organe d’origine d’une métastase de primitif inconnu et les analyses moléculaires guident le traitement.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Aucun traitement n’est débuté sans preuve histologique, et le choix de la chimiothérapie dépend de l’origine tumorale.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q11" data-type="QRM" data-correct="BC">
+  <div class="qhead"><span class="qnum">SQI1 Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après résection R0 d’un adénocarcinome du côlon, dans quelles situations une chimiothérapie adjuvante est-elle habituellement indiquée ou discutée en RCP ? (Deux réponses)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un stade I (pT2N0M0)</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un stade II pT4N0 avec perforation tumorale</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un stade III (pN+)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Tous les stades, sans distinction</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un stade II MSI sans facteur de mauvais pronostic, par 5-FU seul</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C</div>
+    <div class="note"><div class="rappel">Avant toute fluoropyrimidine (5-FU, capécitabine), le dépistage du déficit en dihydropyrimidine déshydrogénase (DPD) par le dosage de l’uracilémie est obligatoire.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le pronostic est excellent après la chirurgie seule : aucun traitement adjuvant n’est proposé.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Stade T4, perforation ou occlusion révélatrice, moins de 12 ganglions examinés, emboles ou engainements périnerveux sont des facteurs de mauvais pronostic qui conduisent à discuter un traitement adjuvant.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L’atteinte ganglionnaire est l’indication de référence : fluoropyrimidine associée à l’oxaliplatine (FOLFOX ou CAPOX) pendant 3 à 6 mois.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L’indication dépend du stade et des facteurs de mauvais pronostic : la chimiothérapie expose à des toxicités qu’un bénéfice attendu doit justifier.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Les tumeurs MSI de stade II ont un bon pronostic et ne tirent pas bénéfice (voire pâtissent) d’une fluoropyrimidine seule : on surveille.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q12" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">SQI1 Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Pierre B., 61 ans, tabagique à 40 paquets-années, a un adénocarcinome bronchique prouvé de 4 cm du lobe supérieur droit, avec une adénopathie hilaire homolatérale au scanner. Le scanner thoraco-abdomino-pelvien ne montre pas de métastase et la créatininémie est normale. Une chirurgie est envisagée. Quels examens complémentaires demandez-vous avant la présentation du dossier en RCP ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une TEP-TDM au FDG</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une scintigraphie osseuse</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Des épreuves fonctionnelles respiratoires avec mesure de la DLCO</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une IRM cérébrale</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une TEP-TDM à la choline</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Elle précise l’atteinte ganglionnaire médiastinale et recherche des métastases à distance occultes au scanner, avant un traitement à visée curative.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La TEP-TDM au FDG explore déjà le squelette : la scintigraphie osseuse n’a plus d’indication systématique dans le bilan d’un cancer bronchique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Elles évaluent l’opérabilité fonctionnelle (VEMS et DLCO prévisionnels après exérèse) chez un fumeur.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Examen de référence pour rechercher des métastases cérébrales (bien plus sensible que le scanner), localisation fréquente de l’adénocarcinome bronchique, avant un traitement à visée curative.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Traceur utilisé surtout pour le cancer de la prostate et l’adénome parathyroïdien ; l’exploration d’un cancer bronchique repose sur le FDG.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q13" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">SQI1 Q13</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Dominique F., 64 ans, vient d’apprendre qu’il a un cancer du côlon. Après la réunion de concertation pluridisciplinaire, une consultation d’annonce est organisée. Quel document, remis au patient lors de cette consultation, détaille les traitements proposés par la RCP ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le programme personnalisé de soins (PPS)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le protocole de soins de l’affection de longue durée</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le compte rendu de la RCP signé par le patient</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le programme personnalisé de l’après-cancer (PPAC)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le certificat médical initial de demande d’ALD</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A</div>
+    <div class="note"><div class="rappel">Dispositif d’annonce : temps médical (annonce, proposition de traitement issue de la RCP, remise du PPS), temps d’accompagnement soignant, accès aux soins de support, temps d’articulation avec la médecine de ville.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Remis lors du dispositif d’annonce, il formalise la proposition thérapeutique issue de la RCP, avec le calendrier des soins et les coordonnées de l’équipe.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Formulaire administratif qui ouvre la prise en charge à 100 % ; il ne détaille pas le plan de traitement décidé en RCP.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le compte rendu de RCP est versé au dossier et adressé au médecin traitant ; le patient n’a pas à le signer.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Il est remis à l’issue des traitements actifs pour organiser la surveillance et le suivi, et non au moment de l’annonce.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il justifie la demande de prise en charge à 100 % ; il ne présente pas le projet thérapeutique.</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q14" data-type="QRM" data-correct="BC">
+  <div class="qhead"><span class="qnum">SQI1 Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Éric T., 59 ans, est traité depuis quatre mois par pembrolizumab pour un adénocarcinome colique métastatique à instabilité microsatellitaire (MSI). Depuis cinq jours, il a 6 selles liquides par jour (une seule habituellement), avec des douleurs abdominales modérées. Il est apyrétique. Quelles sont les propositions exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L’alopécie complète rapidement progressive est l’effet indésirable attendu de ce traitement</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il faut évoquer une colite immuno-induite</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il faut suspendre l’immunothérapie et envisager une corticothérapie selon la gravité</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le traitement peut être poursuivi sans modification, avec du lopéramide seul</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La neutropénie profonde est la toxicité habituelle de ce traitement</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C</div>
+    <div class="note"><div class="rappel">Les anticorps anti-PD-1, anti-PD-L1 et anti-CTLA-4 provoquent des effets indésirables immuno-médiés pouvant toucher presque tous les organes (côlon, peau, thyroïde, foie, poumon, hypophyse). Leur gravité se grade selon le nombre de selles supplémentaires par rapport à l’état habituel.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L’alopécie est typique des chimiothérapies cytotoxiques (anthracyclines, taxanes), non des anticorps anti-PD-1.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Toxicité immunologique de classe des inhibiteurs de points de contrôle : réaction auto-immune contre la muqueuse digestive, pouvant survenir après quelques semaines ou plusieurs mois de traitement.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Dès le grade 2 (ici cinq selles de plus que d’habitude) : arrêt temporaire, élimination d’une cause infectieuse (coproculture, Clostridioides difficile), puis corticothérapie générale si la diarrhée persiste ou s’aggrave, avec hospitalisation à partir du grade 3.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Une diarrhée de grade 2 ou plus ne se traite pas par un antidiarrhéique seul : l’immunothérapie est suspendue, car un retard de prise en charge expose à une forme sévère (perforation).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La toxicité hématologique sévère est celle des chimiothérapies cytotoxiques ; les anti-PD-1 donnent plutôt des atteintes immuno-médiées (colite, thyroïdite, hépatite, pneumopathie, dermatite).</div>
+  </div>
+</div>
+
+<div class="q" id="SQI1-Q15" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">SQI1 Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur Étienne K., 78 ans, est hospitalisé en chirurgie digestive pour une occlusion colique sur une tumeur sténosante du sigmoïde. Il vomit, la douleur est intense (EVA 7/10), il n’y a ni défense abdominale ni signe de perforation ou d’ischémie. En attendant la décision opératoire, quelles mesures prescrivez-vous ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une sonde nasogastrique en aspiration</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un laxatif osmotique pour lever l’obstacle</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une réhydratation intraveineuse par sérum salé isotonique avec correction des troubles ioniques</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un traitement antalgique par voie intraveineuse</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une coloscopie en urgence avec préparation colique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Elle décomprime le tube digestif, soulage les vomissements et réduit le risque d’inhalation.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Contre-indiqué devant une occlusion mécanique : il augmente la distension et le risque de perforation.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les vomissements et la séquestration digestive entraînent une déshydratation extracellulaire et des troubles ioniques (hypokaliémie), à corriger avant l’anesthésie.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La douleur doit être traitée sans attendre ; la voie orale est impossible en cas de vomissements et le patient reste à jeun.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La préparation colique est contre-indiquée en cas d’occlusion et une coloscopie diagnostique n’a pas de place en urgence ; seule la pose d’une prothèse colique par voie endoscopique, sans préparation, peut se discuter avec le chirurgien.</div>
+  </div>
+</div>
+
+<div class="sect">DP1 — Madame R., 61 ans, nodule du sein gauche</div>
+
+<div class="q" id="DP1-Q1" data-type="QRM" data-correct="AC">
+  <div class="qhead"><span class="qnum">DP1 Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Madame Odile R., 61 ans, ménopausée depuis 9 ans et sans traitement hormonal, consulte son médecin traitant pour un nodule du sein gauche découvert il y a 3 semaines. Elle ne participe plus au dépistage organisé depuis 6 ans. Elle est hypertendue, traitée par amlodipine, et n’a pas d’antécédent familial de cancer. À l’examen, le nodule est dur, de 3,5 cm, situé dans le quadrant supéro-externe gauche, mobile par rapport aux plans profonds ; il existe une adénopathie axillaire gauche de 1,5 cm, mobile. Le sein droit et l’aisselle droite sont normaux.</div>
+  <div class="stem">Quels examens demandez-vous en première intention ? (Réponses vraies)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une mammographie bilatérale</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une biopsie du nodule avant toute imagerie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une échographie mammaire et axillaire</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une IRM mammaire</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une TEP-TDM au FDG</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="note"><div class="rappel">Devant un nodule palpable chez une femme de plus de 40 ans : examen clinique, puis imagerie conventionnelle (mammographie bilatérale et échographie), avant tout prélèvement.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Examen de base après 40 ans devant un nodule palpable : elle caractérise la lésion et explore le sein controlatéral.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L’imagerie précède la biopsie : un hématome post-biopsie gêne l’interprétation, et l’imagerie guide le geste vers la zone la plus suspecte.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Complément de la mammographie : elle précise la nature de la masse (solide ou liquidienne, contours) et analyse les aires ganglionnaires axillaires.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle n’est pas un examen de première intention devant un nodule palpable ; elle est réservée à des indications précises (discordance entre les examens, bilan préopératoire de certaines tumeurs, risque génétique élevé).</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Elle n’a aucune place dans l’exploration initiale d’un nodule du sein, ni pour le diagnostic ni comme bilan systématique.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q2" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">DP1 Q2</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">L’imagerie montre une opacité spiculée de 3 cm du quadrant supéro-externe gauche, classée ACR 5 ; l’échographie axillaire retrouve une adénopathie d’allure suspecte. Quelle est la suite de la prise en charge ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une tumorectomie diagnostique d’emblée</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un contrôle clinique et radiologique à 6 mois</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un bilan d’extension complet avant toute preuve histologique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des microbiopsies écho-guidées de la lésion mammaire et un prélèvement de l’adénopathie axillaire</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une IRM mammaire avant toute biopsie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La chirurgie ne doit pas précéder la preuve histologique : une biopsie percutanée permet de planifier le geste, voire un traitement médical préopératoire.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une lésion ACR 5 (probabilité de malignité supérieure à 95 %) n’autorise aucune surveillance : elle exige une preuve histologique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le diagnostic de cancer doit d’abord être prouvé ; le bilan d’extension est adapté ensuite au stade.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La preuve histologique précède tout traitement : elle donne le type, le grade et les récepteurs hormonaux et HER2, et le prélèvement ganglionnaire précise l’atteinte axillaire.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L’IRM n’est pas un préalable : la lésion est déjà bien caractérisée et la biopsie ne doit pas être retardée.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q3" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">DP1 Q3</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le compte rendu anatomopathologique des biopsies conclut à un carcinome infiltrant de type non spécifique, de grade SBR II, avec des récepteurs aux œstrogènes exprimés dans 90 % des cellules tumorales, des récepteurs à la progestérone dans 40 % et un score HER2 à 3+ en immunohistochimie. Le prélèvement ganglionnaire montre une métastase. Quelles sont les affirmations exactes ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La tumeur est triple négative</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La tumeur est hormonosensible</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une hybridation in situ est nécessaire pour confirmer le score HER2 3+</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La surexpression de HER2 rend possible un traitement anti-HER2</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La recherche des récepteurs aux androgènes est indispensable pour décider du traitement</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="note"><div class="rappel">Les marqueurs qui conditionnent le traitement médical d’un cancer du sein sont les récepteurs hormonaux (RE, RP) et HER2, recherchés en immunohistochimie (avec hybridation in situ si HER2 est 2+).</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Triple négatif signifie RE, RP et HER2 négatifs ; ici les récepteurs hormonaux sont exprimés et HER2 est à 3+.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les récepteurs aux œstrogènes sont considérés comme positifs dès 10 % de cellules marquées : le traitement comportera une hormonothérapie.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Un score 3+ (marquage membranaire intense et complet, sur plus de 10 % des cellules) est positif sans autre examen ; l’hybridation in situ est réservée au score 2+, équivoque.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Un score 3+ définit une tumeur HER2 positive, éligible au trastuzumab (± pertuzumab) associé à la chimiothérapie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Elle n’intervient pas dans la décision thérapeutique : celle-ci repose sur RE, RP, HER2 et sur le grade (index de prolifération).</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q4" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">DP1 Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">La tumeur est classée cT2N1. Quels examens pouvez-vous envisager dans le bilan d’extension ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un scanner thoraco-abdomino-pelvien</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une IRM cérébrale systématique</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une scintigraphie osseuse</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une IRM hépatique systématique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une TEP-TDM au FDG</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Il recherche des métastases pulmonaires, hépatiques et ganglionnaires ; il est indiqué dès qu’il existe une atteinte ganglionnaire clinique.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — En l’absence de signe neurologique, l’exploration cérébrale n’est pas systématique et se fait sur signe d’appel.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le squelette est la première localisation à distance du cancer du sein : la scintigraphie complète le scanner.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le foie est exploré par le scanner ; l’IRM hépatique n’est demandée que pour caractériser une lésion douteuse.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Pour les tumeurs à haut risque métastatique (atteinte ganglionnaire, tumeur localement avancée, traitement néoadjuvant prévu), elle peut remplacer l’association scanner et scintigraphie : elle explore en un temps viscères, ganglions et squelette.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q5" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">DP1 Q5</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le bilan d’extension ne montre aucune localisation secondaire. Quelle est la conduite à tenir ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Présenter le dossier en réunion de concertation pluridisciplinaire avant toute décision thérapeutique</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Adresser directement la patiente au chirurgien pour une mastectomie</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Débuter sans attendre le trastuzumab</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Débuter une hormonothérapie en attendant la RCP</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Refaire une biopsie chirurgicale afin de confirmer le diagnostic</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Toute décision de traitement d’un cancer est collégiale (RCP) et s’appuie sur l’ensemble des données cliniques, d’imagerie et d’anatomopathologie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Pour une tumeur de 3,5 cm avec atteinte ganglionnaire, un traitement médical préopératoire est souvent proposé : le type de chirurgie ne se décide pas d’avance.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le traitement anti-HER2 se prescrit selon le protocole validé en RCP, en association à la chimiothérapie.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Aucun traitement n’est débuté avant la décision collégiale, sauf urgence ; une hormonothérapie seule ne traiterait d’ailleurs pas une tumeur HER2 positive de ce stade.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le diagnostic est déjà prouvé par les microbiopsies : une biopsie chirurgicale n’apporterait rien.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q6" data-type="QRM" data-correct="ADE">
+  <div class="qhead"><span class="qnum">DP1 Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">La RCP propose une chimiothérapie néoadjuvante associée à un traitement anti-HER2 (trastuzumab ± pertuzumab), puis une chirurgie. Quelles explications donnez-vous à la patiente ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il s’agit d’un traitement à visée curative</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Il s’agit d’un traitement à visée palliative</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Si la réponse clinique est complète, la chirurgie devient inutile</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle peut permettre une chirurgie conservatrice</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une réponse histologique complète sur la pièce opératoire est un facteur de bon pronostic</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La maladie est localisée (bilan d’extension négatif) : la chimiothérapie donnée avant la chirurgie vise la guérison.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un traitement palliatif concerne une maladie métastatique, ce qui n’est pas le cas ici.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Une réponse clinique ou radiologique complète ne prouve pas l’absence de cellules tumorales résiduelles : la chirurgie reste indiquée et l’analyse de la pièce évalue la réponse histologique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — En réduisant le volume tumoral, le traitement néoadjuvant peut permettre une tumorectomie plutôt qu’une mastectomie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — L’absence de carcinome invasif résiduel est associée à un moindre risque de rechute, en particulier dans les tumeurs HER2 positives et triple négatives.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q7" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">DP1 Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le protocole prévoit quatre cures d’EC 100 (épirubicine-cyclophosphamide) puis du paclitaxel hebdomadaire associé au trastuzumab. Quelles dispositions prenez-vous avant et pendant le traitement ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un audiogramme systématique avant chaque cure</span></li>
+    <li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">Une évaluation de la fraction d’éjection ventriculaire gauche avant le traitement, puis une surveillance régulière</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La pose d’une chambre implantable</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une information sur l’alopécie, quasi constante et réversible</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une numération formule sanguine avant chaque cure</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="note"><div class="rappel">Associations toxicité-molécule à connaître : anthracyclines → cardiotoxicité cumulative ; trastuzumab → dysfonction ventriculaire gauche réversible ; taxanes et oxaliplatine → neuropathie périphérique ; cisplatine → néphrotoxicité et ototoxicité.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La toxicité auditive est celle du cisplatine, absent de ce protocole.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les anthracyclines (cardiotoxicité cumulative dose-dépendante) puis le trastuzumab (dysfonction ventriculaire gauche) imposent une FEVG initiale normale (≥ 50 % en pratique) et un suivi : sans ce bilan, le traitement ne peut pas être débuté.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Les perfusions répétées de produits veinotoxiques et vésicants (anthracyclines) pendant plusieurs mois justifient une voie veineuse centrale, qui protège aussi des extravasations.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L’épirubicine et le paclitaxel entraînent une alopécie presque constante ; les cheveux repoussent après l’arrêt, et une prothèse capillaire peut être prescrite.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La neutropénie est la toxicité limitante de ces chimiothérapies : la cure n’est administrée que si les polynucléaires neutrophiles et les plaquettes sont suffisants.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q8" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">DP1 Q8</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">La chimiothérapie est bien tolérée. La patiente est opérée : tumorectomie avec exérèse ganglionnaire axillaire. L’examen anatomopathologique conclut à un stade ypT1N0, avec des limites de résection saines. Quel traitement locorégional complémentaire proposez-vous ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Aucun traitement complémentaire, la chimiothérapie ayant été efficace</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une mastectomie totale de complément</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une radiothérapie du sein conservé</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une exérèse de la chaîne mammaire interne</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une radiothérapie réservée au cas où les marges seraient atteintes</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note"><div class="rappel">Le préfixe y désigne une classification pathologique établie après traitement néoadjuvant (ici ypT1N0 : tumeur invasive résiduelle de 20 mm au plus, ganglions indemnes).</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Après chirurgie conservatrice, la radiothérapie du sein est systématique, même en cas de bonne réponse à la chimiothérapie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les limites de résection sont saines : le traitement conservateur est suffisant dès lors qu’il est complété par la radiothérapie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Elle réduit le risque de récidive locale après tumorectomie et fait partie intégrante du traitement conservateur.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Ce geste n’est plus pratiqué : il n’améliore pas la survie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Même avec des marges saines, la radiothérapie est systématique après chirurgie conservatrice (sauf situations particulières chez la patiente âgée à faible risque).</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q9" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">DP1 Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après sa chirurgie et sa radiothérapie, la patiente poursuit son traitement anti-HER2 adjuvant et débute une hormonothérapie adjuvante par anti-aromatase. Quelles sont les affirmations exactes concernant l’hormonothérapie et la surveillance ? (Trois réponses vraies)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L’anti-aromatase peut entraîner des arthralgies fréquentes</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une échographie pelvienne annuelle est indispensable pour dépister un cancer de l’endomètre</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une ostéodensitométrie est nécessaire</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le CA 15-3 doit être dosé régulièrement pour dépister une récidive</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une mammographie annuelle est réalisée</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les douleurs articulaires et musculo-squelettiques sont l’effet indésirable le plus fréquent des anti-aromatases et une cause d’arrêt du traitement.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le surrisque de cancer de l’endomètre est celui du tamoxifène, non des anti-aromatases ; seuls des saignements justifient une exploration gynécologique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — En bloquant la synthèse des œstrogènes, les anti-aromatases accélèrent la perte osseuse : la densité osseuse est mesurée avant et pendant le traitement, avec calcium, vitamine D et traitement antiostéoporotique si besoin.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Aucun marqueur tumoral n’est recommandé dans la surveillance systématique d’un cancer du sein non métastatique : il n’améliore pas la survie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La surveillance associe un examen clinique régulier et une mammographie annuelle, du sein conservé et du sein controlatéral.</div>
+  </div>
+</div>
+
+<div class="q" id="DP1-Q10" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">DP1 Q10</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Deux ans plus tard, la patiente consulte pour des douleurs dorsales nocturnes évoluant depuis trois semaines, puis une faiblesse des deux jambes apparue en 48 heures avec difficulté à la marche. À l’examen, le déficit moteur des membres inférieurs est coté à 3/5, les réflexes ostéo-tendineux sont vifs, le signe de Babinski est bilatéral et il existe une rétention d’urines. Quel examen demandez-vous en urgence ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Des radiographies du rachis dorsal</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une IRM médullaire</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une scintigraphie osseuse</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une TEP-TDM au FDG</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une ponction lombaire</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="note"><div class="rappel">La compression médullaire métastatique est une urgence neuro-oncologique : IRM de tout le rachis, corticothérapie, avis neurochirurgical et de radiothérapie dans les heures qui suivent ; le pronostic fonctionnel dépend du délai de prise en charge.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Peu sensibles (une lyse n’est visible qu’à un stade avancé), elles n’explorent ni la moelle ni l’espace épidural.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Devant une suspicion de compression médullaire d’origine métastatique, l’IRM de tout le rachis est l’examen de référence : elle montre le niveau de compression, l’extension épidurale et les autres localisations, et guide le traitement urgent.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle détecte les localisations osseuses mais n’explore ni la moelle ni l’espace épidural, et n’a pas sa place en urgence.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Examen non urgent, qui ne renseigne pas sur la compression médullaire.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Inutile pour le diagnostic et dangereuse en cas de blocage médullaire, car elle risque d’aggraver le déficit neurologique.</div>
+  </div>
+</div>
+
+<div class="sect">TCS1 — Fièvre sous chimiothérapie adjuvante pour un cancer du côlon</div>
+
+<div class="q" id="TCS1-Q1" data-type="QRU" data-correct="E">
+  <div class="qhead"><span class="qnum">TCS1 Q1</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Vous êtes le médecin traitant de Monsieur G., 66 ans. Il reçoit, par une chambre implantable, une chimiothérapie adjuvante par FOLFOX pour un adénocarcinome du côlon gauche opéré, classé pT3N1M0 ; l’uracilémie dosée avant la première cure était normale. La troisième cure a eu lieu il y a 9 jours. Il vous appelle ce samedi à 10 h : il a des frissons, sa température est à 38,9 °C et il a des selles liquides depuis la veille.</div>
+  <div class="stem">Si vous pensez à une neutropénie fébrile et que la numération formule sanguine réalisée en urgence ce matin montre des polynucléaires neutrophiles à 0,3 G/L, votre hypothèse est</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : E — certain</div>
+    <div class="note">La neutropénie fébrile associe une fièvre (≥ 38,3 °C, ou ≥ 38 °C pendant plus d’une heure) et des polynucléaires neutrophiles &lt; 0,5 G/L. Ici les deux critères sont réunis (38,9 °C et 0,3 G/L) et le 9e jour après la cure correspond à la période du nadir : l’hypothèse est certaine. C’est une urgence : évaluation médicale immédiate (hospitalisation, ou prise en charge ambulatoire encadrée chez les seuls patients à faible risque) et antibiothérapie probabiliste sans délai.</div>
+  </div>
+</div>
+
+<div class="q" id="TCS1-Q2" data-type="QRU" data-correct="E">
+  <div class="qhead"><span class="qnum">TCS1 Q2</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensez à une infection liée à la chambre implantable et qu’aux urgences les hémocultures prélevées simultanément sur la chambre et en périphérie poussent toutes deux à <i>Staphylococcus aureus</i>, celle de la chambre devenant positive 3 heures avant la périphérique, votre hypothèse est</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : E — certain</div>
+    <div class="note">Le diagnostic de bactériémie liée au cathéter repose sur des hémocultures prélevées simultanément sur le dispositif et en périphérie, positives au même germe, avec un délai différentiel de positivité ≥ 2 heures en faveur du dispositif : le critère est rempli, l’hypothèse est certaine, même sans signe local au niveau du boîtier. Une bactériémie à <i>S. aureus</i> sur chambre implantable impose en règle son retrait, une antibiothérapie adaptée et la recherche de localisations secondaires (échocardiographie).</div>
+  </div>
+</div>
+
+<div class="q" id="TCS1-Q3" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">TCS1 Q3</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous envisagez une prise en charge ambulatoire, avec une antibiothérapie orale à domicile, et que le patient a une pression artérielle à 85/50 mmHg, une fréquence cardiaque à 120/min et 8 selles liquides par jour, votre attitude est</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">complètement contre-indiqué</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">contre-indiqué</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ni moins indiqué</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">indiqué</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">fortement indiqué</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A — complètement contre-indiqué</div>
+    <div class="note">Une prise en charge ambulatoire d’une fièvre sous chimiothérapie n’est envisageable que chez un patient à faible risque (score MASCC ≥ 21), stable, sans comorbidité, s’alimentant par voie orale et proche d’un hôpital. L’hypotension, la tachycardie et les pertes digestives importantes signent un sepsis : hospitalisation en urgence, remplissage et antibiothérapie intraveineuse. La contre-indication est ici totale.</div>
+  </div>
+</div>
+
+<div class="sect">KFP1 — Homme de 54 ans opéré d’un cancer du sein, antécédents familiaux de cancers</div>
+
+<div class="q" id="KFP1-Q1" data-type="QROC" data-correct="" data-answer="mutation BRCA | mutation BRCA1 | mutation BRCA2 | mutation BRCA1 2 | mutation BRCA 1 2 | mutation BRCA1 et BRCA2 | mutation BRCA 1 et 2 | mutation des gènes BRCA | mutation du gène BRCA2 | mutation du gène BRCA1 | mutation des gènes BRCA1 et BRCA2 | gène BRCA2 | gène BRCA1 | gènes BRCA | BRCA | BRCA1 | BRCA2 | BRCA1 2 | BRCA 1 2 | BRCA1 et BRCA2 | syndrome BRCA | syndrome sein ovaire | syndrome sein-ovaire | syndrome seins ovaires | syndrome seins-ovaires | syndrome HBOC | HBOC | cancer du sein et de l’ovaire héréditaire | cancer héréditaire du sein et de l’ovaire | syndrome de prédisposition héréditaire au cancer du sein et de l’ovaire | prédisposition héréditaire au cancer du sein et de l’ovaire | syndrome de cancer du sein et de l’ovaire héréditaire | syndrome sein ovaire héréditaire | syndrome seins ovaires héréditaire | syndrome sein-ovaire héréditaire | syndrome seins-ovaires héréditaire | syndrome sein ovaire familial | syndrome seins ovaires familial | syndrome seins ovaires héréditaire BRCA1 BRCA2 | syndrome sein ovaire héréditaire BRCA1 BRCA2 | syndrome seins ovaires BRCA1 BRCA2 | syndrome sein ovaire BRCA1 BRCA2 | syndrome sein ovaire BRCA | syndrome seins ovaires BRCA | syndrome des cancers du sein et de l’ovaire | cancer du sein et de l’ovaire familial | cancer sein ovaire héréditaire | cancer du sein héréditaire | cancer du sein familial | mutation de BRCA | mutation de BRCA1 | mutation de BRCA2 | mutation de BRCA1 2 | mutation du gène BRCA | mutation du gène BRCA 1 2 | mutation du gène BRCA1 2 | mutation des gènes BRCA1 2 | mutation constitutionnelle BRCA | mutation constitutionnelle de BRCA | mutation constitutionnelle de BRCA1 2 | mutation constitutionnelle de BRCA2 | mutation germinale BRCA | mutation germinale de BRCA2 | prédisposition BRCA | prédisposition héréditaire BRCA | BRCA2 muté | hereditary breast and ovarian cancer">
+  <div class="qhead"><span class="qnum">KFP1 Q1</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Monsieur Gérard L., 54 ans, a été opéré d’un carcinome infiltrant du sein gauche, à récepteurs hormonaux positifs et HER2 négatif, classé pT2N0. Sa mère a été traitée pour un cancer de l’ovaire à 56 ans et sa sœur pour un cancer du sein à 43 ans. Il a deux filles de 24 et 27 ans. Il fume 15 paquets-années et boit 3 verres de vin par jour. Il voit son chirurgien en consultation post-opératoire.</div>
+  <div class="stem">Quel cancer familial recherchez-vous ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : Syndrome de prédisposition héréditaire au cancer du sein et de l’ovaire : mutation constitutionnelle de BRCA1 ou de BRCA2 (BRCA2 surtout, devant un cancer du sein chez l’homme)</div>
+    <div class="note"><div class="rappel">Le cancer du sein de l’homme est rare (environ 1 % des cancers du sein) et plus souvent qu’à l’ordinaire associé à une mutation BRCA, surtout BRCA2. L’association d’un cancer du sein et d’un cancer de l’ovaire chez des apparentés du 1er degré est la signature du syndrome sein-ovaire.</div></div>
+  </div>
+</div>
+
+<div class="q" id="KFP1-Q2" data-type="QRP" data-correct="ACGJ">
+  <div class="qhead"><span class="qnum">KFP1 Q2</span><span class="qtype">QRP · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quels sont les éléments vous orientant vers votre diagnostic ? (4 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un cancer du sein chez un homme</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un tabagisme actif à 15 paquets-années</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un cancer de l’ovaire chez sa mère</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une consommation de 3 verres de vin par jour</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L’absence d’envahissement ganglionnaire (pN0)</span></li>
+    <li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Le caractère unilatéral de la tumeur</span></li>
+    <li class="opt" data-l="G" data-correct="1"><span class="box">G</span><span class="otext">Un cancer du sein à 43 ans chez sa sœur</span></li>
+    <li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Le statut RH+ HER2− de la tumeur</span></li>
+    <li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">La taille tumorale (pT2)</span></li>
+    <li class="opt" data-l="J" data-correct="1"><span class="box">J</span><span class="otext">L’atteinte de plusieurs apparentés du 1er degré</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, G, J</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Rare, il est plus souvent qu’à l’ordinaire lié à une mutation constitutionnelle, surtout BRCA2 : c’est un critère d’orientation vers l’oncogénétique quel que soit l’âge.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Facteur de risque de nombreux cancers, mais sans lien avec une prédisposition héréditaire au cancer du sein.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L’association de cancers du sein et de l’ovaire dans une même famille est la signature du syndrome BRCA, la mère étant une apparentée du 1er degré.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L’alcool augmente modérément le risque de cancer du sein mais n’oriente pas vers une cause héréditaire.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Caractère pronostique de la tumeur, sans valeur d’orientation vers une forme héréditaire.</div>
+    <div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span> — Une atteinte bilatérale (ou multifocale) orienterait vers une forme héréditaire ; une tumeur unilatérale est banale et n’oriente pas.</div>
+    <div class="citem v-vrai"><span class="cl">G.</span> <span class="cv">VRAI</span> — Un cancer du sein diagnostiqué avant 50 ans chez une apparentée du 1er degré est un critère majeur d’orientation vers l’oncogénétique.</div>
+    <div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span> — C’est le profil habituel de la grande majorité des cancers du sein, notamment chez l’homme : il n’oriente pas, contrairement au profil triple négatif de la femme jeune (BRCA1).</div>
+    <div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span> — Paramètre pronostique, sans valeur étiologique.</div>
+    <div class="citem v-vrai"><span class="cl">J.</span> <span class="cv">VRAI</span> — L’agrégation familiale (mère et sœur atteintes) est un critère majeur d’orientation vers l’oncogénétique.</div>
+  </div>
+</div>
+
+<div class="q" id="KFP1-Q3" data-type="QRP" data-correct="BDFH">
+  <div class="qhead"><span class="qnum">KFP1 Q3</span><span class="qtype">QRP · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelles consultations, quels examens ou quelles démarches sont à envisager spécifiquement dans le contexte du diagnostic familial ? (4 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La détermination du statut MSI de la tumeur</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une consultation d’oncogénétique</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une consultation diététique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La recherche d’une mutation constitutionnelle de BRCA1 et BRCA2 sur prélèvement sanguin, après consentement</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un test génétique prédictif chez ses deux filles dès maintenant</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Un soutien psychologique</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Un scanner thoraco-abdomino-pelvien d’extension</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">L’information de ses filles et de sa sœur sur le risque familial, pour qu’elles puissent consulter en oncogénétique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, F, H</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L’instabilité des microsatellites est le marqueur du syndrome de Lynch (cancers colorectaux, de l’endomètre) et non du syndrome sein-ovaire.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle évalue la probabilité d’une prédisposition, pose l’indication du test génétique et organise l’information de la famille.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Utile en soins de support, mais sans lien spécifique avec le contexte familial.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle est réalisée chez le cas index (le patient) après information et consentement écrit ; son résultat conditionne le dépistage des apparentés.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Un test prédictif ne se fait qu’après identification d’une mutation chez la personne atteinte, et après une consultation d’oncogénétique.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — L’annonce d’une prédisposition héréditaire a un retentissement psychologique pour le patient et sa famille ; l’accompagnement fait partie de la démarche.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Il n’y a pas d’extension à explorer pour une tumeur pT2N0, et cet examen est sans rapport avec le contexte familial.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — L’information de la parentèle fait partie de la démarche ; si une mutation est identifiée, elle devient une obligation légale (le patient informe ses apparentés, avec l’aide du médecin), qui pourront bénéficier d’un test ciblé.</div>
+  </div>
+</div>
+
+<footer>31 questions · sujet type · UE 9 Oncologie · D3 T2 · BobMed.</footer>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../breadcrumb.js"></script>
+<script src="../../dynamic-header.js"></script>
+<script src="../../timer.js"></script>
+<script src="../../progress.js"></script>
+<script src="../../qcopy.js"></script>
+</body></html>
