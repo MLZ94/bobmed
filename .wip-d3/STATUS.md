@@ -1,4 +1,4 @@
-# Chantier « mise à niveau D3 » — état au 10 octobre 2026
+# Chantier « mise à niveau D3 » — état au 16 octobre 2026
 
 > Dossier de travail temporaire, propre à la branche `D3`. **À supprimer avant toute fusion de `D3` dans `main`** (il n'a rien à faire sur le site publié).
 
@@ -19,16 +19,12 @@ Lot d'entraînement clos avant le changement : les 4 brouillons 25/40/44, 43/41,
 - **Sujets types publiés** : UE 2 (37 q.), UE 5 (37 q.) — chacun audité deux fois —, UE 7.3 (35 q.), UE 9 (31 q.), UE 10 (35 q.), UE 11.2 (32 q.) : **les 6 sujets types sont publiés**. Analyses des annales des 6 UE dans `analyses/` (base des quiz d'entraînement restants).
 - ⚠️ Reprise d'un workflow (`resumeFromRunId`) : le cache ne vaut que pour le préfixe d'appels inchangé ; avec des appels concurrents, l'ordre change et des agents déjà terminés sont relancés. Pour reprendre, relancer plutôt un nouveau run limité aux éléments restants.
 
-## Reste à faire
-1. ~~◈ UE 11.2~~ : fait (vérifié par Opus, appliqué).
-2. **Quiz d'entraînement** (34 restants, plan complet dans `plan_quizzes.json`) :
-   - gynéco-obstétrique à rédiger : 27/30, 300/312 ;
-   - T2 : Gériatrie (3 à rédiger : 134/135/138, 1/7, 66/250/267), Hématologie (8, avec les diapos de révision Braun/Rahmé 2025 du drive comme source), Oncologie (7) ;
-   - T3 : Thérapeutique (7), Urgences-Réanimation (7).
-   Fiches « ce qui tombe » déjà écrites : `fiches/` (8) ; les autres sont produites par le rédacteur.
-3. **Sujets types** : 6 (UE 2, 5, 7.3, 9, 10, 11.2) — mode `sujet_type` de `workflows/quiz2.js`.
-4. **Portails** : `gen_portals.py` (entraînement T2/T3 + sous-catégories), puis sous-catégorie « Sujet type », compteurs, accueil (descriptions des blocs D3).
-5. **CLAUDE.md** : section ◈ « annales D2 et D3 », entraînement et sujets types D3, compteurs.
+## Reste à faire (16 octobre 2026)
+**Quiz d'entraînement : 18/52 publiés, 34 restants.**
+1. **5 quiz rédigés, audit non fait** (specs complets dans `specs/`, fiches dans `fiches/`) : `Quiz_item27_30_risques_foetaux_prematurite` (44 q.), `Quiz_item300_312_cancers_col_endometre_sein` (36 q.), `Quiz_item134_135_138_douleur_antalgiques`, `Quiz_item290_291_epidemiologie_depistage_oncogenetique` (25 q.), `Quiz_item292_diagnostic_cancers` (24 q.). → les auditer (entrées avec `"skip_write": true` dans `workflows/quiz2.js`), puis publier.
+2. **29 à rédiger puis auditer** : gériatrie 1/7, 66/250/267 ; hématologie 212/213, 214/215/216, 315/316, 317/275, 318, 319, 320, 191 ; oncologie 294, 295, 312, 301, 307/354 ; thérapeutique 330 ×3 (anticoagulants/antiagrégants, AINS/corticoïdes, immunosuppresseurs/biothérapies), 321/322/325, 323/326, 177, 74 ; urgences 331, 332, 337, 336/343, 359, 338, 365. Arguments prêts : `workflows/ent_args_A.json` et `ent_args_B.json` (retirer les 5 quiz du point 1).
+3. Publication de chaque quiz audité : l'ajouter à `approved.txt`, `outils/gen_portals.py` (crée aussi les portails d'entraînement T2 hémato/onco et T3), `validate_quiz.py` + `test_quiz.py`, commit, push sur `D3`.
+4. Fin de chantier : CLAUDE.md (paragraphe « Entraînement par item D3 » : portails T2 complet et T3), `make validate-all`, supprimer `.wip-d3/` avant toute fusion dans `main`.
 
 ## Méthode retenue (choix de l'utilisateur)
 - Rédaction par Sonnet, audit adversarial par Opus (un auditeur pour deux quiz, qui répond d'abord **à l'aveugle** à partir de `strip_spec.py`, puis tranche les divergences avec `compare_blind.py`).
@@ -38,4 +34,5 @@ Lot d'entraînement clos avant le changement : les 4 brouillons 25/40/44, 43/41,
 - Un quiz n'est commité qu'après audit, avec mise à jour des portails (`approved.txt` liste les quiz publiés).
 
 ## Reprise
-Les scripts ont un chemin de travail codé en dur (`SP=/tmp/claude-0/…/scratchpad`) : recopier ce dossier dans le nouveau scratchpad (`outils/*` à la racine, `workflows/*` dans `wf/`, `fiches/` → `briefs/`, `specs/`, `nj/`) et adapter la variable `SP` de chaque script. Les extraits d'annales (`ex/`) se régénèrent avec `outils/extract.py` ; les textes des diapos d'hématologie avec PyMuPDF depuis `bobmed-annales-drive` (branche `D3`, `T2/HEMATO/`).
+**Un seul chantier actif à la fois** (les limites d'usage sont communes au compte : deux sessions en parallèle n'accélèrent pas et risquent de rédiger deux fois le même quiz ou de se marcher dessus sur les portails).
+Les scripts ont un chemin de travail codé en dur (`SP=/tmp/claude-0/…/scratchpad`) : recopier ce dossier dans le nouveau scratchpad (`outils/*` à la racine, `workflows/*` dans `wf/`, `fiches/` → `briefs/`, `specs/`, `nj/`, `analyses/` → `st/`) et adapter la variable `SP` de chaque script **et des deux workflows** (`quiz2.js`, `st.js`). Les rédacteurs de `quiz2.js` lisent `st/analyse_UE*.md` (analyse de toutes les annales de l'UE, faite pour les sujets types). Les extraits d'annales (`ex/`) se régénèrent avec `outils/extract.py` ; les textes des diapos d'hématologie avec PyMuPDF depuis `bobmed-annales-drive` (branche `D3`, `T2/HEMATO/`).
