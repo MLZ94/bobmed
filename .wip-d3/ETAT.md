@@ -1,6 +1,6 @@
 # État des quiz d'entraînement D3 (généré le 2026-10-16 16:48 UTC par outils/etat.py)
 
-## publié (20)
+## publié (22)
 - d3/t1/entrainement/Quiz_item23_grossesse_normale.html
 - d3/t1/entrainement/Quiz_item24_344_hta_diabete_grossesse.html
 - d3/t1/entrainement/Quiz_item24_26_hemorragies_douleurs_grossesse.html
@@ -19,17 +19,17 @@
 - d3/t2/entrainement/Quiz_item131_chutes.html
 - d3/t2/entrainement/Quiz_item120_133_immobilite_dependance.html
 - d3/t2/entrainement/Quiz_item139_140_141_soins_palliatifs.html
+- d3/t2/entrainement/Quiz_item134_135_138_douleur_antalgiques.html
+- d3/t2/entrainement/Quiz_item290_291_epidemiologie_depistage_oncogenetique.html
 - d3/t2/entrainement/Quiz_item292_diagnostic_cancers.html
 - d3/t2/entrainement/Quiz_item295_parcours_annonce_cancer.html
 
 ## audité, à publier (0)
 - (aucun)
 
-## rédigé, à auditer (4)
+## rédigé, à auditer (2)
 - d3/t1/entrainement/Quiz_item27_30_risques_foetaux_prematurite.html
 - d3/t1/entrainement/Quiz_item300_312_cancers_col_endometre_sein.html
-- d3/t2/entrainement/Quiz_item134_135_138_douleur_antalgiques.html
-- d3/t2/entrainement/Quiz_item290_291_epidemiologie_depistage_oncogenetique.html
 
 ## à rédiger (28)
 - d3/t2/entrainement/Quiz_item1_7_annonce_droits_patient.html
