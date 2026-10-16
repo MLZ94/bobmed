@@ -68,7 +68,7 @@
 **Section 2 — KFP — Femme de 79 ans, diarrhée au cours d'une hospitalisation (3, verrouillée)** : QROC diagnostic → QRPL mesures (5/11, indispensable + inacceptable) → QRM récidive.
 **Section 3 — DP — Homme de 77 ans polymédiqué, fièvre et brûlures mictionnelles (7, verrouillée)** : conduite avant antibiotique (QRM, A, indispensable + 2 inacceptables) → choix probabiliste (QRU) → réévaluation à 72 h (QRM, A) → ordonnance commentée (QRPL 4/9) → prévention et surveillance (QRM, 2 inacceptables) → tendinopathie (QRU, indispensable + inacceptables) → INR trop élevé (QRM, indispensable + inacceptable).
 **Section 4 — TCS — Éruption fébrile chez un jeune homme traité pour une angine (3, verrouillée)** : allergie vraie (peu probable) · toxidermie grave (improbable) · éruption non allergique de la mononucléose (probable).
-Répartition visée : QRM 22, QRU 3, QRPL 3, QROC 2, TCS 3 ; rang A sur 4 questions ; 4 items indispensables, 9 inacceptables.
+Répartition réalisée : QRM 20, QRU 3, QRPL 3, QROC 2, TCS 3 ; rang A sur 4 questions (27 sans rang) ; 4 items indispensables, 9 inacceptables.
 
 ## e. Pièges à éviter
 
