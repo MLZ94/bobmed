@@ -1,4 +1,4 @@
-# État des quiz d'entraînement D3 (généré le 2026-10-16 16:50 UTC par outils/etat.py)
+# État des quiz d'entraînement D3 (généré le 2026-10-16 16:51 UTC par outils/etat.py)
 
 ## publié (24)
 - d3/t1/entrainement/Quiz_item23_grossesse_normale.html
@@ -29,10 +29,10 @@
 ## audité, à publier (0)
 - (aucun)
 
-## rédigé, à auditer (0)
-- (aucun)
+## rédigé, à auditer (1)
+- d3/t2/entrainement/Quiz_item294_traitements_cancers.html
 
-## à rédiger (28)
+## à rédiger (27)
 - d3/t2/entrainement/Quiz_item1_7_annonce_droits_patient.html
 - d3/t2/entrainement/Quiz_item66_250_267_depression_denutrition_deshydratation_sujet_age.html
 - d3/t2/entrainement/Quiz_item212_213_hemogramme_anemies.html
@@ -43,7 +43,6 @@
 - d3/t2/entrainement/Quiz_item319_lymphomes.html
 - d3/t2/entrainement/Quiz_item320_myelome.html
 - d3/t2/entrainement/Quiz_item191_neutropenie_febrile.html
-- d3/t2/entrainement/Quiz_item294_traitements_cancers.html
 - d3/t2/entrainement/Quiz_item312_cancer_sein.html
 - d3/t2/entrainement/Quiz_item301_cancer_colorectal.html
 - d3/t2/entrainement/Quiz_item307_354_metastases_osseuses_urgences_onco.html
