@@ -1,6 +1,6 @@
-# État des quiz d'entraînement D3 (généré le 2026-10-16 17:15 UTC par outils/etat.py)
+# État des quiz d'entraînement D3 (généré le 2026-10-16 21:24 UTC par outils/etat.py)
 
-## publié (30)
+## publié (32)
 - d3/t1/entrainement/Quiz_item23_grossesse_normale.html
 - d3/t1/entrainement/Quiz_item24_344_hta_diabete_grossesse.html
 - d3/t1/entrainement/Quiz_item24_26_hemorragies_douleurs_grossesse.html
@@ -24,6 +24,8 @@
 - d3/t2/entrainement/Quiz_item134_135_138_douleur_antalgiques.html
 - d3/t2/entrainement/Quiz_item1_7_annonce_droits_patient.html
 - d3/t2/entrainement/Quiz_item66_250_267_depression_denutrition_deshydratation_sujet_age.html
+- d3/t2/entrainement/Quiz_item212_213_hemogramme_anemies.html
+- d3/t2/entrainement/Quiz_item315_316_leucemies_aigues_smd.html
 - d3/t2/entrainement/Quiz_item290_291_epidemiologie_depistage_oncogenetique.html
 - d3/t2/entrainement/Quiz_item292_diagnostic_cancers.html
 - d3/t2/entrainement/Quiz_item294_traitements_cancers.html
@@ -35,20 +37,18 @@
 ## audité, à publier (0)
 - (aucun)
 
-## rédigé, à auditer (5)
-- d3/t2/entrainement/Quiz_item212_213_hemogramme_anemies.html
+## rédigé, à auditer (7)
 - d3/t2/entrainement/Quiz_item214_215_216_thrombopenie_purpura_hemostase.html
-- d3/t2/entrainement/Quiz_item315_316_leucemies_aigues_smd.html
 - d3/t2/entrainement/Quiz_item317_275_smp_splenomegalie.html
-- d3/t2/entrainement/Quiz_item319_lymphomes.html
-
-## à rédiger (17)
 - d3/t2/entrainement/Quiz_item318_llc.html
+- d3/t2/entrainement/Quiz_item319_lymphomes.html
 - d3/t2/entrainement/Quiz_item320_myelome.html
 - d3/t2/entrainement/Quiz_item191_neutropenie_febrile.html
+- d3/t3/entrainement/Quiz_item330_immunosuppresseurs_biotherapies.html
+
+## à rédiger (13)
 - d3/t3/entrainement/Quiz_item330_anticoagulants_antiagregants.html
 - d3/t3/entrainement/Quiz_item330_ains_corticoides.html
-- d3/t3/entrainement/Quiz_item330_immunosuppresseurs_biotherapies.html
 - d3/t3/entrainement/Quiz_item321_322_325_bon_usage_situations_risque_iatrogenie.html
 - d3/t3/entrainement/Quiz_item323_326_niveaux_preuve_cadre_reglementaire.html
 - d3/t3/entrainement/Quiz_item177_anti_infectieux.html

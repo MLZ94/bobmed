@@ -55,7 +55,7 @@ F25 mDP2-Q7 (LLC, toux fébrile avec foyer de crépitants : **pneumocoque et Hae
 ### Priorité 1 — déjà tombé
 1. **Définition de la neutropénie fébrile** (fièvre ≥ 38,3 °C une fois ou ≥ 38 °C deux fois à 1 h ; PNN < 0,5 G/L ou attendus sous ce seuil dans les 48 h) ; neutropénie profonde < 0,1 G/L. — rang A.
 2. **Urgence thérapeutique** : antibiothérapie IV probabiliste dans l'heure, sans attendre la documentation ; retard = surmortalité. — rang A.
-3. **Clinique pauvre** (pas de pus, radiographie souvent normale, fièvre isolée), signes de gravité à rechercher, ecthyma gangrenosum. — rang A.
+3. **Clinique pauvre** (pas de pus, radiographie souvent normale, fièvre isolée), signes de gravité à rechercher, ecthyma gangrenosum (sans rang : rang incertain pour ces détails).
 4. **Bilan initial** : deux paires d'hémocultures (voie centrale et périphérie), ionogramme, créatininémie, bilan hépatique, prélèvements guidés par la clinique ; pas de toucher rectal ; pas d'examens « systématiques ».
 5. **Antibiothérapie initiale** : monothérapie par bêta-lactamine antipseudomonale ; élargissement ciblé (aminoside si choc, carbapénème si BLSE, glycopeptide si cathéter/peau/pneumonie/SARM) ; isolement protecteur.
 6. **Épidémiologie** : hémocultures négatives en majorité, 60/10/30 %, BGN = mortalité, risque fongique croissant avec la durée.
@@ -78,11 +78,11 @@ F25 mDP2-Q7 (LLC, toux fébrile avec foyer de crépitants : **pneumocoque et Hae
 
 ## d. Architecture retenue (26 questions)
 
-**Section 1 — Questions isolées — Item 191 (13, libres)** : définition par vignettes (QRM, A) · délai de l'antibiothérapie (QROC, A) · clinique pauvre et signes de gravité (QRM, A) · documentation microbiologique (QRM) · antibiothérapie initiale (QRU, inacceptable sur la voie orale) · élargissement ciblé (QRP 3) · MASCC (QRM à 1 bonne réponse) · chambre implantable (QRM) · causes d'immunodépression (QRM tout vrai) · déficit et infections (QRM) · pneumocystose sous corticoïdes (QRM) · agranulocytose médicamenteuse (QRM, indispensable + inacceptable) · prophylaxies en hématologie (QRM).
+**Section 1 — Questions isolées — Item 191 (13, libres)** : définition par vignettes (QRM, A) · délai de l'antibiothérapie (QROC, A) · clinique pauvre et signes de gravité (QRM, inacceptable sur « différer ») · documentation microbiologique (QRM) · antibiothérapie initiale (QRU) · élargissement ciblé (QRP 3) · MASCC (QRM à 1 bonne réponse) · chambre implantable (QRM) · causes d'immunodépression (QRM tout vrai) · déficit et infections (QRM) · pneumocystose sous corticoïdes (QRM) · agranulocytose médicamenteuse (QRM, indispensable + inacceptable) · prophylaxies en hématologie (QRM).
 **Section 2 — KFP — Homme de 58 ans, fièvre au décours d'une chimiothérapie (6, verrouillée)** : QROC problème principal (A) → QRM nature de l'épisode (A ; inacceptable sur « différer ») → QRPL examens (5/15, indispensable sur les hémocultures) → QRPL prise en charge (4/12, indispensable + inacceptable) → QRM hémoculture à BGN (indispensable + inacceptable) → QRU fièvre persistante.
 **Section 3 — DP — Femme de 31 ans, fièvre brutale avec frissons (4, verrouillée)** : gravité (QRM) → prise en charge initiale (QRU) → germes (QRM) → prévention (QRM).
 **Section 4 — TCS — Fièvre chez un patient suivi pour une hémopathie (3, verrouillée)** : probable / improbable / neutre.
-Répartition visée : QRM 15, QRU 3, QRP 1, QRPL 2, QROC 2, TCS 3 ; rang A sur 6 questions ; 6 items indispensables ou inacceptables.
+Répartition visée : QRM 15, QRU 3, QRP 1, QRPL 2, QROC 2, TCS 3 ; rang A sur 5 questions (définition, délai de l'antibiothérapie, KFP Q1, Q2 et Q4 ; les autres sans rang) ; 4 items indispensables (hémocultures immédiates, antibiothérapie immédiate, maintien de l'antibiothérapie devant un BGN, arrêt du médicament en cause) et 7 inacceptables (différer l'antibiothérapie, voie orale chez le haut risque, arrêter l'antibiothérapie, ponction lombaire à 18 G/L de plaquettes, poursuite du médicament responsable, temporiser chez le splénectomisé).
 
 ## e. Pièges à éviter
 
