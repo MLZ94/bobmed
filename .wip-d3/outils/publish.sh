@@ -19,6 +19,7 @@ cp $SP/approved.txt $SP/audited.txt .wip-d3/; python3 .wip-d3/outils/etat.py $SP
 git add -f "$@"; git add d3/*/index.html d3/*/entrainement/index.html index.html .wip-d3 2>/dev/null
 git commit -q -m "$MSG
 
-Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>" || exit 1
+[ -n "$NOPUSH" ] && { git log --oneline -1; exit 0; }
 for i in 1 2 3 4; do git push -q origin D3 && { git log --oneline -1; exit 0; }; sleep $((2**i)); git pull -q --rebase origin D3; done
 exit 1

@@ -15,5 +15,5 @@ git add .wip-d3
 git diff --cached --quiet && exit 0
 git commit -q -m "$MSG
 
-Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>"
 for i in 1 2 3 4; do git push -q origin D3 && exit 0; sleep $((2**i)); git pull -q --rebase origin D3; done

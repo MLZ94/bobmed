@@ -56,5 +56,5 @@
 - **DP — Homme de 54 ans, glaires et sang dans les selles** (6, verrouillé) : toucher rectal et rectoscopie (QRM, A) → lecture d'IRM pelvienne (QRM, B) → stratégie préopératoire (QRU, B) → QROC fistule anastomotique → chirurgie du bas rectum (QRM, B) → séquelles fonctionnelles (QRM).
 - **TCS — Surveillance d'un cancer du côlon opéré, ACE en hausse** (3, verrouillé) : 2 hypothèses (récidive, cause non tumorale) + 1 attitude (scanner TAP injecté).
 - **KFP — Femme de 27 ans, rectorragies et antécédents familiaux** (3, verrouillé) : QROC (polypose adénomateuse familiale) + QRP 4/10 (arguments) + QRP 5/8 (conduite) — 3e version possible du KFP figé de la faculté (après BRCA et Lynch).
-- **Répartition** : QRM 18 · QRU 6 · QROC 2 · QRP 2 · TCS 3 ; QRM à 1, 2, 3 et 4 bonnes réponses ; options 5 partout (KFP : 10 et 8) ; rang A sur les notions certaines (signes d'appel, TR, ACE, surveillance), B sur le rectum, MSI et le stade IV, null ailleurs.
+- **Répartition** : QRM 19 · QRU 5 · TCS 3 · QROC 2 · QRP 2 ; QRM à 1, 2, 3, 4 et 5 bonnes réponses ; options 5 partout (KFP : 10 et 8) ; rang A sur les notions certaines (signes d'appel, TR, ACE, surveillance), B sur le rectum, MSI et le stade IV, null ailleurs.
 - **Voir aussi** : D2 T2 `Quiz_item301_cancer_colon`, D3 T2 `Quiz_item290_291_…`.

@@ -1,0 +1,1002 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Items 1/7 — Relation médecin-malade, annonce d&#x27;une maladie grave et droits du patient · Entraînement par item · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>Items 1/7 — Relation médecin-malade, annonce d'une maladie grave et droits du patient · Entraînement par item</h1>
+<div class="sub">35 questions — Personne de confiance (désignation, rôle) et personne à prévenir · Directives anticipées (forme, conservation, exceptions) · Information du patient et droit de ne pas savoir · Consentement · Refus de soins (motifs, second avis, réitération) · Secret médical · Accès et conservation du dossier médical · Annonce d'une maladie grave · Mécanismes de défense et étapes de Kübler-Ross · Modèles de relation médecin-malade · Éducation thérapeutique · Dommage associé aux soins et recours · Annonce d'un diagnostic de maladie d'Alzheimer · Conflit entre directives anticipées, personne de confiance et famille · Procédure collégiale · Capacité de discernement</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/35</b></span>
+<span class="pill">Score : <b id="s-ok">0/35</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">Questions isolées — Items 1 et 7</div>
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la personne de confiance et la personne à prévenir d'un patient hospitalisé, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le patient peut désigner deux personnes différentes comme personne de confiance et comme personne à prévenir</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La personne à prévenir témoigne de la volonté du patient lorsque celui-ci ne peut plus s'exprimer</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La personne à prévenir est avertie en cas d'aggravation, de transfert ou de décès du patient</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Le médecin traitant ne peut pas être désigné comme personne de confiance</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le patient peut demander à sa personne de confiance de l'accompagner dans ses démarches et d'assister aux entretiens médicaux</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les deux rôles sont distincts : la personne à prévenir est avertie des événements du séjour, la personne de confiance est consultée sur la volonté du patient. Rien n'oblige à les confondre.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Ce rôle de témoin revient à la personne de confiance. La personne à prévenir n'est pas associée aux décisions médicales.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Elle est le contact de l'équipe pour les événements importants du séjour, sans pour autant participer aux décisions de soins.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La loi cite expressément le médecin traitant parmi les personnes désignables, avec un parent ou un proche. La désignation est écrite et cosignée par la personne désignée.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Si le patient le souhaite, la personne de confiance l'aide dans ses décisions en l'accompagnant, y compris en consultation. Ce rôle s'exerce même quand le patient peut encore s'exprimer.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la désignation de la personne de confiance, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Lorsque le patient ne peut plus s'exprimer, elle donne au médecin son avis personnel sur les traitements à entreprendre</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une personne sous mesure de protection juridique avec représentation relative à la personne peut en désigner une, avec l'autorisation du juge ou du conseil de famille</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle peut être faite oralement au médecin, qui la note dans le dossier</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Faite lors d'une hospitalisation, elle vaut pour la durée du séjour, à moins que le patient n'en dispose autrement</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Dans le cadre du suivi, le médecin traitant s'assure que son patient est informé de la possibilité d'en désigner une</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elle rend compte de la volonté du patient telle qu'elle la connaît, et non de ses propres préférences. Son témoignage prévaut sur celui de la famille et des proches.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La mesure de protection ne prive pas de ce droit. Si la désignation est antérieure à la mesure, le juge ou le conseil de famille peut la confirmer ou la révoquer.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La désignation est écrite et cosignée par la personne désignée. Un patient qui ne peut pas écrire peut faire attester par deux témoins qu'elle exprime bien sa volonté.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le patient peut la prolonger au-delà du séjour. Désignée en dehors d'une hospitalisation, elle vaut sans limitation de durée tant qu'elle n'est pas révoquée.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La loi lui confie cette mission et l'invite à proposer la désignation. Elle est aussi proposée lors de toute hospitalisation et à l'entrée en établissement médico-social, comme un EHPAD.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la rédaction et la conservation des directives anticipées, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elles doivent être validées par un médecin pour être prises en compte</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elles sont rédigées sur papier libre, datées et signées, avec le nom, le prénom, la date et le lieu de naissance de leur auteur</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une personne qui ne peut pas écrire doit obligatoirement passer par un notaire</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elles peuvent être conservées dans le dossier médical, dont le dossier médical partagé, ou confiées à un proche ou à la personne de confiance</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elles ne peuvent être rédigées qu'après le diagnostic d'une maladie grave</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Aucune validation médicale n'est exigée : elles expriment la volonté de leur auteur, que le médecin doit rechercher puis prendre en compte.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Ces mentions garantissent l'authenticité du document. Un modèle existe, mais son usage reste facultatif.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle peut demander à deux témoins, dont sa personne de confiance si elle en a désigné une, d'attester que le document exprime sa volonté libre et éclairée.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'important est qu'elles soient accessibles le moment venu : l'auteur indique à ses proches et à sa personne de confiance où elles se trouvent.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Toute personne majeure peut en rédiger, y compris en bonne santé. Mieux vaut le faire tôt, tant que la personne peut encore exprimer sa volonté.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'information due au patient, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle incombe uniquement au médecin qui prescrit le traitement</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle est délivrée au cours d'un entretien individuel</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">En cas de litige, c'est au patient de prouver qu'il n'a pas été informé</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un patient peut demander à ne pas connaître son diagnostic ou son pronostic, et cette volonté doit être respectée sauf risque de transmission à des tiers</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Seules l'urgence ou l'impossibilité d'informer peuvent en dispenser le professionnel</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elle incombe à tout professionnel de santé, dans le cadre de ses compétences et selon les règles de sa profession.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Ce cadre garantit la confidentialité et laisse au patient la possibilité de poser ses questions. Le patient peut y associer un proche s'il le souhaite.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La charge de la preuve pèse sur le professionnel ou l'établissement, qui peut l'apporter par tout moyen (dossier médical, documents remis, témoignages).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le droit de ne pas savoir est reconnu par la loi. Il cède seulement lorsque des tiers sont exposés à un risque de transmission, par exemple d'une maladie contagieuse.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — C'est la lettre de la loi : ni la famille ni le médecin ne peuvent décider de taire un diagnostic. Le droit de ne pas savoir appartient au seul patient, qui doit l'exprimer lui-même.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le consentement aux soins, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La signature d'un formulaire à l'admission vaut consentement à tous les actes réalisés pendant le séjour</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il doit être libre et éclairé</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Il peut être retiré à tout moment</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il doit toujours être donné par écrit pour être valable</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Chez un majeur protégé, il est recherché dès lors que la personne est apte à exprimer sa volonté</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Chaque acte suppose une information adaptée et un accord spécifique. Un formulaire administratif ne remplace pas ce consentement.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Libre, c'est-à-dire donné sans contrainte. Éclairé, c'est-à-dire fondé sur une information claire, loyale et appropriée sur les bénéfices, les risques et les alternatives.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le patient peut revenir sur son accord, y compris en cours de traitement. Le médecin en prend acte après l'avoir informé des conséquences de sa décision.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Aucune forme n'est imposée en règle générale : un accord oral suffit. L'écrit n'est exigé que dans des situations prévues par la loi, comme la recherche impliquant la personne humaine.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Une mesure de protection juridique n'efface pas la personne : celle-ci est associée à la décision selon ses facultés de discernement.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Mme Y., 90 ans, atteinte d'une démence sévère, est admise aux urgences pour une fracture du col du fémur. Elle ne comprend pas la situation et ne peut exprimer aucune volonté. Elle n'a pas rédigé de directives anticipées. Elle avait désigné par écrit son neveu comme personne de confiance. Sa fille, qui ne partage pas l'avis du neveu, s'oppose à toute chirurgie. Quelle est la démarche la plus adaptée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Suivre l'avis de sa fille, car la famille prévaut sur tout autre avis non médical</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Demander au juge des tutelles d'autoriser l'intervention</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Consulter d'abord le neveu, personne de confiance, avant la famille et les proches, puis décider en équipe dans l'intérêt de la patiente</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Opérer sans consulter personne, la patiente ne pouvant pas consentir</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Différer toute proposition jusqu'à ce que la patiente retrouve la capacité de décider</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — C'est la personne de confiance, et non la famille, qui est consultée en priorité : son témoignage prévaut sur tout autre témoignage, mais pas sur des directives anticipées.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Aucune autorisation judiciaire n'est requise pour un soin chez une personne sans mesure de protection. La loi organise elle-même la consultation de la personne de confiance, de la famille ou des proches.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Sauf urgence ou impossibilité, aucune intervention n'est réalisée chez une personne hors d'état d'exprimer sa volonté sans consultation de la personne de confiance. La décision revient ensuite au médecin, en tenant compte des avis recueillis.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le neveu peut être joint rapidement : ni l'urgence ni l'impossibilité ne dispensent ici de consulter la personne de confiance, à défaut la famille ou un proche, avant d'opérer.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Une démence sévère ne régresse pas. Retarder la prise en charge d'une fracture du col fémoral expose à la douleur et aux complications de l'immobilisation.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">M. K., 76 ans, artéritique, présente une gangrène sèche de l'avant-pied avec un risque de surinfection pouvant engager le pronostic vital : une amputation est proposée. Il comprend les explications qu'on lui donne mais refuse l'intervention. Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Vous cherchez à comprendre les raisons de son refus</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous programmez l'amputation malgré son refus, en lui expliquant que sa vie est en danger</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous lui proposez de recueillir l'avis d'un autre médecin</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Après l'avoir informé des conséquences de son refus, vous lui demandez de réitérer sa décision après un délai raisonnable et vous la consignez dans le dossier médical</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vous poursuivez les soins qu'il accepte (pansements, antalgiques) ainsi que son suivi</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Peur de la douleur, de la dépendance ou de l'atteinte de l'image du corps, mauvaise expérience antérieure : connaître ses motifs permet d'adapter l'information et parfois de lever un malentendu.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un patient capable peut refuser un soin, même vital, après information de ses conséquences. Le médecin peut chercher à le convaincre, jamais lui imposer le geste.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La loi prévoit que le patient qui refuse un traitement vital puisse faire appel à un autre membre du corps médical : un second avis l'aide à décider en connaissance de cause, sans pression.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — C'est la séquence légale quand le refus met la vie en danger : information sur les conséquences et leur gravité, réitération après un délai raisonnable, traçabilité de toute la procédure.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Refuser un traitement n'est pas refuser tout soin : le médecin continue de soulager et d'accompagner le patient.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le secret médical, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il prend fin au décès du patient</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il s'impose à tous les professionnels intervenant dans le système de santé, et pas seulement aux médecins</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il est levé par la simple demande de l'employeur ou de l'assureur du patient</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un médecin ne peut jamais échanger d'informations avec un autre professionnel de santé sans l'accord écrit du patient</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">En cas de diagnostic ou de pronostic grave, la famille et les proches peuvent recevoir les informations nécessaires pour soutenir directement le patient, sauf opposition de celui-ci</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Il persiste après la mort. La loi autorise seulement une communication limitée aux ayants droit, au concubin ou au partenaire de PACS, pour connaître les causes du décès, défendre la mémoire du défunt ou faire valoir leurs droits.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Il couvre tout ce que le professionnel a vu, entendu ou compris dans l'exercice de sa profession, et concerne aussi les autres soignants et le personnel des établissements.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Ni l'employeur ni l'assureur ne peuvent obtenir d'informations couvertes par le secret. C'est le patient qui peut demander un certificat ou un document et le remettre lui-même.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les informations nécessaires à la continuité et à la coordination des soins sont partagées au sein de l'équipe de soins, le patient étant informé de ce partage.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — C'est une dérogation prévue par la loi : elle vise le soutien du malade et cesse si le patient s'y oppose.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="ABCDE">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'accès d'un patient à son dossier médical, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le patient peut y accéder directement, sans passer obligatoirement par un médecin</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les informations doivent lui être communiquées au plus tard 8 jours après sa demande, et 2 mois si elles datent de plus de 5 ans</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La consultation sur place est gratuite, et les frais de copie sont à la charge du demandeur</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Le patient peut demander que les informations soient communiquées à un médecin qu'il désigne</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Les ayants droit d'un patient décédé ne peuvent obtenir que les informations nécessaires à trois motifs prévus par la loi, sauf volonté contraire du défunt</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Depuis la loi du 4 mars 2002, l'accès est direct, ou par l'intermédiaire d'un médecin que le patient désigne s'il le préfère.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Un délai de réflexion minimal de 48 heures est observé avant la communication. Le délai de 2 mois s'applique aux informations anciennes.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Seuls la reproduction et l'envoi éventuel peuvent être facturés, sans excéder leur coût réel.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'accès par l'intermédiaire d'un médecin reste possible, par exemple pour être aidé à comprendre des informations difficiles.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Ces motifs sont connaître les causes de la mort, défendre la mémoire du défunt et faire valoir leurs droits ; le concubin et le partenaire de PACS en bénéficient aussi. Les parents d'un mineur décédé gardent un accès complet.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QROC" data-correct="" data-answer="20 ans | vingt ans | 20 | vingt | 20 années | vingt années | 20ans">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Dans un établissement de santé, pendant combien d'années le dossier médical d'un adulte est-il conservé à compter de la date de son dernier séjour ou de sa dernière consultation externe ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : 20 ans</div>
+    <div class="note"><div class="rappel">La durée est prolongée jusqu'au 28e anniversaire d'un patient mineur lors de sa dernière venue. Si le patient décède moins de 10 ans après son dernier passage, le dossier est conservé 10 ans à compter du décès.</div></div>
+  </div>
+</div>
+
+<div class="q" id="Q11" data-type="QRM" data-correct="D">
+  <div class="qhead"><span class="qnum">Q11</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'annonce d'une maladie grave, indiquez la ou les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle doit être faite le plus tôt possible, y compris par téléphone ou dans un couloir, pour limiter l'angoisse de l'attente</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle peut être déléguée à l'infirmier qui connaît le mieux le patient</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle comporte toujours un pronostic chiffré, au nom de l'exigence de vérité</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle commence par demander au patient ce qu'il sait de sa maladie et ce qu'il souhaite savoir</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Elle se fait nécessairement en l'absence de tout proche, afin de respecter le secret médical</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'annonce exige un lieu calme et confidentiel, du temps et l'absence d'interruption. Le téléphone et le couloir sont à proscrire.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'annonce du diagnostic est un acte médical. L'équipe paramédicale intervient ensuite en relais pour l'accompagnement et la reformulation.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le pronostic n'est donné que si le patient le souhaite, avec prudence : un pronostic fatal ne se révèle qu'avec circonspection.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Explorer sa perception et son souhait d'information permet d'ajuster le contenu et le rythme de l'annonce à ce que le patient est prêt à entendre.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le patient peut être accompagné de la personne de son choix. Le secret médical ne s'oppose pas à la présence d'un tiers que le patient a lui-même choisi.</div>
+  </div>
+</div>
+
+<div class="q" id="Q12" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">Q12</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Une patiente à qui l'on vient d'annoncer une maladie incurable déclare : « Si je suis bien tous les traitements et que je fais très attention à tout, j'ai bien droit à quelques années de plus, n'est-ce pas docteur ? » Selon la description d'Elisabeth Kübler-Ross, cette réaction correspond à :</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La colère</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le marchandage</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le déni</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La dépression</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'acceptation</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elle s'exprime par la révolte et l'agressivité envers les soignants ou les proches (« pourquoi moi ? »), ce que la patiente ne manifeste pas ici.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le patient tente de négocier un délai supplémentaire, avec le médecin ou avec le sort, en échange d'efforts ou de promesses.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le déni rejette la réalité de la maladie (« ce n'est pas possible »). Ici la patiente reconnaît la maladie et cherche à en négocier l'issue.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle correspond à la tristesse et au repli devant la perte annoncée, et non à une tentative de négociation.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Dernière étape, où le patient intègre la réalité de sa fin de vie avec une certaine sérénité, ce qui est incompatible avec une négociation en cours.</div>
+  </div>
+</div>
+
+<div class="q" id="Q13" data-type="QRM" data-correct="ADE">
+  <div class="qhead"><span class="qnum">Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les attitudes suivantes d'un soignant lors de l'annonce d'une mauvaise nouvelle, lesquelles correspondent à des mécanismes de défense du soignant ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La fuite en avant, qui consiste à tout dire d'un bloc sans tenir compte de ce que le patient souhaite savoir</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La reformulation de ce que le patient a compris</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le silence qui laisse au patient le temps d'exprimer ses émotions</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La fausse réassurance (« Ce n'est sûrement pas grave »)</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">L'évitement, qui consiste à espacer les visites ou à esquiver les questions du patient</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le soignant se libère du poids de l'information en la déversant, sans respecter le désir ni le rythme du patient.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — C'est une technique de communication qui vérifie la compréhension du patient. Elle favorise la rencontre au lieu de l'éviter.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les silences font partie de l'écoute active : ils laissent au patient le temps de réagir. Ils ne constituent pas une fuite.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Rassurer sans fondement apaise l'angoisse du soignant face à la gravité, mais prive le patient d'une information loyale.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le soignant fuit le contact, physiquement ou psychologiquement, pour échapper à l'angoisse que suscite la situation.</div>
+  </div>
+</div>
+
+<div class="q" id="Q14" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la relation médecin-malade, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Dans le modèle informatif, le médecin choisit le traitement à la place du patient</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Dans le modèle paternaliste, le médecin décide à la place du patient selon ce qu'il juge être son intérêt</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le modèle paternaliste est le seul compatible avec la loi du 4 mars 2002</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La décision médicale partagée associe l'expertise du médecin aux valeurs et aux préférences du patient</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La décision partagée suppose que le médecin s'abstienne de donner son avis</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Ce choix par le médecin caractérise le modèle paternaliste. Dans le modèle informatif, le médecin transmet l'information technique et le patient choisit seul.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le patient y reçoit passivement les décisions. Ce modèle, longtemps dominant, est dépassé depuis la reconnaissance de l'autonomie du patient par la loi du 4 mars 2002.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Cette loi consacre au contraire le droit du patient à être informé et à participer aux décisions de santé qui le concernent.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le médecin expose les options avec leurs bénéfices et leurs risques, le patient exprime ses valeurs, et la décision se construit ensemble.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le médecin donne son avis et ses recommandations. Partager la décision ne signifie pas s'effacer.</div>
+  </div>
+</div>
+
+<div class="q" id="Q15" data-type="QRM" data-correct="AE">
+  <div class="qhead"><span class="qnum">Q15</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'éducation thérapeutique du patient (ETP), indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle vise à aider le patient atteint d'une maladie chronique à acquérir ou à maintenir les compétences dont il a besoin pour gérer au mieux sa vie avec sa maladie</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle est obligatoire et son refus par le patient diminue le taux de remboursement de ses soins</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elle se limite à la transmission d'informations sur la maladie et les traitements</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Elle est réservée aux services hospitaliers spécialisés</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle commence par un diagnostic éducatif, qui identifie les besoins, les attentes et les freins du patient</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — C'est la définition de l'OMS reprise par la HAS : compétences d'autosoins (surveillance, adaptation du traitement) et d'adaptation (gestion du stress, confiance en soi).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle n'est pas opposable au malade et ne peut conditionner le remboursement de ses actes ou de ses médicaments.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle développe des compétences et le pouvoir d'agir du patient (techniques de soin, gestion d'une crise, adaptation du mode de vie), pas seulement ses connaissances.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle peut aussi être proposée en ville (cabinet, maison de santé, pharmacie) par des professionnels formés, dans le cadre de programmes structurés.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Ce bilan partagé définit des objectifs personnalisés, sur lesquels s'appuient ensuite les séances individuelles ou collectives et l'évaluation.</div>
+  </div>
+</div>
+
+<div class="q" id="Q16" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un patient s'estime victime d'un dommage associé aux soins. Concernant ses droits et ses recours, indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il peut saisir la commission des usagers de l'établissement pour examiner sa plainte ou sa réclamation</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il doit être informé des circonstances et des causes du dommage au plus tard dans les 15 jours suivant sa découverte ou sa demande expresse</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Il doit obligatoirement saisir un tribunal pour obtenir une indemnisation</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il peut se faire assister par une personne de son choix lors de l'entretien d'information</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Il peut saisir la commission de conciliation et d'indemnisation (CCI) pour un règlement amiable, si le dommage atteint un seuil de gravité</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Cette commission veille au respect des droits des usagers, examine les plaintes et réclamations et peut proposer une médiation.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Cette information est due indépendamment de toute recherche de responsabilité. Reconnaître un dommage n'équivaut pas à reconnaître une faute.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Une voie amiable existe avec la commission de conciliation et d'indemnisation, qui évite d'engager d'emblée une procédure judiciaire.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La loi prévoit cette assistance pour que le patient ne reste pas seul face à une annonce difficile.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La procédure est gratuite et ne nécessite pas d'avocat. La CCI organise une conciliation ou rend un avis ouvrant droit à une indemnisation amiable lorsque le dommage dépasse des seuils de gravité fixés par la loi.</div>
+  </div>
+</div>
+
+<div class="q" id="Q17" data-type="QRP" data-correct="BDF">
+  <div class="qhead"><span class="qnum">Q17</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRP · 3 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Dans quelles situations le médecin peut-il ne pas appliquer les directives anticipées d'un patient hors d'état d'exprimer sa volonté ? (Sélectionnez les 3 situations.)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Lorsque la famille du patient s'y oppose</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">En cas d'urgence vitale, pendant le temps nécessaire à une évaluation complète de la situation</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Lorsque le médecin désapprouve leur contenu</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Lorsqu'elles apparaissent manifestement inappropriées</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Lorsqu'elles ont été rédigées plus de trois ans auparavant</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Lorsqu'elles ne sont pas conformes à la situation médicale</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Lorsque la personne de confiance exprime un avis différent</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, F</div>
+    <div class="note"><div class="rappel">Toute décision de refus d'application est prise à l'issue d'une procédure collégiale, inscrite au dossier médical et portée à la connaissance de la personne de confiance (à défaut de la famille ou des proches).</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La famille est consultée mais n'a pas de pouvoir de décision : les directives, expression de la volonté du patient, s'imposent au médecin.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'urgence permet de débuter les soins le temps d'évaluer la situation. Les directives sont ensuite appliquées si elles restent pertinentes.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Une divergence d'opinion ne suffit pas : le médecin n'écarte pas les directives de sa seule initiative.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La loi prévoit ce cas, comme la non-conformité à la situation médicale : le refus d'application est alors décidé à l'issue d'une procédure collégiale, motivé et inscrit au dossier.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Depuis la loi du 2 février 2016, les directives anticipées sont valables sans limite de durée tant qu'elles ne sont pas révoquées.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Une situation que l'auteur n'avait pas envisagée, ou une évolution thérapeutique, peut rendre les directives inadaptées. La décision suit la procédure collégiale.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Le témoignage de la personne de confiance prévaut sur celui des proches, mais jamais sur les directives anticipées.</div>
+  </div>
+</div>
+
+<div class="sect">DP — Femme de 79 ans, amaigrissement et douleurs épigastriques</div>
+
+<div class="q" id="Q18" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q18</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Mme H., 79 ans, ancienne secrétaire de mairie, veuve, vit seule dans sa maison. Elle est autonome pour tous les actes de la vie quotidienne et n'a pour antécédents qu'une hypertension artérielle et une hypothyroïdie substituée. Son fils, Paul, vit à 30 km, sa fille à l'étranger. Elle consulte son médecin traitant (vous) pour des douleurs épigastriques évoluant depuis deux mois et une perte de poids de 8 kg en trois mois. À l'examen, le foie est dur et dépasse le rebord costal de 3 cm. Vous prescrivez une fibroscopie œsogastroduodénale, un scanner thoraco-abdomino-pelvien et un bilan biologique. Les résultats sont disponibles : tumeur ulcérée de l'antre gastrique dont les biopsies montrent un adénocarcinome, et plusieurs nodules hépatiques évocateurs de métastases. Vous la convoquez pour lui communiquer ces résultats.</div>
+  <div class="stem">Quels éléments préparez-vous pour cet entretien d'annonce ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Demander à son fils de lui annoncer le diagnostic, car il la connaît mieux que vous</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un créneau dédié, suffisamment long, dans un lieu calme et sans interruption</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Lui annoncer les résultats par téléphone dès aujourd'hui, pour qu'elle ne reste pas dans l'incertitude</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Lui proposer de venir accompagnée de la personne de son choix</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Relire le dossier et envisager la suite de la prise en charge (réunion de concertation pluridisciplinaire, soins de support) pour pouvoir répondre à ses questions</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'annonce d'un diagnostic relève du médecin, et c'est la patiente qui doit être informée en premier. Un proche ne peut pas s'y substituer.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'annonce se prépare : confidentialité, temps disponible et absence de dérangement (téléphone coupé) conditionnent la qualité de l'échange.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Une mauvaise nouvelle ne s'annonce pas au téléphone : le médecin doit pouvoir observer et accompagner les réactions de la patiente, et lui proposer des suites immédiates.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La présence d'un proche, si la patiente le souhaite, la soutient et l'aide à retenir l'information. C'est elle qui décide de lever ou non le secret médical.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le médecin qui annonce doit connaître les résultats et pouvoir proposer immédiatement une suite, ce qui réduit l'angoisse liée à l'incertitude.</div>
+  </div>
+</div>
+
+<div class="q" id="Q19" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q19</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Mme H. est venue seule. Une fois installée dans votre cabinet, quelle est la première étape de l'entretien ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La rassurer en lui disant que les examens ne sont pas inquiétants</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Lui lire les comptes rendus de la fibroscopie et du scanner</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Lui demander ce qu'elle a compris de la situation et ce qu'elle souhaite savoir</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Lui exposer le programme de chimiothérapie envisagé</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Lui annoncer d'emblée, en une phrase, qu'il s'agit d'un cancer métastatique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Ce serait une fausse réassurance, contraire à l'obligation d'information loyale, qui altère la confiance quand la vérité apparaît.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le vocabulaire technique d'un compte rendu est inadapté : l'information est donnée avec des mots simples et par étapes.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Cette exploration de la perception de la patiente et de son désir d'information permet d'ajuster le contenu et le rythme de l'annonce.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le traitement vient après l'annonce du diagnostic et la prise en compte des réactions. La proposition thérapeutique est élaborée en concertation pluridisciplinaire.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Annoncer sans savoir ce que la patiente connaît ni ce qu'elle souhaite savoir l'expose à un choc inutile et ne laisse aucune place à ses réactions.</div>
+  </div>
+</div>
+
+<div class="q" id="Q20" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">Q20</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Mme H. vous répond : « Je sais que ce n'est pas bon, docteur. Dites-moi ce que j'ai. » Comment procédez-vous ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vous lui assurez immédiatement qu'on pourra la guérir</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Vous lui annoncez par étapes, avec des mots simples, qu'il s'agit d'un cancer de l'estomac qui a donné des localisations dans le foie</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vous lui donnez la durée médiane de survie pour qu'elle puisse organiser sa vie</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vous évitez de prononcer le mot « cancer » pour la ménager</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vous respectez ses silences et ses larmes sans chercher à les combler</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Rien ne permet de promettre la guérison en situation métastatique. C'est une fausse réassurance, qui entame la confiance de la patiente.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'information est progressive et formulée simplement, avec des pauses qui permettent de vérifier la compréhension et d'accueillir l'émotion.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le pronostic chiffré n'est donné que si la patiente le souhaite et avec prudence. Une médiane est une donnée de groupe, non un pronostic individuel.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les euphémismes (« une anomalie ») altèrent la loyauté de l'information et créent des malentendus. Les mots exacts, bien choisis, protègent mieux.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le silence et l'expression des émotions font partie de l'annonce. Les combler précipitamment revient à fuir l'émotion de la patiente.</div>
+  </div>
+</div>
+
+<div class="q" id="Q21" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">Q21</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">À l'énoncé du résultat, Mme H. répond d'un ton ferme : « Ce n'est pas possible, vous vous êtes trompé de dossier, ces examens ne sont pas les miens. » Quel mécanisme de défense illustre cette réaction ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le déni</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La régression</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">La sublimation</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">La rationalisation</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">L'isolation</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — C'est le refus inconscient de reconnaître une réalité vécue comme insupportable, ici l'existence même des résultats et leur appartenance à la patiente.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle consiste à adopter un comportement plus infantile ou dépendant devant l'angoisse, ce qui ne correspond pas à un rejet de la réalité.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Mécanisme qui transforme une pulsion en une activité valorisée (création, engagement). Il n'a aucun rapport avec le refus d'une information.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle consiste à donner une explication logique à ce qui angoisse (« c'est sûrement le stress »), et non à nier l'existence des résultats.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Elle sépare l'information de sa charge émotionnelle, avec un discours froid et détaché. La réaction est ici affective et massive.</div>
+  </div>
+</div>
+
+<div class="q" id="Q22" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q22</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Mme H. persiste à dire que ces examens ne la concernent pas. Quelle est votre attitude ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vous lui montrez les images du scanner pour la convaincre</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Vous reconnaissez ce mécanisme de défense et le respectez, sans la confronter brutalement à la réalité</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vous considérez qu'elle a perdu sa capacité de discernement et vous sollicitez son fils pour décider à sa place</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vous lui proposez un nouvel entretien rapproché pour reprendre l'information à son rythme</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vous lui précisez que vous restez disponible pour toute question et qu'elle ne sera pas abandonnée</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Heurter le déni de front est inefficace et violent. Il s'atténue progressivement avec le temps, l'écoute et la répétition de l'information.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les mécanismes de défense sont inconscients et visent à réduire une angoisse intense : ils doivent être reconnus et respectés, non combattus.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le déni est un mécanisme de défense, non un trouble de la capacité. La patiente reste maîtresse de ses décisions et c'est à elle que l'information est due.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Revoir la patiente permet d'aborder à nouveau les résultats lorsqu'elle sera prête à les entendre, par étapes.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Assurer la continuité de l'accompagnement entretient la relation de confiance et permet à la patiente de revenir vers vous quand elle le pourra.</div>
+  </div>
+</div>
+
+<div class="q" id="Q23" data-type="QRM" data-correct="BCD">
+  <div class="qhead"><span class="qnum">Q23</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Mme H. accepte d'être prise en charge à l'hôpital et vous demande de ne rien dire à ses enfants avant de leur avoir parlé elle-même. Le lendemain, son fils Paul, médecin dans un autre hôpital, vous téléphone, très inquiet, et vous demande de lui envoyer par courriel le compte rendu d'anatomopathologie. Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Comme Paul est médecin, vous pouvez lui transmettre le compte rendu</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Vous opposez le secret médical et ne communiquez rien, conformément à la demande de la patiente</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous encouragez la patiente à informer elle-même ses enfants et vous lui proposez votre aide</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vous proposez à Paul de venir avec sa mère à la prochaine consultation, si elle y consent</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Le secret médical ne s'applique pas à un parent au premier degré</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le secret médical s'impose aussi vis-à-vis d'un confrère étranger à la prise en charge, qui ne fait pas partie de l'équipe de soins de la patiente.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — En cas de diagnostic grave, les proches peuvent recevoir des informations pour soutenir le patient, sauf opposition de celui-ci. Mme H. s'oppose, vous respectez sa volonté.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Aider la patiente à parler à ses enfants respecte son autonomie et prépare un soutien familial, précieux face à un diagnostic grave.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Associer le fils à l'entretien, avec l'accord de la patiente, permet de le soutenir sans violer le secret.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il s'applique à tous les tiers, enfants compris, sauf dérogation prévue par la loi.</div>
+  </div>
+</div>
+
+<div class="q" id="Q24" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">Q24</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Quelques jours plus tard, Mme H. vous dit vouloir désigner Paul comme personne de confiance, « pour qu'il parle à ma place quand je ne pourrai plus ». Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Paul pourra prendre à la place de sa mère les décisions de traitement si elle ne peut plus s'exprimer</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Cette désignation se fait par écrit et doit être cosignée par Paul</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Paul pourra, si sa mère le souhaite, l'accompagner aux consultations et assister aux entretiens médicaux</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Mme H. pourra révoquer cette désignation à tout moment</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Chez un patient hors d'état d'exprimer sa volonté et sans personne de confiance, la famille ou, à défaut, un proche est consulté avant toute intervention, sauf urgence ou impossibilité</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La personne de confiance témoigne de la volonté de la patiente sans décider à sa place : la décision médicale revient au médecin, après l'avoir consultée.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La loi exige un écrit cosigné par la personne désignée, qui mesure ainsi la mission qui lui est confiée.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — C'est l'un des rôles de la personne de confiance : aider le patient à décider, tant qu'il peut encore s'exprimer.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La désignation est révisable et révocable à tout moment, et la patiente peut choisir une autre personne.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La personne de confiance est consultée en premier ; ce n'est qu'à défaut que l'on se tourne vers la famille, puis vers les proches, pour connaître la volonté du patient.</div>
+  </div>
+</div>
+
+<div class="q" id="Q25" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q25</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après avoir rencontré l'oncologue, qui lui propose une chimiothérapie palliative, Mme H. vous dit : « Je ne veux pas de chimiothérapie. Je veux rester chez moi, mais je ne veux pas qu'on m'abandonne. » Son fils insiste pour qu'elle accepte. Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Vous vérifiez qu'elle a bien compris les bénéfices attendus de la chimiothérapie et les conséquences de son refus</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous lui expliquez que, puisqu'elle refuse le traitement, vous ne pourrez plus la suivre</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous lui proposez une prise en charge palliative précoce, associant soins de support et équipe de soins palliatifs</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vous demandez à Paul de signer à sa place le consentement à la chimiothérapie</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vous lui proposez de reprendre sa décision avec vous lors d'une prochaine consultation, et vous la consignez dans le dossier médical</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le médecin respecte la volonté d'un patient après l'avoir informé des conséquences de ses choix et de leur gravité. C'est ce qui rend le refus éclairé.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le refus d'un traitement spécifique ne dispense pas le médecin de continuer à soigner et à accompagner : le suivi et les soins de confort se poursuivent.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Une démarche palliative est indiquée dès qu'une maladie grave, évolutive et incurable est identifiée, que des traitements spécifiques soient poursuivis ou non.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Une patiente majeure et capable consent seule : aucun proche ne peut signer un consentement à sa place ni lui imposer un traitement.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Un refus se rediscute à distance, sans pression, et toute la procédure est tracée. Si le refus met la vie en danger, la loi exige en outre que la patiente réitère sa décision après un délai raisonnable.</div>
+  </div>
+</div>
+
+<div class="sect">KFP — Homme de 80 ans, plaintes mnésiques en consultation mémoire</div>
+
+<div class="q" id="Q26" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q26</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">M. L., 80 ans, ancien professeur de mathématiques, marié, est reçu en consultation mémoire, accompagné de son épouse, pour des troubles mnésiques progressifs depuis deux ans (oublis de rendez-vous, difficultés à gérer ses médicaments, désorientation dans un quartier connu). Il reste autonome pour les activités de base. Le bilan est terminé : MMSE à 21/30, IRM cérébrale montrant une atrophie hippocampique bilatérale, biomarqueurs du liquide cérébro-spinal en faveur d'une maladie d'Alzheimer, absence de syndrome dépressif ou d'autre cause curable. En réunion pluridisciplinaire, le diagnostic de maladie d'Alzheimer au stade de démence légère est retenu. Au début de la consultation, M. L. vous a dit : « Docteur, je veux savoir ce que j'ai. » Avant l'entretien de restitution, son épouse vous prend à part : « Je vous en prie, ne lui dites pas le nom de la maladie, il ne le supporterait pas. »</div>
+  <div class="stem">Que répondez-vous à l'épouse ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Vous acceptez et parlerez à M. L. d'un « vieillissement normal du cerveau »</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous annoncez le diagnostic à l'épouse seule et lui laissez le soin d'en parler à son mari</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Vous reconnaissez son inquiétude, lui expliquez que M. L. a le droit d'être informé et que vous adapterez l'annonce à ce qu'il souhaite savoir</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vous lui demandez de ne plus assister aux consultations de son mari</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Vous reportez l'annonce jusqu'à ce que M. L. pose lui-même la question</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Taire ou travestir le diagnostic est contraire à l'obligation d'information loyale, claire et appropriée, d'autant que M. L. demande à savoir.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Le patient a le droit d'être informé en premier de son état de santé. L'entourage n'est associé qu'avec son accord.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'annonce est destinée au patient en premier, de façon progressive et adaptée, l'épouse y étant associée avec son accord. L'inquiétude de l'aidante est ainsi prise en compte.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Exclure l'aidante n'est ni nécessaire ni bénéfique : c'est une partenaire du suivi, dont l'épuisement doit aussi être prévenu.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — M. L. a déjà exprimé le souhait de savoir. Différer sans raison est contraire à son droit à l'information.</div>
+  </div>
+</div>
+
+<div class="q" id="Q27" data-type="QRPL" data-correct="BDFI">
+  <div class="qhead"><span class="qnum">Q27</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRPL · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous menez l'entretien d'annonce avec M. L. Quelles attitudes adoptez-vous ? (Sélectionnez les 4 propositions justes.)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Employer l'expression « maladie du vieillissement » pour éviter le mot Alzheimer</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Lui demander d'abord comment il perçoit ses difficultés et ce qu'il souhaite savoir</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Attendre l'accord écrit de ses enfants avant de lui annoncer le diagnostic</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Employer un vocabulaire simple et des phrases courtes, en vérifiant régulièrement qu'il a compris</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Prévoir un entretien unique, sans consultation de suivi, pour ne pas prolonger son angoisse</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Lui proposer que son épouse reste présente à l'entretien, s'il y consent</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Lui annoncer que la maladie évolue inéluctablement vite et qu'aucune prise en charge n'existe</span></li>
+    <li class="opt" data-l="H" data-correct="0"><span class="box">H</span><span class="otext">Remettre le compte rendu détaillé à l'épouse seule</span></li>
+    <li class="opt" data-l="I" data-correct="1"><span class="box">I</span><span class="otext">Nommer le diagnostic de maladie d'Alzheimer, puis évoquer les moyens d'accompagnement et de suivi</span></li>
+    <li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Lui faire signer sans attendre ses directives anticipées</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, F, I</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un euphémisme nuit à la loyauté de l'information et complique la suite de la prise en charge. Le diagnostic est nommé avec des mots adaptés.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Explorer la perception et le souhait d'information du patient est le préalable de toute annonce. Il permet d'adapter le contenu à ce qu'il peut entendre.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le patient majeur est le premier destinataire de l'information : l'accord de ses enfants n'est pas requis pour la lui donner.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les troubles mnésiques et attentionnels imposent un langage clair et des reformulations. L'information est répétée et complétée aux consultations suivantes.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'annonce est un processus : il faut reprendre l'information et accompagner le patient et son aidant lors de rendez-vous ultérieurs.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Avec l'accord du patient, la présence de l'aidant principal soutient le patient et l'aide à retenir l'information, tout en l'associant au projet de soins.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Cette présentation est inexacte et décourageante : il existe des traitements symptomatiques, des interventions non médicamenteuses et un accompagnement de l'aidant.</div>
+    <div class="citem v-faux"><span class="cl">H.</span> <span class="cv">FAUX</span> — Le patient a lui-même droit à l'information et à l'accès à son dossier : passer par l'épouse seule le priverait de ce droit.</div>
+    <div class="citem v-vrai"><span class="cl">I.</span> <span class="cv">VRAI</span> — Après le mot juste, présenter les aides (consultations de suivi, stimulation cognitive, aides à domicile, associations) évite que l'annonce soit vécue comme une condamnation.</div>
+    <div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span> — Les directives anticipées se discutent, se rédigent librement et se révisent à tout moment. Les imposer à chaud n'a pas de sens.</div>
+  </div>
+</div>
+
+<div class="q" id="Q28" data-type="QRM" data-correct="AE">
+  <div class="qhead"><span class="qnum">Q28</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après l'annonce, M. L. vous dit : « Je veux régler les choses tant que j'ai encore toute ma tête. » Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Vous lui proposez de rédiger des directives anticipées, qu'il pourra modifier à tout moment</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Vous demandez à son épouse de les rédiger à sa place, ses troubles cognitifs rendant sa signature douteuse</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Vous exigez un certificat de neurologue attestant sa capacité avant d'accepter ses directives</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Vous lui expliquez qu'avec une maladie d'Alzheimer, il ne peut plus ni désigner une personne de confiance ni rédiger de directives</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Vous lui proposez de désigner une personne de confiance</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Elles expriment sa volonté pour la période où il ne pourra plus s'exprimer et restent révisables et révocables tant qu'il garde sa capacité de discernement.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les directives expriment la volonté de leur seul auteur : personne, pas même l'épouse, ne peut les rédiger à sa place.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La loi n'impose aucun certificat pour des directives anticipées. Le médecin peut en revanche aider le patient à les rédiger.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le diagnostic ne prive pas de la capacité de décider. Tant que le discernement est conservé, ces démarches restent possibles : mieux vaut les faire tôt.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elle témoignera de sa volonté lorsqu'il ne pourra plus l'exprimer. L'anticiper, tant qu'il comprend la portée de ce choix, évite les conflits ultérieurs.</div>
+  </div>
+</div>
+
+<div class="sect">DP — Homme de 88 ans résidant en EHPAD, retrouvé inerte dans sa chambre</div>
+
+<div class="q" id="Q29" data-type="QRM" data-correct="CE">
+  <div class="qhead"><span class="qnum">Q29</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">M. R., 88 ans, vit en EHPAD depuis deux ans. Il a une cardiopathie ischémique, une insuffisance cardiaque chronique et une fibrillation atriale anticoagulée. Il présentait des troubles cognitifs légers (MMSE à 22/30 l'an dernier) et était classé GIR 3. Ce matin, il est retrouvé inerte dans sa chambre, avec une hémiplégie droite, une aphasie complète et une somnolence. Le scanner cérébral réalisé aux urgences montre un infarctus sylvien gauche étendu. Il est hospitalisé en unité de soins gériatriques et ne peut plus exprimer sa volonté. À son arrivée, l'équipe ne dispose d'aucune information sur ses souhaits. Sa fille, Mme S., arrive et exige que « tout soit fait pour sauver son père », notamment une gastrostomie puisqu'il n'avale plus.</div>
+  <div class="stem">Comment l'équipe peut-elle chercher à connaître la volonté de M. R. ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Se fier à la seule demande de sa fille, parente la plus proche</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Demander au juge des tutelles de désigner un tuteur avant toute décision</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Consulter la personne de confiance, si le patient en a désigné une</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Présumer qu'il souhaite tous les soins possibles, faute de volonté exprimée</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Rechercher d'éventuelles directives anticipées (dossier de l'EHPAD, médecin traitant, dossier médical partagé)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La famille est consultée, mais elle ne décide pas à la place du patient. La personne de confiance, si elle existe, passe avant elle.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une mesure de protection n'est pas un préalable : la loi organise la consultation de la personne de confiance ou, à défaut, de la famille ou des proches.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Désignée par le patient pour témoigner de sa volonté, elle est l'interlocuteur à entendre en premier lorsque le patient ne peut plus s'exprimer.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — En l'absence de volonté connue, la décision se fonde sur le témoignage de la personne de confiance, à défaut de la famille, et sur l'intérêt du patient, sans présumer un souhait de tout faire.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elles peuvent être conservées dans plusieurs dossiers ou chez un proche : le médecin doit les rechercher avant toute décision de limitation de traitement.</div>
+  </div>
+</div>
+
+<div class="q" id="Q30" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q30</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">L'infirmière de l'EHPAD apporte son dossier. Il contient une fiche désignant son neveu, M. Jean R., comme personne de confiance, cosignée à l'admission, ainsi qu'un document manuscrit daté et signé, mentionnant ses nom, prénom, date et lieu de naissance, rédigé il y a quatre ans : « Si je ne peux plus décider, je refuse toute réanimation, toute ventilation artificielle et toute alimentation par sonde, même si ma vie en dépend. Je veux partir sans souffrir. » Le neveu confirme que son oncle « ne voulait pas finir branché à des machines ». Mme S. conteste ce document. Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'avis de la fille prévaut sur les directives anticipées, car elle est la parente la plus proche</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le document manuscrit remplit les conditions de forme des directives anticipées</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le médecin peut écarter ces directives de sa seule initiative s'il ne partage pas les souhaits du patient</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les directives s'imposent au médecin pour les décisions de réanimation et de nutrition artificielle, sauf si elles apparaissent manifestement inappropriées ou non conformes à la situation médicale</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">En l'absence de directives, le témoignage du neveu, personne de confiance, prévaudrait sur celui de la fille</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les directives expriment la volonté du patient lui-même, que le médecin doit respecter : la proximité familiale ne confère aucun pouvoir de décision face à elles.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Il est écrit sur papier libre, daté et signé, avec l'identité de son auteur : cela suffit. Aucun notaire, médecin ou témoin n'est exigé.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Il ne peut les écarter qu'à titre d'exception, après procédure collégiale, et la décision motivée est inscrite au dossier.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elles s'imposent pour toute décision d'investigation, d'intervention ou de traitement. Elles n'ont pas de limite de durée : leur ancienneté de quatre ans est sans incidence.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La loi donne la priorité au témoignage de la personne de confiance sur celui de la famille et des proches, mais jamais sur les directives anticipées.</div>
+  </div>
+</div>
+
+<div class="q" id="Q31" data-type="QROC" data-correct="" data-answer="procédure collégiale | la procédure collégiale | une procédure collégiale | procedure collegiale | décision collégiale | collégiale | procédure collégiale de limitation et d&#x27;arrêt de traitement">
+  <div class="qhead"><span class="qnum">Q31</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">L'équipe envisage de ne pas entreprendre de ventilation invasive ni de gastrostomie, conformément à la volonté de M. R. Quelle procédure la loi impose-t-elle avant de décider de limiter ou d'arrêter un traitement chez un patient hors d'état d'exprimer sa volonté ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : La procédure collégiale</div>
+    <div class="note"><div class="rappel">Elle associe la concertation avec les membres présents de l'équipe de soins et l'avis motivé d'au moins un médecin consultant, sans lien hiérarchique avec le médecin en charge du patient. Elle prend en compte les directives anticipées, puis le témoignage de la personne de confiance, à défaut de la famille ou des proches. La décision revient au médecin en charge du patient ; elle est motivée et inscrite au dossier.</div></div>
+  </div>
+</div>
+
+<div class="q" id="Q32" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q32</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après procédure collégiale, l'équipe décide de ne pas pratiquer de gastrostomie ni de ventilation invasive et de poursuivre les soins de confort. Mme S. conteste la décision. Indiquez les propositions vraies.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La décision est motivée et inscrite dans le dossier médical</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Cette décision correspond à une euthanasie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La personne de confiance est informée de la nature et des motifs de la décision</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Les soins de confort (antalgie, soins de bouche, présence, accompagnement) sont poursuivis</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Mme S. est reçue par l'équipe pour entendre les motifs de la décision et être accompagnée</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Une décision de limitation de traitement est toujours motivée et tracée, avec les avis recueillis lors de la procédure collégiale.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Ne pas entreprendre ou arrêter un traitement relevant d'une obstination déraisonnable n'est pas une euthanasie : l'intention n'est pas de provoquer la mort.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — À défaut de personne de confiance, c'est la famille ou un proche qui est informé. Cette information fait partie de la procédure.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Limiter les traitements actifs ne signifie pas arrêter les soins : le médecin sauvegarde la dignité du mourant et assure la qualité de sa fin de vie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Écouter et informer la famille fait partie de la démarche. La famille est entendue et soutenue, mais elle ne décide pas.</div>
+  </div>
+</div>
+
+<div class="sect">TCS — Femme de 87 ans hospitalisée en court séjour gériatrique</div>
+
+<div class="q" id="Q33" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">Q33</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Mme T., 87 ans, veuve, vit seule avec une aide à domicile. Elle est autonome pour la toilette et l'habillage, sans trouble cognitif connu (MMSE à 27/30 il y a six mois). Elle est hospitalisée en court séjour gériatrique pour une altération de l'état général et des douleurs abdominales. Le bilan retrouve une tumeur du pancréas avec des métastases hépatiques, dont elle a été informée, à sa demande, par l'oncologue, qui lui propose une chimiothérapie palliative. Elle a désigné sa fille aînée comme personne de confiance. Chaque question apporte une information nouvelle, indépendante des autres.</div>
+  <div class="stem">Si vous pensiez que Mme T. est en capacité de décider seule de son projet de soins et que vous apprenez que, lors de deux entretiens espacés de 48 heures, elle reformule correctement sa situation et les options proposées, explique son choix de façon cohérente avec ses valeurs de toujours et le maintient, cette hypothèse devient :</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D — probable</div>
+    <div class="note">Tout adulte est présumé capable de décider pour lui-même, et la capacité de discernement s'apprécie pour une décision donnée, à un moment donné. Reformuler correctement sa situation, justifier son choix en cohérence avec ses valeurs et le maintenir dans le temps sont de solides arguments en sa faveur : l'hypothèse devient probable, sans être certaine, car l'évaluation reste clinique et peut être reprise si l'état de la patiente évolue.</div>
+  </div>
+</div>
+
+<div class="q" id="Q34" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">Q34</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensiez que le refus de la chimiothérapie exprimé hier soir par Mme T. est un refus éclairé, et que vous apprenez de l'infirmière de nuit qu'au moment où elle l'a exprimé, elle était désorientée dans le temps et l'espace, inattentive, avec un discours décousu et une vigilance fluctuante (CAM positive), cette hypothèse devient :</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A — improbable</div>
+    <div class="note">Un refus exprimé en pleine confusion aiguë, avec inattention et désorganisation de la pensée, ne repose ni sur une compréhension ni sur une appréciation fiables de la situation : il ne peut pas être tenu pour éclairé, et l'hypothèse devient improbable. On recherche et on traite la cause de la confusion, puis on reprend la discussion lorsque la patiente est de nouveau en état de décider.</div>
+  </div>
+</div>
+
+<div class="q" id="Q35" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q35</span><span class="qrank rang-a">Rang A</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensiez que Mme T. a la capacité de décider seule de son projet de soins et que vous apprenez que sa fille, qu'elle a désignée personne de confiance, désapprouve fortement le choix qu'elle a exprimé, cette hypothèse devient :</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C — ni plus ou moins probable</div>
+    <div class="note">Le désaccord d'un proche, même personne de confiance, ne renseigne pas sur les capacités de discernement de la patiente : l'information ne rend l'hypothèse ni plus ni moins probable. La personne de confiance accompagne la patiente si elle le souhaite et témoigne de sa volonté lorsqu'elle ne peut plus s'exprimer ; elle ne lui substitue jamais son propre avis.</div>
+  </div>
+</div>
+
+<footer>35 questions · Items 1 et 7 · D3 T2 UE 5 Gériatrie · BobMed entraînement. · Voir aussi : <a href="Quiz_item139_140_141_soins_palliatifs.html">Items 139/140/141 — Soins palliatifs (D3 T2)</a> · <a href="Quiz_item295_parcours_annonce_cancer.html">Item 295 — Accompagnement du patient atteint de cancer (D3 T2)</a> · <a href="Quiz_item132_troubles_cognitifs.html">Item 132 — Troubles cognitifs du sujet âgé (D3 T2)</a> · <a href="../../../d2/t2/entrainement/Quiz_item15_soins_sans_consentement.html">Item 15 — Soins psychiatriques sans consentement (D2 T2)</a></footer>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script src="../../../qcopy.js"></script>
+</body></html>

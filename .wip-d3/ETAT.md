@@ -1,6 +1,6 @@
-# État des quiz d'entraînement D3 (généré le 2026-10-16 16:51 UTC par outils/etat.py)
+# État des quiz d'entraînement D3 (généré le 2026-10-16 17:12 UTC par outils/etat.py)
 
-## publié (24)
+## publié (28)
 - d3/t1/entrainement/Quiz_item23_grossesse_normale.html
 - d3/t1/entrainement/Quiz_item24_344_hta_diabete_grossesse.html
 - d3/t1/entrainement/Quiz_item24_26_hemorragies_douleurs_grossesse.html
@@ -22,30 +22,30 @@
 - d3/t2/entrainement/Quiz_item120_133_immobilite_dependance.html
 - d3/t2/entrainement/Quiz_item139_140_141_soins_palliatifs.html
 - d3/t2/entrainement/Quiz_item134_135_138_douleur_antalgiques.html
+- d3/t2/entrainement/Quiz_item1_7_annonce_droits_patient.html
+- d3/t2/entrainement/Quiz_item66_250_267_depression_denutrition_deshydratation_sujet_age.html
 - d3/t2/entrainement/Quiz_item290_291_epidemiologie_depistage_oncogenetique.html
 - d3/t2/entrainement/Quiz_item292_diagnostic_cancers.html
+- d3/t2/entrainement/Quiz_item294_traitements_cancers.html
 - d3/t2/entrainement/Quiz_item295_parcours_annonce_cancer.html
+- d3/t2/entrainement/Quiz_item307_354_metastases_osseuses_urgences_onco.html
 
 ## audité, à publier (0)
 - (aucun)
 
-## rédigé, à auditer (1)
-- d3/t2/entrainement/Quiz_item294_traitements_cancers.html
-
-## à rédiger (27)
-- d3/t2/entrainement/Quiz_item1_7_annonce_droits_patient.html
-- d3/t2/entrainement/Quiz_item66_250_267_depression_denutrition_deshydratation_sujet_age.html
+## rédigé, à auditer (6)
 - d3/t2/entrainement/Quiz_item212_213_hemogramme_anemies.html
 - d3/t2/entrainement/Quiz_item214_215_216_thrombopenie_purpura_hemostase.html
 - d3/t2/entrainement/Quiz_item315_316_leucemies_aigues_smd.html
 - d3/t2/entrainement/Quiz_item317_275_smp_splenomegalie.html
+- d3/t2/entrainement/Quiz_item312_cancer_sein.html
+- d3/t2/entrainement/Quiz_item301_cancer_colorectal.html
+
+## à rédiger (18)
 - d3/t2/entrainement/Quiz_item318_llc.html
 - d3/t2/entrainement/Quiz_item319_lymphomes.html
 - d3/t2/entrainement/Quiz_item320_myelome.html
 - d3/t2/entrainement/Quiz_item191_neutropenie_febrile.html
-- d3/t2/entrainement/Quiz_item312_cancer_sein.html
-- d3/t2/entrainement/Quiz_item301_cancer_colorectal.html
-- d3/t2/entrainement/Quiz_item307_354_metastases_osseuses_urgences_onco.html
 - d3/t3/entrainement/Quiz_item330_anticoagulants_antiagregants.html
 - d3/t3/entrainement/Quiz_item330_ains_corticoides.html
 - d3/t3/entrainement/Quiz_item330_immunosuppresseurs_biotherapies.html
