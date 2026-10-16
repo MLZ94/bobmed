@@ -1,6 +1,6 @@
-# État des quiz d'entraînement D3 (généré le 2026-10-16 17:12 UTC par outils/etat.py)
+# État des quiz d'entraînement D3 (généré le 2026-10-16 17:15 UTC par outils/etat.py)
 
-## publié (28)
+## publié (30)
 - d3/t1/entrainement/Quiz_item23_grossesse_normale.html
 - d3/t1/entrainement/Quiz_item24_344_hta_diabete_grossesse.html
 - d3/t1/entrainement/Quiz_item24_26_hemorragies_douleurs_grossesse.html
@@ -28,22 +28,22 @@
 - d3/t2/entrainement/Quiz_item292_diagnostic_cancers.html
 - d3/t2/entrainement/Quiz_item294_traitements_cancers.html
 - d3/t2/entrainement/Quiz_item295_parcours_annonce_cancer.html
+- d3/t2/entrainement/Quiz_item312_cancer_sein.html
+- d3/t2/entrainement/Quiz_item301_cancer_colorectal.html
 - d3/t2/entrainement/Quiz_item307_354_metastases_osseuses_urgences_onco.html
 
 ## audité, à publier (0)
 - (aucun)
 
-## rédigé, à auditer (6)
+## rédigé, à auditer (5)
 - d3/t2/entrainement/Quiz_item212_213_hemogramme_anemies.html
 - d3/t2/entrainement/Quiz_item214_215_216_thrombopenie_purpura_hemostase.html
 - d3/t2/entrainement/Quiz_item315_316_leucemies_aigues_smd.html
 - d3/t2/entrainement/Quiz_item317_275_smp_splenomegalie.html
-- d3/t2/entrainement/Quiz_item312_cancer_sein.html
-- d3/t2/entrainement/Quiz_item301_cancer_colorectal.html
-
-## à rédiger (18)
-- d3/t2/entrainement/Quiz_item318_llc.html
 - d3/t2/entrainement/Quiz_item319_lymphomes.html
+
+## à rédiger (17)
+- d3/t2/entrainement/Quiz_item318_llc.html
 - d3/t2/entrainement/Quiz_item320_myelome.html
 - d3/t2/entrainement/Quiz_item191_neutropenie_febrile.html
 - d3/t3/entrainement/Quiz_item330_anticoagulants_antiagregants.html
