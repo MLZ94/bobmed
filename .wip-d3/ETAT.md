@@ -1,11 +1,13 @@
-# État des quiz d'entraînement D3 (généré le 2026-10-16 16:48 UTC par outils/etat.py)
+# État des quiz d'entraînement D3 (généré le 2026-10-16 16:50 UTC par outils/etat.py)
 
-## publié (22)
+## publié (24)
 - d3/t1/entrainement/Quiz_item23_grossesse_normale.html
 - d3/t1/entrainement/Quiz_item24_344_hta_diabete_grossesse.html
 - d3/t1/entrainement/Quiz_item24_26_hemorragies_douleurs_grossesse.html
 - d3/t1/entrainement/Quiz_item25_40_44_geu_douleurs_masses_pelviennes.html
+- d3/t1/entrainement/Quiz_item27_30_risques_foetaux_prematurite.html
 - d3/t1/entrainement/Quiz_item43_41_hemorragies_genitales_endometriose.html
+- d3/t1/entrainement/Quiz_item300_312_cancers_col_endometre_sein.html
 - d3/t1/entrainement/Quiz_item147_fievre_enfant.html
 - d3/t1/entrainement/Quiz_item151_158_meningite_purpura_fulminans_enfant.html
 - d3/t1/entrainement/Quiz_item154_359_188_bronchiolite_detresse_asthme_enfant.html
@@ -27,9 +29,8 @@
 ## audité, à publier (0)
 - (aucun)
 
-## rédigé, à auditer (2)
-- d3/t1/entrainement/Quiz_item27_30_risques_foetaux_prematurite.html
-- d3/t1/entrainement/Quiz_item300_312_cancers_col_endometre_sein.html
+## rédigé, à auditer (0)
+- (aucun)
 
 ## à rédiger (28)
 - d3/t2/entrainement/Quiz_item1_7_annonce_droits_patient.html
