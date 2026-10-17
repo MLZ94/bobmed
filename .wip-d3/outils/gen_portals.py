@@ -87,12 +87,12 @@ def card(q):
         pills += '<span class="rank-pill rang-b">Rang B</span>'
     out = [f'<a class="qz" href="{q["fname"]}">',
            f'  <div class="qz-t">{e(q["short"])} {pills}</div>',
-           f'  <div class="qz-d">{q["n"]} questions — {e(q["spec"]["themes"])}</div>',
+           f'  <div class="qz-d">{q["n"]} questions — {e(q["spec"]["card_desc"])}</div>',
            '  <span class="qz-go">Ouvrir le quiz →</span>', '</a>']
     sa = q['spec'].get('see_also') or []
     if sa:
         links = ' · '.join(f'<a href="{s["href"]}">{e(s["label"])}</a>' for s in sa)
-        out.append(f'<div class="seealso">Voir aussi, en D2 : {links}</div>')
+        out.append(f'<div class="seealso">Voir aussi : {links}</div>')
     return '\n'.join(out)
 
 
@@ -174,10 +174,10 @@ def update_trimester(t, groups):
         for g, qs in lst:
             tot = sum(q['n'] for q in qs)
             lab = GROUPS[g]['card']
-            desc = ' · '.join(item_label(q) for q in qs)
+            desc = ' · '.join(q['spec']['card_name'] for q in qs)
             cards.append(f'''  <a class="qz" href="entrainement/index.html#{GROUPS[g]["anchor"]}">
     <div class="qz-t">Quiz d'entraînement par item — {e(lab)}</div>
-    <div class="qz-d">{len(qs)} quiz thématique{'s' if len(qs) > 1 else ''} ({tot} questions) : {e(desc)} — avec rang A/B et corrections détaillées</div>
+    <div class="qz-d">{len(qs)} quiz ({tot} questions) : {e(desc)}</div>
     <span class="qz-go">Accéder à l'entraînement →</span>
   </a>''')
         sub = (f'\n  <div class="subcat"><span class="dot"></span><span class="t">Entraînement par item</span><span class="n">{nq} quiz</span></div>\n'

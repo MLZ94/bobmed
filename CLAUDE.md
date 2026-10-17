@@ -831,6 +831,8 @@ CSS des badges (inclus dans le `<style>` de chaque quiz concerné — propre aux
 - **Rang A/B mixte** (violet) : question intégrative mêlant des objectifs des deux rangs.
 - **Sans badge** : rang inconnu ou non renseigné — **ne jamais inventer un rang**.
 
+**Quiz d'entraînement D3 (demande de l'utilisateur, 17 oct. 2026)** : ordre des badges `qnum` → `qtype` → `qrank` (le rang **après** le type) → `qitem`, badge gris de l'item R2C abordé par la question (`<span class="qitem">Item 24</span>`, ou `Items 135/138` quand la question porte à parts égales sur deux items ; jamais un numéro hors des items du quiz) ; CSS `.qitem{font-size:10px;font-weight:700;letter-spacing:.03em;padding:1px 7px;border-radius:20px;border:1px solid var(--line);color:var(--mut);background:var(--card)}`. Les quiz D2 gardent pour l'instant l'ordre ci-dessus (rang avant type, sans badge d'item). Sur les portails D3 : description de carte courte (« N questions — 4 à 6 thèmes »), carte du portail de trimestre réduite aux noms courts des quiz, et renvois « Voir aussi : … » dont chaque lien précise entre parenthèses l'année et le trimestre du quiz visé (« (D2 T1) », « (D3 T2) »).
+
 ### Déduplication entre UE
 
 Certains items couvrent des thèmes partagés entre plusieurs UE d'un même trimestre (ex. item 159 Tuberculose relève à la fois de Pneumologie UE 7.1 et de Maladies transmissibles UE 6). Dans ce cas, **ne pas dupliquer le quiz** : le rattacher à l'UE la plus naturelle (en général celle qui en fait le plus grand usage dans les annales) et y faire référence depuis l'autre UE si nécessaire.

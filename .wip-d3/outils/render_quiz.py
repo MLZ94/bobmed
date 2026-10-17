@@ -20,7 +20,9 @@ Schéma JSON :
         "stem": "énoncé" | ["partie 1", "partie 2"],
         "options": [{"text": "…", "correct": true, "mandatory": false, "unacceptable": false, "just": "justification"}],
         "accept": ["variante 1", "variante 2"], "answer": "réponse attendue (QROC)",
-        "note": "rappel transversal (facultatif)"}]}]
+        "note": "rappel transversal (facultatif)",
+        "items": [24, 344]}]}],   # entraînement : item(s) R2C de la question (badge « Item N ») ; à défaut, "items" du quiz
+  "items": [320]   # entraînement : item(s) du quiz, badge par défaut de chaque question
 }
 Balises autorisées dans les textes : <b> <i> <em> <strong> <sub> <sup> <br>.
 """
@@ -40,6 +42,7 @@ EXTRA_CSS = """
 .rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
 .rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
 .rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+.qitem{font-size:10px;font-weight:700;letter-spacing:.03em;padding:1px 7px;border-radius:20px;border:1px solid var(--line);color:var(--mut);background:var(--card)}
 footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
 """
 NJ_CSS = ("/* BobMed - justifications non officielles ajoutees */.nj-disclaimer{background:#eef6ff;border:1px solid #cfe3fb;"
@@ -138,7 +141,7 @@ def check(spec):
     return errs, warns, n
 
 
-def render_q(q, qid, qnum, kind):
+def render_q(q, qid, qnum, kind, items_default=None):
     t = q['type']
     dtype = 'QRU' if t == 'TCS' else t
     opts = q.get('options') or []
@@ -157,7 +160,11 @@ def render_q(q, qid, qnum, kind):
     if kind == 'entrainement' and q.get('rank'):
         cls = {'A': 'rang-a', 'B': 'rang-b', 'A/B': 'rang-mixte'}[q['rank']]
         rank = f'<span class="qrank {cls}">Rang {q["rank"]}</span>'
-    out.append(f'  <div class="qhead"><span class="qnum">{qnum}</span>{rank}<span class="qtype">{badge}</span>'
+    item = ''
+    its = q.get('items') or items_default
+    if kind == 'entrainement' and its:
+        item = f'<span class="qitem">{"Items" if len(its) > 1 else "Item"} {"/".join(str(i) for i in its)}</span>'
+    out.append(f'  <div class="qhead"><span class="qnum">{qnum}</span><span class="qtype">{badge}</span>{rank}{item}'
                f'<span class="status" aria-live="polite"></span></div>')
     if q.get('context'):
         out.append(f'  <div class="dpctx">{tx(q["context"])}</div>')
@@ -216,7 +223,7 @@ def render(spec):
                 qid, qnum = f'Q{n}', f'Q{n}'
             else:
                 qid, qnum = f'{code}-Q{qi + 1}', f'{code} Q{qi + 1}'
-            body.append(render_q(q, qid, qnum, kind) + '\n')
+            body.append(render_q(q, qid, qnum, kind, spec.get('items')) + '\n')
     if kind == 'entrainement':
         sub = f'{total} questions — {tx(spec["themes"])}'
     else:
