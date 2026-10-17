@@ -1,6 +1,6 @@
-# État des quiz d'entraînement D3 (généré le 2026-10-17 02:23 UTC par outils/etat.py)
+# État des quiz d'entraînement D3 (généré le 2026-10-17 02:33 UTC par outils/etat.py)
 
-## publié (38)
+## publié (40)
 - d3/t1/entrainement/Quiz_item23_grossesse_normale.html
 - d3/t1/entrainement/Quiz_item24_344_hta_diabete_grossesse.html
 - d3/t1/entrainement/Quiz_item24_26_hemorragies_douleurs_grossesse.html
@@ -39,22 +39,22 @@
 - d3/t2/entrainement/Quiz_item312_cancer_sein.html
 - d3/t2/entrainement/Quiz_item301_cancer_colorectal.html
 - d3/t2/entrainement/Quiz_item307_354_metastases_osseuses_urgences_onco.html
+- d3/t3/entrainement/Quiz_item330_immunosuppresseurs_biotherapies.html
+- d3/t3/entrainement/Quiz_item177_anti_infectieux.html
 
 ## audité, à publier (0)
 - (aucun)
 
-## rédigé, à auditer (6)
+## rédigé, à auditer (7)
 - d3/t3/entrainement/Quiz_item330_anticoagulants_antiagregants.html
 - d3/t3/entrainement/Quiz_item330_ains_corticoides.html
-- d3/t3/entrainement/Quiz_item330_immunosuppresseurs_biotherapies.html
 - d3/t3/entrainement/Quiz_item321_322_325_bon_usage_situations_risque_iatrogenie.html
-- d3/t3/entrainement/Quiz_item177_anti_infectieux.html
-- d3/t3/entrainement/Quiz_item74_psychotropes.html
-
-## à rédiger (8)
 - d3/t3/entrainement/Quiz_item323_326_niveaux_preuve_cadre_reglementaire.html
+- d3/t3/entrainement/Quiz_item74_psychotropes.html
 - d3/t3/entrainement/Quiz_item331_arret_cardio_circulatoire.html
 - d3/t3/entrainement/Quiz_item332_etats_de_choc.html
+
+## à rédiger (5)
 - d3/t3/entrainement/Quiz_item337_intoxications_aigues.html
 - d3/t3/entrainement/Quiz_item336_343_coma_troubles_conscience.html
 - d3/t3/entrainement/Quiz_item359_detresse_respiratoire_aigue.html

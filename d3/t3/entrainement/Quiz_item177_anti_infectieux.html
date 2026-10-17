@@ -1,0 +1,942 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 177 — Prescription et surveillance des anti-infectieux · Entraînement par item · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>Item 177 — Prescription et surveillance des anti-infectieux · Entraînement par item</h1>
+<div class="sub">31 questions — Grossesse et risque fœtal · Principes de prescription · Situations sans antibiotique · Allergie aux bêta-lactamines · Aminosides · Spectre antipyocyanique · Associations d'antibiotiques · BLSE · Rifampicine · Macrolides et CYP3A4 · Vancomycine · Adaptation à la fonction rénale · Antituberculeux · Antifongiques · Antiparasitaires · Anguillulose et corticothérapie · Antibioprophylaxie · Diarrhée au cours d'une hospitalisation (KFP) · Prescription chez le sujet âgé polymédiqué, interactions des fluoroquinolones et du cotrimoxazole (DP) · Éruption sous antibiotique (TCS)</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/31</b></span>
+<span class="pill">Score : <b id="s-ok">0/31</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">Questions isolées — Item 177</div>
+
+<div class="q" id="Q1" data-type="QRM" data-correct="ACD">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les associations suivantes entre un anti-infectieux administré à une femme enceinte et un risque pour le fœtus ou le nouveau-né, laquelle ou lesquelles est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Cyclines à partir du 2e trimestre – coloration des dents de lait</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Amoxicilline – fentes labio-palatines</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Aminosides – ototoxicité fœtale</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Cotrimoxazole au 1er trimestre – risque lié à l'effet antifolique du triméthoprime</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Métronidazole – malformations cardiaques</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D</div>
+    <div class="note"><div class="rappel">Utilisables quel que soit le terme : pénicillines, céphalosporines, macrolides (érythromycine, azithromycine, spiramycine), fosfomycine, nitrofurantoïne (cures courtes), clindamycine, métronidazole. À éviter ou réservés aux infections sévères sans alternative : cyclines (à partir du 2e trimestre), aminosides, cotrimoxazole (surtout au 1er trimestre), fluoroquinolones.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les cyclines chélatent le calcium et se fixent sur l'émail et la dentine en formation : elles sont contre-indiquées à partir du 2e trimestre.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Aucune augmentation du risque malformatif n'est démontrée avec les aminopénicillines, qui restent les antibiotiques de référence pendant la grossesse.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Ils traversent le placenta et peuvent léser la cochlée et le vestibule du fœtus (surdité congénitale) : leur emploi est réservé aux infections sévères sans alternative.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le triméthoprime inhibe la dihydrofolate réductase : au 1er trimestre, il expose à un risque d'anomalie de fermeture du tube neural (prescription évitée ou associée à une supplémentation en acide folique) ; le sulfamide expose en outre à l'ictère néonatal en fin de grossesse.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — De nombreuses grossesses exposées n'ont montré aucun sur-risque malformatif : il est utilisable à tous les termes.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les règles de prescription d'une antibiothérapie, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Les prélèvements bactériologiques sont réalisés avant la première dose</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le spectre le plus large est choisi d'emblée pour éviter tout échec</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une réévaluation est systématique à 48-72 heures</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La durée est la plus courte possible compatible avec la guérison</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La voie orale est préférée dès que l'état clinique le permet, avec une molécule de bonne biodisponibilité</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="note"><div class="rappel">Les antibiotiques dits « critiques » (céphalosporines de 3e génération, fluoroquinolones, amoxicilline–acide clavulanique, carbapénèmes) exposent davantage aux résistances : leur prescription doit être justifiée et réévaluée.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Un antibiotique préalable stérilise les cultures et prive de l'antibiogramme ; le traitement n'est cependant pas retardé dans les urgences vitales (purpura fulminans, choc septique).</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un spectre inutilement large sélectionne des résistances et déséquilibre le microbiote : on choisit le spectre le plus étroit couvrant les bactéries probables.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Elle permet de confirmer l'efficacité, d'adapter le traitement à l'antibiogramme (désescalade) ou de l'arrêter si l'infection n'est pas bactérienne.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Dans la plupart des infections communautaires, les traitements courts sont aussi efficaces et limitent la pression de sélection.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elle évite les complications de la voie veineuse (cathéter) et facilite la prise en charge, sans perte d'efficacité pour les molécules bien absorbées.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les situations suivantes, dans laquelle ou lesquelles une antibiothérapie n'est-elle pas indiquée d'emblée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Cystite aiguë simple de la femme jeune</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Rhinopharyngite aiguë de l'adulte</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Bronchite aiguë du sujet sain</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Otite moyenne aiguë purulente de l'enfant de moins de 2 ans</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Angine aiguë avec test rapide du streptocoque du groupe A négatif</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — C'est une infection bactérienne dont l'antibiothérapie courte raccourcit les symptômes et réduit le risque de pyélonéphrite.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle est virale et d'évolution spontanément favorable : l'antibiotique n'apporte aucun bénéfice et expose aux effets indésirables.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Elle est presque toujours virale : l'antibiothérapie n'est pas justifiée en l'absence de comorbidité ou de signe de gravité.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — À cet âge, l'antibiothérapie est systématique en raison du risque de complication et de l'échec fréquent de l'abstention.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Un test négatif oriente vers une angine virale : l'antibiotique n'est justifié que par un test positif.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="BC">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'allergie aux bêta-lactamines, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'allergie croisée entre pénicillines et céphalosporines est constante</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une éruption sous amoxicilline au cours d'une mononucléose infectieuse n'est pas forcément une allergie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Après une réaction immédiate (urticaire généralisée, œdème de Quincke, choc) à une pénicilline, la réintroduction sans avis allergologique est contre-indiquée</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une allergie à l'amoxicilline contre-indique tous les macrolides</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une allergie à la pénicilline contre-indique le cotrimoxazole</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C</div>
+    <div class="note"><div class="rappel">Une majorité des patients étiquetés « allergiques à la pénicilline » ne le sont pas après bilan allergologique ; cette étiquette conduit souvent à des antibiotiques de moindre qualité et plus générateurs de résistances.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elle ne concerne qu'une minorité de patients allergiques et dépend surtout de la ressemblance des chaînes latérales.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle est fréquente dans ce contexte et, le plus souvent, non immuno-allergique : la tolérance ultérieure des aminopénicillines est habituelle, et un avis allergologique tranche avant d'étiqueter le patient allergique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Une réaction IgE-médiée expose à une anaphylaxie lors d'une nouvelle exposition : un bilan allergologique est nécessaire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les macrolides n'ont aucune parenté structurale avec les bêta-lactamines : ils sont une alternative en cas d'allergie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'allergie aux sulfamides est indépendante de l'allergie aux bêta-lactamines : il n'existe pas de réaction croisée entre ces classes.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="AE">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un homme de 74 ans, traité par furosémide et ramipril, reçoit de la gentamicine pour une infection à Escherichia coli. Concernant la prescription et la surveillance de cet aminoside, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La créatininémie est surveillée avant et pendant le traitement</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La toxicité cochléaire est réversible à l'arrêt du traitement</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Les doses sont fractionnées en trois injections quotidiennes pour maintenir une concentration stable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les aminosides sont efficaces en monothérapie sur les streptocoques</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La concentration résiduelle, avant l'injection suivante, est dosée pour dépister une accumulation</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, E</div>
+    <div class="note"><div class="rappel">Les aminosides s'utilisent le plus souvent en association à une bêta-lactamine, pour une durée aussi courte que possible (la monothérapie se discute surtout dans les infections urinaires, en cas d'allergie). Néphrotoxicité et ototoxicité sont majorées par les diurétiques de l'anse, les IEC/ARA2 et les AINS.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La néphrotoxicité (nécrose tubulaire aiguë) est majorée par l'âge, les diurétiques de l'anse et les inhibiteurs de l'enzyme de conversion.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La destruction des cellules ciliées de l'oreille interne est définitive : une surdité peut persister.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'effet bactéricide dépend de la concentration maximale et persiste après l'exposition : une injection quotidienne est plus efficace et moins toxique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Leur entrée dans la bactérie est insuffisante sur les streptocoques : ils ne s'emploient qu'en synergie avec une bêta-lactamine.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Une résiduelle élevée traduit une élimination insuffisante et expose à la toxicité rénale et auditive : elle est dosée chez les patients à risque (âge, insuffisance rénale, diurétiques) ou si le traitement dépasse quelques jours ; le pic vérifie l'efficacité.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="D">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les antibiotiques suivants, lequel ou lesquels est/sont actif(s) sur Pseudomonas aeruginosa ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Amoxicilline–acide clavulanique</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ceftriaxone</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Ertapénème</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Ceftazidime</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Cotrimoxazole</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les aminopénicillines, même associées à un inhibiteur de bêta-lactamase, n'ont pas d'activité sur le bacille pyocyanique.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Parmi les céphalosporines de 3e génération couramment utilisées, seule la ceftazidime est antipyocyanique ; la ceftriaxone et le céfotaxime ne le sont pas.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Contrairement à l'imipénème et au méropénème, l'ertapénème n'est pas actif sur Pseudomonas aeruginosa ni sur Acinetobacter.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle est active sur Pseudomonas aeruginosa, comme le céfépime, la pipéracilline–tazobactam, l'imipénème et le méropénème.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Pseudomonas aeruginosa est naturellement résistant au cotrimoxazole.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRM" data-correct="AC">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les situations suivantes, dans laquelle ou lesquelles une association d'antibiotiques est-elle justifiée ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Tuberculose maladie</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Cystite aiguë simple de la femme jeune</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Infection ostéo-articulaire à Staphylococcus aureus sur matériel</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Angine à streptocoque du groupe A</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Pneumonie communautaire non grave de l'adulte sans comorbidité</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Une quadrithérapie initiale évite la sélection de mutants résistants, fréquents dans une population bacillaire importante.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une monothérapie courte suffit : l'association n'apporte aucun bénéfice et majore les effets indésirables.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La rifampicine, active sur le biofilm, ne s'emploie jamais seule (résistance rapide) : elle est associée à un autre antibiotique actif.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le streptocoque A reste sensible à l'amoxicilline : une monothérapie courte suffit.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Une monothérapie par amoxicilline est recommandée ; une association n'est discutée que dans les formes graves.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les entérobactéries productrices de bêta-lactamase à spectre élargi (BLSE), quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elles sont résistantes aux céphalosporines de 3e génération</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Les carbapénèmes sont le traitement de référence des infections graves</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Elles sont résistantes aux carbapénèmes par définition</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Leur diffusion est favorisée par la consommation de céphalosporines de 3e génération et de fluoroquinolones</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le portage digestif asymptomatique ne justifie pas de traitement antibiotique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les BLSE hydrolysent les pénicillines, les céphalosporines de 3e génération (céfotaxime, ceftriaxone, ceftazidime) et l'aztréonam.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Ils résistent à l'hydrolyse par les BLSE : on les réserve à ces infections graves pour préserver leur efficacité.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La résistance aux carbapénèmes relève d'un autre mécanisme (carbapénémases) : les BLSE restent sensibles aux carbapénèmes.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Ces antibiotiques exercent une forte pression de sélection sur la flore digestive, d'où leur statut d'antibiotiques critiques.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Aucune décolonisation efficace n'est recommandée ; le portage oriente le choix de l'antibiothérapie probabiliste en cas d'infection grave.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la rifampicine, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Elle peut être utilisée seule au long cours pour éviter les effets indésirables d'une association</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Elle diminue l'efficacité des contraceptifs œstroprogestatifs</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle diminue l'effet des antivitamines K</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle colore en orange les urines et les larmes</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle justifie une surveillance des transaminases</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — En monothérapie, des mutants résistants (mutation du gène rpoB) sont rapidement sélectionnés : elle est toujours associée à un autre antibiotique actif.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Inducteur enzymatique puissant, elle accélère leur métabolisme : une autre méthode de contraception est nécessaire.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'induction enzymatique abaisse l'INR et expose à la thrombose si les doses ne sont pas augmentées sous contrôle rapproché.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — C'est un effet attendu et sans gravité, dû au pigment du médicament ; il tache aussi les lentilles de contact souples.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elle est hépatotoxique, surtout associée à l'isoniazide et au pyrazinamide ou sur un foie pathologique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un patient de 69 ans doit recevoir de la clarithromycine. Parmi ses traitements habituels, lequel ou lesquels voit/voient son effet ou sa toxicité majoré(s) par cette association ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Simvastatine</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Metformine</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Colchicine</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Paracétamol</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Tacrolimus</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="note"><div class="rappel">Macrolides inhibiteurs du CYP3A4 (clarithromycine, érythromycine) : attention aux statines (simvastatine), aux immunosuppresseurs (ciclosporine, tacrolimus), à la colchicine et, à moindre degré, aux antivitamines K (INR). L'azithromycine et la spiramycine interagissent peu.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La clarithromycine, inhibiteur puissant du CYP3A4, élève fortement les concentrations de simvastatine, d'où un risque de rhabdomyolyse : l'association est contre-indiquée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle n'est pas métabolisée et s'élimine sous forme inchangée par le rein : il n'y a pas d'interaction pharmacocinétique avec la clarithromycine.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Substrat du CYP3A4 et de la glycoprotéine P, elle voit sa toxicité (diarrhée, atteinte médullaire, neuromyopathie) majorée, surtout en cas d'insuffisance rénale.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Il est surtout conjugué (glucuronidation, sulfoconjugaison) : le CYP3A4 n'intervient pas.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Substrat du CYP3A4, il s'accumule et expose à une néphrotoxicité et à une neurotoxicité.</div>
+  </div>
+</div>
+
+<div class="q" id="Q11" data-type="QROC" data-correct="" data-answer="syndrome de l&#x27;homme rouge | syndrome de l&#x27;homme rouge de la vancomycine | red man syndrome | red-man syndrome | red man | homme rouge | syndrome du cou rouge | red neck syndrome | syndrome du red man | syndrome red man | syndrome de perfusion de la vancomycine | réaction à la perfusion de vancomycine | syndrome de l&#x27;homme rouge lié à la vancomycine | vancomycin infusion reaction | syndrome de l&#x27;homme rouge (red man syndrome) | syndrome de l homme rouge | flush à la vancomycine | réaction de flush à la vancomycine | vancomycin flushing reaction | réaction histaminique à la vancomycine | syndrome red-man">
+  <div class="qhead"><span class="qnum">Q11</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Une perfusion de vancomycine, passée en 15 minutes, provoque chez un patient un érythème prurigineux du visage, du cou et du thorax avec une hypotension modérée. Quel est ce syndrome ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : Syndrome de l'homme rouge (red man syndrome)</div>
+    <div class="note"><div class="rappel">Il s'agit d'une libération non immunologique d'histamine liée à la vitesse de perfusion. Il est prévenu par une perfusion lente (au moins une heure) et, si besoin, un antihistaminique ; ce n'est pas une allergie et il ne contre-indique pas la vancomycine, qui est reprise plus lentement.</div></div>
+  </div>
+</div>
+
+<div class="q" id="Q12" data-type="QRPL" data-correct="ADFH">
+  <div class="qhead"><span class="qnum">Q12</span><span class="qtype">QRPL · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Madame B., 82 ans, a une clairance de la créatinine estimée à 25 mL/min (formule de Cockcroft-Gault). Parmi les antibiotiques suivants, lesquels (4 réponses attendues) nécessitent une adaptation de la posologie à sa fonction rénale ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Gentamicine</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Ceftriaxone</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Doxycycline</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Vancomycine</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Azithromycine</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Amoxicilline</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Clindamycine</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Lévofloxacine</span></li>
+    <li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Rifampicine</span></li>
+    <li class="opt" data-l="J" data-correct="0"><span class="box">J</span><span class="otext">Métronidazole</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D, F, H</div>
+    <div class="note"><div class="rappel">La fonction rénale est estimée par la formule de Cockcroft-Gault (clairance en mL/min) chez le sujet âgé, dont la créatininémie sous-estime souvent l'insuffisance rénale. Adaptation nécessaire : aminosides, glycopeptides, la plupart des bêta-lactamines (sauf la ceftriaxone), la plupart des fluoroquinolones (sauf la moxifloxacine), cotrimoxazole.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Éliminée par le rein sous forme active, elle s'accumule et majore la néphrotoxicité et l'ototoxicité : les doses sont espacées et la résiduelle est dosée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle s'élimine à la fois par voie biliaire et rénale : aucune adaptation n'est nécessaire sauf en cas d'insuffisances rénale et hépatique sévères associées.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle s'élimine surtout par voie fécale : la posologie n'est pas modifiée en cas d'insuffisance rénale.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Éliminée exclusivement par le rein, elle s'accumule rapidement : les doses sont réduites ou espacées avec des dosages sanguins.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'élimination est essentiellement biliaire : il n'y a pas d'adaptation à la fonction rénale.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Éliminée surtout par le rein, elle est administrée à doses réduites ou espacées quand la clairance passe sous 30 mL/min.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Elle est métabolisée par le foie : la posologie n'est pas adaptée à la fonction rénale.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — Éliminée presque entièrement par le rein sous forme inchangée, elle nécessite une réduction de dose quand la clairance est inférieure à 50 mL/min.</div>
+    <div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span> — Elle est éliminée par voie biliaire après métabolisme hépatique : la fonction rénale n'impose pas d'adaptation.</div>
+    <div class="citem v-faux"><span class="cl">J.</span> <span class="cv">FAUX</span> — Il est métabolisé par le foie : la posologie n'est habituellement pas modifiée en cas d'insuffisance rénale.</div>
+  </div>
+</div>
+
+<div class="q" id="Q13" data-type="QRM" data-correct="ABCDE">
+  <div class="qhead"><span class="qnum">Q13</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le traitement antituberculeux de première intention, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">L'éthambutol expose à une névrite optique rétrobulbaire</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'isoniazide expose à une neuropathie périphérique</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le pyrazinamide expose à une hyperuricémie</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La rifampicine, l'isoniazide et le pyrazinamide sont hépatotoxiques</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le schéma standard d'une tuberculose pulmonaire sensible comporte 2 mois de quadrithérapie puis 4 mois d'isoniazide et de rifampicine</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D, E</div>
+    <div class="note"><div class="rappel">Une bithérapie de 3 mois par isoniazide et rifampicine correspond au traitement de l'infection tuberculeuse latente, non à celui de la tuberculose maladie.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Elle se traduit par une baisse d'acuité visuelle et une dyschromatopsie rouge-vert : la vision est surveillée tout au long du traitement.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle est liée à une carence fonctionnelle en vitamine B6, prévenue par une supplémentation en pyridoxine chez les sujets à risque.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Son métabolite inhibe l'excrétion rénale de l'acide urique : des crises de goutte sont possibles.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Ils justifient une surveillance des transaminases : une hépatite clinique ou des transaminases supérieures à 5 fois la normale imposent l'arrêt.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le pyrazinamide et l'éthambutol sont arrêtés après 2 mois : la poursuite par bithérapie complète les 6 mois de traitement.</div>
+  </div>
+</div>
+
+<div class="q" id="Q14" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q14</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les associations suivantes entre un antifongique et une indication, laquelle ou lesquelles est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Fluconazole – aspergillose invasive</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Voriconazole – aspergillose invasive</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Nystatine – candidémie</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Échinocandines (caspofungine, micafungine) – candidémie</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Terbinafine – candidose oropharyngée</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Aspergillus est résistant au fluconazole, dont le spectre se limite aux levures (Candida albicans, Cryptococcus).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — C'est un traitement de première intention de l'aspergillose invasive, le fluconazole étant inactif.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Non absorbée par voie digestive, la nystatine n'est utilisable que localement (cavité buccale, tube digestif).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Fongicides sur Candida par voie intraveineuse, elles sont recommandées en première intention dans la candidémie, notamment en soins critiques.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La terbinafine agit sur les dermatophytes (onychomycoses, teignes) et est peu efficace sur Candida.</div>
+  </div>
+</div>
+
+<div class="q" id="Q15" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q15</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur F., 78 ans, traité par warfarine pour une fibrillation atriale (INR stable à 2,5) et par gliclazide pour un diabète de type 2, consulte pour un muguet buccal modéré apparu après une cure d'antibiotiques. Quel traitement antifongique lui prescrivez-vous ? (une seule réponse)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Miconazole en gel buccal</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Voriconazole par voie orale</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Nystatine en suspension buvable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Caspofungine par voie intraveineuse</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Griséofulvine par voie orale</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="note"><div class="rappel">Candidose oropharyngée : traitement local en première intention (nystatine ou amphotéricine B en suspension buvable, miconazole en l'absence de contre-indication) ; fluconazole per os dans les formes étendues, récidivantes ou chez l'immunodéprimé (sous AVK ou sulfamide hypoglycémiant : surveillance de l'INR ou de la glycémie). Voriconazole, amphotéricine B intraveineuse et échinocandines sont réservés aux mycoses invasives.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Même en gel buccal, le miconazole est en partie avalé et absorbé ; il inhibe le CYP2C9 : son association aux antivitamines K (hémorragie) et aux sulfamides hypoglycémiants (hypoglycémie sévère) est contre-indiquée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Antifongique des mycoses invasives, inhibiteur de plusieurs cytochromes, il n'a pas sa place dans une candidose buccale simple.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Non absorbée, elle agit localement sur la muqueuse sans interaction systémique avec la warfarine ni avec le gliclazide.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les échinocandines sont réservées aux candidoses invasives (candidémie), non à une candidose muqueuse simple.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Elle agit sur les dermatophytes, non sur Candida, et son effet inducteur enzymatique diminue l'action des antivitamines K.</div>
+  </div>
+</div>
+
+<div class="q" id="Q16" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">Q16</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les associations suivantes entre une parasitose et un traitement actif, laquelle ou lesquelles est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Gale – albendazole</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Anguillulose – ivermectine</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Schistosomose (bilharziose) – praziquantel</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Giardiase – praziquantel</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Abcès amibien du foie – métronidazole</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La gale se traite par ivermectine orale, perméthrine ou benzoate de benzyle ; l'albendazole est un anthelminthique sans activité sur les acariens.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — C'est le traitement de référence de Strongyloides stercoralis, actif sur les formes intestinales et sur les larves.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le praziquantel est actif sur les schistosomes adultes (trématodes) et sur les cestodes ; inactif sur les formes immatures, il est donné à distance de l'exposition.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Giardia est un protozoaire qui relève des nitro-imidazolés (métronidazole, tinidazole) ; le praziquantel n'agit que sur les trématodes et les cestodes.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Actif sur les formes tissulaires d'Entamoeba histolytica, il est suivi d'un amœbicide de contact qui élimine les kystes intestinaux.</div>
+  </div>
+</div>
+
+<div class="q" id="Q17" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q17</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Monsieur K., 45 ans, né en Guadeloupe et installé en métropole depuis 20 ans, doit débuter une corticothérapie générale prolongée pour une sarcoïdose pulmonaire évolutive. Concernant l'anguillulose, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'absence d'hyperéosinophilie permet d'écarter ce diagnostic</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'infection peut persister de façon asymptomatique pendant des décennies</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le praziquantel est le traitement de référence</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La corticothérapie expose à une hyperinfestation</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un traitement présomptif par ivermectine peut être proposé avant la corticothérapie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="note"><div class="rappel">Avant une corticothérapie prolongée ou une immunosuppression chez un patient originaire d'une zone tropicale ou y ayant séjourné : sérologie de l'anguillulose et traitement présomptif par ivermectine.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'éosinophilie est inconstante dans l'infection chronique et disparaît sous corticoïdes : son absence n'élimine pas l'anguillulose.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Grâce à l'auto-infestation interne, l'anguillule se perpétue chez l'hôte sans nouvelle exposition.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le traitement de référence est l'ivermectine (l'albendazole est actif mais moins efficace) ; le praziquantel, actif sur les trématodes et les cestodes, n'agit pas sur les nématodes.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Les corticoïdes majorent les cycles d'auto-infestation et peuvent provoquer une anguillulose maligne mortelle (dissémination larvaire, bactériémie à bacilles à Gram négatif).</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Chez un patient ayant vécu en zone d'endémie, il prévient l'hyperinfestation, surtout si la corticothérapie ne peut pas attendre le résultat de la sérologie.</div>
+  </div>
+</div>
+
+<div class="q" id="Q18" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q18</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'antibioprophylaxie en chirurgie, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Elle est le plus souvent limitée à une injection préopératoire, sans être prolongée au-delà de la période opératoire</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Elle est poursuivie jusqu'à l'ablation des drains et des sondes</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La première dose est administrée dans l'heure précédant l'incision, à l'induction anesthésique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une réinjection peropératoire est justifiée en cas d'hémorragie importante</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Elle est indiquée en chirurgie colorectale</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="note"><div class="rappel">Dans une chirurgie contaminée ou sale (péritonite, plaie souillée), l'antibiotique n'est plus une prophylaxie mais un traitement curatif, dont la durée dépend de l'infection.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Une prolongation n'apporte aucun bénéfice sur l'infection du site opératoire et augmente les résistances : la SFAR la limite à la période opératoire, parfois 24 heures, jamais plus de 48 heures.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Un drain ou une sonde ne justifie pas de prolonger l'antibiotique, qui favoriserait seulement les résistances.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La concentration tissulaire doit être efficace dès l'incision et pendant toute l'intervention.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La perte sanguine abondante dilue l'antibiotique et abaisse sa concentration tissulaire ; une intervention plus longue que deux demi-vies justifie aussi une réinjection.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — C'est une chirurgie propre-contaminée (ouverture du tube digestif) pour laquelle la prophylaxie réduit le risque d'infection du site opératoire.</div>
+  </div>
+</div>
+
+<div class="sect">KFP — Femme de 79 ans hospitalisée, diarrhée liquide fébrile</div>
+
+<div class="q" id="Q19" data-type="QROC" data-correct="" data-answer="colite à clostridium difficile | colite à clostridioides difficile | infection à clostridium difficile | infection à clostridioides difficile | clostridium difficile | clostridioides difficile | c difficile | c. difficile | colite à c difficile | colite à c. difficile | colite pseudomembraneuse | colite pseudo-membraneuse | colite pseudomembraneuse à clostridium difficile | colite pseudomembraneuse à clostridioides difficile | diarrhée à clostridium difficile | diarrhée à clostridioides difficile | infection à c difficile | infection à c. difficile | icd | cdi | entérocolite à clostridium difficile | colite à germe clostridium difficile | colite post-antibiotique à clostridium difficile | colite à toxine de clostridium difficile | colite pseudomembraneuse post-antibiotique | colite sévère à clostridioides difficile | infection sévère à clostridioides difficile | colite à clostridioides difficile sévère | infection à clostridioides difficile sévère | colite sévère à clostridium difficile | infection sévère à clostridium difficile | colite infectieuse à clostridioides difficile">
+  <div class="qhead"><span class="qnum">Q19</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Madame D., 79 ans, 58 kg, est hospitalisée depuis 7 jours pour une pneumonie communautaire traitée par amoxicilline–acide clavulanique par voie intraveineuse. Elle a pour antécédents une hypertension artérielle et un reflux gastro-œsophagien traité par oméprazole. Depuis 48 heures, elle présente 8 à 10 selles liquides par jour, sans sang, avec des douleurs abdominales diffuses et une température à 38,4 °C. L'abdomen est météorisé et sensible, sans défense ; la pression artérielle est à 105/60 mmHg. La biologie montre : leucocytes 19 G/L, créatininémie 142 µmol/L (valeur habituelle 80 µmol/L), CRP 140 mg/L, albuminémie 24 g/L.</div>
+  <div class="stem">Quel diagnostic évoquez-vous en priorité ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : Colite (infection) à Clostridioides difficile, ou colite pseudomembraneuse</div>
+    <div class="note"><div class="rappel">Une diarrhée liquide apparue plus de 48 heures après l'admission, chez une patiente âgée traitée par amoxicilline–acide clavulanique et par un inhibiteur de la pompe à protons, avec fièvre et hyperleucocytose, évoque d'abord une infection à Clostridioides difficile. L'hyperleucocytose et l'élévation de la créatininémie (insuffisance rénale aiguë fonctionnelle) en font une forme sévère.</div></div>
+  </div>
+</div>
+
+<div class="q" id="Q20" data-type="QRPL" data-correct="BDFHJ">
+  <div class="qhead"><span class="qnum">Q20</span><span class="qtype">QRPL · 5 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">La pneumonie est cliniquement guérie. Quelles sont les mesures à mettre en œuvre ? (5 réponses attendues)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Lopéramide pour réduire le nombre de selles</span></li>
+    <li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">Recherche de toxines de C. difficile (ou de la glutamate déshydrogénase avec confirmation) dans les selles</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Isolement protecteur</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Arrêt de l'amoxicilline–acide clavulanique</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Métronidazole par voie orale en monothérapie de première intention</span></li>
+    <li class="opt" data-l="F" data-correct="1"><span class="box">F</span><span class="otext">Précautions complémentaires de type contact, en chambre individuelle</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Coloscopie en urgence</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Vancomycine par voie orale ou fidaxomicine</span></li>
+    <li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Coproculture et recherche de parasites dans les selles, seules</span></li>
+    <li class="opt" data-l="J" data-correct="1"><span class="box">J</span><span class="otext">Réhydratation et correction de l'insuffisance rénale fonctionnelle</span></li>
+    <li class="opt" data-l="K" data-correct="0"><span class="box">K</span><span class="otext">Ajout d'une céphalosporine de 3e génération par voie intraveineuse</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, F, H, J</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un ralentisseur du transit retient la toxine dans le côlon et expose au mégacôlon toxique.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — C'est le test diagnostique : la coproculture standard ne recherche pas C. difficile.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — L'isolement protecteur protège un patient immunodéprimé ; ici il faut empêcher la transmission de la patiente aux autres, ce que font les précautions de type contact.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Poursuivre l'antibiotique inducteur entretient le déséquilibre du microbiote et favorise l'échec ; la pneumonie étant guérie, il n'a plus d'indication.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Moins efficace que la vancomycine et la fidaxomicine, il n'est plus recommandé en première intention.</div>
+    <div class="citem v-vrai"><span class="cl">F.</span> <span class="cv">VRAI</span> — Les spores sont disséminées par les mains et l'environnement : la transmission croisée est un risque majeur à l'hôpital.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Elle n'est pas nécessaire au diagnostic et expose à la perforation sur un côlon inflammatoire ; l'imagerie est réservée aux formes compliquées.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — Ce sont les traitements de première intention : non absorbés, ils atteignent des concentrations élevées dans le côlon.</div>
+    <div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span> — Elles ne détectent pas C. difficile : sans recherche de toxines, le diagnostic est manqué.</div>
+    <div class="citem v-vrai"><span class="cl">J.</span> <span class="cv">VRAI</span> — La perte hydrique par la diarrhée explique l'élévation de la créatininémie et aggrave le pronostic chez le sujet âgé.</div>
+    <div class="citem v-faux"><span class="cl">K.</span> <span class="cv">FAUX</span> — Un nouvel antibiotique à large spectre aggrave le déséquilibre du microbiote et favorise l'échec et la récidive.</div>
+  </div>
+</div>
+
+<div class="q" id="Q21" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q21</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après dix jours de vancomycine par voie orale, les diarrhées cessent et la patiente sort. Douze jours après la fin du traitement, les selles liquides réapparaissent et la recherche de toxines est de nouveau positive. Quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un contrôle systématique des toxines à la fin du traitement est recommandé pour affirmer la guérison</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une récidive survient chez environ un patient sur cinq après un premier épisode</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le métronidazole est le traitement de choix de la récidive</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La fidaxomicine est une option de traitement de la première récidive</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La transplantation de microbiote fécal est envisagée après plusieurs récidives</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les toxines peuvent rester détectables après la guérison clinique : le contrôle est inutile et conduirait à des traitements injustifiés.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La perturbation durable du microbiote et la persistance de spores expliquent la fréquence des récidives, surtout chez le sujet âgé.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Moins efficace que la vancomycine orale et la fidaxomicine, il n'est recommandé ni en première intention ni en cas de récidive.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle diminue le taux de récidive par rapport à la vancomycine grâce à son moindre effet sur la flore commensale.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Elle restaure l'équilibre du microbiote et est proposée dans les formes récidivantes malgré des traitements antibiotiques adaptés.</div>
+  </div>
+</div>
+
+<div class="sect">DP — Homme de 77 ans polymédiqué, fièvre et brûlures mictionnelles</div>
+
+<div class="q" id="Q22" data-type="QRM" data-correct="AC">
+  <div class="qhead"><span class="qnum">Q22</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Monsieur R., 77 ans, 72 kg, sans allergie connue, consulte pour une fièvre à 38,9 °C avec frissons depuis 24 heures, des brûlures mictionnelles, une pollakiurie et des douleurs périnéales. Il est suivi pour une fibrillation atriale permanente (warfarine, INR stable à 2,6), une cardiopathie ischémique, une pseudo-polyarthrite rhizomélique et une anémie ferriprive. Son ordonnance habituelle comporte : warfarine, amiodarone 200 mg/j, simvastatine 20 mg, prednisone 10 mg/j, bisoprolol, ramipril, oméprazole, sulfate ferreux et paracétamol. À l'examen : pression artérielle 128/72 mmHg, fréquence cardiaque 98/min, pas de signe de choc ni de globe vésical. Au toucher rectal, la prostate est augmentée de volume, très douloureuse et chaude. La créatininémie est à 112 µmol/L (clairance estimée à 50 mL/min).</div>
+  <div class="stem">Quelle(s) mesure(s) est/sont justifiée(s) avant de débuter le traitement antibiotique ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">ECBU avec antibiogramme avant la première dose d'antibiotique</span></li>
+    <li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Massage prostatique pour recueillir un échantillon</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Hémocultures</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Attente du résultat de l'ECBU pour débuter l'antibiothérapie</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Dosage de l'antigène prostatique spécifique (PSA) pour confirmer le diagnostic</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La documentation microbiologique est indispensable pour adapter le traitement ; chez l'homme fébrile, la bandelette urinaire seule ne suffit pas.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Il est contre-indiqué en phase aiguë : il expose à une bactériémie et à un choc septique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Une prostatite aiguë fébrile peut s'accompagner d'une bactériémie, dont la documentation guide le traitement.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le report du traitement jusqu'à l'antibiogramme n'est admis que dans les formes pauci-symptomatiques non fébriles ; une prostatite fébrile avec frissons impose une antibiothérapie probabiliste sans délai, une fois les prélèvements réalisés.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le PSA s'élève fortement lors de l'inflammation aiguë de la prostate et n'est pas spécifique : il n'a aucun intérêt diagnostique à ce stade.</div>
+  </div>
+</div>
+
+<div class="q" id="Q23" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">Q23</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le patient est hospitalisé. Quel traitement antibiotique probabiliste initial prescrivez-vous ? (une seule réponse)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Fosfomycine-trométamol en dose unique</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Nitrofurantoïne</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Amoxicilline par voie orale</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Ceftriaxone par voie intraveineuse</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Gentamicine en monothérapie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La dose unique est réservée à la cystite simple de la femme ; elle est insuffisante et la diffusion prostatique est faible.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Elle ne diffuse pas dans le tissu prostatique et n'a pas d'indication dans une infection urinaire fébrile de l'homme.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Une proportion importante des Escherichia coli y est résistante et la diffusion prostatique est faible : elle est inadaptée à une infection fébrile en probabiliste.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Céphalosporine de 3e génération injectable, elle est le traitement probabiliste de référence d'une infection urinaire masculine fébrile et n'a pas d'interaction pharmacocinétique majeure avec les médicaments de l'ordonnance.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Un aminoside seul n'est qu'une alternative en cas d'allergie aux bêta-lactamines ; il diffuse mal dans la prostate et sa néphrotoxicité est majorée par le ramipril chez un patient de 77 ans dont la clairance est limitée.</div>
+  </div>
+</div>
+
+<div class="q" id="Q24" data-type="QRM" data-correct="ABC">
+  <div class="qhead"><span class="qnum">Q24</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Au 3e jour, le patient est apyrétique. L'ECBU isole un Escherichia coli sensible à l'amoxicilline, aux céphalosporines de 3e génération, à l'ofloxacine et au cotrimoxazole. Concernant la réévaluation de l'antibiothérapie, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">La réévaluation repose sur l'évolution clinique et sur l'antibiogramme</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le spectre est réduit au plus étroit compatible avec la sensibilité de la bactérie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Un relais oral est possible avec une molécule à bonne biodisponibilité et bonne diffusion prostatique</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'antibiotique est arrêté dès l'obtention de l'apyrexie à 72 heures</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La ceftriaxone intraveineuse est poursuivie jusqu'au terme quels que soient l'évolution et l'antibiogramme</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Elle permet de confirmer l'efficacité du traitement probabiliste et de l'adapter aux résultats microbiologiques.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La désescalade limite la pression de sélection sur la flore digestive et les effets indésirables.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La voie orale est préférée dès que l'état clinique le permet ; la diffusion dans la prostate est nécessaire pour traiter ce tissu.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — L'apyrexie ne signe pas la stérilisation du tissu prostatique : le traitement d'une infection urinaire masculine fébrile dure au moins 14 jours, pour éviter l'échec et la prostatite chronique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Une fois l'antibiogramme connu et l'état stabilisé, on passe à une voie orale adaptée plutôt que de maintenir un traitement injectable.</div>
+  </div>
+</div>
+
+<div class="q" id="Q25" data-type="QRPL" data-correct="ABDH">
+  <div class="qhead"><span class="qnum">Q25</span><span class="qtype">QRPL · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Votre interne propose un relais par ofloxacine, qui diffuse bien dans la prostate. Parmi les médicaments de l'ordonnance habituelle, quels sont les 4 dont l'association avec l'ofloxacine justifie une précaution particulière ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Warfarine</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Amiodarone</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Simvastatine</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Prednisone</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Bisoprolol</span></li>
+    <li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Ramipril</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Oméprazole</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Sulfate ferreux</span></li>
+    <li class="opt" data-l="I" data-correct="0"><span class="box">I</span><span class="otext">Paracétamol</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, H</div>
+    <div class="note"><div class="rappel">Fluoroquinolones : tendinopathie (âge, corticoïdes, insuffisance rénale), allongement du QT, potentialisation des antivitamines K, chélation par les cations. Les recommandations limitent leur emploi aux infections où les autres antibiotiques sont inadaptés ; c'est souvent le cas d'une infection prostatique, car peu d'alternatives diffusent bien dans la prostate (le cotrimoxazole en fait partie).</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Les fluoroquinolones potentialisent les antivitamines K, d'où un risque d'élévation de l'INR et d'hémorragie.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les deux molécules allongent l'intervalle QT : le risque de torsades de pointes est majoré.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Il n'y a pas d'interaction notable : la simvastatine n'est pas métabolisée par les voies que modifie l'ofloxacine.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La corticothérapie, avec l'âge, majore fortement le risque de tendinopathie et de rupture tendineuse sous fluoroquinolone.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il n'y a pas d'interaction notable entre ce bêtabloquant et l'ofloxacine.</div>
+    <div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span> — Il n'y a pas d'interaction notable avec l'ofloxacine.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Les inhibiteurs de la pompe à protons ne modifient pas l'absorption ni l'action de l'ofloxacine.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — Les cations (fer, aluminium, magnésium, calcium) chélatent les fluoroquinolones et diminuent leur absorption : les prises doivent être espacées.</div>
+    <div class="citem v-faux"><span class="cl">I.</span> <span class="cv">FAUX</span> — Il n'y a pas d'interaction notable avec l'ofloxacine.</div>
+  </div>
+</div>
+
+<div class="q" id="Q26" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q26</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">L'ofloxacine est finalement prescrite. Quelle(s) mesure(s) de prévention et de surveillance associez-vous ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Contrôle de l'INR dans les 3 à 4 jours suivant l'introduction</span></li>
+    <li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Arrêt de la prednisone pendant la durée de l'antibiothérapie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Prise de l'ofloxacine à distance du sulfate ferreux</span></li>
+    <li class="opt" data-l="D" data-correct="0" data-unacceptable="1"><span class="box">D</span><span class="otext">Doublement préventif de la dose de warfarine</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Information du patient : arrêter le traitement et consulter en cas de douleur ou de gonflement d'un tendon</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'élévation de l'INR sous fluoroquinolone survient dans les premiers jours : un contrôle précoce permet d'adapter la dose de warfarine.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'arrêt brutal d'une corticothérapie au long cours expose à l'insuffisance surrénale aiguë et à une rechute de la maladie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le fer chélate l'ofloxacine et réduit son absorption : un intervalle d'au moins deux heures entre les prises est nécessaire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les fluoroquinolones augmentent l'effet de la warfarine : doubler la dose exposerait à un surdosage et à une hémorragie.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le diagnostic précoce d'une tendinopathie permet d'arrêter la fluoroquinolone avant la rupture.</div>
+  </div>
+</div>
+
+<div class="q" id="Q27" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q27</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Au 6e jour, le patient décrit une douleur vive du talon droit, apparue à la marche, sans traumatisme. Le tendon d'Achille est épaissi, chaud et douloureux à la palpation. La température est à 36,8 °C. Quelle est la conduite à tenir ? (une seule réponse)</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Poursuivre l'ofloxacine et ajouter un anti-inflammatoire non stéroïdien</span></li>
+    <li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Infiltration péritendineuse de corticoïdes</span></li>
+    <li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">Arrêt immédiat de l'ofloxacine et mise au repos du tendon</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Réduction de moitié de la dose d'ofloxacine</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Rééducation active du tendon en poursuivant le traitement</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La poursuite de la fluoroquinolone expose à la rupture du tendon ; l'AINS majore en outre le risque hémorragique sous warfarine.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les corticoïdes locaux fragilisent le tendon et favorisent sa rupture, comme la corticothérapie générale déjà prise.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — L'arrêt précoce limite le risque de rupture ; les fluoroquinolones sont ensuite contre-indiquées chez ce patient et l'effet indésirable est déclaré en pharmacovigilance.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Un effet indésirable tendineux ne se corrige pas par la diminution de la posologie : l'arrêt est nécessaire.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La mobilisation active d'un tendon fragilisé expose à la rupture ; le repos et l'arrêt de la molécule sont indiqués.</div>
+  </div>
+</div>
+
+<div class="q" id="Q28" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q28</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">L'ofloxacine est arrêtée et le traitement de l'infection est poursuivi par cotrimoxazole (sulfaméthoxazole–triméthoprime) per os, la bactérie y étant sensible. Concernant ce relais, quelle(s) proposition(s) est/sont exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une anémie macrocytaire survenant sous traitement relèverait d'une supplémentation en vitamine B12</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La kaliémie est surveillée, en raison de l'association au ramipril</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le sulfate ferreux est pris à distance du cotrimoxazole pour éviter une chélation</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">L'effet de la warfarine est majoré : l'INR est contrôlé rapidement</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une élévation modérée de la créatininémie peut survenir sans baisse réelle de la filtration glomérulaire</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="note"><div class="rappel">Cotrimoxazole : hyperkaliémie, élévation de l'INR sous AVK, cytopénies par effet antifolique (toxicité majorée du méthotrexate), toxidermies graves (syndrome de Stevens-Johnson, nécrolyse épidermique toxique, DRESS) survenant surtout dans les premières semaines de traitement.</div></div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'effet antifolique du triméthoprime explique une anémie macrocytaire, voire une pancytopénie mégaloblastique, qui se corrige par l'arrêt du médicament et un apport en folates, non par la vitamine B12.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le triméthoprime bloque le canal sodique épithélial du tube collecteur, comme l'amiloride : l'hyperkaliémie est favorisée par l'âge, l'insuffisance rénale et les IEC ou ARA2.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La chélation par les cations concerne les fluoroquinolones et les cyclines, pas le cotrimoxazole : aucun espacement n'est nécessaire.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le sulfaméthoxazole inhibe le CYP2C9 et déplace la warfarine de l'albumine : l'INR peut s'élever en quelques jours, d'où un contrôle précoce et une adaptation de la dose.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le triméthoprime inhibe la sécrétion tubulaire de la créatinine : l'élévation est modérée et réversible ; une insuffisance rénale vraie (néphropathie interstitielle, cristallurie) doit cependant être éliminée.</div>
+  </div>
+</div>
+
+<div class="sect">TCS — Éruption fébrile chez un homme de 19 ans traité pour une angine</div>
+
+<div class="q" id="Q29" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">Q29</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Vous recevez en consultation un étudiant de 19 ans, sans antécédent ni allergie connue. Il y a six jours, pour une angine fébrile avec une asthénie marquée, un confrère de garde lui a prescrit de l'amoxicilline (3 g par jour). Une éruption est apparue au 5e jour du traitement. À l'examen : température 38,2 °C, éruption maculopapuleuse du tronc et des racines des membres, modérément prurigineuse, sans bulle, sans atteinte des muqueuses, sans œdème du visage ni gêne respiratoire, pression artérielle normale.</div>
+  <div class="stem">Si vous pensez à une allergie vraie à l'amoxicilline (hypersensibilité retardée) et que vous constatez des adénopathies cervicales bilatérales, une splénomégalie et un syndrome mononucléosique à l'hémogramme (lymphocytes hyperbasophiles), votre hypothèse est</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B — peu probable</div>
+    <div class="note">L'éruption sous aminopénicilline survient chez la majorité des patients atteints de mononucléose infectieuse, sans mécanisme immuno-allergique : ce contexte rend l'allergie vraie peu probable. Elle ne peut pourtant pas être exclue sur ce seul élément : l'étiquette « allergie à la pénicilline » ne se pose pas sans avis allergologique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q30" data-type="QRU" data-correct="A">
+  <div class="qhead"><span class="qnum">Q30</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensez à un syndrome de Stevens-Johnson ou à une nécrolyse épidermique toxique et que vous constatez l'absence de bulle, de décollement cutané, de signe de Nikolsky et d'atteinte des muqueuses, votre hypothèse est</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A — improbable</div>
+    <div class="note">Ces toxidermies graves associent macules douloureuses, bulles, décollement cutané et érosions muqueuses (buccales, oculaires, génitales) quasi constantes. Leur absence, avec une éruption maculopapuleuse banale et un état général conservé, rend le diagnostic improbable ; l'apparition de signes d'alerte imposerait l'arrêt du médicament et un avis spécialisé.</div>
+  </div>
+</div>
+
+<div class="q" id="Q31" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">Q31</span><span class="qtype">TCS</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Si vous pensez à une éruption non allergique favorisée par une mononucléose infectieuse et que vous apprenez que la sérologie de l'EBV montre des IgM anti-VCA positives et des IgG anti-EBNA négatives, votre hypothèse est</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">improbable</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">peu probable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">ni plus ou moins probable</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">probable</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">certain</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D — probable</div>
+    <div class="note">Cette sérologie signe une primo-infection récente par l'EBV et confirme la mononucléose, mais elle ne prouve pas que l'éruption soit non allergique : une allergie vraie peut coexister. L'hypothèse devient donc probable sans être certaine.</div>
+  </div>
+</div>
+
+<footer>31 questions · Item 177 · D3 T3 UE 10 Thérapeutique · BobMed entraînement. · Voir aussi : <a href="../../../d2/t1/entrainement/Quiz_item154_pneumonie_communautaire.html">Item 154 — Pneumonie aiguë communautaire (D2 T1)</a> · <a href="../../../d2/t1/entrainement/Quiz_item161_infections_urinaires.html">Item 161 — Infections urinaires (D2 T1)</a> · <a href="../../../d2/t1/entrainement/Quiz_item159_tuberculose.html">Item 159 — Tuberculose pulmonaire (D2 T1)</a> · <a href="../../../d2/t1/entrainement/Quiz_item157_sepsis.html">Item 157 — Sepsis et choc septique (D2 T1)</a> · <a href="Quiz_item330_anticoagulants_antiagregants.html">Item 330 — Anticoagulants et antiagrégants : interactions des antibiotiques avec les AVK (D3 T3)</a> · <a href="../../t2/entrainement/Quiz_item191_neutropenie_febrile.html">Item 191 — Fièvre chez le patient immunodéprimé : neutropénie fébrile (D3 T2)</a> · <a href="Quiz_item330_immunosuppresseurs_biotherapies.html">Items 330, 159 et 196 — Immunosuppresseurs et biothérapies : tuberculose sous anti-TNF (D3 T3)</a> · <a href="../Quiz_UE10_sujet_type.html">Sujet type UE 10 Thérapeutique (D3 T3)</a></footer>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script src="../../../qcopy.js"></script>
+</body></html>
