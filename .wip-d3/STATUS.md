@@ -1,6 +1,6 @@
 # Chantier « mise à niveau D3 » — état au 16 octobre 2026
 
-> **17 octobre 2026 : chantier terminé.** Les 52 quiz d'entraînement par item prévus (`plan_quizzes.json`) sont rédigés, audités à l'aveugle et commités, portails T1, T2 et T3 compris (`ETAT.md`). Restent les décisions d'Ichai : pousser D3 (historique réécrit pour retirer les liens de session des commits), puis supprimer ce dossier et fusionner D3 dans `main`.
+> **17 octobre 2026 : chantier terminé.** Les 52 quiz d'entraînement par item prévus (`plan_quizzes.json`) sont rédigés, audités à l'aveugle et commités, portails T1, T2 et T3 compris (`ETAT.md`). Tout est poussé sur `D3` (historique de toutes les branches réécrit le 17 oct. pour retirer les liens de session des messages de commit, contenu inchangé). Décision d'Ichai : D3 reste sur sa branche, pas de fusion dans `main` sans demande explicite.
 
 > Dossier de travail temporaire, propre à la branche `D3`. **À supprimer avant toute fusion de `D3` dans `main`** (il n'a rien à faire sur le site publié).
 
