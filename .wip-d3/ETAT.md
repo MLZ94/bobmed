@@ -1,6 +1,6 @@
-# État des quiz d'entraînement D3 (généré le 2026-10-17 07:35 UTC par outils/etat.py)
+# État des quiz d'entraînement D3 (généré le 2026-10-17 07:38 UTC par outils/etat.py)
 
-## publié (48)
+## publié (50)
 - d3/t1/entrainement/Quiz_item23_grossesse_normale.html
 - d3/t1/entrainement/Quiz_item24_344_hta_diabete_grossesse.html
 - d3/t1/entrainement/Quiz_item24_26_hemorragies_douleurs_grossesse.html
@@ -49,13 +49,13 @@
 - d3/t3/entrainement/Quiz_item331_arret_cardio_circulatoire.html
 - d3/t3/entrainement/Quiz_item332_etats_de_choc.html
 - d3/t3/entrainement/Quiz_item337_intoxications_aigues.html
+- d3/t3/entrainement/Quiz_item336_343_coma_troubles_conscience.html
+- d3/t3/entrainement/Quiz_item359_detresse_respiratoire_aigue.html
 
 ## audité, à publier (0)
 - (aucun)
 
-## rédigé, à auditer (4)
-- d3/t3/entrainement/Quiz_item336_343_coma_troubles_conscience.html
-- d3/t3/entrainement/Quiz_item359_detresse_respiratoire_aigue.html
+## rédigé, à auditer (2)
 - d3/t3/entrainement/Quiz_item338_anaphylaxie.html
 - d3/t3/entrainement/Quiz_item365_complications_platre.html
 
