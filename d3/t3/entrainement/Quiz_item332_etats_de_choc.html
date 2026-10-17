@@ -1,0 +1,802 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="stylesheet" href="../../../theme.css">
+<title>Item 332 — États de choc · Entraînement par item · BobMed</title>
+<style>
+:root{--bg:#f7f8f9;--card:#fff;--ink:#132025;--mut:#5b6b73;--line:#dfe4e2;--vrai:#15803d;--vraibg:#eaf7ef;--faux:#b91c1c;--fauxbg:#fbeceb;--neu:#b45309;--acc:#4f46e5;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 'DM Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(247,248,249,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 18px}
+.wrap{max-width:820px;margin:0 auto;padding:0 16px 80px}
+.hwrap{max-width:820px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin:0}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+.scorebar{max-width:820px;margin:8px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.pill b{color:var(--acc)}
+.sect{font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:30px 2px 10px}
+.dpctx{background:#eef2ff;border:1px solid #dbe4ff;border-left:4px solid var(--acc);border-radius:10px;padding:12px 16px;font-size:14px;color:#1e2a5e;margin-bottom:16px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;scroll-margin-top:90px}
+.q.done{border-color:#cfcdc4}
+.q.locked{opacity:.2;filter:blur(3px);pointer-events:none;user-select:none}
+.q{transition:opacity .35s ease,filter .35s ease}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qnum{font-size:12px;font-weight:600;color:#fff;background:var(--acc);border-radius:6px;padding:2px 8px}
+.qtype{font-size:11px;font-weight:600;color:var(--mut);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.status{margin-left:auto;font-size:13px;font-weight:600}
+.status.ok{color:var(--vrai)}.status.ko{color:var(--faux)}.status.rl{color:var(--mut)}.status.part{color:var(--neu)}
+.stem{font-weight:500;margin-bottom:10px}
+.opts{list-style:none;margin:0;padding:0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin:7px 0;cursor:pointer;transition:.12s}
+.opt:hover{border-color:#c7d2fe;background:#f8f9ff}
+.opt .box{flex:none;width:24px;height:24px;border:1.5px solid #b9b7ad;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--mut)}
+.opt.sel{border-color:var(--acc);background:#eef2ff}
+.opt.sel .box{background:var(--acc);border-color:var(--acc);color:#fff}
+.q.done .opt{cursor:default}
+.opt.correct{border-color:var(--vrai);background:var(--vraibg)}
+.opt.correct .box{background:var(--vrai);border-color:var(--vrai);color:#fff}
+.opt.wrong{border-color:var(--faux);background:var(--fauxbg)}
+.opt.wrong .box{background:var(--faux);border-color:var(--faux);color:#fff}
+.opt.missed{border-style:dashed;border-color:var(--vrai)}
+.opt.missed .box{color:var(--vrai);border-color:var(--vrai)}
+.opt.neutral{border-style:dashed;opacity:.7}
+.opt.neutral .mark{color:var(--mut)}
+.q.done .opt[data-mandatory="1"]{border-left:3px solid var(--neu)}
+.q.done .opt[data-mandatory="1"] .box{position:relative}
+.q.done .opt[data-mandatory="1"] .box::after{content:'★';font-size:9px;color:var(--neu);position:absolute;top:-5px;right:-6px}
+.q.done .opt[data-unacceptable="1"]{border-left:3px solid var(--faux)}
+.q.done .opt[data-unacceptable="1"] .box{position:relative}
+.q.done .opt[data-unacceptable="1"] .box::after{content:'✕';font-size:9px;color:var(--faux);position:absolute;top:-5px;right:-6px}
+.citem .tag-mandatory,.citem .tag-unacceptable{display:inline-block;font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.citem .tag-mandatory{color:var(--neu);background:var(--neubg,#fdf3e7);border:1px solid var(--neu)}
+.citem .tag-unacceptable{color:var(--faux);background:var(--fauxbg);border:1px solid var(--faux)}
+.mark{margin-left:auto;font-size:13px;font-weight:600;align-self:center}
+.qrocin{width:100%;font:inherit;font-size:15px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.qrocin:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px #eef2ff}
+.qrocans{color:var(--vrai);font-weight:600}
+.actions{display:flex;gap:8px;margin-top:10px}
+button{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 16px;cursor:pointer}
+button.validate{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:500}
+button.validate:hover{filter:brightness(1.05)}
+button.show:hover{background:#e0e7ff}
+button:disabled{opacity:.5;cursor:default}
+.correction{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.ans{font-weight:600;margin-bottom:8px}
+.note{background:#fffaeb;border:1px solid #fedf89;border-left:3px solid #b45309;border-radius:9px;padding:10px 14px;font-size:13.5px;margin:8px 0 10px;color:#6b3d0a}
+.citem{font-size:14.5px;padding:5px 0;border-bottom:1px solid #f0efe9}
+.citem:last-child{border-bottom:0}
+.cl{font-weight:600}
+.v-vrai .cv{color:var(--vrai);font-weight:600}
+.v-faux .cv{color:var(--faux);font-weight:600}
+.v-neutre .cv{color:var(--mut);font-weight:600}
+.back{display:inline-block;margin-top:32px;color:var(--acc);font-size:14px;font-weight:500;text-decoration:none}
+.back:hover{text-decoration:underline}
+.q{border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06)}
+.opt{border-radius:12px}
+.opt .box{border-radius:8px}
+.q[data-type="QRU"] .opt .box{border-radius:999px}
+.qnum{border-radius:7px}
+button{border-radius:10px}
+button.validate{background:var(--acc);border-color:var(--acc);color:#fff}
+button.validate:hover{filter:brightness(1.08)}
+header{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+/* Mobile : padding resserré (le responsive portails/images/tableaux vient de theme.css) */
+@media (max-width:600px){.wrap{padding:0 10px 60px}.q{padding:13px 13px}}
+.qrocin.good,html.dark .qrocin.good{border-color:var(--vrai)!important;background:var(--vraibg)!important}
+.qrocin.bad,html.dark .qrocin.bad{border-color:var(--faux)!important;background:var(--fauxbg)!important}
+.selfassess{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px;font-size:13.5px;color:var(--mut)}
+.selfassess button{font:inherit;font-size:13px;padding:3px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.selfassess .sa-yes{color:var(--vrai);border-color:var(--vrai)}
+.selfassess .sa-no{color:var(--faux);border-color:var(--faux)}
+.selfassess button:disabled{opacity:.55;cursor:default}
+.selfassess .sa-yes.chosen{background:var(--vraibg)}
+.selfassess .sa-no.chosen{background:var(--fauxbg)}
+.qnum{cursor:pointer;transition:filter .15s,transform .1s;user-select:none}
+.qnum:hover{filter:brightness(1.12)}
+.qnum:active{transform:scale(.94)}
+.qnum:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.qnum.copied{background:var(--vrai)!important;filter:none}
+
+.qrank{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;border:1px solid}
+.rang-a{background:#dcfce7;color:#15803d;border-color:#86efac}
+.rang-b{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd}
+.rang-mixte{background:#ede9fe;color:#6d28d9;border-color:#c4b5fd}
+footer{color:var(--mut);font-size:12.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+<script>(()=>{if(localStorage.theme==='dark')document.documentElement.classList.add('dark')})()</script>
+</head><body>
+<header><div class="hwrap">
+<h1>Item 332 — États de choc · Entraînement par item</h1>
+<div class="sub">25 questions — Définition et physiopathologie de l'état de choc · Hypoperfusion tissulaire et lactate · Classification (hypovolémique, cardiogénique, obstructif, distributif) · Orientation par la clinique et l'échocardiographie · Pièges du diagnostic · Prise en charge initiale et remplissage vasculaire · Choc hémorragique · Choc septique : antibiothérapie, contrôle de la source, vasopresseurs · Choc cardiogénique : revascularisation, inotropes, assistance · Tamponnade · Infarctus du ventricule droit · Chocs anaphylactique et neurogénique</div>
+<div class="scorebar">
+<span class="pill">Validées : <b id="s-done">0/25</b></span>
+<span class="pill">Score : <b id="s-ok">0/25</b></span>
+<span class="pill"><button id="revealall" style="padding:2px 10px">Tout révéler</button></span>
+<span class="pill"><button id="reset" style="padding:2px 10px">Recommencer</button></span>
+</div>
+</div></header>
+<div class="wrap">
+
+<div class="sect">Questions isolées — Item 332</div>
+
+<div class="q" id="Q1" data-type="QRM" data-correct="BCD">
+  <div class="qhead"><span class="qnum">Q1</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant l'état de choc, quelle(s) est/sont la/les proposition(s) exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Il se définit par une pression artérielle systolique inférieure à 90 mmHg</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il correspond à une défaillance circulatoire aiguë responsable d'une inadéquation entre les apports et les besoins tissulaires en oxygène</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une lactatémie supérieure à 2 mmol/L est un marqueur d'hypoperfusion tissulaire</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Il expose, en l'absence de traitement rapide, à une défaillance multiviscérale</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Il s'accompagne toujours d'une tachycardie supérieure à 100/min</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'hypotension est fréquente mais non indispensable : un choc compensé existe avec une pression artérielle conservée, et un hypertendu chronique peut être en choc avec une pression systolique supérieure à 90 mmHg.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le transport en oxygène (débit cardiaque × contenu artériel en oxygène) ne couvre plus la demande des tissus, d'où une dysoxie et un métabolisme anaérobie.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Faute d'oxygène suffisant, la glycolyse anaérobie produit du lactate ; son élévation et sa persistance sont associées à une surmortalité.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'hypoxie tissulaire prolongée lèse le rein, le foie, le cerveau et l'intestin ; plus la correction est précoce, plus les lésions sont réversibles.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La tachycardie peut manquer (bêtabloquant, bloc auriculo-ventriculaire, choc neurogénique, sujet âgé) : son absence n'élimine pas un choc.</div>
+  </div>
+</div>
+
+<div class="q" id="Q2" data-type="QRM" data-correct="ABCDE">
+  <div class="qhead"><span class="qnum">Q2</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les situations suivantes, laquelle ou lesquelles peuvent être responsable(s) d'un choc cardiogénique ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Un infarctus du myocarde étendu</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une rupture de pilier mitral ou une communication interventriculaire survenant au décours d'un infarctus</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une tachycardie ventriculaire soutenue mal tolérée</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une myocardite aiguë fulminante</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une intoxication par un bêtabloquant ou par un inhibiteur calcique bradycardisant</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, C, D, E</div>
+    <div class="note"><div class="rappel">Ne pas confondre avec les chocs obstructifs (embolie pulmonaire massive, tamponnade, pneumothorax compressif), où le cœur est normal mais empêché de se remplir ou d'éjecter.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — C'est la première cause : la nécrose étendue du ventricule gauche réduit la contractilité et le débit cardiaque.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Ces complications mécaniques provoquent une surcharge brutale (fuite mitrale aiguë, shunt gauche-droite) avec effondrement du débit systémique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le rythme rapide réduit le remplissage diastolique et le débit cardiaque ; les troubles du rythme et de la conduction sont des causes rythmiques de choc cardiogénique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'inflammation myocardique diffuse entraîne une dysfonction ventriculaire sévère et brutale, volontiers chez le sujet jeune.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Ces cardiotropes diminuent la contractilité et la fréquence cardiaque : l'intoxication médicamenteuse est une cause toxique de choc cardiogénique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q3" data-type="QRM" data-correct="ABDE">
+  <div class="qhead"><span class="qnum">Q3</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Parmi les associations suivantes entre un tableau clinique et un mécanisme de choc, quelle(s) est/sont celle(s) qui est/sont correcte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Soif, pli cutané persistant, veines jugulaires plates, tachycardie : choc hypovolémique</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Pouls paradoxal, turgescence jugulaire, bruits du cœur assourdis : choc obstructif par tamponnade</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Urticaire généralisée, bronchospasme et hypotension après une injection : choc cardiogénique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Extrémités froides et marbrées, crépitants bilatéraux, galop gauche : choc cardiogénique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Fièvre, extrémités chaudes, pression artérielle diastolique basse : choc distributif d'origine septique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D, E</div>
+    <div class="note"><div class="rappel">Quatre mécanismes à retenir : hypovolémique (perte de volume), cardiogénique (défaillance de la pompe), obstructif (obstacle au remplissage ou à l'éjection) et distributif (vasoplégie).</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — La baisse de la précharge vide les jugulaires, et la vasoconstriction et la tachycardie compensatrices sont habituelles en cas de perte de volume (déshydratation, hémorragie).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le liquide péricardique sous pression comprime les cavités droites : le retour veineux se bloque (jugulaires turgescentes) et le débit chute malgré un cœur normal.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Ce tableau est celui de l'anaphylaxie, choc distributif par vasodilatation et fuite capillaire, et non d'une défaillance de la pompe cardiaque.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le bas débit entraîne une vasoconstriction périphérique, et l'élévation des pressions de remplissage gauches une congestion pulmonaire.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La vasoplégie abaisse la pression diastolique et garde les extrémités chaudes au début ; la fièvre oriente vers un sepsis.</div>
+  </div>
+</div>
+
+<div class="q" id="Q4" data-type="QRM" data-correct="ABD">
+  <div class="qhead"><span class="qnum">Q4</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous êtes de garde aux urgences. Un homme de 62 ans est en état de choc : pression artérielle à 80/55 mmHg, fréquence cardiaque à 118/min, extrémités marbrées. Les veines jugulaires sont turgescentes en position demi-assise et l'auscultation pulmonaire est normale et symétrique. Quelle(s) cause(s) ce tableau doit-il faire évoquer ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une tamponnade</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une embolie pulmonaire à haut risque</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un pneumothorax compressif</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un infarctus du myocarde étendu au ventricule droit</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un choc hémorragique par rupture d'un anévrisme de l'aorte abdominale</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, B, D</div>
+    <div class="note"><div class="rappel">Au cours d'un choc, une turgescence jugulaire traduit une pression veineuse centrale élevée : défaillance du ventricule droit ou obstacle au remplissage ou à l'éjection du cœur droit. Elle éloigne des chocs hypovolémiques et distributifs.</div></div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le liquide péricardique sous pression empêche le remplissage des cavités droites : jugulaires turgescentes, poumons clairs, bruits du cœur assourdis et pouls paradoxal.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'obstruction brutale de la circulation pulmonaire entraîne une défaillance aiguë du ventricule droit, sans congestion pulmonaire ; l'échocardiographie au lit montre un ventricule droit dilaté.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Il donne aussi une turgescence jugulaire, mais avec une abolition unilatérale du murmure vésiculaire et un tympanisme : une auscultation normale et symétrique l'écarte.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Le ventricule droit infarci ne propulse plus le sang vers les poumons : la pression veineuse monte sans œdème pulmonaire ; l'ECG recherche un sus-décalage du segment ST en V3R-V4R.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La perte de volume abaisse la précharge et vide les veines jugulaires ; une turgescence jugulaire est un argument contre un choc hypovolémique.</div>
+  </div>
+</div>
+
+<div class="q" id="Q5" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q5</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous êtes de garde aux urgences. Un homme de 68 ans, sans antécédent connu, est amené pour un malaise. Il est pâle, la pression artérielle est à 76/48 mmHg, la fréquence cardiaque à 122/min, la SpO2 à 93 % en air ambiant et les extrémités sont froides et marbrées. Vous concluez à un état de choc dont la cause n'est pas évidente. Quel(s) examen(s) demandez-vous en urgence ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un dosage des D-dimères pour éliminer une embolie pulmonaire</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Un électrocardiogramme 12 dérivations</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un scanner corps entier injecté avant tout geste de réanimation</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une échocardiographie transthoracique au lit</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une lactatémie et des gaz du sang artériels</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Chez un patient en choc, la probabilité clinique d'embolie pulmonaire n'est pas faible : les D-dimères ne peuvent pas l'exclure et retardent la décision, alors que l'échocardiographie au lit oriente en quelques minutes.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Il recherche un syndrome coronarien aigu, un trouble du rythme ou de la conduction, un retentissement droit d'embolie pulmonaire ou un microvoltage de tamponnade ; il se fait au lit, en quelques minutes.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Transporter un patient instable avant de l'avoir stabilisé l'expose à l'arrêt cardiaque ; l'imagerie se demande ensuite, ciblée par l'orientation clinique et échographique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elle oriente le mécanisme en quelques minutes : fonction ventriculaire gauche, dilatation du ventricule droit, épanchement péricardique compressif, taille et collapsus de la veine cave inférieure.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le lactate quantifie l'hypoperfusion et guide la surveillance ; les gaz du sang recherchent l'acidose métabolique et l'hypoxémie.</div>
+  </div>
+</div>
+
+<div class="q" id="Q6" data-type="QRM" data-correct="AC">
+  <div class="qhead"><span class="qnum">Q6</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant la prise en charge initiale d'un état de choc, quelle(s) est/sont la/les proposition(s) exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Le patient doit être pris en charge dans une structure permettant un monitorage continu et une réanimation (salle de déchocage, unité de soins intensifs ou réanimation)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une voie veineuse centrale doit être posée avant toute perfusion</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Le traitement de la cause est entrepris en même temps que la réanimation symptomatique, sans attendre que le diagnostic soit complet</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Un bilan biologique complet doit être rendu avant de débuter tout traitement</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un remplissage vasculaire est indiqué d'emblée quel que soit le mécanisme du choc</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le choc est une urgence vitale évolutive : il impose une surveillance continue (scope, pression artérielle, SpO2, diurèse) et la possibilité de recourir aux catécholamines et à la ventilation.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Deux voies veineuses périphériques de bon calibre (ou une voie intra-osseuse en cas d'échec) suffisent pour débuter le remplissage ; la voie centrale ne doit pas retarder le traitement.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La survie dépend de la correction rapide du mécanisme (antibiotiques, hémostase, reperfusion coronaire, drainage) ; la stabilisation hémodynamique ne fait que gagner du temps.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les prélèvements sont faits pendant la pose des voies d'abord, mais on n'attend aucun résultat pour traiter un patient en choc.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Il est inutile ou délétère en cas d'œdème pulmonaire cardiogénique, et il ne remplace pas le drainage d'un pneumothorax compressif ou d'une tamponnade : il faut d'abord identifier le mécanisme.</div>
+  </div>
+</div>
+
+<div class="q" id="Q7" data-type="QRU" data-correct="D">
+  <div class="qhead"><span class="qnum">Q7</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous êtes de garde aux urgences. Une femme de 78 ans est en état de choc par déshydratation sévère (diarrhée aiguë profuse depuis quatre jours) : pression artérielle à 78/40 mmHg, fréquence cardiaque à 118/min, extrémités froides. Quel soluté utilisez-vous en première intention pour le remplissage vasculaire ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Du sérum glucosé à 5 %</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Un hydroxyéthylamidon</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">De l'albumine à 20 %</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un cristalloïde isotonique (sérum salé à 0,9 % ou soluté balancé)</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une gélatine fluide</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Une fois le glucose métabolisé, il équivaut à de l'eau libre qui se répartit dans tous les compartiments : peu efficace pour restaurer la volémie et responsable d'hyponatrémie.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Les hydroxyéthylamidons augmentent le risque d'insuffisance rénale aiguë et de décès chez les patients graves : ils ne sont plus recommandés.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle peut être discutée en complément quand de grands volumes de cristalloïdes sont nécessaires, mais ce n'est pas le soluté de première intention.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Peu coûteux, bien toléré et efficace, il est le soluté de première intention ; les solutés balancés limitent l'acidose hyperchlorémique des grands volumes.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Elle est moins bien tolérée (réactions allergiques, atteinte rénale) sans avantage sur les cristalloïdes : elle n'est pas recommandée.</div>
+  </div>
+</div>
+
+<div class="q" id="Q8" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">Q8</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous êtes médecin d'une équipe de SMUR. Un homme de 30 ans a été poignardé à la cuisse droite. Une plaie profonde saigne de façon pulsatile malgré un pansement compressif. Il est pâle, agité, marbré, conscient, avec une pression artérielle à 70/40 mmHg et une fréquence cardiaque à 138/min. Il n'a pas de traumatisme crânien. Quelle(s) mesure(s) mettez-vous en œuvre ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un remplissage massif par cristalloïdes pour obtenir une pression artérielle systolique à 120 mmHg avant le geste hémostatique</span></li>
+    <li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">La pose d'un garrot en amont de la plaie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une administration précoce d'acide tranexamique, dans les trois premières heures</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une transfusion précoce de concentrés de globules rouges, sans attendre le résultat de l'hémoglobine</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une cible de pression artérielle systolique de 80 à 90 mmHg jusqu'au contrôle du saignement</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Normaliser la pression d'une hémorragie non contrôlée relance le saignement et dilue les facteurs de coagulation, ce qui aggrave la triade létale (hypothermie, acidose, coagulopathie).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Une hémorragie exsanguinante d'un membre non contrôlée par la compression directe se traite par garrot : l'arrêt du saignement est la priorité absolue, avant tout remplissage.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Il réduit la mortalité par hémorragie du traumatisé lorsqu'il est donné précocement (1 g en 10 minutes puis 1 g sur 8 heures).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Dans un choc hémorragique, la décision repose sur l'importance du saignement et l'état hémodynamique ; l'hémoglobine initiale, encore peu modifiée, ne doit pas la retarder.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Cette hypotension permissive limite la reprise du saignement tant que l'hémostase n'est pas obtenue ; elle est contre-indiquée en cas de traumatisme crânien grave.</div>
+  </div>
+</div>
+
+<div class="q" id="Q9" data-type="QRM" data-correct="C">
+  <div class="qhead"><span class="qnum">Q9</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Chez ce patient pris en charge 30 minutes après le début de l'hémorragie, l'hémoglobine est mesurée à 13,8 g/dL (14 g/dL habituellement). Quelle(s) est/sont la/les conclusion(s) exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'hémorragie est peu abondante et la transfusion n'est pas nécessaire</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Le choc n'est pas d'origine hémorragique et une autre cause doit être recherchée</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">L'hémoglobine initiale ne reflète pas l'importance de la perte sanguine, car sa baisse n'apparaît qu'avec l'hémodilution</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Il faut contrôler l'hémoglobine à la 24e heure avant toute décision transfusionnelle</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">La transfusion ne devient légitime qu'à partir d'une hémoglobine inférieure à 7 g/dL</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'état clinique (pression effondrée, marbrures, tachycardie) témoigne d'une perte sanguine massive : la décision ne repose pas sur ce chiffre.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une hémorragie aiguë abondante est compatible avec une hémoglobine initiale normale, d'autant que la source est ici évidente, extériorisée et pulsatile.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le sang perdu a la même concentration en hémoglobine que le sang restant : la chute n'apparaît qu'après le transfert liquidien et le remplissage, plusieurs heures plus tard.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Attendre 24 heures est incompatible avec un choc hémorragique : la transfusion se décide sur la clinique et l'évolution hémodynamique.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Le seuil de 7 g/dL concerne l'anémie d'un patient stable ; dans une hémorragie active avec choc, on transfuse sans attendre de l'atteindre.</div>
+  </div>
+</div>
+
+<div class="q" id="Q10" data-type="QRM" data-correct="ACE">
+  <div class="qhead"><span class="qnum">Q10</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Une femme de 70 ans, suivie pour un cancer du sein métastatique, est amenée aux urgences pour une dyspnée d'aggravation rapide. La pression artérielle est à 78/55 mmHg, la fréquence cardiaque à 124/min. Les veines jugulaires sont turgescentes, les bruits du cœur sont assourdis et les champs pulmonaires sont clairs. La pression systolique baisse de 16 mmHg à l'inspiration. L'échocardiographie au lit montre un épanchement péricardique circonférentiel abondant avec collapsus diastolique des cavités droites. Concernant cette situation, quelle(s) est/sont la/les proposition(s) exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Il s'agit d'un choc obstructif</span></li>
+    <li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Un diurétique de l'anse par voie intraveineuse est indiqué pour diminuer la turgescence jugulaire</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">La baisse de la pression systolique de plus de 10 mmHg à l'inspiration correspond à un pouls paradoxal</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Des crépitants bilatéraux sont attendus à l'auscultation</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le traitement de référence est le drainage de l'épanchement péricardique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Le péricarde, rempli de liquide sous pression, comprime les cavités droites et empêche leur remplissage : le débit chute malgré une fonction systolique conservée.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La turgescence traduit la compression du cœur droit, dont le débit dépend de la précharge : un diurétique (comme un vasodilatateur) abaisse cette précharge, effondre le débit et peut précipiter l'arrêt cardiaque.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Dans un péricarde inextensible, le remplissage du ventricule droit à l'inspiration se fait aux dépens du gauche (interdépendance ventriculaire), d'où une baisse excessive de la pression systolique.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La tamponnade ne provoque pas d'œdème pulmonaire : les pressions de remplissage gauches sont basses et les champs pulmonaires restent clairs.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Seule l'évacuation du liquide (ponction sous échographie ou drainage chirurgical) lève la compression ; un remplissage ne sert que d'attente.</div>
+  </div>
+</div>
+
+<div class="q" id="Q11" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">Q11</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous êtes de garde aux urgences. Un homme de 58 ans, hypertendu, consulte pour une douleur thoracique constrictive évoluant depuis deux heures. La pression artérielle est à 78/50 mmHg, la fréquence cardiaque à 56/min, la SpO2 à 97 % en air ambiant. Les veines jugulaires sont turgescentes, l'auscultation pulmonaire est normale et les extrémités sont froides. L'électrocardiogramme montre un sus-décalage du segment ST en D2, D3 et aVF ; les dérivations droites montrent un sus-décalage en V4R. Concernant sa prise en charge, quelle(s) est/sont la/les proposition(s) exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">De la nitroglycérine par voie intraveineuse est le traitement de choix de la douleur</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Il s'agit d'un infarctus du myocarde inférieur avec atteinte du ventricule droit</span></li>
+    <li class="opt" data-l="C" data-correct="1" data-mandatory="1"><span class="box">C</span><span class="otext">Une coronarographie en urgence avec angioplastie est indiquée</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Des diurétiques de l'anse sont indiqués pour traiter la turgescence jugulaire</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un remplissage vasculaire prudent par petits bolus de cristalloïdes est indiqué</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Les dérivés nitrés abaissent la précharge, dont dépend le ventricule droit : ils provoquent une chute brutale du débit et de la pression artérielle, et sont contre-indiqués.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Le sus-décalage en D2, D3 et aVF désigne le territoire inférieur (coronaire droite) et celui de V4R l'atteinte du ventricule droit, expliquant la turgescence jugulaire avec poumons clairs.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le traitement est la reperfusion de la coronaire droite, sans attendre ni la troponine ni la stabilisation complète.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — La turgescence reflète la défaillance du ventricule droit, pas une surcharge du ventricule gauche ; les diurétiques réduisent la précharge et aggravent le choc.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le ventricule droit infarci dépend de sa précharge ; le remplissage est réévalué après chaque bolus car un excès dilate le ventricule droit et comprime le gauche.</div>
+  </div>
+</div>
+
+<div class="q" id="Q12" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q12</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant les états de choc distributifs non septiques, quelle(s) est/sont la/les proposition(s) exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Les corticoïdes et les antihistaminiques sont le traitement de première ligne du choc anaphylactique</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Le choc anaphylactique est un choc distributif, par vasodilatation et fuite capillaire</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Le choc neurogénique s'accompagne typiquement d'une tachycardie et d'extrémités froides</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">En cas d'hypotension persistante malgré l'adrénaline intramusculaire, un remplissage vasculaire par cristalloïdes est associé</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Chez un traumatisé hypotendu porteur d'une lésion médullaire, l'hypotension est d'abord attribuée à un choc neurogénique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Leur action est trop lente et ils ne traitent ni le collapsus ni le bronchospasme : seule l'adrénaline est un traitement de première ligne.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Les médiateurs libérés par les mastocytes (histamine notamment) dilatent les vaisseaux et augmentent leur perméabilité : le volume efficace chute malgré un volume sanguin total normal.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La lésion médullaire haute interrompt le contrôle sympathique : le tableau associe hypotension, bradycardie et extrémités chaudes.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — La vasodilatation et la fuite capillaire créent une hypovolémie relative importante : le remplissage accompagne l'adrénaline, dont la voie intraveineuse titrée sous monitorage est réservée aux formes réfractaires.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Chez un traumatisé, toute hypotension est hémorragique jusqu'à preuve du contraire : le choc neurogénique est un diagnostic d'exclusion, après recherche d'un saignement.</div>
+  </div>
+</div>
+
+<div class="q" id="Q13" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">Q13</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Concernant le diagnostic d'un état de choc, quelle(s) est/sont la/les proposition(s) exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une pression artérielle normale élimine un état de choc</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Chez un patient hypertendu, une pression systolique de 105 mmHg peut traduire un état de choc si elle est très inférieure aux valeurs habituelles</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un temps de recoloration cutané inférieur à 3 secondes est un signe d'hypoperfusion</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'absence de fièvre élimine un choc septique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Chez un patient traité par bêtabloquant, l'absence de tachycardie n'élimine pas un état de choc</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Au stade de choc compensé, la vasoconstriction maintient la pression artérielle alors que la perfusion des organes est déjà altérée.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'hypotension se juge par rapport à la pression habituelle (chute de plus de 40 mmHg) et doit être confrontée aux signes d'hypoperfusion.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Le seuil pathologique est un temps supérieur à 3 secondes, à la pulpe d'un doigt ou au genou.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Le sepsis grave peut s'accompagner d'une hypothermie, en particulier chez le sujet âgé, le nouveau-né et l'immunodéprimé.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le bêtabloquant empêche l'accélération cardiaque compensatrice : les signes d'hypoperfusion (marbrures, oligurie, troubles de conscience, lactate) prennent alors le relais.</div>
+  </div>
+</div>
+
+<div class="sect">DP — Femme de 76 ans, confusion et douleur du flanc droit</div>
+
+<div class="q" id="Q14" data-type="QRP" data-correct="ADEH">
+  <div class="qhead"><span class="qnum">Q14</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRP · 4 réponses</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Vous êtes de garde aux urgences. Mme L., 76 ans, 60 kg, diabétique de type 2, est amenée par ses enfants car elle est confuse depuis ce matin. Depuis deux jours, elle se plaint de brûlures mictionnelles et d'une douleur du flanc droit, et elle a eu des frissons cette nuit. Ses enfants rapportent qu'elle n'a presque pas uriné depuis ce matin. À l'examen : température 39,4 °C, fréquence cardiaque 126/min, pression artérielle 82/41 mmHg, fréquence respiratoire 28/min, SpO2 94 % en air ambiant, score de Glasgow à 13. Les genoux sont marbrés et le temps de recoloration cutané est de 4 secondes.</div>
+  <div class="stem">Sélectionnez les 4 signes cliniques d'hypoperfusion tissulaire présents chez cette patiente.</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1"><span class="box">A</span><span class="otext">Une confusion (score de Glasgow à 13)</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une température à 39,4 °C</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Des brûlures mictionnelles</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Des marbrures des genoux</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Une oligurie</span></li>
+    <li class="opt" data-l="F" data-correct="0"><span class="box">F</span><span class="otext">Des frissons nocturnes</span></li>
+    <li class="opt" data-l="G" data-correct="0"><span class="box">G</span><span class="otext">Une douleur du flanc droit</span></li>
+    <li class="opt" data-l="H" data-correct="1"><span class="box">H</span><span class="otext">Un temps de recoloration cutané allongé (4 secondes)</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, D, E, H</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — L'hypoperfusion cérébrale se traduit par une altération de la conscience, qui est un signe de gravité du choc.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — La fièvre est un signe d'infection, pas d'hypoperfusion : elle peut exister dans un choc septique comme manquer.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — C'est un symptôme du point d'appel urinaire, sans rapport avec la perfusion des organes.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elles traduisent la vasoconstriction et l'hypoperfusion cutanée ; leur étendue est corrélée à la gravité et à la mortalité.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La diminution de la diurèse (moins de 0,5 mL/kg/h) reflète l'hypoperfusion rénale et la baisse du débit de filtration.</div>
+    <div class="citem v-faux"><span class="cl">F.</span> <span class="cv">FAUX</span> — Ils orientent vers une bactériémie, mais ne témoignent pas d'une souffrance tissulaire.</div>
+    <div class="citem v-faux"><span class="cl">G.</span> <span class="cv">FAUX</span> — Elle oriente vers l'origine de l'infection, mais n'est pas un signe d'hypoperfusion.</div>
+    <div class="citem v-vrai"><span class="cl">H.</span> <span class="cv">VRAI</span> — Un temps supérieur à 3 secondes traduit un ralentissement de la perfusion cutanée, signe précoce d'hypoperfusion.</div>
+  </div>
+</div>
+
+<div class="q" id="Q15" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q15</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous concluez à un état de choc. Quelle(s) mesure(s) mettez-vous en place immédiatement ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">L'attente du résultat de l'ECBU avant de débuter le traitement</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">La pose de deux voies veineuses périphériques de bon calibre</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un scanner cérébral injecté avant tout traitement, en raison de la confusion</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Un remplissage vasculaire par cristalloïdes, avec réévaluation clinique après chaque bolus</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Le transfert dans une unité de réanimation ou de soins intensifs</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le choc septique est une urgence vitale : le remplissage et l'antibiothérapie ne dépendent d'aucun résultat microbiologique, qui ne sera connu qu'après 24 à 48 heures.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elles permettent le remplissage rapide et l'antibiothérapie sans attendre une voie centrale, dont la pose ne doit pas retarder le traitement.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La confusion s'explique ici par l'hypoperfusion cérébrale et le sepsis ; aucun signe de localisation n'impose l'imagerie, et transporter une patiente instable avant de la stabiliser est dangereux.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Il corrige l'hypovolémie relative du choc septique (vasodilatation, fuite capillaire) ; la réévaluation (pression artérielle, marbrures, diurèse, tolérance respiratoire) permet de s'arrêter dès que la réponse est suffisante.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Un choc septique nécessite des catécholamines, une surveillance continue et parfois une suppléance d'organe : il relève de la réanimation.</div>
+  </div>
+</div>
+
+<div class="q" id="Q16" data-type="QRM" data-correct="BCE">
+  <div class="qhead"><span class="qnum">Q16</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous complétez l'examen : les veines jugulaires ne sont pas turgescentes, l'auscultation cardiopulmonaire est normale, l'abdomen est souple et la fosse lombaire droite est douloureuse à l'ébranlement. La bandelette urinaire est positive pour les leucocytes et les nitrites. L'échocardiographie au lit montre une fonction ventriculaire gauche conservée, des cavités droites de taille normale, pas d'épanchement péricardique et une veine cave inférieure plate. Quel(s) élément(s) vont dans le sens d'un choc septique, de mécanisme distributif ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La tachycardie, qui n'existe pas dans les autres types de choc</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">L'absence de dysfonction ventriculaire gauche et de signe d'obstacle à l'échocardiographie</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une pression artérielle diastolique basse (41 mmHg)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Les marbrures des genoux, spécifiques du choc septique</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un contexte infectieux net : fièvre, frissons, signes urinaires et bandelette urinaire positive</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — La tachycardie est une réponse commune à tous les états de choc : elle n'a aucune valeur discriminante.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Une fonction ventriculaire gauche conservée écarte un choc cardiogénique, et l'absence d'épanchement compressif ou de dilatation des cavités droites écarte un choc obstructif ; il reste un choc hypovolémique ou distributif.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La chute des résistances vasculaires abaisse surtout la pression diastolique (pression pulsée relativement large), alors que la vasoconstriction la préserve dans les autres chocs.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les marbrures traduisent l'hypoperfusion cutanée et se voient dans tous les types de choc : elles ne sont pas spécifiques.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Un sepsis avec point d'appel urinaire évident est la cause la plus probable de la vasoplégie, une fois écartées les autres causes (hémorragie, cardiopathie).</div>
+  </div>
+</div>
+
+<div class="q" id="Q17" data-type="QRM" data-correct="BD">
+  <div class="qhead"><span class="qnum">Q17</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Un ECBU a déjà été prélevé. Quel(s) autre(s) examen(s) demandez-vous en urgence ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un dosage de la procalcitonine, dont le résultat conditionne le début de l'antibiothérapie</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une lactatémie</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Une ponction lombaire</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Deux hémocultures, à prélever avant l'antibiothérapie sans la retarder</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Un dosage de la troponine pour éliminer un infarctus avant de retenir le sepsis</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Face à un choc septique probable, l'antibiothérapie ne dépend d'aucun marqueur biologique : la procalcitonine n'a pas de place dans la décision de traiter.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle objective l'hypoperfusion, définit avec la nécessité de vasopresseurs le choc septique (valeur supérieure à 2 mmol/L) et sert de repère de suivi.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La confusion s'explique par le choc et le sepsis ; en l'absence de signe méningé ou de céphalées, la ponction n'est pas systématique.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Elles documentent la bactériémie et permettent d'adapter le traitement ; leur prélèvement ne doit en aucun cas différer l'antibiothérapie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — La troponine est souvent élevée au cours du choc septique (atteinte myocardique), et la clinique oriente déjà vers une origine infectieuse : on n'écarte pas le sepsis sur la base de ce dosage.</div>
+  </div>
+</div>
+
+<div class="q" id="Q18" data-type="QRM" data-correct="ACDE">
+  <div class="qhead"><span class="qnum">Q18</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Les prélèvements sont réalisés. Concernant l'antibiothérapie, quelle(s) est/sont la/les proposition(s) exacte(s) ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="1" data-mandatory="1"><span class="box">A</span><span class="otext">Elle doit être administrée dans l'heure qui suit la reconnaissance du choc septique</span></li>
+    <li class="opt" data-l="B" data-correct="0" data-unacceptable="1"><span class="box">B</span><span class="otext">Elle peut attendre le résultat des hémocultures si la patiente reste stable après le remplissage</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Elle est probabiliste, par voie intraveineuse, active sur les entérobactéries</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Elle associe habituellement une bêta-lactamine intraveineuse et un aminoside de courte durée dans ce choc septique d'origine urinaire</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La première dose est administrée à dose pleine, même en cas d'insuffisance rénale, l'adaptation ne concernant que les doses suivantes</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : A, C, D, E</div>
+    <div class="citem v-vrai"><span class="cl">A.</span> <span class="cv">VRAI</span> — Chaque heure de retard augmente la mortalité du choc septique : c'est, avec le contrôle de la source, la mesure thérapeutique la plus déterminante.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — Une patiente en choc n'est pas « stable » : l'antibiothérapie ne dépend d'aucun résultat, et son retard est associé à une surmortalité.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Le germe n'est pas connu avant 24 à 48 heures : le choix repose sur le site de l'infection et l'écologie probable (ici, bacilles à Gram négatif d'origine urinaire).</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — L'association élargit le spectre et accélère la bactéricidie au cours du choc ; l'aminoside est limité à une ou deux injections pour éviter la néphrotoxicité.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Le volume de distribution est augmenté dans le sepsis : réduire la première dose exposerait à un sous-dosage initial, alors que l'accumulation du médicament ne se juge que sur les doses répétées.</div>
+  </div>
+</div>
+
+<div class="q" id="Q19" data-type="QRU" data-correct="B">
+  <div class="qhead"><span class="qnum">Q19</span><span class="qrank rang-a">Rang A</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le scanner sans injection, réalisé en urgence après stabilisation, retrouve une lithiase de 8 mm de l'uretère lombaire droit avec une dilatation pyélocalicielle en amont. Quelle est la prise en charge de la cause ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une antibiothérapie seule, avec une lithotritie programmée à distance de l'épisode</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une dérivation en urgence des urines (sonde urétérale ou néphrostomie percutanée), en complément de l'antibiothérapie</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un traitement médical expulsif par alphabloquant et antalgiques</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une néphrectomie en urgence</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une surveillance en réanimation sous antibiothérapie, la dérivation n'étant discutée qu'en cas d'échec à 72 heures</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Un obstacle infecté ne se stérilise pas par les seuls antibiotiques : l'urine sous pression est un abcès potentiel, et le temps perdu aggrave le choc.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — L'association obstacle et infection est une urgence urologique : le contrôle de la source par drainage des urines est indispensable pour juguler le choc septique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Il convient à une colique néphrétique non compliquée ; il n'a pas sa place devant une obstruction infectée associée à un choc.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle n'est envisagée qu'en cas de rein détruit ou de pyonéphrose non drainable ; le drainage conservateur est la règle.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — Attendre 72 heures expose à la persistance du choc et à la défaillance d'organes ; le drainage est réalisé en urgence, sans délai d'observation.</div>
+  </div>
+</div>
+
+<div class="q" id="Q20" data-type="QRU" data-correct="E">
+  <div class="qhead"><span class="qnum">Q20</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Après un remplissage de 30 mL/kg de cristalloïdes, l'antibiothérapie débutée et la dérivation des urines organisée, la pression artérielle reste à 70/35 mmHg (pression artérielle moyenne à 47 mmHg) et la lactatémie à 5,1 mmol/L. Quel médicament vasoactif débutez-vous ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">La dopamine</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">La dobutamine</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">L'adrénaline</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">L'éphédrine</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La noradrénaline</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Elle expose à davantage de troubles du rythme que la noradrénaline sans bénéfice sur la mortalité : elle n'est plus recommandée en première intention.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — C'est un inotrope, utile seulement si un bas débit est démontré (échocardiographie) malgré une pression restaurée ; elle n'est pas un vasopresseur de première intention.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Elle est réservée aux échecs de la noradrénaline (deuxième ligne), car elle augmente la lactatémie et les troubles du rythme.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Son effet est bref et sujet à la tachyphylaxie : elle sert à corriger une hypotension transitoire en anesthésie, pas un choc prolongé.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Vasoconstricteur alpha-adrénergique puissant, elle restaure la pression artérielle moyenne avec moins d'effets rythmiques ; elle peut être débutée sur une voie périphérique de bon calibre en attendant la voie centrale.</div>
+  </div>
+</div>
+
+<div class="q" id="Q21" data-type="QRM" data-correct="BCDE">
+  <div class="qhead"><span class="qnum">Q21</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">La noradrénaline est débutée au pousse-seringue électrique. Quel(s) élément(s) vous permettent de juger de l'efficacité de la réanimation au bout de quelques heures ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Une pression artérielle systolique supérieure à 140 mmHg</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une pression artérielle moyenne supérieure ou égale à 65 mmHg</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une diurèse supérieure à 0,5 mL/kg/h</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">La disparition des marbrures et la normalisation du temps de recoloration cutané</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">La diminution de la lactatémie</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, C, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — L'objectif est une pression artérielle moyenne de 65 mmHg ; viser plus haut expose à davantage de catécholamines et de troubles du rythme (une cible plus élevée ne se discute que chez l'hypertendu chronique).</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — C'est la pression de perfusion minimale qui garantit un débit sanguin suffisant dans les organes, et la cible initiale des vasopresseurs.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — La reprise de la diurèse témoigne de la restauration de la perfusion rénale ; chez cette patiente de 60 kg, elle dépasse 30 mL/h.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Ces signes cutanés sont des reflets directs de la perfusion périphérique et de bons guides de l'efficacité de la réanimation.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La baisse du lactate à des mesures répétées indique que l'oxygénation tissulaire s'améliore, même si d'autres causes de lactate élevé existent.</div>
+  </div>
+</div>
+
+<div class="sect">DP — Homme de 64 ans, douleur thoracique et dyspnée</div>
+
+<div class="q" id="Q22" data-type="QROC" data-correct="" data-answer="choc cardiogénique | cardiogénique | un choc cardiogénique | état de choc cardiogénique | choc cardiogenique | choc cardiogénique sur infarctus du myocarde | choc cardiogénique sur infarctus | choc cardiogénique par infarctus du myocarde | choc cardiogénique compliquant un infarctus | choc cardiogénique ischémique | choc cardiogénique d&#x27;origine ischémique | choc cardiogénique (infarctus du myocarde) | choc cardiogénique sur SCA ST+">
+  <div class="qhead"><span class="qnum">Q22</span><span class="qrank rang-a">Rang A</span><span class="qtype">QROC</span><span class="status" aria-live="polite"></span></div>
+  <div class="dpctx">Vous êtes de garde aux urgences. M. D., 64 ans, tabagique actif, hypertendu, est amené par le SAMU pour une douleur thoracique constrictive apparue il y a 4 heures, associée à une dyspnée croissante. À l'examen : pression artérielle 84/62 mmHg aux deux bras, fréquence cardiaque 112/min, fréquence respiratoire 32/min, SpO2 88 % en air ambiant. Il est en sueurs, les extrémités sont froides et marbrées. L'auscultation retrouve un bruit de galop et des crépitants dans les deux champs pulmonaires jusqu'aux sommets. L'électrocardiogramme montre un sus-décalage du segment ST de V1 à V6, en D1 et en aVL.</div>
+  <div class="stem">Quel type d'état de choc présente ce patient ?</div>
+  <textarea class="qrocin" rows="2" placeholder="Réponds, puis « Valider »"></textarea>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="qrocans">Réponse attendue : Choc cardiogénique (compliquant un infarctus du myocarde antérieur étendu)</div>
+    <div class="note"><div class="rappel">Le tableau associe une hypotension, des signes d'hypoperfusion (sueurs, extrémités froides et marbrées) et des signes de congestion pulmonaire (crépitants jusqu'aux sommets, galop, hypoxémie) : la pompe cardiaque est défaillante. Le sus-décalage du segment ST de V1 à V6, en D1 et en aVL désigne un infarctus antérieur étendu comme cause.</div></div>
+  </div>
+</div>
+
+<div class="q" id="Q23" data-type="QRM" data-correct="BDE">
+  <div class="qhead"><span class="qnum">Q23</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Vous avez prévenu le cardiologue interventionnel. En attendant le transfert en salle de coronarographie, quel(s) examen(s) réalisez-vous ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un dosage de la troponine, dont le résultat conditionne la décision de coronarographie</span></li>
+    <li class="opt" data-l="B" data-correct="1"><span class="box">B</span><span class="otext">Une échocardiographie transthoracique au lit</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un scanner thoracique injecté pour éliminer une dissection aortique</span></li>
+    <li class="opt" data-l="D" data-correct="1"><span class="box">D</span><span class="otext">Une lactatémie et des gaz du sang artériels</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un ionogramme sanguin, une créatininémie, une numération formule sanguine et un bilan d'hémostase</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, D, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le diagnostic d'infarctus avec sus-décalage du segment ST est électrique : la reperfusion ne dépend pas de la biologie, dont le résultat ne ferait que retarder le geste.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — Elle évalue la fonction ventriculaire gauche, recherche une complication mécanique (fuite mitrale aiguë, communication interventriculaire), une atteinte du ventricule droit et un épanchement péricardique.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — La douleur typique et le sus-décalage du segment ST dans un territoire coronaire orientent vers un syndrome coronarien aigu ; l'échocardiographie recherche les signes de dissection et un scanner retarderait la reperfusion.</div>
+    <div class="citem v-vrai"><span class="cl">D.</span> <span class="cv">VRAI</span> — Ils quantifient l'hypoperfusion et l'acidose, et mesurent l'hypoxémie qui guide l'oxygénothérapie ou la ventilation.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — Ce bilan préinterventionnel (kaliémie, fonction rénale avant l'iode, hémoglobine, plaquettes et coagulation) est prélevé sans retarder la coronarographie.</div>
+  </div>
+</div>
+
+<div class="q" id="Q24" data-type="QRM" data-correct="BE">
+  <div class="qhead"><span class="qnum">Q24</span><span class="qrank rang-mixte">Rang A/B</span><span class="qtype">QRM</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Le patient est dirigé vers la salle de coronarographie. Quel(s) traitement(s) mettez-vous en œuvre sans délai ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0" data-unacceptable="1"><span class="box">A</span><span class="otext">Un bêtabloquant par voie intraveineuse pour ralentir la fréquence cardiaque et diminuer la consommation d'oxygène</span></li>
+    <li class="opt" data-l="B" data-correct="1" data-mandatory="1"><span class="box">B</span><span class="otext">Une coronarographie en urgence avec angioplastie de l'artère coupable</span></li>
+    <li class="opt" data-l="C" data-correct="0"><span class="box">C</span><span class="otext">Un remplissage vasculaire de 1 000 mL de cristalloïdes en 30 minutes</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">De la nitroglycérine par voie intraveineuse pour soulager la douleur et l'œdème pulmonaire</span></li>
+    <li class="opt" data-l="E" data-correct="1"><span class="box">E</span><span class="otext">Un support par noradrénaline et/ou dobutamine, selon la pression artérielle et le bas débit</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : B, E</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — En choc cardiogénique, la tachycardie compense un volume d'éjection effondré : un bêtabloquant retire ce mécanisme et aggrave le bas débit. Il est contre-indiqué.</div>
+    <div class="citem v-vrai"><span class="cl">B.</span> <span class="cv">VRAI</span> — La revascularisation précoce est le seul traitement étiologique du choc cardiogénique ischémique et améliore la survie, quel que soit le délai depuis le début des symptômes.</div>
+    <div class="citem v-faux"><span class="cl">C.</span> <span class="cv">FAUX</span> — Les pressions de remplissage gauches sont déjà élevées (crépitants jusqu'aux sommets) : le remplissage aggraverait l'œdème pulmonaire.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Les dérivés nitrés sont contre-indiqués lorsque la pression systolique est basse : ils aggraveraient l'hypotension et l'hypoperfusion.</div>
+    <div class="citem v-vrai"><span class="cl">E.</span> <span class="cv">VRAI</span> — La noradrénaline restaure la pression de perfusion et la dobutamine augmente le débit cardiaque ; leur association est ajustée sur la clinique et l'échocardiographie.</div>
+  </div>
+</div>
+
+<div class="q" id="Q25" data-type="QRU" data-correct="C">
+  <div class="qhead"><span class="qnum">Q25</span><span class="qtype">QRU</span><span class="status" aria-live="polite"></span></div>
+  <div class="stem">Malgré une angioplastie réussie et des doses croissantes de noradrénaline et de dobutamine, le patient reste en choc cardiogénique avec une lactatémie à 7 mmol/L. L'échocardiographie montre une fraction d'éjection ventriculaire gauche à 15 %. Il n'a aucune comorbidité majeure. Quelle option discutez-vous avec l'équipe de réanimation ?</div>
+  <ul class="opts">
+    <li class="opt" data-l="A" data-correct="0"><span class="box">A</span><span class="otext">Un remplissage vasculaire massif pour augmenter la précharge</span></li>
+    <li class="opt" data-l="B" data-correct="0"><span class="box">B</span><span class="otext">Une fibrinolyse intraveineuse</span></li>
+    <li class="opt" data-l="C" data-correct="1"><span class="box">C</span><span class="otext">Une assistance circulatoire mécanique (oxygénation par membrane extracorporelle veino-artérielle)</span></li>
+    <li class="opt" data-l="D" data-correct="0"><span class="box">D</span><span class="otext">Une corticothérapie à forte dose</span></li>
+    <li class="opt" data-l="E" data-correct="0"><span class="box">E</span><span class="otext">Une contre-pulsion par ballon intra-aortique systématique</span></li>
+  </ul>
+  <div class="actions"><button class="validate">Valider</button><button class="show" type="button">Voir la réponse</button></div>
+  <div class="correction" hidden>
+    <div class="ans">Réponse : C</div>
+    <div class="citem v-faux"><span class="cl">A.</span> <span class="cv">FAUX</span> — Le ventricule gauche, déjà distendu, est incapable de transformer ce volume en débit : le remplissage ne ferait qu'aggraver l'œdème pulmonaire.</div>
+    <div class="citem v-faux"><span class="cl">B.</span> <span class="cv">FAUX</span> — L'artère coupable est déjà reperfusée par angioplastie ; la fibrinolyse n'apporterait que du risque hémorragique.</div>
+    <div class="citem v-vrai"><span class="cl">C.</span> <span class="cv">VRAI</span> — Dans un choc cardiogénique réfractaire aux catécholamines chez un patient sans contre-indication, une assistance circulatoire temporaire se discute au cas par cas avec un centre expert, en attendant la récupération, une greffe ou une assistance durable ; son usage systématique n'a pas montré de bénéfice.</div>
+    <div class="citem v-faux"><span class="cl">D.</span> <span class="cv">FAUX</span> — Elle n'a aucune efficacité démontrée sur la dysfonction ventriculaire ischémique ni sur la survie.</div>
+    <div class="citem v-faux"><span class="cl">E.</span> <span class="cv">FAUX</span> — L'essai IABP-SHOCK II n'a pas montré de bénéfice sur la mortalité : la contre-pulsion n'est pas recommandée en routine dans le choc cardiogénique.</div>
+  </div>
+</div>
+
+<footer>25 questions · Item 332 · D3 T3 UE 11.2 Urgences-Réanimation · BobMed entraînement. · Voir aussi : <a href="../Quiz_UE11.2_sujet_type.html">Sujet type UE 11.2 Urgences-Réanimation (D3 T3)</a> · <a href="../../../d2/t1/entrainement/Quiz_item157_sepsis.html">Item 157 — Sepsis et choc septique (D2 T1)</a> · <a href="../../../d2/t1/entrainement/Quiz_item339_sca.html">Item 339 — Syndrome coronarien aigu (D2 T1)</a> · <a href="../../../d2/t1/entrainement/Quiz_item226_embolie_pulmonaire.html">Item 226 — Embolie pulmonaire (D2 T1)</a> · <a href="../../../d2/t1/entrainement/Quiz_item235_pericardite.html">Item 235 — Péricardite (D2 T1)</a> · <a href="../../../d2/t1/entrainement/Quiz_item360_pneumothorax.html">Item 360 — Pneumothorax (D2 T1)</a> · <a href="../../../d2/t4/entrainement/Quiz_item334_polytraumatise.html">Item 334 — Polytraumatisé (D2 T4)</a></footer>
+</div>
+<script>
+const $ = s => document.querySelectorAll(s);
+function fmtPts(p){return(Math.round(p*100)/100).toString().replace('.',',')}
+function qPoints(disc,isQRU){if(isQRU)return disc===0?1:0;return disc===0?1:(disc===1?0.5:(disc===2?0.2:0))}
+
+function markSpecial(q){
+  const opts=[...q.querySelectorAll('.opt')];
+  const cits=[...q.querySelectorAll('.correction .citem')];
+  opts.forEach((o,i)=>{
+    const c=cits[i];if(!c)return;
+    if(o.dataset.mandatory==='1'&&!c.querySelector('.tag-mandatory')){
+      const t=document.createElement('span');t.className='tag-mandatory';t.textContent='indispensable';c.appendChild(t);
+    }
+    if(o.dataset.unacceptable==='1'&&!c.querySelector('.tag-unacceptable')){
+      const t=document.createElement('span');t.className='tag-unacceptable';t.textContent='inacceptable';c.appendChild(t);
+    }
+  });
+}
+
+function qrocNorm(s){return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[’'`]/g,' ').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function qrocAccept(q){var raw=q.dataset.answer||'';if(!raw){var a=q.querySelector('.qrocans')||q.querySelector('.qrocmodel');raw=a?a.textContent.replace(/^[^:]*:\s*/,''):'';}return raw.split(/\s*(?:\||\/|\bou\b)\s*/i).map(qrocNorm).filter(Boolean);}
+function qrocStatus(q,pts){var st=q.querySelector('.status');if(!st)return;st.textContent=(pts>=1?'1':'0')+' / 1';st.className='status '+(pts>=1?'ok':'ko');}
+function qrocSelfBox(q){if(q.dataset.result==='1')return;var c=q.querySelector('.correction');if(!c||c.querySelector('.selfassess'))return;var d=document.createElement('div');d.className='selfassess';var s=document.createElement('span');s.textContent='Votre réponse comptait-elle juste ?';var y=document.createElement('button');y.type='button';y.className='sa-yes';y.textContent="J'avais juste";var n=document.createElement('button');n.type='button';n.className='sa-no';n.textContent="J'avais faux";d.appendChild(s);d.appendChild(y);d.appendChild(n);c.appendChild(d);}
+function qrocSelf(q,val){var inp=q.querySelector('.qrocin');if(inp){inp.classList.remove('good','bad');inp.classList.add(val?'good':'bad');}q.dataset.pts=val?1:0;q.dataset.result=val?'1':'0';qrocStatus(q,val?1:0);var box=q.querySelector('.selfassess');if(box){box.querySelectorAll('button').forEach(function(b){b.disabled=true;});var ch=box.querySelector(val?'.sa-yes':'.sa-no');if(ch)ch.classList.add('chosen');}updateScore();}
+function gradeQroc(q){if(q.classList.contains('done'))return;var inp=q.querySelector('.qrocin');var typed=qrocNorm(inp?inp.value:'');var acc=qrocAccept(q);var ok=typed.length>0&&acc.indexOf(typed)>=0;if(inp){inp.readOnly=true;inp.classList.add(ok?'good':'bad');}q.classList.add('done');var cor=q.querySelector('.correction');if(cor)cor.hidden=false;var v=q.querySelector('.validate');if(v)v.disabled=true;var nq=q.dataset.neutral==='1';q.dataset.pts=(ok||nq)?1:0;q.dataset.result=(ok||nq)?'1':'0';qrocStatus(q,(ok||nq)?1:0);if(nq){var _st=q.querySelector('.status');if(_st)_st.textContent+=' — question neutralisée (point accordé à tous)';}else if(!ok)qrocSelfBox(q);updateScore();unlockNext(q);}
+function grade(q){
+  if(q.dataset.type==='QROC'){gradeQroc(q);return;}
+  const correct=new Set(q.dataset.correct.split(''));
+  const sel=new Set([...q.querySelectorAll('.opt.sel')].map(o=>o.dataset.l));
+  let disc=0;
+  q.querySelectorAll('.opt').forEach(o=>{
+    const l=o.dataset.l,isC=correct.has(l),isS=sel.has(l);
+    o.classList.remove('sel');
+    // Item neutralisé par le jury : jamais compté (ni discordance, ni bonne réponse).
+    if(o.dataset.neutral==='1'){o.classList.add('neutral');const m=document.createElement('span');m.className='mark';m.textContent='neutralisé';o.appendChild(m);return;}
+    if(isC&&isS)o.classList.add('correct');
+    else if(!isC&&isS){o.classList.add('wrong');disc++;}
+    else if(isC&&!isS){o.classList.add('missed');disc++;}
+    let m=document.createElement('span');m.className='mark';
+    if(isC&&isS)m.textContent='✓';
+    else if(!isC&&isS)m.textContent='✗';
+    else if(isC&&!isS){m.textContent='manqué';m.style.color='var(--vrai)';}
+    if(m.textContent)o.appendChild(m);
+  });
+  const isQRU=q.dataset.type==='QRU';
+  const isProp=q.dataset.type==='QRP'||q.dataset.type==='QRPL'||q.dataset.type==='QZONE';const nExp=correct.size,good=[...sel].filter(l=>correct.has(l)).length;
+  let pts=isProp?(nExp>0?good/nExp:0):qPoints(disc,isQRU);
+  // TCS pondérée (plusieurs réponses validées par le jury) : points = poids data-w
+  // de l'option choisie, 0 si l'option n'est pas validée.
+  const isW=!!q.querySelector('.opt[data-w]');
+  if(isW){const _o=[...q.querySelectorAll('.opt')].find(o=>sel.has(o.dataset.l));pts=_o&&_o.dataset.w!==undefined?parseFloat(_o.dataset.w):0;q.querySelectorAll('.opt.missed .mark').forEach(m=>{m.textContent='validée';});}
+  const missMandatory=[...q.querySelectorAll('.opt[data-mandatory="1"]')].some(o=>!sel.has(o.dataset.l));
+  const hitUnacceptable=[...q.querySelectorAll('.opt[data-unacceptable="1"]')].some(o=>sel.has(o.dataset.l));
+  if(missMandatory||hitUnacceptable)pts=0;
+  // Question neutralisée par le jury : point accordé à tous, quelle que soit la réponse.
+  const isNQ=q.dataset.neutral==='1';if(isNQ)pts=1;
+  q.classList.add('done');
+  q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  const st=q.querySelector('.status');st.style.color='';
+  st.textContent=fmtPts(pts)+' / 1';
+  if(isProp)st.textContent+=' ('+good+'/'+nExp+' bonne'+(nExp>1?'s':'')+' réponse'+(nExp>1?'s':'')+')';
+  else if(!isQRU&&disc>0)st.textContent+=' ('+disc+' incohérence'+(disc>1?'s':'')+')';
+  if(isW&&pts>0&&pts<1)st.textContent+=' (réponse validée, pondérée par le jury)';
+  if(missMandatory)st.textContent+=' — item indispensable manqué';
+  if(hitUnacceptable)st.textContent+=' — item inacceptable coché';
+  if(isNQ)st.textContent+=' — question neutralisée (point accordé à tous)';
+  st.className='status '+(pts===1?'ok':(pts===0?'ko':'part'));
+  if(pts>0&&pts<1)st.style.color='#9a6a00';
+  q.querySelector('.validate').disabled=true;
+  q.dataset.pts=pts;q.dataset.result=pts===1?'1':'0';
+  updateScore();unlockNext(q);
+}
+
+function reveal(q,skipUnlock){
+  if(q.classList.contains('done'))return;
+  if(q.dataset.type!=='QROC'){
+    const correct=new Set(q.dataset.correct.split(''));
+    q.querySelectorAll('.opt').forEach(o=>{o.classList.remove('sel');if(correct.has(o.dataset.l))o.classList.add('correct');if(o.dataset.neutral==='1')o.classList.add('neutral');});
+    const v=q.querySelector('.validate');if(v)v.disabled=true;
+  }else{
+    const st=q.querySelector('.status');st.textContent='révélée';st.className='status rl';
+  }
+  q.classList.add('done');q.querySelector('.correction').hidden=false;
+  markSpecial(q);
+  if(q.dataset.pts===undefined)q.dataset.result='skip';
+  updateScore();if(!skipUnlock)unlockNext(q);
+}
+
+function updateScore(){
+  const qs=[...$('.q')];const all=qs.length;
+  const done=qs.filter(q=>q.classList.contains('done')).length;
+  const grad=qs.length;
+  let pts=0;
+  qs.forEach(q=>{if(q.dataset.pts!==undefined&&q.dataset.pts!=='')pts+=parseFloat(q.dataset.pts);});
+  const sd=document.getElementById('s-done');if(sd)sd.textContent=done+'/'+all;
+  const so=document.getElementById('s-ok');if(so)so.textContent=fmtPts(pts)+'/'+grad;
+}
+
+document.addEventListener('click',e=>{
+  const li=e.target.closest('.opt');
+  if(li){
+    const q=li.closest('.q');
+    if(!q.classList.contains('done')){
+      if(q.dataset.type==='QRU'){q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));li.classList.add('sel');}
+      else if(q.dataset.type==='QRP'||q.dataset.type==='QRPL'){const _mx=(q.dataset.correct||'').replace(/[^A-Za-z]/g,'').length;if(li.classList.contains('sel'))li.classList.remove('sel');else if(!_mx||q.querySelectorAll('.opt.sel').length<_mx)li.classList.add('sel');}
+      else{li.classList.toggle('sel');}
+    }
+    return;
+  }
+  const v=e.target.closest('.validate');if(v){grade(v.closest('.q'));return;}
+  const s=e.target.closest('.show');if(s){var _q=s.closest('.q');reveal(_q);if(_q.dataset.type==='QROC')qrocSelfBox(_q);return;}
+  var _sy=e.target.closest('.sa-yes');if(_sy){qrocSelf(_sy.closest('.q'),1);return;}
+  var _sn=e.target.closest('.sa-no');if(_sn){qrocSelf(_sn.closest('.q'),0);return;}
+});
+
+function initLocks(){
+  let nextFree=false,inDP=false;
+  for(const el of document.querySelector('.wrap').children){
+    if(el.classList.contains('sect')){inDP=/DP|KFP|TCS/.test(el.textContent);nextFree=inDP;continue;}
+    if(el.classList.contains('q')){if(nextFree){nextFree=false;}else if(inDP){el.classList.add('locked');}}
+  }
+}
+
+function unlockNext(q){
+  let el=q.nextElementSibling;
+  while(el){
+    if(el.classList.contains('sect'))break;
+    if(el.classList.contains('q')&&el.classList.contains('locked')){
+      el.classList.remove('locked');
+      setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+      break;
+    }
+    el=el.nextElementSibling;
+  }
+}
+
+const rb=document.getElementById('reset');if(rb)rb.addEventListener('click',()=>location.reload());
+const ra=document.getElementById('revealall');if(ra)ra.addEventListener('click',()=>{
+  $('.q.locked').forEach(q=>q.classList.remove('locked'));
+  $('.q').forEach(q=>reveal(q,true));
+});
+initLocks();updateScore();
+</script>
+<script src="../../../breadcrumb.js"></script>
+<script src="../../../dynamic-header.js"></script>
+<script src="../../../progress.js"></script>
+<script src="../../../qcopy.js"></script>
+</body></html>
