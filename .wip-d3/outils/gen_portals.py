@@ -7,8 +7,8 @@ usage: gen_portals.py [--dry-run]
 import html, json, re, sys
 from pathlib import Path
 
-SP = Path('/tmp/claude-0/-home-user/55cc2afb-deb2-5236-a438-a491d4be9ce0/scratchpad')
-R = Path('/home/user/bobmed')
+SP = Path('/tmp/claude-0/-home-claude/7a4938fa-b9af-5dfd-901b-b74fd346dc74/scratchpad')
+R = Path('/home/claude/bobmed')
 PLAN = json.loads((SP / 'plan_quizzes.json').read_text(encoding='utf-8'))
 DRY = '--dry-run' in sys.argv
 
@@ -148,7 +148,7 @@ def build_entrainement(t, groups):
 
 def item_label(q):
     nums = '/'.join(str(i) for i in q['entry']['items'])
-    name = re.sub(r'^Items? [\d/]+ — ', '', q['short'])
+    name = re.sub(r'^Items? [^—]+— ', '', q['short'])
     return f"{'Items' if len(q['entry']['items']) > 1 else 'Item'} {nums} {name}"
 
 
